@@ -1,0 +1,24 @@
+# ve-image-viewer
+
+
+
+<!-- Auto Generated Below -->
+
+
+## Properties
+
+| Property   | Attribute  | Description | Type     | Default     |
+| ---------- | ---------- | ----------- | -------- | ----------- |
+| `alt`      | `alt`      |             | `string` | `undefined` |
+| `compare`  | `compare`  |             | `string` | `undefined` |
+| `entities` | `entities` |             | `string` | `undefined` |
+| `fit`      | `fit`      |             | `string` | `undefined` |
+| `options`  | `options`  |             | `string` | `undefined` |
+| `seq`      | `seq`      |             | `number` | `undefined` |
+| `src`      | `src`      |             | `string` | `undefined` |
+| `user`     | `user`     |             | `any`    | `undefined` |
+
+
+----------------------------------------------
+
+*Built with [StencilJS](https://stenciljs.com/)*

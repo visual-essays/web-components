@@ -1,0 +1,68 @@
+:host > div {
+    margin-bottom: 12px;
+}
+
+ul {
+    list-style: none;
+    margin: 0;
+}
+
+.label, .value {
+    display: inline-flex;
+}
+
+.value {
+    display: inline;
+    line-height: 1.2rem;
+    /* These are technically the same, but use both */
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+
+    -ms-word-break: break-all;
+    /* This is the dangerous one in WebKit, as it breaks things wherever */
+    word-break: break-all;
+    /* Instead use this non-standard one: */
+    word-break: break-word;
+
+    /* Adds a hyphen where the word breaks, if supported (No Blink) */
+    -ms-hyphens: auto;
+    -moz-hyphens: auto;
+    -webkit-hyphens: auto;
+    hyphens: auto;
+}
+
+:host > div .label {
+    font-weight: bold;
+    min-width: 80px;
+    margin-right: 6px;
+}
+
+.label::after {
+    content: ":";
+}
+
+.logo {
+    padding-right: 6px;
+}
+
+.manifest-id,
+.manifest-label,
+.summary,
+.provider,
+.rights,
+.service,
+.imageData div,
+.thumbnail {
+    display: flex;
+}
+.metadata > ul,
+.requiredStatement ul {
+    padding-left: 24px;;
+}
+.metadata ul li,
+.requiredStatement ul li {
+    display: flex;
+}
+.metadata ul ul {
+    padding-left: 0;
+}

@@ -1,0 +1,40 @@
+{
+  "name": "visual-essays",
+  "version": "0.0.2",
+  "description": "IIIF Web Components",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.js",
+  "es2015": "dist/esm/index.mjs",
+  "es2017": "dist/esm/index.mjs",
+  "types": "dist/types/components.d.ts",
+  "collection": "dist/collection/collection-manifest.json",
+  "collection:main": "dist/collection/index.js",
+  "unpkg": "dist/visual-essays/visual-essays.esm.js",
+  "files": [
+    "dist/",
+    "loader/"
+  ],
+  "scripts": {
+    "build": "stencil build --docs",
+    "start": "stencil build --dev --watch --serve",
+    "generate": "stencil generate"
+  },
+  "dependencies": {
+    "@recogito/annotorious-openseadragon": "^2.7.2",
+    "@recogito/annotorious-toolbar": "^1.1.0",
+    "@stencil/core": "^2.14.2",
+    "js-sha256": "^0.9.0",
+    "lodash.debounce": "^4.0.8",
+    "lodash.throttle": "^4.1.1",
+    "openseadragon": "^3.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.4.1",
+    "@types/lodash.debounce": "^4.0.6",
+    "@types/openseadragon": "^3.0.2",
+    "jest": "^27.5.1",
+    "jest-cli": "^27.5.1",
+    "puppeteer": "^13.5.2"
+  },
+  "license": "MIT"
+}
