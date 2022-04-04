@@ -102,6 +102,7 @@ export class ImageViewer {
     } else {
       region = arg
     }
+    console.log(`zoomto: arg=${arg} region=${region}`)
     if (region) this.setRegion(region)
   }
 
