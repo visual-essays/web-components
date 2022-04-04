@@ -4,8 +4,8 @@ export async function getManifest(manifestId: string) {
   let manifestUrl = manifestId.indexOf('http') === 0
     ? manifestId
     : `${location.hostname === 'localhost' ? 'http://localhost:8088' : 'https://iiif.visual-essays.net'}/${manifestId}/manifest.json`
-  let resp = await fetch(manifestUrl)
-  if (resp.ok) return await resp.json() 
+  let manifests = await loadManifests([manifestUrl])
+  return manifests[0]
 }
 
 export function findItem(toMatch: object, current: object, seq: number = 1): any {
@@ -68,7 +68,12 @@ export async function loadManifests(manifestUrls: string[]) {
         ? manifestId
         : `${location.hostname === 'localhost' ? 'http://localhost:8088' : 'https://iiif.visual-essays.net'}/${manifestId}/manifest.json`
     )
-    .map(manifestUrl => fetch(manifestUrl, {headers: {'X-Requested-From': window.location.href}}) )
+    .map(manifestUrl => {
+      return fetch(manifestUrl,
+        ['localhost', 'iiif.visual-essays.net'].includes(new URL(manifestUrl).hostname)
+          ? {headers: {'X-Requested-From': window.location.href}}
+          : {}
+    )})
   let responses = await Promise.all(requests)
   return await Promise.all(responses.map((resp:any) => resp.json()))
 }
@@ -91,10 +96,10 @@ export async function imageDataUrl(url: string, region: any, dest: any): Promise
     let {width, height} = dest
     let image = new Image()
     image.crossOrigin = 'anonymous'
-    x = x === 0 ? x : x/100
-    y = y === 0 ? y : y/100
-    w = w === 0 ? w : w/100
-    h = h === 0 ? h : h/100
+    x = x ? x/100 : 0
+    y = y ? y/100 : 0
+    w = w ? w/100 : 0
+    h = h ? h/100 : 0
     image.onload = () => {
       let sw = image.width
       let sh = image.height
@@ -109,7 +114,7 @@ export async function imageDataUrl(url: string, region: any, dest: any): Promise
       canvas.height = height
       x = x*sw
       y = y*sh
-      // console.log(`x=${x} y=${y} swScaled=${swScaled} shScaled=${shScaled} width=${width} height=${height} ratio=${ratio}`)
+      // console.log(`x=${x} y=${y} sw=${sw} sh=${sh} swScaled=${swScaled} shScaled=${shScaled} width=${width} height=${height} ratio=${ratio}`)
       ctx.drawImage(image, x, y, swScaled, shScaled, 0, 0, width, height)
       let dataUrl = canvas.toDataURL()
       resolve(dataUrl)

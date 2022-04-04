@@ -162,7 +162,7 @@ export class ImageViewer {
               let arg = match[3]
               console.log(`click: method=${method} id=${elemId} seq=${seq} arg=${arg}`)
               if (seq) this._viewer.goToPage(parseInt(seq)-1)
-              if (method === 'zoomto') setTimeout(() => this.zoomto(arg), 100)
+              if (method === 'zoomto') setTimeout(() => this.zoomto(arg), 200)
             })
           }
         }
@@ -268,11 +268,15 @@ export class ImageViewer {
       }
     } else {
       const el = this.el.shadowRoot.querySelector('#osd')
-      let [x, y, width, height] = options.region.replace(/pct:/,'').split(',').map(s => s !== '' ? parseFloat(s) : undefined)
-      const region = {x, y, w: width, h: height}
-      const dest = {width: el.clientWidth, height: el.clientHeight}
-      let url = await imageDataUrl(imgUrl, region, dest)
-      return { url, type: 'image', buildPyramid: true }
+      if (options.region === 'full' || !this.compare) {
+        return { url:imgUrl, type: 'image', buildPyramid: true }
+      } else {
+        let [x, y, width, height] = options.region.replace(/pct:/,'').split(',').map(s => s !== '' ? parseFloat(s) : undefined)
+        const region = {x, y, w: width, h: height}
+        const dest = {width: el.clientWidth, height: el.clientHeight}
+        let url = await imageDataUrl(imgUrl, region, dest)
+        return { url, type: 'image', buildPyramid: true }
+      }
     }
   }
 
