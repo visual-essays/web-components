@@ -62,14 +62,13 @@ export function thumbnail(manifest: any) {
 }
 
 export async function loadManifests(manifestUrls: string[]) {
-  console.log(manifestUrls)
   let requests: any = manifestUrls
     .map(manifestId =>
       manifestId.indexOf('http') === 0
         ? manifestId
         : `${location.hostname === 'localhost' ? 'http://localhost:8088' : 'https://iiif.visual-essays.net'}/${manifestId}/manifest.json`
     )
-    .map(manifestUrl => fetch(manifestUrl) )
+    .map(manifestUrl => fetch(manifestUrl, {headers: {'X-Requested-From': window.location.href}}) )
   let responses = await Promise.all(requests)
   return await Promise.all(responses.map((resp:any) => resp.json()))
 }
