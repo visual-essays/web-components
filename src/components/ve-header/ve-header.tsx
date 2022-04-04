@@ -1,5 +1,5 @@
 import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
-import { parseImageOptions, imageInfo, imageDataUrl } from '../../utils'
+import { parseImageOptions, imageInfo, getManifest, imageDataUrl } from '../../utils'
 
 @Component({
   tag: 've-header',
@@ -45,7 +45,7 @@ export class Header {
   }
 
   _iiifUrl(serviceUrl: string, options: any) {
-    let size = `${this.host.clientWidth},${this.height}`
+    let size = `${this.host.clientWidth > 1000 ? 1000 : this.host.clientWidth},${this.height > 1000 ? 1000 : this.height}`
     let url = `${serviceUrl}/${options.region}/!${size}/${options.rotation}/${options.quality}.${options.format}`
     console.log('_iiifUrl', url)
     return url
@@ -86,15 +86,7 @@ export class Header {
 
   componentDidLoad() {  
     if (this.sticky) this.host.classList.add('sticky')  
-    this._getManifest(this.imgSrc).then(manifest => this._manifest = manifest)
-  }
-
-  async _getManifest(manifestId: string) {
-    let manifestUrl = manifestId.indexOf('http') === 0
-      ? manifestId
-      : `${location.hostname === 'localhost' ? 'http://localhost:8088' : 'https://iiif.visual-essays.net'}/${manifestId}/manifest.json`
-    let resp = await fetch(manifestUrl)
-    if (resp.ok) return await resp.json() 
+    getManifest(this.imgSrc).then(manifest => this._manifest = manifest)
   }
 
   htmlToElem(html: string) {
@@ -111,7 +103,7 @@ export class Header {
           <span></span>
           <span></span>
           <ul id="menu">
-          { this.props.nav.map((item:any) => <li><a href={item.href}>{item.label}</a></li>) }
+          { (this.props.nav || []).map((item:any) => <li><a href={item.href}>{item.label}</a></li>) }
           </ul>
         </div>
       </nav>,
