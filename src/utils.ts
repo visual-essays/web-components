@@ -1,9 +1,12 @@
 import OpenSeadragon from 'openseadragon'
 
+const iiifServer = location.hostname === 'localhost' ? 'http://localhost:8088' : 'https://iiif.visual-essays.net'
+// const iiifServer = 'https://iiif.visual-essays.net'
+
 export async function getManifest(manifestId: string) {
   let manifestUrl = manifestId.indexOf('http') === 0
     ? manifestId
-    : `${location.hostname === 'localhost' ? 'http://localhost:8088' : 'https://iiif.visual-essays.net'}/${manifestId}/manifest.json`
+    : `${iiifServer}/${manifestId}/manifest.json`
   let manifests = await loadManifests([manifestUrl])
   return manifests[0]
 }
@@ -66,7 +69,7 @@ export async function loadManifests(manifestUrls: string[]) {
     .map(manifestId =>
       manifestId.indexOf('http') === 0
         ? manifestId
-        : `${location.hostname === 'localhost' ? 'http://localhost:8088' : 'https://iiif.visual-essays.net'}/${manifestId}/manifest.json`
+        : `${iiifServer}/${manifestId}/manifest.json`
     )
     .map(manifestUrl => {
       return fetch(manifestUrl,
