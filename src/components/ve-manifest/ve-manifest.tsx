@@ -1,5 +1,6 @@
 import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
 import { getManifest, imageInfo } from '../../utils'
+import * as manifesto from 'manifesto.js'
 
 @Component({
   tag: 've-manifest',
@@ -16,6 +17,7 @@ export class ManifestViewer {
   @State() manifest: any = null
   @State() imageData: any = {}
 
+  @State() id: string
   @State() label: string
   @State() summary: string
   @State() metadata: any[] = []
@@ -46,14 +48,44 @@ export class ManifestViewer {
   @Watch('manifest')
   manifestChanged(manifest: any) {
     console.log(manifest)
+    let m = manifesto.parseManifest(manifest)
+    console.log(m.getLabel())
+    console.log(m.getProperty('label'))
+    console.log(m.getProperty('summary'))
+    console.log(m.getMetadata())
+
+    /*
+    let version = parseInt(manifest['@context'].split('/')[5])
+    console.log(`version=${version}`)
+
     this.imageData = imageInfo(manifest)
   
+    this.id = manifest.id || manifest['@id']
     this.label = this._value(manifest.label)
-    this.summary = manifest.summary ? this._value(manifest.summary) : null
-    this.rights = manifest.rights
+    this.summary = manifest.summary
+      ? this._value(manifest.summary)
+      : manifest.description
+        ? this._value(manifest.description)
+        : null
+
+    this.rights = manifest.rights || manifest.license
     this.thumbnail = manifest.thumbnail ? manifest.thumbnail[0].id : null
     this.metadata = (manifest.metadata || [])
       .map(item => ({label: this._value(item.label), value: this._value(item.value)}))
+    console.log(this.metadata)
+
+    this.logo = manifest.logo
+      ? version === 3
+        ? (manifest.logo || [])
+          .map(logo => {
+            let resp: any = {src: logo.id}
+            if (logo.width) resp.width = logo.width
+            if (logo.height) resp.height = logo.height
+            return resp
+          })
+        : {id: manifest.logo}
+      : null
+
     this.provider = (manifest.provider || [])
       .map(provider => {
         let entry: any = {label: this._value(provider.label), href:provider.id}
@@ -67,20 +99,17 @@ export class ManifestViewer {
     this.seeAlso = (manifest.seeAlso || [])
       .map(seeAlso => ({label: this._value(seeAlso.label), href: seeAlso.id}))
 
-    this.logo = (manifest.logo || [])
-      .map(logo => {
-        let resp: any = {src: logo.id}
-        if (logo.width) resp.width = logo.width
-        if (logo.height) resp.height = logo.height
-        return resp
-      })
-
-    this.requiredStatement = manifest.requiredStatement
-      ? {label: this._value(manifest.requiredStatement.label)[0], 
-         value: this._value(manifest.requiredStatement.value)[0]}
-      : null
+    this.requiredStatement =
+      manifest.requiredStatement
+        ? {label: this._value(manifest.requiredStatement.label)[0], 
+          value: this._value(manifest.requiredStatement.value)[0]}
+        : manifest.attribution
+          ? {label: 'attribution', value: manifest.attribution}
+          : null
 
     this.service = this.imageData.service && `${this.imageData.service.id}/info.json`
+    */
+    
   }
 
   componentDidLoad() {
@@ -91,7 +120,7 @@ export class ManifestViewer {
   _value(langObj: any, language='en') {
     return typeof langObj === 'object'
       ? langObj[language] || langObj.none || langObj[Object.keys(langObj).sort()[0]]
-      : langObj
+      : [langObj]
   }
 
   _imageAttributionStatement() {
@@ -144,7 +173,7 @@ export class ManifestViewer {
     return [
       <div class="manifest-id">
         <span class="label">id</span>
-        <a class="value" href={this.manifest.id} innerHTML={this.manifest.id}/>
+        <a class="value" href={this.id} innerHTML={this.id}/>
       </div>,
       <div class="manifest-label">
         <span class="label">label</span><span class="value">{this.label}</span>
