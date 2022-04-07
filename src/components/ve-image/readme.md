@@ -13,10 +13,12 @@
 | `compare`  | `compare`  |             | `string` | `undefined` |
 | `entities` | `entities` |             | `string` | `undefined` |
 | `fit`      | `fit`      |             | `string` | `undefined` |
+| `height`   | `height`   |             | `string` | `undefined` |
 | `options`  | `options`  |             | `string` | `undefined` |
 | `seq`      | `seq`      |             | `number` | `undefined` |
 | `src`      | `src`      |             | `string` | `undefined` |
 | `user`     | `user`     |             | `any`    | `undefined` |
+| `width`    | `width`    |             | `string` | `undefined` |
 
 
 ----------------------------------------------
