@@ -24,13 +24,13 @@ export class ManifestViewer {
   @State() provider: any[] = []
   @State() rights: string
   @State() requiredStatement: any
-  @State() thumbnail: string
+  @State() thumbnail: any
   @State() navDate: string
   @State() format: string
   @State() language: string
   @State() width: number
   @State() height: number
-  @State() homepage: any[] = []
+  @State() homepage: any = {}
   @State() logo: any[] = []
   @State() seeAlso: any[] = []
   @State() service: string
@@ -47,69 +47,62 @@ export class ManifestViewer {
 
   @Watch('manifest')
   manifestChanged(manifest: any) {
-    console.log(manifest)
+    // console.log(manifest)
     let m = manifesto.parseManifest(manifest)
-    console.log(m.getLabel())
-    console.log(m.getProperty('label'))
-    console.log(m.getProperty('summary'))
-    console.log(m.getMetadata())
+    this.id = this._value(m.getProperty('id'))
+    this.label = this._value(m.getProperty('label'))
 
-    /*
-    let version = parseInt(manifest['@context'].split('/')[5])
-    console.log(`version=${version}`)
-
-    this.imageData = imageInfo(manifest)
-  
-    this.id = manifest.id || manifest['@id']
-    this.label = this._value(manifest.label)
-    this.summary = manifest.summary
-      ? this._value(manifest.summary)
-      : manifest.description
-        ? this._value(manifest.description)
+    let summary = m.getProperty('summary')
+    let description = m.getProperty('description')
+    this.summary = summary
+      ? this._value(summary)
+      : description
+        ? description[0]['@value']
         : null
 
-    this.rights = manifest.rights || manifest.license
-    this.thumbnail = manifest.thumbnail ? manifest.thumbnail[0].id : null
-    this.metadata = (manifest.metadata || [])
-      .map(item => ({label: this._value(item.label), value: this._value(item.value)}))
-    console.log(this.metadata)
+    this.rights = m.getProperty('rights') || m.getLicense()
 
-    this.logo = manifest.logo
-      ? version === 3
-        ? (manifest.logo || [])
-          .map(logo => {
-            let resp: any = {src: logo.id}
-            if (logo.width) resp.width = logo.width
-            if (logo.height) resp.height = logo.height
-            return resp
-          })
-        : {id: manifest.logo}
-      : null
+    this.thumbnail = m.getThumbnail()?.id
+    
+    this.metadata = m.getMetadata()
+      .map(item => item.resource)
+      .map(item => ({label: this._value(item.label)[0], value: this._value(item.value)}))
 
-    this.provider = (manifest.provider || [])
+    this.provider = (m.getProperty('provider') || [])
       .map(provider => {
         let entry: any = {label: this._value(provider.label), href:provider.id}
         if (provider.logo) entry.logo = {src:provider.logo[0].id}
         return entry
       })
 
+    let logo = m.getProperty('logo')
+    if (logo && !Array.isArray(logo)) logo = [logo]
+    this.logo = (logo || []).map(item => {
+      let logoObj: any = { src: typeof item === 'object' ? item.id || item['@id'] : item }
+      if (typeof item === 'object') {
+        if (item.width) logoObj.width = item.width
+        if (item.height) logoObj.height = item.height
+      }
+      return logoObj
+    })
+
+    this.imageData = imageInfo(manifest)
+    this.service = this.imageData.service && `${this.imageData.service.id}/info.json`
+
+    let rs = m.getRequiredStatement()
+    if (rs) {
+      this.requiredStatement = rs.label
+        ? {label: rs.label[0].value, value: rs.value[0].value}
+        : {label: 'attribution', value: rs.value[0].value}
+    }
+
     this.homepage = (manifest.homepage || [])
       .map(homepage => ({label: this._value(homepage.label), href: homepage.id}))
 
     this.seeAlso = (manifest.seeAlso || [])
-      .map(seeAlso => ({label: this._value(seeAlso.label), href: seeAlso.id}))
-
-    this.requiredStatement =
-      manifest.requiredStatement
-        ? {label: this._value(manifest.requiredStatement.label)[0], 
-          value: this._value(manifest.requiredStatement.value)[0]}
-        : manifest.attribution
-          ? {label: 'attribution', value: manifest.attribution}
-          : null
-
-    this.service = this.imageData.service && `${this.imageData.service.id}/info.json`
-    */
+      .map(seeAlso => ({label: this._value(seeAlso.label || seeAlso['@id']), href: seeAlso.id || seeAlso['@id']}))
     
+    this.navDate = manifest.navDate
   }
 
   componentDidLoad() {
@@ -118,9 +111,9 @@ export class ManifestViewer {
   }
 
   _value(langObj: any, language='en') {
-    return typeof langObj === 'object'
+    return typeof langObj === 'object' && !Array.isArray(langObj)
       ? langObj[language] || langObj.none || langObj[Object.keys(langObj).sort()[0]]
-      : [langObj]
+      : Array.isArray(langObj) ? langObj : [langObj]
   }
 
   _imageAttributionStatement() {
@@ -140,7 +133,6 @@ export class ManifestViewer {
       : null,
       this.provider.length > 0
       ? <div class="provider">
-          <span class="label">provider</span>
           {
             this.provider.length == 1
             ? <span>
@@ -179,7 +171,7 @@ export class ManifestViewer {
         <span class="label">label</span><span class="value">{this.label}</span>
       </div>,
       
-      this.summary
+      this.summary && this.summary.length > 0
         ? <div class="summary">
             <span class="label">summary</span>
             <span class="value">{this.summary}</span>
@@ -203,6 +195,13 @@ export class ManifestViewer {
             </li>
           )}
           </ul>
+        </div>
+      : null,
+
+      this.navDate
+      ? <div class="navDate">
+          <span class="label">navDate</span>
+          <span class="value">{this.navDate}</span>
         </div>
       : null,
 
