@@ -34,6 +34,7 @@ export class ManifestViewer {
   @State() logo: any[] = []
   @State() seeAlso: any[] = []
   @State() service: string
+  @State() sourceUrl: string
 
   @Watch('depicts')
   depictsChanged(depicts: string[]) {
@@ -67,6 +68,9 @@ export class ManifestViewer {
     this.metadata = m.getMetadata()
       .map(item => item.resource)
       .map(item => ({label: this._value(item.label)[0], value: this._value(item.value)}))
+    console.log(this.metadata)
+    let sourceUrl = this.metadata.find(item => item.label == 'source_url')
+    this.sourceUrl = sourceUrl ? sourceUrl.value[0] : null
 
     this.provider = (m.getProperty('provider') || [])
       .map(provider => {
@@ -94,6 +98,8 @@ export class ManifestViewer {
       this.requiredStatement = rs.label
         ? {label: rs.label[0].value, value: rs.value[0].value}
         : {label: 'attribution', value: rs.value[0].value}
+    } else {
+      this.requiredStatement = null
     }
 
     this.homepage = (manifest.homepage || [])
@@ -126,23 +132,35 @@ export class ManifestViewer {
 
   render_condensed() {
     return [
+      <div style={{marginBottom: '12px;'}}>
+      { this.sourceUrl
+        ? <a href={this.sourceUrl} innerHTML={this.label}></a>
+        : this.label
+      }
+      </div>,
       this.requiredStatement 
       ? <div>
           <span class="value" innerHTML={this.requiredStatement.value}></span>
         </div>
       : null,
+      this.rights 
+        ? <div class="rights">
+            
+            <a class="value" href={this.rights} innerHTML={this.rights}/>
+          </div>
+        : null,
       this.provider.length > 0
       ? <div class="provider">
           {
             this.provider.length == 1
-            ? <span>
+            ? <div style={{display: 'flex', alignItems: 'center'}}>
                 {
                   this.provider[0].logo
                   ? <img class="logo" src={this.provider[0].logo.src} height={20}/>
                   : null
                 }
                 <a class="value" href={this.provider[0].href} innerHTML={this.provider[0].label}/>
-              </span>
+              </div>
             : <ul>
               {this.provider.map((provider) =>
                 <li>
@@ -210,14 +228,14 @@ export class ManifestViewer {
           <span class="label">provider</span>
           {
             this.provider.length == 1
-            ? <span>
+            ? <div style={{display: 'flex', alignItems: 'center'}}>
                 {
                   this.provider[0].logo
                   ? <img class="logo" src={this.provider[0].logo.src} height={20}/>
                   : null
                 }
                 <a class="value" href={this.provider[0].href} innerHTML={this.provider[0].label}/>
-              </span>
+              </div>
             : <ul>
               {this.provider.map((provider) =>
                 <li>

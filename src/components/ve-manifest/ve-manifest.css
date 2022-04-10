@@ -54,6 +54,7 @@ ul {
 .imageData div,
 .thumbnail {
     display: flex;
+    align-items: center;
 }
 .metadata > ul,
 .requiredStatement ul {

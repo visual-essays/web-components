@@ -34,7 +34,7 @@ export class ImageViewer {
   @Prop() entities: string
   @Prop({ mutable: true, reflect: true }) user: any
   @Prop() compare: string
-  @Prop() width: string
+  @Prop() width: string = '40%'
   @Prop() height: string
 
   @Element() el: HTMLElement;
@@ -253,6 +253,7 @@ export class ImageViewer {
   }
 
   _setHostDimensions(imageData: any) {
+    console.log(`ve-image.setHostDimensions: el.width=${this.el.clientWidth} this.width=${this.width} height=${this.height}`)
     let width = this.width
       ? this.width.indexOf('px') > 0
         ? parseInt(this.width.slice(0,-2))
