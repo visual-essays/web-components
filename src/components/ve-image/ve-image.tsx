@@ -156,6 +156,7 @@ export class ImageViewer {
   }
   
   componentDidLoad() {
+    this._setHostDimensions()
     this.listenForSlotChanges()
 
     Array.from(document.querySelectorAll('mark')).forEach(el => {
@@ -261,20 +262,20 @@ export class ImageViewer {
     }
   }
 
-  _setHostDimensions(imageData: any) {
-    let elWidth = this.el.clientWidth || this.el.parentElement.clientWidth
-    let elHeight = this.el.clientHeight || this.el.parentElement.clientHeight
+  _setHostDimensions(imageData:any = null) {
     console.log(`ve-image.setHostDimensions: el.width=${this.el.clientWidth} parent.width=${this.el.parentElement.clientWidth} this.width=${this.width} height=${this.height}`)
     let width = this.width
       ? this.width.indexOf('px') > 0
         ? parseInt(this.width.slice(0,-2))
-        : Math.round(elWidth * (parseFloat(this.width.slice(0,-1))/100))
-      : elWidth
+        : Math.round(this.el.parentElement.clientWidth * (parseFloat(this.width.slice(0,-1))/100))
+      : this.el.clientWidth || this.el.parentElement.clientWidth
     let height = this.height
       ? this.height.indexOf('px') > 0
         ? parseInt(this.height.slice(0,-2))
-        : Math.round(elHeight * (parseFloat(this.height.slice(0,-1))/100))
-      : Math.round(imageData.height/imageData.width * width) // height scaled to width
+        : Math.round(this.el.parentElement.clientHeight * (parseFloat(this.height.slice(0,-1))/100))
+      : imageData
+        ? Math.round(imageData.height/imageData.width * width) // height scaled to width
+        : width
     console.log(`ve-image.setHostDimensions: width=${width} height=${height}`)
     this.el.style.width = `${width}px`
     this.el.style.height = `${height}px`
