@@ -45,6 +45,7 @@ export class ImageViewer {
   @State() _manifests: any[] = []
   @State() _annotations: any[] = []
   @State() _userHash: string
+  @State() _entities: string[] = []
 
   @State() _images: any[] = []
   @Watch('_images')
@@ -113,6 +114,10 @@ export class ImageViewer {
     if (this.src) images.push({manifest: this.src, options: parseImageOptions(this.options)})
     Array.from(this.el.querySelectorAll('li'))
       .forEach(li => images.push(this.parseImageStr(li.innerHTML)))
+
+    // If no manifest defined in src attribute or images list, use most recent entity QID, if available 
+    if (images.length === 0 && this._entities.length > 0)
+      images.push({manifest: `wd:${this._entities[0]}`, options: parseImageOptions('')})
     loadManifests(images.map(item => item.manifest))
     .then(manifests => {
       manifests.forEach((manifest, idx) => {
@@ -136,6 +141,10 @@ export class ImageViewer {
       const observer = new MutationObserver(callback);
       observer.observe(slot, { childList: true, subtree: true })
     }
+  }
+
+  connectedCallback() {
+    this._entities = this.entities.split(/\s+/).filter(qid => qid)
   }
 
   async componentWillLoad() {
