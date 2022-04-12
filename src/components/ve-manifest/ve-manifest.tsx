@@ -130,6 +130,43 @@ export class ManifestViewer {
         : this.manifest.label
   }
 
+  onManifestIconDrag(dragEvent: DragEvent) {
+    dragEvent.dataTransfer?.setData('text/uri-list', `${this.src}?manifest=${this.src}`)
+  }
+
+  licenseBadge():string {
+    let config = {
+      cc: {
+        badgeWidth: 88,
+        badgeHeight: 31,
+        badgeTemplate: 'https://licensebuttons.net/l/${this.rightsCode}${this.rightsCode === "publicdomain" ? "" : "/"+this.version}/${this.badgeWidth}x${this.badgeHeight}.png'
+      },
+      rs: {
+        badgeTemplate: 'https://rightsstatements.org/files/buttons/${this.rightsCode}.white.svg',
+        backgroundColor: '318ac7'
+      }
+    }
+    const fillTemplate = function(templateString, templateVars) {
+      console.log(templateVars)
+      return new Function("return `"+templateString +"`;").call(templateVars);
+    }
+    console.log(this.rights)
+    let rights = this.rights
+    //rights = 'http://creativecommons.org/licenses/by-sa/4.0'
+    //rights = 'http://rightsstatements.org/vocab/InC/1.0/'
+    let badgeHtml
+    let [rightsType, cat, rightsCode, version] = rights.split('/').slice(2)
+    console.log(rightsType, cat, rightsCode, version)
+    if (rightsType === 'creativecommons.org') {
+      rightsCode = rightsCode === 'zero' ? 'publicdomain' : rightsCode
+      badgeHtml = `<img src="${fillTemplate(config.cc.badgeTemplate, {...config.cc, ...{rightsCode, version}})}"/>` 
+    } else if (rightsType === 'rightsstatements.org') {
+      badgeHtml = `<div style="display:inline-block;height:25px;padding:3px;background-color:#${config.rs.backgroundColor};"><img style="height:100%;" src="${fillTemplate(config.rs.badgeTemplate, {...config.rs, ...{rightsCode}})}"/></div>`
+    }
+    console.log(badgeHtml)
+    return badgeHtml
+  }
+
   render_condensed() {
     return [
       <div style={{marginBottom: '12px;'}}>
@@ -138,15 +175,19 @@ export class ManifestViewer {
         : this.label
       }
       </div>,
-      this.requiredStatement 
-      ? <div>
-          <span class="value" innerHTML={this.requiredStatement.value}></span>
+      this.summary && this.summary.length > 0
+      ? <div class="summary">
+          <span class="value">{this.summary}</span>
         </div>
       : null,
       this.rights 
         ? <div class="rights">
-            
-            <a class="value" href={this.rights} innerHTML={this.rights}/>
+            <a class="value" href={this.rights} innerHTML={this.licenseBadge()}/>
+          </div>
+        : null,
+        this.requiredStatement 
+        ? <div>
+            <span class="value" innerHTML={this.requiredStatement.value}></span>
           </div>
         : null,
       this.provider.length > 0
@@ -154,6 +195,7 @@ export class ManifestViewer {
           {
             this.provider.length == 1
             ? <div style={{display: 'flex', alignItems: 'center'}}>
+              
                 {
                   this.provider[0].logo
                   ? <img class="logo" src={this.provider[0].logo.src} height={20}/>
@@ -176,6 +218,7 @@ export class ManifestViewer {
           }
         </div>
       : null,
+      <a draggable={true} onDragStart={this.onManifestIconDrag.bind(this)} href={this.src}><img src="https://avatars.githubusercontent.com/u/5812589?v=3&s=24" alt="IIIF Manifest"></img></a>
     ]
   }
 

@@ -18,7 +18,7 @@
 | `seq`      | `seq`      |             | `number` | `undefined` |
 | `src`      | `src`      |             | `string` | `undefined` |
 | `user`     | `user`     |             | `any`    | `undefined` |
-| `width`    | `width`    |             | `string` | `'40%'`     |
+| `width`    | `width`    |             | `string` | `undefined` |
 
 
 ----------------------------------------------

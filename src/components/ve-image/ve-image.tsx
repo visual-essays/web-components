@@ -34,7 +34,7 @@ export class ImageViewer {
   @Prop() entities: string
   @Prop({ mutable: true, reflect: true }) user: any
   @Prop() compare: string
-  @Prop() width: string = '40%'
+  @Prop() width: string
   @Prop() height: string
 
   @Element() el: HTMLElement;
@@ -253,16 +253,18 @@ export class ImageViewer {
   }
 
   _setHostDimensions(imageData: any) {
-    console.log(`ve-image.setHostDimensions: el.width=${this.el.clientWidth} this.width=${this.width} height=${this.height}`)
+    let elWidth = this.el.clientWidth || this.el.parentElement.clientWidth
+    let elHeight = this.el.clientHeight || this.el.parentElement.clientHeight
+    console.log(`ve-image.setHostDimensions: el.width=${this.el.clientWidth} parent.width=${this.el.parentElement.clientWidth} this.width=${this.width} height=${this.height}`)
     let width = this.width
       ? this.width.indexOf('px') > 0
         ? parseInt(this.width.slice(0,-2))
-        : Math.round(this.el.clientWidth * (parseFloat(this.width.slice(0,-1))/100))
-      : this.el.clientWidth
+        : Math.round(elWidth * (parseFloat(this.width.slice(0,-1))/100))
+      : elWidth
     let height = this.height
       ? this.height.indexOf('px') > 0
         ? parseInt(this.height.slice(0,-2))
-        : Math.round(this.el.clientHeight * (parseFloat(this.height.slice(0,-1))/100))
+        : Math.round(elHeight * (parseFloat(this.height.slice(0,-1))/100))
       : Math.round(imageData.height/imageData.width * width) // height scaled to width
     console.log(`ve-image.setHostDimensions: width=${width} height=${height}`)
     this.el.style.width = `${width}px`
@@ -372,7 +374,7 @@ export class ImageViewer {
       showNavigator: false,
       sequenceMode: true,
       showReferenceStrip: true,
-      visibilityRatio: 1.0,
+      //visibilityRatio: 1.0,
       //animationTime: 2,
       springStiffness: 2,
       //constrainDuringPan: true

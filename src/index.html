@@ -7,22 +7,18 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@recogito/annotorious-openseadragon@2.7.2/dist/annotorious.min.css">
     <style>
       body { margin: 0; }
-      ve-image-grid ul { display:none; }
+      ve-image { width:40%; }
     </style>
     <script type="module" src="/build/visual-essays.esm.js"></script>
     <script nomodule src="/build/visual-essays.js"></script>
   </head>
   <body>
 
-    <div style="margin-bottom:48px;">
-      <ve-manifest src="https://iiif.harvardartmuseums.org/manifests/object/299843"></ve-manifest>
-    </div>
-    <div style="margin-bottom:48px;">
-      <ve-manifest src="https://www.e-codices.unifr.ch/metadata/iiif/gau-Fragment/manifest.json"</ve-manifest>
-    </div>
-    <div style="margin-bottom:48px;">
-      <ve-manifest src="http://localhost:8088/wc:Zelfportret_met_strohoed_-_s0164V1962_-_Van_Gogh_Museum.jpg/manifest.json"</ve-manifest>
-    </div>
+      <ve-image width="400px" height="600px">
+        <ul>
+          <li>cc:c750ca5e-e5cb-470d-807f-83d4396fdabb</li>  
+        </ul>
+      </ve-image>
 
     <!--
     <ve-header label="Vincent Van Gogh Self Portraits" subtitle="A subtitle" class="sticky">
