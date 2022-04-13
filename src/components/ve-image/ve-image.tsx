@@ -144,7 +144,7 @@ export class ImageViewer {
   }
 
   connectedCallback() {
-    this._entities = this.entities.split(/\s+/).filter(qid => qid)
+    this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
   }
 
   async componentWillLoad() {
