@@ -127,7 +127,7 @@ export async function imageDataUrl(url: string, region: any, dest: any): Promise
 }
 
 export function isNum(s:string) {
-  return !isNaN(<any>s)
+  return s && !isNaN(<any>s)
 }
 
 export function parseImageOptions(str: string) {
