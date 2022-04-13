@@ -68,7 +68,6 @@ export class ManifestViewer {
     this.metadata = m.getMetadata()
       .map(item => item.resource)
       .map(item => ({label: this._value(item.label)[0], value: this._value(item.value)}))
-    console.log(this.metadata)
     let sourceUrl = this.metadata.find(item => item.label == 'source_url')
     this.sourceUrl = sourceUrl ? sourceUrl.value[0] : null
 
@@ -94,7 +93,7 @@ export class ManifestViewer {
     this.service = this.imageData.service && `${this.imageData.service.id}/info.json`
 
     let rs = m.getRequiredStatement()
-    if (rs) {
+    if (rs.value.length > 0) {
       this.requiredStatement = rs.label
         ? {label: rs.label[0].value, value: rs.value[0].value}
         : {label: 'attribution', value: rs.value[0].value}
@@ -112,7 +111,6 @@ export class ManifestViewer {
   }
 
   componentDidLoad() {
-    console.log(`componentDidLoad: condensed=${this.condensed}`)
     if (this.src) getManifest(this.src).then(manifest => this.manifest = manifest)
   }
 
@@ -147,23 +145,17 @@ export class ManifestViewer {
       }
     }
     const fillTemplate = function(templateString, templateVars) {
-      console.log(templateVars)
       return new Function("return `"+templateString +"`;").call(templateVars);
     }
-    console.log(this.rights)
     let rights = this.rights
-    //rights = 'http://creativecommons.org/licenses/by-sa/4.0'
-    //rights = 'http://rightsstatements.org/vocab/InC/1.0/'
     let badgeHtml
     let [rightsType, cat, rightsCode, version] = rights.split('/').slice(2)
-    console.log(rightsType, cat, rightsCode, version)
     if (rightsType === 'creativecommons.org') {
       rightsCode = rightsCode === 'zero' ? 'publicdomain' : rightsCode
       badgeHtml = `<img src="${fillTemplate(config.cc.badgeTemplate, {...config.cc, ...{rightsCode, version}})}"/>` 
     } else if (rightsType === 'rightsstatements.org') {
       badgeHtml = `<div style="display:inline-block;height:25px;padding:3px;background-color:#${config.rs.backgroundColor};"><img style="height:100%;" src="${fillTemplate(config.rs.badgeTemplate, {...config.rs, ...{rightsCode}})}"/></div>`
     }
-    console.log(badgeHtml)
     return badgeHtml
   }
 

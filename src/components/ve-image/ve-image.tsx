@@ -196,7 +196,7 @@ export class ImageViewer {
   }
 
   async loadAnnotations() {
-    console.log(`loadAnnotations: manifestId=${this._current.manifestId} creator=${this._userHash}`)
+    // console.log(`loadAnnotations: manifestId=${this._current.manifestId} creator=${this._userHash}`)
     let target = encodeURIComponent(`https://iiif.visual-essays.net/${this._current.manifestId}`)
     let resp: any = await fetch(`${annotationsServer}?target=${target}&creator=${this._userHash}`, {
       headers: {
@@ -263,7 +263,7 @@ export class ImageViewer {
   }
 
   _setHostDimensions(imageData:any = null) {
-    console.log(`ve-image.setHostDimensions: el.width=${this.el.clientWidth} parent.width=${this.el.parentElement.clientWidth} this.width=${this.width} height=${this.height}`)
+    // console.log(`ve-image.setHostDimensions: el.width=${this.el.clientWidth} parent.width=${this.el.parentElement.clientWidth} this.width=${this.width} height=${this.height}`)
     let width = this.width
       ? this.width.indexOf('px') > 0
         ? parseInt(this.width.slice(0,-2))
@@ -276,7 +276,7 @@ export class ImageViewer {
       : imageData
         ? Math.round(imageData.height/imageData.width * width) // height scaled to width
         : width
-    console.log(`ve-image.setHostDimensions: width=${width} height=${height}`)
+    // console.log(`ve-image.setHostDimensions: width=${width} height=${height}`)
     this.el.style.width = `${width}px`
     this.el.style.height = `${height}px`
   }
@@ -333,7 +333,6 @@ export class ImageViewer {
   }
 
   _showInfoPopup() {
-    console.log('_showInfoPopup', this._images[this._selectedIdx])
     let popup: HTMLElement = this.el.shadowRoot.querySelector('#image-info-popup')
     let manifestUrl = this._images[this._selectedIdx].manifest.id || this._images[this._selectedIdx].manifest['@id']
     popup.innerHTML = `<ve-manifest src=${manifestUrl} condensed></ve-manifest>`
@@ -367,7 +366,6 @@ export class ImageViewer {
 
   async _osdInit() {
     let tileSources = await this._loadTileSources()
-    console.log(tileSources)
     let osdElem: HTMLElement = this.el.shadowRoot.querySelector('#osd')
     const osdOptions: OpenSeadragon.Options = {
       element: osdElem,
