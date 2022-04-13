@@ -149,7 +149,7 @@ export class ManifestViewer {
     }
     let rights = this.rights
     let badgeHtml
-    let [rightsType, cat, rightsCode, version] = rights.split('/').slice(2)
+    let [rightsType, _, rightsCode, version] = rights.split('/').slice(2)
     if (rightsType === 'creativecommons.org') {
       rightsCode = rightsCode === 'zero' ? 'publicdomain' : rightsCode
       badgeHtml = `<img src="${fillTemplate(config.cc.badgeTemplate, {...config.cc, ...{rightsCode, version}})}"/>` 
