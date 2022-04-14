@@ -10,8 +10,11 @@ export namespace Components {
         "entities": string;
     }
     interface VeHeader {
+        "background": string;
         "height": number;
         "label": string;
+        "options": string;
+        "position": string;
         "sticky": boolean;
         "subtitle": string;
     }
@@ -79,8 +82,11 @@ declare namespace LocalJSX {
         "entities"?: string;
     }
     interface VeHeader {
+        "background"?: string;
         "height"?: number;
         "label"?: string;
+        "options"?: string;
+        "position"?: string;
         "sticky"?: boolean;
         "subtitle"?: string;
     }

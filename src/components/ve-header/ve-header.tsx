@@ -8,18 +8,18 @@ import { parseImageOptions, imageInfo, getManifest, imageDataUrl } from '../../u
 })
 export class Header {
   
+  @Element() el: HTMLElement
+
   @Prop() label: string
+  @Prop() background: string
   @Prop() subtitle: string
+  @Prop() options: string
   @Prop() height: number = 300
   @Prop() sticky: boolean
+  @Prop() position: string = 'center' // center, top, bottom
 
   @State() imageOptions: any
-  @State() position: string = 'center' // center, top, bottom
-
-  @Element() host: HTMLElement
-  @State() props: any = {}
-  @State() imgSrc: string
-  @State() region: string
+  @State() navItems: any = []
 
   @State() _manifest: any
   @Watch('_manifest')
@@ -33,60 +33,40 @@ export class Header {
     if (imageInfo !== priorValue) {
       this._imgUrl = imageInfo.service
         ? this._iiifUrl(imageInfo.service.id, this.imageOptions)
-        : await imageDataUrl(imageInfo.id, this.imageOptions.region, {width: this.host.clientWidth, height: this.height})
+        : await imageDataUrl(imageInfo.id, this.imageOptions.region, {width: this.el.clientWidth, height: this.height})
     }
   }
   
   @State() _imgUrl: any
   @Watch('_imgUrl')
   async _imgUrlChanged(imgUrl: any) {
-    this.host.style.backgroundImage = `url('${imgUrl}')`
-    this.host.style.backgroundPosition = this.position
+    this.el.style.backgroundImage = `url('${imgUrl}')`
+    this.el.style.backgroundPosition = this.position
   }
 
   _iiifUrl(serviceUrl: string, options: any) {
-    let size = `${this.host.clientWidth > 1000 ? 1000 : this.host.clientWidth},${this.height > 1000 ? 1000 : this.height}`
+    let size = `${this.el.clientWidth > 1000 ? 1000 : this.el.clientWidth},${this.height > 1000 ? 1000 : this.height}`
     let url = `${serviceUrl}/${options.region}/!${size}/${options.rotation}/${options.quality}.${options.format}`
-    console.log('_iiifUrl', url)
+    // console.log('_iiifUrl', url)
     return url
   }
 
   connectedCallback() {
-    let propsUl = this.host.querySelector('ul')
-    if (propsUl) {
-      this.props = Object.fromEntries(Array.from(propsUl.children).map(li => {
-        let key = li.innerHTML.split(':')[0]
-        let value: any = li.innerHTML.slice(key.length+1).trim()
-        if (key === 'img') {
-          console.log(value)
-          let [image, options, position] = value.split(/\s/)
-          value = {image, options: parseImageOptions(options), position}
-        } else if (key === 'nav') {
-          value = Array.from(this.htmlToElem(value).querySelectorAll('li')).map(navItem => 
-            navItem.firstChild.nodeName === 'A'
-              ? {label: navItem.firstChild.textContent, href: (navItem.firstChild as HTMLLinkElement).href}
-              : {label: navItem.firstChild.textContent}
-          )
-        }
-        return [key, value]
-      }))
-      console.log(this.props)
-    }
-    this.imgSrc = this.props.img.image
-    this.imageOptions = this.props.img.options
-    this.position = this.props.img.position
-
-    //this.region = img.attributes.getNamedItem('region')?.value
-    //this.position = img.attributes.getNamedItem('position')?.value
-    //this.props = Object.fromEntries(Array.from(this.host.querySelectorAll('ul li')).map(li => li.innerHTML.split(': ').map(part => part.trim())))
-    //this.props.title = heading ? heading.innerHTML : ''
-    while (this.host.firstChild)
-      this.host.removeChild(this.host.firstChild)
+    this.imageOptions = parseImageOptions(this.options)
+    this.navItems = Array.from(this.el.querySelectorAll('li')).map(navItem =>
+      navItem.firstChild.nodeName === 'A'
+        ? {label: navItem.firstChild.textContent, href: (navItem.firstChild as HTMLLinkElement).href}
+        : {label: navItem.firstChild.textContent}
+    )
+    // console.log(this.navItems)
+    while (this.el.firstChild)
+      this.el.removeChild(this.el.firstChild)
   }
 
   componentDidLoad() {  
-    if (this.sticky) this.host.classList.add('sticky')  
-    getManifest(this.imgSrc).then(manifest => this._manifest = manifest)
+    this.el.style.height = `${this.height}px`
+    if (this.sticky) this.el.classList.add('sticky')  
+    getManifest(this.background).then(manifest => this._manifest = manifest)
   }
 
   htmlToElem(html: string) {
@@ -96,6 +76,7 @@ export class Header {
   render() {
     return [
       <section class="ve-header"></section>,
+      this.navItems.length > 0 && 
       <nav role="navigation">
         <div id="menuToggle">
           <input type="checkbox" />
@@ -103,13 +84,13 @@ export class Header {
           <span></span>
           <span></span>
           <ul id="menu">
-          { (this.props.nav || []).map((item:any) => <li><a href={item.href}>{item.label}</a></li>) }
+          { this.navItems.map((item:any) => <li><a href={item.href}>{item.label}</a></li>) }
           </ul>
         </div>
       </nav>,
       <div class="title-panel">
         <a href="/"><div class="title">{this.label}</div></a>
-        <div class="subtitle">{this.subtitle}</div>
+        {this.subtitle && <div class="subtitle">{this.subtitle}</div>}
       </div>
     ]
   }
