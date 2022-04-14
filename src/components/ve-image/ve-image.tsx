@@ -105,7 +105,7 @@ export class ImageViewer {
     } else {
       region = arg
     }
-    console.log(`zoomto: arg=${arg} region=${region}`)
+    // console.log(`zoomto: arg=${arg} region=${region}`)
     if (region) this.setRegion(region)
   }
 
@@ -155,18 +155,39 @@ export class ImageViewer {
     this.buildImagesList()
   }
   
+  findVeImage(el: HTMLSpanElement) {
+    while (el.parentElement && el.tagName !== 'MAIN') {
+      el = el.parentElement
+      let veImage = el.querySelector(':scope > ve-image')
+      if (veImage === this.el) return veImage
+    }
+  }
+
   componentDidLoad() {
     this._setHostDimensions()
     this.listenForSlotChanges()
 
-    Array.from(document.querySelectorAll('mark')).forEach(el => {
-      let value = el.attributes.getNamedItem('click')?.value
+    Array.from(document.querySelectorAll('mark')).forEach(mark => {
+      for (let idx=0; idx < mark.attributes.length; idx++) {
+        let attr = mark.attributes.item(idx)
+        if (/^\d+,\d+,\d+,\d+$/.test(attr.value)) {
+          let veImage = this.findVeImage(mark)
+          if (veImage) {
+            mark.addEventListener('click', (e) => setTimeout(() => this.zoomto(attr.value), 200))
+          }
+          break
+        }
+      }
+    })
+
+    Array.from(document.querySelectorAll('mark')).forEach(mark => {
+      let value = mark.attributes.getNamedItem('click')?.value
       if (value) {
         let match = value.match(/^\s*([a-z0-9_\-]+)\s*\|\s*([a-z0-9_\-:]+)\s*\|\s*([a-z0-9\-\.,:]+)\s*/i)
         if (match) {
           let elemId = match[2].split(':')[0]
           if (this.el.id === elemId) {
-            el.addEventListener('click', (e) => {
+            mark.addEventListener('click', (e) => {
               let value = (e.target as HTMLElement).attributes.getNamedItem('click').value
               let match = value.match(/^\s*([a-z0-9_\-]+)\s*\|\s*([a-z0-9_\-:]+)\s*\|\s*([a-z0-9\-\.,:]+)\s*/i)
               let method = match[1]
