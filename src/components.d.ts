@@ -25,9 +25,10 @@ export namespace Components {
         "fit": string;
         "height": string;
         "options": string;
+        "path": string;
         "seq": number;
         "src": string;
-        "user": any;
+        "user": string;
         "width": string;
     }
     interface VeImageGrid {
@@ -97,9 +98,10 @@ declare namespace LocalJSX {
         "fit"?: string;
         "height"?: string;
         "options"?: string;
+        "path"?: string;
         "seq"?: number;
         "src"?: string;
-        "user"?: any;
+        "user"?: string;
         "width"?: string;
     }
     interface VeImageGrid {

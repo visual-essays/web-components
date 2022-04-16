@@ -7,7 +7,8 @@ import './openseadragon-curtain-sync'
 
 import debounce from 'lodash.debounce'
 import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isNum } from '../../utils'
-import { initAnnotator, setAnnotationTarget, getAnnotation } from './annotations'
+// import { initAnnotator, setAnnotationTarget, getAnnotation } from './annotations'
+import { Annotator } from './annotator'
 
 import { parseInt } from 'lodash';
 
@@ -28,7 +29,8 @@ export class ImageViewer {
   @Prop() fit: string
   @Prop({ mutable: true, reflect: true }) alt: string
   @Prop() entities: string
-  @Prop({ mutable: true, reflect: true }) user: any
+  @Prop({ mutable: true, reflect: true }) user: string
+  @Prop({ mutable: true, reflect: true }) path: string
   @Prop() compare: string
   @Prop() width: string
   @Prop() height: string
@@ -38,8 +40,9 @@ export class ImageViewer {
   @State() _viewer: OpenSeadragon.Viewer
   @State() _viewportBounds: string
   @State() _manifests: any[] = []
-  @State() _userHash: string
   @State() _entities: string[] = []
+  @State() _annotator: any
+  @State() _annoTarget: any
 
   @State() _images: any[] = []
   @Watch('_images')
@@ -67,10 +70,10 @@ export class ImageViewer {
   _currentChanged() {
     this.alt = this._value(this._current.manifest.label).toString()
     let sourceHash = sha256(imageInfo(this._current.manifest).id).slice(0,8)
-    let path = location.pathname.split('/').filter(elem => elem).join('/') || 'default'
-    let target = `${path}/${sourceHash}`
-    console.log(`path=${path} sourceHash=${sourceHash} target=${target}`)
-    setAnnotationTarget(target)
+    // let path = location.pathname.split('/').filter(elem => elem).join('/') || 'default'
+    this._annoTarget = `${this.path}/${sourceHash}`
+    console.log(`path=${this.path} sourceHash=${sourceHash} annoTarget=${this._annoTarget}`)
+    if (this._annotator) this._annotator.setAnnotationTarget(this._annoTarget)
   }
 
   setRegion(region: string) {
@@ -93,7 +96,7 @@ export class ImageViewer {
     let region
     let annoRegex = new RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
     if (annoRegex.test(arg)) {
-      let anno = await getAnnotation(arg)
+      let anno = await this._annotator.getAnnotation(arg)
       if (anno) region = anno.target.selector.value.split('=')[1]
     } else {
       region = arg
@@ -105,7 +108,7 @@ export class ImageViewer {
   buildImagesList() {
     let images: any[] = []
     if (this.src) images.push({manifest: this.src, options: parseImageOptions(this.options)})
-    Array.from(this.el.querySelectorAll('li'))
+    Array.from(this.el.querySelectorAll('li, span'))
       .forEach(li => images.push(this.parseImageStr(li.innerHTML)))
 
     // If no manifest defined in src attribute or images list, use most recent entity QID, if available 
@@ -122,7 +125,7 @@ export class ImageViewer {
   }
 
   listenForSlotChanges() {
-    let slot = document.querySelector('ve-image > ul')
+    let slot = document.querySelector('ve-image > ul, ve-image > span')
     if (slot) {
       const callback = (mutationsList) => {
         for (let mutation of mutationsList) {
@@ -141,14 +144,7 @@ export class ImageViewer {
   }
 
   async componentWillLoad() {
-    /*
-    if (this.user) {
-      this.user = this.user && JSON.parse(this.user)
-      this._userHash = sha256(this.user.email).slice(0,7)
-    }
-    */
-    console.log(`componentWillLoad: user=${this.user}`)
-    this._userHash = this.user
+    console.log(`componentWillLoad: user=${this.user} path=${this.path}`)
     this.buildImagesList()
   }
   
@@ -329,7 +325,10 @@ export class ImageViewer {
     // console.log(`homeFillsViewer=${osdConfig.homeFillsViewer}`)
     this._viewer = OpenSeadragon(osdOptions)
     
-    initAnnotator(this._viewer, this._userHash, this.el.shadowRoot.querySelector('#toolbar'))
+    this._annotator = new Annotator(this._viewer, this.user, this.el.shadowRoot.querySelector('#toolbar'))
+    if (this._annoTarget) this._annotator.setAnnotationTarget(this._annoTarget)
+    this.showAnnotationsToolbar(false)
+    this.showAnnotations(false)
 
     this._viewer.addHandler('page', (e) => this._selectedIdx = e.page)
     // this._viewer.world.addHandler('add-item', (e) => {console.log('add-item', e)})
@@ -352,6 +351,18 @@ export class ImageViewer {
       }
     })
 
+  }
+
+  showAnnotationsToolbar(show: boolean) {
+    console.log(`showAnnotationsToolbar=${show}`)
+    Array.from(this.el.shadowRoot.querySelectorAll('.a9s-toolbar')).forEach((elem:HTMLElement) => {
+      console.log('toolbar')
+      elem.style.display = show ? 'unset' : 'none'
+    })
+  }
+
+  showAnnotations(show: boolean) {
+    Array.from(this.el.shadowRoot.querySelectorAll('.a9s-annotationlayer')).forEach((elem:HTMLElement) => elem.style.display = show ? 'unset' : 'none')
   }
 
   render() {

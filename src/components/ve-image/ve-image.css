@@ -12,6 +12,10 @@
   height: 100%;
 }
 
+.a9s-toolbar, .a9s-annotationlayer {
+  display: none;
+}
+
 .viewport-coords {
   position: absolute;
   font-family: sans-serif;

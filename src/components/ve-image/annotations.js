@@ -1,8 +1,8 @@
 import * as Annotorious from '@recogito/annotorious-openseadragon'
 import Toolbar from '@recogito/annotorious-toolbar'
 
-const annotationsEndpoint = 'https://api.visual-essays.net'
-// const annotationsEndpoint = 'http://localhost:8000'
+// const annotationsEndpoint = 'https://api.visual-essays.net'
+const annotationsEndpoint = 'http://localhost:8000'
 
 let _annotorious
 let _user
