@@ -14,9 +14,17 @@
   </head>
   <body>
 
-    <ve-image src="http://localhost:8088/https://upload.wikimedia.org/wikipedia/commons/5/54/H._G._Wells%2C_c.1890.jpg/manifest.json"></ve-image>
+    <ve-image compare="curtain">
+      <ul>
+        <li>https://iiif.harvardartmuseums.org/manifests/object/299843 pct:21,15,48,47//!0</li>
+        <li>https://media.nga.gov/public/manifests/nga_highlights.json pct:20,4,60,55</li>
+        <li>wc:Vincent_van_Gogh’s_famous_painting,_digitally_enhanced_by_rawpixel-com_25.jpg pct:19,12,65,65</li>  
+      </ul>
+    </ve-image>
 
     <!--
+    <ve-image src="wc:Boy_and_book_by_Charles_Porter.jpg"></ve-image>
+
     <ve-header label="Vincent Van Gogh Self Portraits" subtitle="A subtitle" class="sticky">
       <ul>
         <li>img: wc:Zelfportret_met_strohoed_-_s0164V1962_-_Van_Gogh_Museum.jpg pct:0,25,80,20 center</li>
@@ -30,15 +38,13 @@
       </ve-image>
     </div>
 
-    <div style="width:33%;margin:12px 24px;">
-      <ve-image compare="curtain">
-        <ul>
-          <li>https://iiif.harvardartmuseums.org/manifests/object/299843 pct:21,15,48,47//!0</li>
-          <li>https://media.nga.gov/public/manifests/nga_highlights.json pct:20,4,60,55</li>
-          <li>wc:Vincent_van_Gogh’s_famous_painting,_digitally_enhanced_by_rawpixel-com_25.jpg pct:22,16,58,59</li>  
-        </ul>
-      </ve-image>
-    </div>
+    <ve-image compare="curtain">
+      <ul>
+        <li>https://iiif.harvardartmuseums.org/manifests/object/299843 pct:21,15,48,47//!0</li>
+        <li>https://media.nga.gov/public/manifests/nga_highlights.json pct:20,4,60,55</li>
+        <li>wc:Vincent_van_Gogh’s_famous_painting,_digitally_enhanced_by_rawpixel-com_25.jpg pct:19,12,65,65</li>  
+      </ul>
+    </ve-image>
     
     <div style="width:50%;margin:12px 24px;">
       <ve-manifest src="https://www.e-codices.unifr.ch/metadata/iiif/gau-Fragment/manifest.json"</ve-manifest>

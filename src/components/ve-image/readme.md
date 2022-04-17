@@ -15,9 +15,10 @@
 | `fit`      | `fit`      |             | `string` | `undefined` |
 | `height`   | `height`   |             | `string` | `undefined` |
 | `options`  | `options`  |             | `string` | `undefined` |
+| `path`     | `path`     |             | `string` | `undefined` |
 | `seq`      | `seq`      |             | `number` | `undefined` |
 | `src`      | `src`      |             | `string` | `undefined` |
-| `user`     | `user`     |             | `any`    | `undefined` |
+| `user`     | `user`     |             | `string` | `undefined` |
 | `width`    | `width`    |             | `string` | `undefined` |
 
 

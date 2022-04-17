@@ -36,6 +36,7 @@ export namespace Components {
     interface VeManifest {
         "condensed": boolean;
         "depicts": string[];
+        "images": string;
         "src": string;
     }
 }
@@ -109,6 +110,7 @@ declare namespace LocalJSX {
     interface VeManifest {
         "condensed"?: boolean;
         "depicts"?: string[];
+        "images"?: string;
         "src"?: string;
     }
     interface IntrinsicElements {

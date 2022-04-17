@@ -39,7 +39,6 @@ export class ImageViewer {
 
   @State() _viewer: OpenSeadragon.Viewer
   @State() _viewportBounds: string
-  @State() _manifests: any[] = []
   @State() _entities: string[] = []
   @State() _annotator: any
   @State() _annoTarget: any
@@ -198,6 +197,8 @@ export class ImageViewer {
 
   _setHostDimensions(imageData:any = null) {
     // console.log(`ve-image.setHostDimensions: el.width=${this.el.clientWidth} parent.width=${this.el.parentElement.clientWidth} this.width=${this.width} height=${this.height}`)
+    let osd = this.el.shadowRoot.getElementById('osd')
+    // let caption = this.el.shadowRoot.getElementById('caption')
     let width = this.width
       ? this.width.indexOf('px') > 0
         ? parseInt(this.width.slice(0,-2))
@@ -211,8 +212,10 @@ export class ImageViewer {
         ? Math.round(imageData.height/imageData.width * width) // height scaled to width
         : width
     // console.log(`ve-image.setHostDimensions: width=${width} height=${height}`)
-    this.el.style.width = `${width}px`
-    this.el.style.height = `${height}px`
+    // this.el.style.width = `${width}px`
+    // this.el.style.height = `${height}px`
+    osd.style.width = `${width}px`
+    osd.style.height = `${height}px`
   }
 
   async _tileSource(imgUrl: any, options: any) {
@@ -268,8 +271,10 @@ export class ImageViewer {
 
   _showInfoPopup() {
     let popup: HTMLElement = this.el.shadowRoot.querySelector('#image-info-popup')
-    let manifestUrl = this._images[this._selectedIdx].manifest.id || this._images[this._selectedIdx].manifest['@id']
-    popup.innerHTML = `<ve-manifest src=${manifestUrl} condensed></ve-manifest>`
+    // let manifestUrl = this._images[this._selectedIdx].manifest.id || this._images[this._selectedIdx].manifest['@id']
+    // popup.innerHTML = `<ve-manifest src=${manifestUrl} condensed></ve-manifest>`
+    let images = encodeURIComponent(JSON.stringify(this._images))
+    popup.innerHTML = `<ve-manifest images="${images}" condensed></ve-manifest>`
     popup.style.display = popup.style.display === 'block' ? 'none' : 'block'
   }
 
@@ -371,9 +376,11 @@ export class ImageViewer {
       this.user && !this.compare && <div id="toolbar"></div>,
       <div id="osd"></div>,
       !this.compare && <span id="coords" class="viewport-coords" onClick={this._copyTextToClipboard.bind(this)}>{this._viewportBounds}</span>,
-      !this.compare && <span id="info-icon" onClick={this._showInfoPopup.bind(this)} title="Show image info">i</span>,
-      !this.compare && <div id="caption">{this.alt}</div>,
-      !this.compare && <div id="image-info-popup"></div>
+      <span id="info-icon" onClick={this._showInfoPopup.bind(this)} title="Show image info">i</span>,
+      this.compare
+        ? <div id="caption">Compare viewer: move cursor over image to change view</div>
+        : <div id="caption">{this.alt}</div>,
+      <div id="image-info-popup"></div>
     ]
     : [
       this.user && !this.compare && <div id="toolbar"></div>,
