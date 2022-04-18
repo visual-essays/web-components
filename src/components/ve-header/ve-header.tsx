@@ -73,6 +73,13 @@ export class Header {
     return new DOMParser().parseFromString(html, 'text/html').children[0].children[1]
   }
 
+  _showInfoPopup() {
+    let popup: HTMLElement = this.el.shadowRoot.querySelector('#image-info-popup')
+    let images = encodeURIComponent(JSON.stringify([{manifest: this._manifest}]))
+    popup.innerHTML = `<ve-manifest images="${images}" condensed></ve-manifest>`
+    popup.style.display = popup.style.display === 'block' ? 'none' : 'block'
+  }
+
   render() {
     return [
       <section class="ve-header"></section>,
@@ -91,7 +98,9 @@ export class Header {
       <div class="title-panel">
         <a href="/"><div class="title">{this.label}</div></a>
         {this.subtitle && <div class="subtitle">{this.subtitle}</div>}
-      </div>
+        <span id="info-icon" onClick={this._showInfoPopup.bind(this)} title="Image info">i</span>,
+        <div id="image-info-popup"></div>
+      </div>,
     ]
   }
 }

@@ -228,3 +228,43 @@ body
 {
   transform: none;
 }
+
+#info-icon {
+  position: absolute;
+  font-family: serif;
+  top: 10px;
+  right: 24px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.3);
+  color: white;
+  text-align: center;
+  line-height: 1.3em;
+  letter-spacing: -1px;
+  font-weight: bold;
+  cursor: pointer;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+#info-icon:hover {
+  color: black;
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+#image-info-popup {
+  position: absolute;
+  display: none;
+  width: 75%;
+  max-width: 300px;
+  height: auto;
+  max-height: 500px;
+  background: #fff;
+  right: 20px; 
+  top: 40px;
+  padding: 6px;
+  border: 1px solid #444;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 3px;
+  overflow-y: scroll;
+}
