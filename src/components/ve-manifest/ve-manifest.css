@@ -15,8 +15,10 @@
     margin: 0 9px 6px 0;
 }
 
-.lbl {
+.lbl a {
     font-weight: bold;
+    line-height: 1.2em;
+    text-decoration: None;
 }
 
 ul {
