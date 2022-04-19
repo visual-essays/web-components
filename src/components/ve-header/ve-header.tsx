@@ -95,12 +95,12 @@ export class Header {
           </ul>
         </div>
       </nav>,
-      <div class="title-panel">
+        <span id="info-icon" onClick={this._showInfoPopup.bind(this)} title="Image info">i</span>,
+        <div class="title-panel">
         <a href="/"><div class="title">{this.label}</div></a>
         {this.subtitle && <div class="subtitle">{this.subtitle}</div>}
-        <span id="info-icon" onClick={this._showInfoPopup.bind(this)} title="Image info">i</span>,
-        <div id="image-info-popup"></div>
       </div>,
-    ]
+      <div id="image-info-popup"></div>,
+      ]
   }
 }

@@ -38,6 +38,14 @@
   cursor: copy;
 }
 
+:host #info-icon {
+  visibility: hidden;
+}
+
+:host(:hover) #info-icon {
+  visibility: visible;
+}
+
 #info-icon {
   position: absolute;
   font-family: serif;
@@ -49,7 +57,7 @@
   background-color: rgba(0, 0, 0, 0.6);
   color: white;
   text-align: center;
-  line-height: 1.3em;
+  line-height: 1.4em;
   letter-spacing: -1px;
   font-weight: bold;
   cursor: pointer;
