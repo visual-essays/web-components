@@ -151,7 +151,7 @@ export class ImageViewer {
     while (el.parentElement && el.tagName !== 'MAIN') {
       el = el.parentElement
       let veImage = el.querySelector(':scope > ve-image')
-      if (veImage === this.el) return veImage
+      if (veImage) return veImage === this.el ? veImage : null
     }
   }
 
