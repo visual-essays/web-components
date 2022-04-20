@@ -1,19 +1,16 @@
 import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
 
-import { sha256 } from 'js-sha256'
-
 import OpenSeadragon from 'openseadragon'
-import * as Annotorious from '@recogito/annotorious-openseadragon'
-import Toolbar from '@recogito/annotorious-toolbar'
-// import '@recogito/annotorious-openseadragon/dist/annotorious.min.css'
+import { sha256 } from 'js-sha256'
 
 import './openseadragon-curtain-sync'
 
 import debounce from 'lodash.debounce'
 import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isNum } from '../../utils'
-import { parseInt } from 'lodash';
+// import { initAnnotator, setAnnotationTarget, getAnnotation } from './annotations'
+import { Annotator } from './annotator'
 
-const annotationsServer = 'https://annotations.visual-essays.net/iiif/'
+import { parseInt } from 'lodash';
 
 @Component({
   tag: 've-image',
@@ -32,7 +29,8 @@ export class ImageViewer {
   @Prop() fit: string
   @Prop({ mutable: true, reflect: true }) alt: string
   @Prop() entities: string
-  @Prop({ mutable: true, reflect: true }) user: any
+  @Prop({ mutable: true, reflect: true }) user: string
+  @Prop({ mutable: true, reflect: true }) path: string
   @Prop() compare: string
   @Prop() width: string
   @Prop() height: string
@@ -40,12 +38,10 @@ export class ImageViewer {
   @Element() el: HTMLElement;
 
   @State() _viewer: OpenSeadragon.Viewer
-  @State() _annotorious: any
   @State() _viewportBounds: string
-  @State() _manifests: any[] = []
-  @State() _annotations: any[] = []
-  @State() _userHash: string
   @State() _entities: string[] = []
+  @State() _annotator: any
+  @State() _annoTarget: any
 
   @State() _images: any[] = []
   @Watch('_images')
@@ -72,7 +68,11 @@ export class ImageViewer {
   @Watch('_current')
   _currentChanged() {
     this.alt = this._value(this._current.manifest.label).toString()
-    this.loadAnnotations()
+    let sourceHash = sha256(imageInfo(this._current.manifest).id).slice(0,8)
+    // let path = location.pathname.split('/').filter(elem => elem).join('/') || 'default'
+    this._annoTarget = `${this.path}/${sourceHash}`
+    console.log(`path=${this.path} sourceHash=${sourceHash} annoTarget=${this._annoTarget}`)
+    if (this._annotator) this._annotator.setAnnotationTarget(this._annoTarget)
   }
 
   setRegion(region: string) {
@@ -91,16 +91,11 @@ export class ImageViewer {
     return parsed
   }
 
-  async getAnnotation(annoId: string) {
-    let resp = await fetch(`https://annotations.visual-essays.net/iiif/${annoId}`)
-    if (resp.ok) return await resp.json() 
-  }
-
   async zoomto(arg: string) {
     let region
     let annoRegex = new RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
     if (annoRegex.test(arg)) {
-      let anno = await this.getAnnotation(arg)
+      let anno = await this._annotator.getAnnotation(arg)
       if (anno) region = anno.target.selector.value.split('=')[1]
     } else {
       region = arg
@@ -112,7 +107,7 @@ export class ImageViewer {
   buildImagesList() {
     let images: any[] = []
     if (this.src) images.push({manifest: this.src, options: parseImageOptions(this.options)})
-    Array.from(this.el.querySelectorAll('li'))
+    Array.from(this.el.querySelectorAll('li, span'))
       .forEach(li => images.push(this.parseImageStr(li.innerHTML)))
 
     // If no manifest defined in src attribute or images list, use most recent entity QID, if available 
@@ -129,7 +124,7 @@ export class ImageViewer {
   }
 
   listenForSlotChanges() {
-    let slot = document.querySelector('ve-image > ul')
+    let slot = document.querySelector('ve-image > ul, ve-image > span')
     if (slot) {
       const callback = (mutationsList) => {
         for (let mutation of mutationsList) {
@@ -148,10 +143,7 @@ export class ImageViewer {
   }
 
   async componentWillLoad() {
-    if (this.user) {
-      this.user = this.user && JSON.parse(this.user)
-      this._userHash = sha256(this.user.email).slice(0,7)
-    }
+    console.log(`componentWillLoad: user=${this.user} path=${this.path}`)
     this.buildImagesList()
   }
   
@@ -159,7 +151,7 @@ export class ImageViewer {
     while (el.parentElement && el.tagName !== 'MAIN') {
       el = el.parentElement
       let veImage = el.querySelector(':scope > ve-image')
-      if (veImage === this.el) return veImage
+      if (veImage) return veImage === this.el ? veImage : null
     }
   }
 
@@ -203,88 +195,10 @@ export class ImageViewer {
     })
   }
 
-  _initAnnotator() {
-    if (!this._annotorious) {
-      this._annotorious = Annotorious.default(this._viewer, {})
-      let toolbar = this.el.shadowRoot.querySelector('#toolbar')
-      if (toolbar) {
-        Toolbar(this._annotorious, toolbar)
-        this._annotorious.on('createAnnotation', async (anno) => this.createAnnotation(anno))
-        this._annotorious.on('updateAnnotation', async (anno) => this.updateAnnotation(anno))
-        this._annotorious.on('deleteAnnotation', async (anno) => this.deleteAnnotation(anno))
-      }
-    }
-  }
-
-  async loadAnnotations() {
-    // console.log(`loadAnnotations: manifestId=${this._current.manifestId} creator=${this._userHash}`)
-    let target = encodeURIComponent(`https://iiif.visual-essays.net/${this._current.manifestId}`)
-    let resp: any = await fetch(`${annotationsServer}?target=${target}&creator=${this._userHash}`, {
-      headers: {
-        Accept: 'application/ld+json;profile="http://www.w3.org/ns/anno.jsonld'
-      }
-    })
-    this._annotations = []
-    if (resp.ok) {
-      let annoResp: any = await resp.json()
-      this._annotations = annoResp.first.items
-      this._annotations.forEach(anno => this._annotorious.addAnnotation(anno))
-    }
-  }
-
-  async createAnnotation(anno) {
-    anno.id = anno.id.slice(1)
-    anno.target.id = `https://iiif.visual-essays.net/${this._current.manifestId}`
-    anno.creator = this._userHash
-    console.log(`createAnnotation: target=${anno.target.id} creator=${anno.creator}`, anno)
-    let resp = await fetch(annotationsServer, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/ld+json;profile="http://www.w3.org/ns/anno.jsonld',
-        Accept: 'application/ld+json;profile="http://www.w3.org/ns/anno.jsonld'
-      },
-      body: JSON.stringify(anno)
-    })
-    if (resp.ok && resp.status === 201) {
-      let created = await resp.json()
-      created.id = created.id.split('/').pop()
-      this._annotorious.addAnnotation(created)
-      this._annotations = [...this._annotations, ...[created]]
-    } else {
-      console.log(`createAnnotation: resp=${resp.status}`)
-    }
-  }
-
-  async updateAnnotation(anno) {
-    anno.target.id = `https://iiif.visual-essays.net/${this._current.manifestId}`
-    console.log(`updateAnnotation: target=${anno.target.id}`, anno)
-    let resp = await fetch(`${annotationsServer}${anno.id.split('/').pop()}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/ld+json;profile="http://www.w3.org/ns/anno.jsonld',
-        Accept: 'application/ld+json;profile="http://www.w3.org/ns/anno.jsonld'
-      },
-      body: JSON.stringify(anno)
-    })
-    if (resp.status === 202) {
-      this._annotations = [...this._annotations.filter(item => item.id !== anno.id), ...[anno]]
-    } else {
-      console.log(`updateAnnotation: resp=${resp.status}`)
-    }
-  }
-
-  async deleteAnnotation(anno) {
-    console.log('deleteAnnotation', anno)
-    let resp = await fetch(`${annotationsServer}${anno.id.split('/').pop()}`, { method: 'DELETE' })
-    if (resp.status === 204) {
-      this._annotations = this._annotations.filter(item => item.id !== anno.id)
-    } else {
-      console.log(`deleteAnnotation: resp=${resp.status}`)
-    }
-  }
-
   _setHostDimensions(imageData:any = null) {
     // console.log(`ve-image.setHostDimensions: el.width=${this.el.clientWidth} parent.width=${this.el.parentElement.clientWidth} this.width=${this.width} height=${this.height}`)
+    let osd = this.el.shadowRoot.getElementById('osd')
+    // let caption = this.el.shadowRoot.getElementById('caption')
     let width = this.width
       ? this.width.indexOf('px') > 0
         ? parseInt(this.width.slice(0,-2))
@@ -298,8 +212,10 @@ export class ImageViewer {
         ? Math.round(imageData.height/imageData.width * width) // height scaled to width
         : width
     // console.log(`ve-image.setHostDimensions: width=${width} height=${height}`)
-    this.el.style.width = `${width}px`
-    this.el.style.height = `${height}px`
+    // this.el.style.width = `${width}px`
+    // this.el.style.height = `${height}px`
+    osd.style.width = `${width}px`
+    osd.style.height = `${height}px`
   }
 
   async _tileSource(imgUrl: any, options: any) {
@@ -355,8 +271,10 @@ export class ImageViewer {
 
   _showInfoPopup() {
     let popup: HTMLElement = this.el.shadowRoot.querySelector('#image-info-popup')
-    let manifestUrl = this._images[this._selectedIdx].manifest.id || this._images[this._selectedIdx].manifest['@id']
-    popup.innerHTML = `<ve-manifest src=${manifestUrl} condensed></ve-manifest>`
+    // let manifestUrl = this._images[this._selectedIdx].manifest.id || this._images[this._selectedIdx].manifest['@id']
+    // popup.innerHTML = `<ve-manifest src=${manifestUrl} condensed></ve-manifest>`
+    let images = encodeURIComponent(JSON.stringify(this._images))
+    popup.innerHTML = `<ve-manifest images="${images}" condensed></ve-manifest>`
     popup.style.display = popup.style.display === 'block' ? 'none' : 'block'
   }
 
@@ -411,7 +329,12 @@ export class ImageViewer {
 
     // console.log(`homeFillsViewer=${osdConfig.homeFillsViewer}`)
     this._viewer = OpenSeadragon(osdOptions)
-    this._initAnnotator()
+    
+    this._annotator = new Annotator(this._viewer, this.user, this.el.shadowRoot.querySelector('#toolbar'))
+    if (this._annoTarget) this._annotator.setAnnotationTarget(this._annoTarget)
+    this.showAnnotationsToolbar(false)
+    this.showAnnotations(false)
+
     this._viewer.addHandler('page', (e) => this._selectedIdx = e.page)
     // this._viewer.world.addHandler('add-item', (e) => {console.log('add-item', e)})
 
@@ -435,6 +358,18 @@ export class ImageViewer {
 
   }
 
+  showAnnotationsToolbar(show: boolean) {
+    console.log(`showAnnotationsToolbar=${show}`)
+    Array.from(this.el.shadowRoot.querySelectorAll('.a9s-toolbar')).forEach((elem:HTMLElement) => {
+      console.log('toolbar')
+      elem.style.display = show ? 'unset' : 'none'
+    })
+  }
+
+  showAnnotations(show: boolean) {
+    Array.from(this.el.shadowRoot.querySelectorAll('.a9s-annotationlayer')).forEach((elem:HTMLElement) => elem.style.display = show ? 'unset' : 'none')
+  }
+
   render() {
     return this._images.length > 0
     ? [
@@ -442,9 +377,11 @@ export class ImageViewer {
       <div id="osd"></div>,
       <ve-image-toolbar></ve-image-toolbar>,
       !this.compare && <span id="coords" class="viewport-coords" onClick={this._copyTextToClipboard.bind(this)}>{this._viewportBounds}</span>,
-      !this.compare && <span id="info-icon" onClick={this._showInfoPopup.bind(this)} title="Show image info">i</span>,
-      !this.compare && <div id="caption">{this.alt}</div>,
-      !this.compare && <div id="image-info-popup"></div>
+      <span id="info-icon" onClick={this._showInfoPopup.bind(this)} title="Show image info">i</span>,
+      this.compare
+        ? <div id="caption">Compare viewer: move cursor over image to change view</div>
+        : <div id="caption">{this.alt}</div>,
+      <div id="image-info-popup"></div>
     ]
     : [
       this.user && !this.compare && <div id="toolbar"></div>,

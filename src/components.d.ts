@@ -25,9 +25,10 @@ export namespace Components {
         "fit": string;
         "height": string;
         "options": string;
+        "path": string;
         "seq": number;
         "src": string;
-        "user": any;
+        "user": string;
         "width": string;
     }
     interface VeImageGrid {
@@ -38,6 +39,7 @@ export namespace Components {
     interface VeManifest {
         "condensed": boolean;
         "depicts": string[];
+        "images": string;
         "src": string;
     }
 }
@@ -107,9 +109,10 @@ declare namespace LocalJSX {
         "fit"?: string;
         "height"?: string;
         "options"?: string;
+        "path"?: string;
         "seq"?: number;
         "src"?: string;
-        "user"?: any;
+        "user"?: string;
         "width"?: string;
     }
     interface VeImageGrid {
@@ -120,6 +123,7 @@ declare namespace LocalJSX {
     interface VeManifest {
         "condensed"?: boolean;
         "depicts"?: string[];
+        "images"?: string;
         "src"?: string;
     }
     interface IntrinsicElements {

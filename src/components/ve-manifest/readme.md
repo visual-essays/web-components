@@ -11,6 +11,7 @@
 | ----------- | ----------- | ----------- | ---------- | ----------- |
 | `condensed` | `condensed` |             | `boolean`  | `false`     |
 | `depicts`   | --          |             | `string[]` | `undefined` |
+| `images`    | `images`    |             | `string`   | `undefined` |
 | `src`       | `src`       |             | `string`   | `undefined` |
 
 

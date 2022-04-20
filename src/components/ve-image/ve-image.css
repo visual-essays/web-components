@@ -27,6 +27,10 @@ ve-image-toolbar {
   height: 100%;
 }
 
+.a9s-toolbar, .a9s-annotationlayer {
+  display: none;
+}
+
 .viewport-coords {
   position: absolute;
   font-family: sans-serif;
@@ -49,6 +53,14 @@ ve-image-toolbar {
   cursor: copy;
 }
 
+:host #info-icon {
+  visibility: hidden;
+}
+
+:host(:hover) #info-icon {
+  visibility: visible;
+}
+
 #info-icon {
   position: absolute;
   font-family: serif;
@@ -60,7 +72,7 @@ ve-image-toolbar {
   background-color: rgba(0, 0, 0, 0.6);
   color: white;
   text-align: center;
-  line-height: 1.3em;
+  line-height: 1.4em;
   letter-spacing: -1px;
   font-weight: bold;
   cursor: pointer;
@@ -82,7 +94,7 @@ ve-image-toolbar {
   background: #fff;
   right: 15px; 
   top: 50px;
-  padding: 15px;
+  padding: 6px;
   border: 1px solid #444;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   border-radius: 3px;

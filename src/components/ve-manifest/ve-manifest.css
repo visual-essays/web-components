@@ -1,5 +1,32 @@
-:host > div {
+.manifest-summary > div {
     margin-bottom: 12px;
+}
+
+.manifest-summary {
+    font-family: Roboto, sans-serif;
+    border: 1px solid #ccc;
+    padding: 6px;
+}
+
+manifest-summary:not(:first-of-type) {
+    margin-top: 1.5em;
+    font-size: 0.9rem;
+    color: #444;
+}
+
+.manifest-summary .thumbnail {
+    max-height: 80px;
+    max-width: 60px;
+    position: relative;
+    float: left;
+    margin: 0 9px 6px 0;
+}
+
+.lbl, .lbl a, .summary {
+    font-weight: bold;
+    line-height: 1.2em;
+    /* text-decoration: None; */
+    color: #444;
 }
 
 ul {
@@ -29,9 +56,10 @@ ul {
     -moz-hyphens: auto;
     -webkit-hyphens: auto;
     hyphens: auto;
+    color: #444;
 }
 
-:host > div .label {
+.manifest-summary > div .label {
     font-weight: bold;
     min-width: 80px;
     margin-right: 6px;
