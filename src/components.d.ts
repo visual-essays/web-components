@@ -32,6 +32,9 @@ export namespace Components {
     }
     interface VeImageGrid {
     }
+    interface VeImageToolbar {
+        "entities": string;
+    }
     interface VeManifest {
         "condensed": boolean;
         "depicts": string[];
@@ -63,6 +66,12 @@ declare global {
         prototype: HTMLVeImageGridElement;
         new (): HTMLVeImageGridElement;
     };
+    interface HTMLVeImageToolbarElement extends Components.VeImageToolbar, HTMLStencilElement {
+    }
+    var HTMLVeImageToolbarElement: {
+        prototype: HTMLVeImageToolbarElement;
+        new (): HTMLVeImageToolbarElement;
+    };
     interface HTMLVeManifestElement extends Components.VeManifest, HTMLStencilElement {
     }
     var HTMLVeManifestElement: {
@@ -74,6 +83,7 @@ declare global {
         "ve-header": HTMLVeHeaderElement;
         "ve-image": HTMLVeImageElement;
         "ve-image-grid": HTMLVeImageGridElement;
+        "ve-image-toolbar": HTMLVeImageToolbarElement;
         "ve-manifest": HTMLVeManifestElement;
     }
 }
@@ -104,6 +114,9 @@ declare namespace LocalJSX {
     }
     interface VeImageGrid {
     }
+    interface VeImageToolbar {
+        "entities"?: string;
+    }
     interface VeManifest {
         "condensed"?: boolean;
         "depicts"?: string[];
@@ -114,6 +127,7 @@ declare namespace LocalJSX {
         "ve-header": VeHeader;
         "ve-image": VeImage;
         "ve-image-grid": VeImageGrid;
+        "ve-image-toolbar": VeImageToolbar;
         "ve-manifest": VeManifest;
     }
 }
@@ -125,6 +139,7 @@ declare module "@stencil/core" {
             "ve-header": LocalJSX.VeHeader & JSXBase.HTMLAttributes<HTMLVeHeaderElement>;
             "ve-image": LocalJSX.VeImage & JSXBase.HTMLAttributes<HTMLVeImageElement>;
             "ve-image-grid": LocalJSX.VeImageGrid & JSXBase.HTMLAttributes<HTMLVeImageGridElement>;
+            "ve-image-toolbar": LocalJSX.VeImageToolbar & JSXBase.HTMLAttributes<HTMLVeImageToolbarElement>;
             "ve-manifest": LocalJSX.VeManifest & JSXBase.HTMLAttributes<HTMLVeManifestElement>;
         }
     }

@@ -35,7 +35,8 @@
     "@types/openseadragon": "^3.0.2",
     "jest": "^27.5.1",
     "jest-cli": "^27.5.1",
-    "puppeteer": "^13.5.2"
+    "puppeteer": "^13.5.2",
+    "stencil-inline-svg": "^1.1.0"
   },
   "license": "MIT"
 }

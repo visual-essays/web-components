@@ -173,7 +173,7 @@ export class ImageViewer {
         if (/^\d+,\d+,\d+,\d+$/.test(attr.value)) {
           let veImage = this.findVeImage(mark)
           if (veImage) {
-            mark.addEventListener('click', (e) => setTimeout(() => this.zoomto(attr.value), 200))
+            mark.addEventListener('click', () => setTimeout(() => this.zoomto(attr.value), 200))
           }
           break
         }
@@ -392,16 +392,16 @@ export class ImageViewer {
       element: osdElem,
       tileSources,
       prefixUrl: 'https://openseadragon.github.io/openseadragon/images/',
-      showNavigationControl: true,
+      showNavigationControl: false,
       minZoomImageRatio: 0.2,
       maxZoomPixelRatio: 5,
       homeFillsViewer: this.fit === 'cover',
       //animationTime: 100,
-      showHomeControl: true,
-      showZoomControl: true,
-      showFullPageControl: true,
+      showHomeControl: false,
+      showZoomControl: false,
+      showFullPageControl: false,
       showNavigator: false,
-      sequenceMode: true,
+      sequenceMode: false,
       showReferenceStrip: true,
       //visibilityRatio: 1.0,
       //animationTime: 2,
@@ -440,6 +440,7 @@ export class ImageViewer {
     ? [
       this.user && !this.compare && <div id="toolbar"></div>,
       <div id="osd"></div>,
+      <ve-image-toolbar></ve-image-toolbar>,
       !this.compare && <span id="coords" class="viewport-coords" onClick={this._copyTextToClipboard.bind(this)}>{this._viewportBounds}</span>,
       !this.compare && <span id="info-icon" onClick={this._showInfoPopup.bind(this)} title="Show image info">i</span>,
       !this.compare && <div id="caption">{this.alt}</div>,
