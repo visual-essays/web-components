@@ -1,26 +1,27 @@
 :host {
   display: flex;
   flex-direction: column;
-  width: 40px;
+  width: 36px;
   cursor: pointer;
   z-index: 2;
   background: white;
   border-radius: 4px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+
 }
 
 :host div {
-  color: black;
   width: 100%;
-  margin: 6px auto;
+  margin: 4px auto;
   text-align: center;
 }
 
 :host div svg {
-  width: 20px;
+  fill: #444;
+  width: 18px;
 }
 
 :host div {
-  line-height: 2;
   border-bottom: 1px solid #989898;
 }
 
@@ -28,9 +29,38 @@
   border-bottom: none;
 }
 
-:host div:hover, :host div:hover {
-  color: #444A1E;
-  fill: #444A1E;
-  transform: scale(1.05, 1.05);
+:host div:hover svg {
+  fill: black;
+  transform: scale(1.2, 1.2);
 }
 
+#tooltip {
+  /* transition: top 5.5s ease; */
+  /*top:174px;*/
+  visibility: hidden;
+  z-index: 10;
+  position: absolute;
+  background: #646464;
+  border-radius:4px;
+  padding: 6px 12px;
+  font-family: arial;
+  font-size: 12px;
+  font-weight: bold;
+  text-shadow: 0px 1px 1px #000;
+  color: white;
+  width: 100px;
+}
+
+/*
+#tooltip:before {
+  content : " ";
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 10px solid #646464;
+  position:absolute;
+  bottom:-5px;
+  left:5px;
+}
+*/

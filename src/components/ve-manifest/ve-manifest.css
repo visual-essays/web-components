@@ -6,6 +6,7 @@
     font-family: Roboto, sans-serif;
     border: 1px solid #ccc;
     padding: 6px;
+    z-index: 100;
 }
 
 manifest-summary:not(:first-of-type) {

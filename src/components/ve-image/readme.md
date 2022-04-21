@@ -22,6 +22,19 @@
 | `width`    | `width`    |             | `string` | `undefined` |
 
 
+## Dependencies
+
+### Depends on
+
+- [ve-image-toolbar](../ve-image-toolbar)
+
+### Graph
+```mermaid
+graph TD;
+  ve-image --> ve-image-toolbar
+  style ve-image fill:#f9f,stroke:#333,stroke-width:4px
+```
+
 ----------------------------------------------
 
 *Built with [StencilJS](https://stenciljs.com/)*

@@ -34,7 +34,8 @@ export namespace Components {
     interface VeImageGrid {
     }
     interface VeImageToolbar {
-        "entities": string;
+        "canEdit": boolean;
+        "hasAnnotations": boolean;
     }
     interface VeManifest {
         "condensed": boolean;
@@ -118,7 +119,9 @@ declare namespace LocalJSX {
     interface VeImageGrid {
     }
     interface VeImageToolbar {
-        "entities"?: string;
+        "canEdit"?: boolean;
+        "hasAnnotations"?: boolean;
+        "onIconClicked"?: (event: CustomEvent<string>) => void;
     }
     interface VeManifest {
         "condensed"?: boolean;

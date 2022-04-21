@@ -1,4 +1,4 @@
-import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
+import { Component, Element, Listen, Prop, State, Watch, h } from '@stencil/core';
 
 import OpenSeadragon from 'openseadragon'
 import { sha256 } from 'js-sha256'
@@ -7,8 +7,8 @@ import './openseadragon-curtain-sync'
 
 import debounce from 'lodash.debounce'
 import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isNum } from '../../utils'
-// import { initAnnotator, setAnnotationTarget, getAnnotation } from './annotations'
 import { Annotator } from './annotator'
+import infoCircleIcon from '../../icons/info-circle-solid.svg'
 
 import { parseInt } from 'lodash';
 
@@ -74,6 +74,37 @@ export class ImageViewer {
     console.log(`path=${this.path} sourceHash=${sourceHash} annoTarget=${this._annoTarget}`)
     if (this._annotator) this._annotator.setAnnotationTarget(this._annoTarget)
   }
+
+  @Listen('iconClicked')
+  onIconClicked(event: CustomEvent) { this[event.detail]() }
+
+  goHome() {
+    console.log('goHome')
+    this._viewer.viewport.goHome()
+  }
+
+  zoomIn() {
+    let zoomTo = this._viewer.viewport.getZoom() * 1.5
+    console.log(`zoomTo=${zoomTo}`)
+    this._viewer.viewport.zoomTo(zoomTo)
+  }
+
+  zoomOut() {
+    let zoomTo = this._viewer.viewport.getZoom() / 1.5
+    console.log(`zoomTo=${zoomTo}`)
+    this._viewer.viewport.zoomTo(zoomTo)
+  }
+
+  showInfo() {
+    console.log('showInfo')
+    this._showInfoPopup()
+  }
+
+  toggleShowAnnotations() { console.log('toggleShowAnnotations') }
+
+  navigateAnnotations() { console.log('navigateAnnotations') }
+  
+  editAnnotations() { console.log('editAnnotations') }
 
   setRegion(region: string) {
     this._viewer.viewport.fitBounds(parseRegionString(region, this._viewer), false)
@@ -375,9 +406,9 @@ export class ImageViewer {
     ? [
       this.user && !this.compare && <div id="toolbar"></div>,
       <div id="osd"></div>,
-      <ve-image-toolbar></ve-image-toolbar>,
+      !this.compare && <ve-image-toolbar hasAnnotations={true} canEdit={true}></ve-image-toolbar>,
+      this.compare && <span id="info-icon" onClick={this._showInfoPopup.bind(this)} innerHTML={infoCircleIcon} title="Show image info"></span>,
       !this.compare && <span id="coords" class="viewport-coords" onClick={this._copyTextToClipboard.bind(this)}>{this._viewportBounds}</span>,
-      <span id="info-icon" onClick={this._showInfoPopup.bind(this)} title="Show image info">i</span>,
       this.compare
         ? <div id="caption">Compare viewer: move cursor over image to change view</div>
         : <div id="caption">{this.alt}</div>,

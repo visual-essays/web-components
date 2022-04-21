@@ -63,25 +63,23 @@ ve-image-toolbar {
 
 #info-icon {
   position: absolute;
-  font-family: serif;
   top: 10px;
   right: 10px;
   width: 22px;
   height: 22px;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.6);
-  color: white;
-  text-align: center;
-  line-height: 1.4em;
-  letter-spacing: -1px;
-  font-weight: bold;
-  cursor: pointer;
   border: 2px solid rgba(255, 255, 255, 0.8);
+  border-radius: 50%;
+  background-color: white;
 }
 
+#info-icon svg {
+  fill: rgba(0, 0, 0, 0.6);
+}
 #info-icon:hover {
-  color: black;
-  background-color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+}
+#info-icon:hover svg {
+  fill: black;
 }
 
 #image-info-popup {
@@ -92,8 +90,8 @@ ve-image-toolbar {
   height: auto;
   max-height: 500px;
   background: #fff;
-  right: 15px; 
-  top: 50px;
+  right: 50px; 
+  top: 10px;
   padding: 6px;
   border: 1px solid #444;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);

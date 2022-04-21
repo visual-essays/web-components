@@ -1,8 +1,11 @@
-import { Component, Prop, h } from '@stencil/core';
-import homeIcon from './icons/home-solid.svg'
-import searchPlusIcon from './icons/search-plus-solid.svg'
-import searchMinusIcon from './icons/search-minus-solid.svg'
-import infoCircleIcon from './icons/info-circle-solid.svg'
+import { Component, Element, Event, EventEmitter, Prop, h } from '@stencil/core';
+import homeIcon from '../../icons/home-solid.svg'
+import searchPlusIcon from '../../icons/search-plus-regular.svg'
+import searchMinusIcon from '../../icons/search-minus-regular.svg'
+import infoCircleIcon from '../../icons/info-circle-solid.svg'
+import commentDotsIcon from '../../icons/comment-dots-regular.svg'
+import navigateAnnotationsIcon from '../../icons/navigate-annotations.svg'
+import editAnnotationsIcon from '../../icons/edit-annotations.svg'
 
 @Component({
   tag: 've-image-toolbar',
@@ -10,18 +13,52 @@ import infoCircleIcon from './icons/info-circle-solid.svg'
   shadow: true,
 })
 export class Entities {
-  @Prop() entities: string
+  @Prop() hasAnnotations: boolean = false
+  @Prop() canEdit: boolean = false
 
-  connectedCallback() {
-    console.log('ve-entities.connectedCallback', this.entities)
+  @Element() el: HTMLElement;
+
+  @Event({ bubbles: true, composed: true }) iconClicked: EventEmitter<string>
+
+  onClick(action: string) { this.iconClicked.emit(action) }
+
+  createTip(el: HTMLElement) {
+    if (el.title !== '') {
+      el.setAttribute('tooltip', el.title)
+      el.title = ''
+    }
+    let tooltip = this.el.shadowRoot.getElementById('tooltip')
+    tooltip.innerHTML = el.getAttribute('tooltip')
+    let padding = 5
+    let linkProps = el.getBoundingClientRect()
+    let tooltipProps = tooltip.getBoundingClientRect()
+    let topPos = linkProps.top - (tooltipProps.height + padding)
+    tooltip.setAttribute('style', `visibility:visible; top:${topPos+5}px; right:${40}px;`)
   }
 
+  cancelTip() {
+    this.el.shadowRoot.getElementById('tooltip').setAttribute('style', `visibility:hidden;`)
+  }
+
+  componentDidLoad() {
+    Array.from(this.el.shadowRoot.querySelectorAll('div'))
+      .forEach((div:HTMLElement) => {
+        if (div.title !== '') {
+          div.addEventListener('mouseover', () => this.createTip(div))
+          div.addEventListener('mouseout', () => this.cancelTip())
+        }
+      })
+  }
   render() {
     return [
-      <div id="go-home" innerHTML={homeIcon}></div>,
-      <div id="zoom-in" innerHTML={searchPlusIcon}></div>,
-      <div id="zoom-out" innerHTML={searchMinusIcon}></div>,
-      <div id="info-box" innerHTML={infoCircleIcon}></div>
+      <div onClick={this.onClick.bind(this, 'goHome')} innerHTML={homeIcon} title="Go Home"></div>,
+      <div onClick={this.onClick.bind(this, 'zoomIn')} innerHTML={searchPlusIcon} title="Zoom In"></div>,
+      <div onClick={this.onClick.bind(this, 'zoomOut')} innerHTML={searchMinusIcon} title="Zoom Out"></div>,
+      <div onClick={this.onClick.bind(this, 'showInfo')} innerHTML={infoCircleIcon} title="Show Image Info"></div>,
+      this.hasAnnotations && <div onClick={this.onClick.bind(this, 'toggleShowAnnotations')} innerHTML={commentDotsIcon} title="Show Annotations"></div>,
+      this.hasAnnotations && <div onClick={this.onClick.bind(this, 'navigateAnnotations')} innerHTML={navigateAnnotationsIcon} title="Navigate Annotations"></div>,
+      this.hasAnnotations && this.canEdit && <div onClick={this.onClick.bind(this, 'editAnnotations')} innerHTML={editAnnotationsIcon} title="Edit Annotations"></div>,
+      <div id="tooltip">Tooltip</div>
     ]
   }
 }
