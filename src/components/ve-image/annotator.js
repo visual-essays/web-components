@@ -1,8 +1,9 @@
 import * as Annotorious from '@recogito/annotorious-openseadragon'
 import Toolbar from '@recogito/annotorious-toolbar'
 
-// const annotationsEndpoint = 'https://api.visual-essays.net'
-const annotationsEndpoint = 'http://localhost:8000'
+const annotationsEndpoint = location.hostname === 'localhost'
+  ? 'http://localhost:8000'
+  : 'https://api.visual-essays.net'
 
 export class Annotator {
 

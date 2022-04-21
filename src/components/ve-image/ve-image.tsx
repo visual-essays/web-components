@@ -71,7 +71,7 @@ export class ImageViewer {
     let sourceHash = sha256(imageInfo(this._current.manifest).id).slice(0,8)
     // let path = location.pathname.split('/').filter(elem => elem).join('/') || 'default'
     this._annoTarget = `${this.path}/${sourceHash}`
-    console.log(`path=${this.path} sourceHash=${sourceHash} annoTarget=${this._annoTarget}`)
+    console.log(`location=${location.pathname} path=${this.path} sourceHash=${sourceHash} annoTarget=${this._annoTarget}`)
     if (this._annotator) this._annotator.setAnnotationTarget(this._annoTarget)
   }
 
