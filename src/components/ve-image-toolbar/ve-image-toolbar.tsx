@@ -20,7 +20,10 @@ export class Entities {
 
   @Event({ bubbles: true, composed: true }) iconClicked: EventEmitter<string>
 
-  onClick(action: string) { this.iconClicked.emit(action) }
+  onClick(action: string) {
+    this.cancelTip()
+    this.iconClicked.emit(action)
+  }
 
   createTip(e: MouseEvent) {
     let el = (e.composedPath()[0] as HTMLElement)
@@ -30,7 +33,7 @@ export class Entities {
     }
     let tooltip = this.el.shadowRoot.getElementById('tooltip')
     tooltip.innerHTML = el.getAttribute('tooltip')
-    tooltip.setAttribute('style', `visibility:visible; top:${el.offsetTop}px; right:${40}px;`)
+    tooltip.setAttribute('style', `visibility:visible; top:${el.offsetTop-10}px; right:${40}px;`)
   }
 
   cancelTip() {
