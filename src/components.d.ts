@@ -31,6 +31,9 @@ export namespace Components {
         "user": string;
         "width": string;
     }
+    interface VeImageAnnotationsBrowser {
+        "annotations": string;
+    }
     interface VeImageGrid {
     }
     interface VeImageToolbar {
@@ -63,6 +66,12 @@ declare global {
         prototype: HTMLVeImageElement;
         new (): HTMLVeImageElement;
     };
+    interface HTMLVeImageAnnotationsBrowserElement extends Components.VeImageAnnotationsBrowser, HTMLStencilElement {
+    }
+    var HTMLVeImageAnnotationsBrowserElement: {
+        prototype: HTMLVeImageAnnotationsBrowserElement;
+        new (): HTMLVeImageAnnotationsBrowserElement;
+    };
     interface HTMLVeImageGridElement extends Components.VeImageGrid, HTMLStencilElement {
     }
     var HTMLVeImageGridElement: {
@@ -85,6 +94,7 @@ declare global {
         "ve-entities": HTMLVeEntitiesElement;
         "ve-header": HTMLVeHeaderElement;
         "ve-image": HTMLVeImageElement;
+        "ve-image-annotations-browser": HTMLVeImageAnnotationsBrowserElement;
         "ve-image-grid": HTMLVeImageGridElement;
         "ve-image-toolbar": HTMLVeImageToolbarElement;
         "ve-manifest": HTMLVeManifestElement;
@@ -116,6 +126,11 @@ declare namespace LocalJSX {
         "user"?: string;
         "width"?: string;
     }
+    interface VeImageAnnotationsBrowser {
+        "annotations"?: string;
+        "onCloseAnnotationsBrowser"?: (event: CustomEvent<any>) => void;
+        "onZoomToRegion"?: (event: CustomEvent<string>) => void;
+    }
     interface VeImageGrid {
     }
     interface VeImageToolbar {
@@ -133,6 +148,7 @@ declare namespace LocalJSX {
         "ve-entities": VeEntities;
         "ve-header": VeHeader;
         "ve-image": VeImage;
+        "ve-image-annotations-browser": VeImageAnnotationsBrowser;
         "ve-image-grid": VeImageGrid;
         "ve-image-toolbar": VeImageToolbar;
         "ve-manifest": VeManifest;
@@ -145,6 +161,7 @@ declare module "@stencil/core" {
             "ve-entities": LocalJSX.VeEntities & JSXBase.HTMLAttributes<HTMLVeEntitiesElement>;
             "ve-header": LocalJSX.VeHeader & JSXBase.HTMLAttributes<HTMLVeHeaderElement>;
             "ve-image": LocalJSX.VeImage & JSXBase.HTMLAttributes<HTMLVeImageElement>;
+            "ve-image-annotations-browser": LocalJSX.VeImageAnnotationsBrowser & JSXBase.HTMLAttributes<HTMLVeImageAnnotationsBrowserElement>;
             "ve-image-grid": LocalJSX.VeImageGrid & JSXBase.HTMLAttributes<HTMLVeImageGridElement>;
             "ve-image-toolbar": LocalJSX.VeImageToolbar & JSXBase.HTMLAttributes<HTMLVeImageToolbarElement>;
             "ve-manifest": LocalJSX.VeManifest & JSXBase.HTMLAttributes<HTMLVeManifestElement>;

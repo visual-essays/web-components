@@ -27,11 +27,13 @@
 ### Depends on
 
 - [ve-image-toolbar](../ve-image-toolbar)
+- [ve-image-annotations-browser](../ve-image-annotations-browser)
 
 ### Graph
 ```mermaid
 graph TD;
   ve-image --> ve-image-toolbar
+  ve-image --> ve-image-annotations-browser
   style ve-image fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
