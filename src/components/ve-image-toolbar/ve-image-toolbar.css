@@ -12,7 +12,7 @@
 
 :host div {
   width: 100%;
-  margin: 4px auto;
+  padding: 8px 0 6px 0;
   text-align: center;
 }
 
@@ -22,11 +22,11 @@
 }
 
 :host div {
-  border-bottom: 1px solid #989898;
+  border-top: 1px solid #989898;
 }
 
-:host div:last-child {
-  border-bottom: none;
+:host div:first-of-type {
+  border-top: none;
 }
 
 :host div:hover svg {
@@ -36,7 +36,6 @@
 
 #tooltip {
   /* transition: top 5.5s ease; */
-  /*top:174px;*/
   visibility: hidden;
   z-index: 10;
   position: absolute;
@@ -50,17 +49,3 @@
   color: white;
   width: 100px;
 }
-
-/*
-#tooltip:before {
-  content : " ";
-  width: 0;
-  height: 0;
-  border-left: 10px solid transparent;
-  border-right: 10px solid transparent;
-  border-top: 10px solid #646464;
-  position:absolute;
-  bottom:-5px;
-  left:5px;
-}
-*/

@@ -33,7 +33,7 @@ export class Entities {
     }
     let tooltip = this.el.shadowRoot.getElementById('tooltip')
     tooltip.innerHTML = el.getAttribute('tooltip')
-    tooltip.setAttribute('style', `visibility:visible; top:${el.offsetTop-10}px; right:${40}px;`)
+    tooltip.setAttribute('style', `visibility:visible; top:${el.offsetTop+6}px; right:${40}px;`)
   }
 
   cancelTip() {
