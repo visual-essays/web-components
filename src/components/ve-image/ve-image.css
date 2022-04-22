@@ -22,6 +22,14 @@ ve-image-toolbar {
   transition: all 0.3s ease-in;
 }
 
+#annotations-icon svg {
+  height: 18px;
+  fill: white;
+  padding-top: 3px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
 #osd {
   width: 100%;
   height: 100%;
@@ -100,6 +108,8 @@ ve-image-toolbar {
 }
 
 #caption {
+  display: flex;
+  align-items: center;
   font-family: sans-serif;
   width: calc(100% - 12px);
   background: rgba(0, 0, 0, 0.7);

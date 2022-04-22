@@ -156,14 +156,14 @@ export class ManifestViewer {
           <span class="value">{parsed.summary}</span>
         </div>
       : null}
-      {parsed.rights 
-        ? <div class="rights">
-            <a class="value" href={parsed.rights} innerHTML={this.licenseBadge(parsed)}/>
-          </div>
-        : null}
       {parsed.requiredStatement 
         ? <div>
             <span class="value" innerHTML={parsed.requiredStatement.value}></span>
+          </div>
+        : null}
+      {parsed.rights 
+        ? <div class="rights">
+            <a class="value" href={parsed.rights} innerHTML={this.licenseBadge(parsed)}/>
           </div>
         : null}
       {parsed.provider.length > 0

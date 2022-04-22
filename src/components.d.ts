@@ -6,6 +6,9 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
+    interface VeDrawer {
+        "open": boolean;
+    }
     interface VeEntities {
         "entities": string;
     }
@@ -48,6 +51,12 @@ export namespace Components {
     }
 }
 declare global {
+    interface HTMLVeDrawerElement extends Components.VeDrawer, HTMLStencilElement {
+    }
+    var HTMLVeDrawerElement: {
+        prototype: HTMLVeDrawerElement;
+        new (): HTMLVeDrawerElement;
+    };
     interface HTMLVeEntitiesElement extends Components.VeEntities, HTMLStencilElement {
     }
     var HTMLVeEntitiesElement: {
@@ -91,6 +100,7 @@ declare global {
         new (): HTMLVeManifestElement;
     };
     interface HTMLElementTagNameMap {
+        "ve-drawer": HTMLVeDrawerElement;
         "ve-entities": HTMLVeEntitiesElement;
         "ve-header": HTMLVeHeaderElement;
         "ve-image": HTMLVeImageElement;
@@ -101,6 +111,9 @@ declare global {
     }
 }
 declare namespace LocalJSX {
+    interface VeDrawer {
+        "open"?: boolean;
+    }
     interface VeEntities {
         "entities"?: string;
     }
@@ -145,6 +158,7 @@ declare namespace LocalJSX {
         "src"?: string;
     }
     interface IntrinsicElements {
+        "ve-drawer": VeDrawer;
         "ve-entities": VeEntities;
         "ve-header": VeHeader;
         "ve-image": VeImage;
@@ -158,6 +172,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "ve-drawer": LocalJSX.VeDrawer & JSXBase.HTMLAttributes<HTMLVeDrawerElement>;
             "ve-entities": LocalJSX.VeEntities & JSXBase.HTMLAttributes<HTMLVeEntitiesElement>;
             "ve-header": LocalJSX.VeHeader & JSXBase.HTMLAttributes<HTMLVeHeaderElement>;
             "ve-image": LocalJSX.VeImage & JSXBase.HTMLAttributes<HTMLVeImageElement>;

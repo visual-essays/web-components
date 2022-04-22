@@ -9,6 +9,7 @@ import debounce from 'lodash.debounce'
 import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isNum } from '../../utils'
 import { Annotator } from './annotator'
 import infoCircleIcon from '../../icons/info-circle-solid.svg'
+import annotationsIcon from '../../icons/message-lines-regular.svg'
 
 import { parseInt } from 'lodash';
 
@@ -44,6 +45,8 @@ export class ImageViewer {
   @State() _annoTarget: any
   @State() _showAnnotations: boolean = false
   @State() _showAnnotationsBrowser: boolean = false
+  @State() _showAnnotationsPane: boolean = false
+
 
   @State() _images: any[] = []
   @Watch('_images')
@@ -360,14 +363,14 @@ export class ImageViewer {
       element: osdElem,
       tileSources,
       prefixUrl: 'https://openseadragon.github.io/openseadragon/images/',
-      showNavigationControl: false,
+      showNavigationControl: true,
       minZoomImageRatio: 0.2,
       maxZoomPixelRatio: 5,
       homeFillsViewer: this.fit === 'cover',
       //animationTime: 100,
-      showHomeControl: false,
-      showZoomControl: false,
-      showFullPageControl: false,
+      showHomeControl: true,
+      showZoomControl: true,
+      showFullPageControl: true,
       showNavigator: false,
       sequenceMode: false,
       showReferenceStrip: true,
@@ -419,17 +422,30 @@ export class ImageViewer {
     Array.from(this.el.shadowRoot.querySelectorAll('.a9s-annotationlayer')).forEach((elem:HTMLElement) => elem.style.display = show ? 'unset' : 'none')
   }
 
+  toggleAnnotations() {
+    this._showAnnotationsPane = !this._showAnnotationsPane
+  }
+
   render() {
     return this._images.length > 0
     ? [
       this.user && !this.compare && <div id="toolbar"></div>,
       <div id="osd"></div>,
-      !this.compare && <ve-image-toolbar hasAnnotations={this._annotations.length > 0} canEdit={false}></ve-image-toolbar>,
-      this.compare && <span id="info-icon" onClick={this._showInfoPopup.bind(this)} innerHTML={infoCircleIcon} title="Show image info"></span>,
+      this.compare && <ve-image-toolbar hasAnnotations={this._annotations.length > 0} canEdit={false}></ve-image-toolbar>,
+      !this.compare && <span id="info-icon" onClick={this._showInfoPopup.bind(this)} innerHTML={infoCircleIcon} title="Show image info"></span>,
       !this.compare && <span id="coords" class="viewport-coords" onClick={this._copyTextToClipboard.bind(this)}>{this._viewportBounds}</span>,
+      <ve-drawer open={this._showAnnotationsPane}>
+        <h3>Manifest</h3>
+        <div style={{width:'100%', height:'200px'}}>
+          <ve-manifest images={encodeURIComponent(JSON.stringify(this._images))} condensed></ve-manifest>
+        </div>
+      </ve-drawer>,
       this.compare
         ? <div id="caption">Compare viewer: move cursor over image to change view</div>
-        : <div id="caption">{this.alt}</div>,
+        : <div id="caption">
+            <span id="annotations-icon" onClick={this.toggleAnnotations.bind(this)} innerHTML={annotationsIcon} title="Show annotations"></span>
+            {this.alt}
+          </div>,
       this._showAnnotationsBrowser && <ve-image-annotations-browser annotations={encodeURIComponent(JSON.stringify(this._annotations))}></ve-image-annotations-browser>,
       <div id="image-info-popup"></div>
     ]
