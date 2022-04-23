@@ -1,26 +1,30 @@
-.manifest-summary > div {
-    margin-bottom: 12px;
-}
 
-.manifest-summary {
+.manifest {
     font-family: Roboto, sans-serif;
-    border: 1px solid #ccc;
     padding: 6px;
     z-index: 100;
 }
 
-manifest-summary:not(:first-of-type) {
+.manifest.condensed {
+    border: 1px solid #ccc;
+}
+
+.manifest.condensed:not(:first-of-type) {
     margin-top: 1.5em;
     font-size: 0.9rem;
     color: #444;
 }
 
-.manifest-summary .thumbnail {
+.manifest.condensed .thumbnail {
     max-height: 60px;
     max-width: 60px;
     position: relative;
     float: left;
     margin: 0 9px 6px 0;
+}
+
+.manifest > div {
+    margin-bottom: 12px;
 }
 
 .lbl, .lbl a, .summary {
@@ -67,7 +71,7 @@ ul {
     color: #444;
 }
 
-.manifest-summary > div .label {
+.manifest > div .label {
     font-weight: bold;
     min-width: 80px;
     margin-right: 6px;
@@ -103,3 +107,6 @@ ul {
 .metadata ul ul {
     padding-left: 0;
 }
+
+a:link { color: #0000EE; }
+a:visited { color: #551A8B; }

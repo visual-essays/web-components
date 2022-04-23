@@ -13,16 +13,19 @@ export class Drawer {
   @Prop({ mutable: true, reflect: true }) open: boolean = false
   @Watch('open')
   openChanged() {
-    console.log(`open=${this.open}`)
-    if (this.open) this.el.shadowRoot.getElementById('drawer').classList.add('open')
-    else this.el.shadowRoot.getElementById('drawer').classList.remove('open')
+    if (this.open) {
+      this.el.shadowRoot.getElementById('drawer').classList.add('open')
+      this.el.shadowRoot.querySelector('.wrapper').classList.add('open')
+    } else {
+      this.el.shadowRoot.getElementById('drawer').classList.remove('open')
+      setTimeout(() => this.el.shadowRoot.querySelector('.wrapper').classList.remove('open'), 500)
+    }
   }
 
   componentWillLoad() {
   }
 
   componentDidLoad() {
-    console.dir(this.el)
   }
 
 

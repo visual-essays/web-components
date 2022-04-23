@@ -70,8 +70,8 @@ export class ManifestViewer {
       return logoObj
     })
 
-    let imageData = imageInfo(manifest)
-    parsed.service = imageData.service && `${imageData.service.id}/info.json`
+    parsed.imageData = imageInfo(manifest)
+    parsed.service = parsed.imageData.service && `${parsed.imageData.service.id}/info.json`
 
     let rs = m.getRequiredStatement()
     if (rs.value.length > 0) {
@@ -94,9 +94,7 @@ export class ManifestViewer {
 
   componentWillLoad() {
     if (this.images) {
-      console.log(this.images)
       this._images = JSON.parse(decodeURIComponent(this.images))
-      console.log(this._images)
     } else {
       getManifest(this.src).then(manifest => this._images = [{manifest}])
     }
@@ -142,7 +140,7 @@ export class ManifestViewer {
 
   render_condensed() {
     return this._images.map(item => this.parseManifest(item)).map(parsed =>
-      <div class="manifest-summary">
+    <div class="manifest condensed">
         { parsed.thumbnail ? <img class="thumbnail" src={parsed.thumbnail}/> : null
         }
       <div class="lbl" style={{marginBottom: '12px;'}}>
@@ -195,112 +193,121 @@ export class ManifestViewer {
         </div>
       : null}
       <a draggable={true} onDragStart={this.onManifestIconDrag.bind(this)} href={parsed.id}><img src="https://avatars.githubusercontent.com/u/5812589?v=3&s=24" alt="IIIF Manifest"></img></a>
-      </div>
+    </div>
     )
   }
 
   render_full() {
-    return this._images.map(item => this.parseManifest(item)).map(parsed => [
+    return this._images.map(item => this.parseManifest(item)).map(parsed =>
+    <div class="manifest">
       <div class="manifest-id">
         <span class="label">id</span>
         <a class="value" href={parsed.id} innerHTML={parsed.id}/>
-      </div>,
+      </div>
       <div class="manifest-label">
         <span class="label">label</span><span class="value">{parsed.label}</span>
-      </div>,
+      </div>
       
-      parsed.summary && parsed.summary.length > 0
+      {parsed.summary && parsed.summary.length > 0
         ? <div class="summary">
             <span class="label">summary</span>
             <span class="value">{parsed.summary}</span>
           </div>
-        : null,
-      
-      parsed.metadata.length > 0
-      ? <div class="metadata">
-        <span class="label">metadata</span>
-          <ul>
-          {parsed.metadata.map((item) =>
-            <li>
-              <span class="label">{item.label}</span>
-              {item.value.length == 1
-              ? <span class="value" innerHTML={item.value[0]}></span>
-              :  <ul>
-                {item.value.map((value) =>
-                  <li class="value" innerHTML={value}></li>
-                )}
-                </ul>}
-            </li>
-          )}
-          </ul>
-        </div>
-      : null,
+        : null
+      }
 
-      parsed.navDate
-      ? <div class="navDate">
-          <span class="label">navDate</span>
-          <span class="value">{parsed.navDate}</span>
-        </div>
-      : null,
+      {parsed.metadata.length > 0
+        ? <div class="metadata">
+          <span class="label">metadata</span>
+            <ul>
+            {parsed.metadata.map((item) =>
+              <li>
+                <span class="label">{item.label}</span>
+                {item.value.length == 1
+                ? <span class="value" innerHTML={item.value[0]}></span>
+                :  <ul>
+                  {item.value.map((value) =>
+                    <li class="value" innerHTML={value}></li>
+                  )}
+                  </ul>}
+              </li>
+            )}
+            </ul>
+          </div>
+        : null
+      }
 
-      parsed.provider.length > 0
-      ? <div class="provider">
-          <span class="label">provider</span>
-          {
-            parsed.provider.length == 1
-            ? <div style={{display: 'flex', alignItems: 'center'}}>
-                {
-                  parsed.provider[0].logo
-                  ? <img class="logo" src={parsed.provider[0].logo.src} height={20}/>
-                  : null
-                }
-                <a class="value" href={parsed.provider[0].href} innerHTML={parsed.provider[0].label}/>
-              </div>
-            : <ul>
-              {parsed.provider.map((provider) =>
-                <li>
+      {parsed.navDate
+        ? <div class="navDate">
+            <span class="label">navDate</span>
+            <span class="value">{parsed.navDate}</span>
+          </div>
+        : null
+      }
+
+      {parsed.provider.length > 0
+        ? <div class="provider">
+            <span class="label">provider</span>
+            {
+              parsed.provider.length == 1
+              ? <div style={{display: 'flex', alignItems: 'center'}}>
                   {
-                    provider.logo
-                    ? <img class="logo" src={provider.logo.src} height={20}/>
+                    parsed.provider[0].logo
+                    ? <img class="logo" src={parsed.provider[0].logo.src} height={20}/>
                     : null
                   }
-                  <a class="value" href={provider.href} innerHTML={provider.label}/>
-                </li>
-              )}
-            </ul>
-          }
-        </div>
-      : null,
+                  <a class="value" href={parsed.provider[0].href} innerHTML={parsed.provider[0].label}/>
+                </div>
+              : <ul>
+                {parsed.provider.map((provider) =>
+                  <li>
+                    {
+                      provider.logo
+                      ? <img class="logo" src={provider.logo.src} height={20}/>
+                      : null
+                    }
+                    <a class="value" href={provider.href} innerHTML={provider.label}/>
+                  </li>
+                )}
+              </ul>
+            }
+          </div>
+        : null
+      }
 
-      parsed.homepage.length > 0
-      ? <div class="homepage">
-          <span class="label">homepage</span>
-          <a class="value" href={parsed.homepage[0].href} innerHTML={parsed.homepage[0].label}/>
-        </div>
-      : null,
+      {parsed.homepage.length > 0
+        ? <div class="homepage">
+            <span class="label">homepage</span>
+            <a class="value" href={parsed.homepage[0].href} innerHTML={parsed.homepage[0].label}/>
+          </div>
+        : null
+      }
 
-      parsed.seeAlso.length > 0
-      ? <div class="seeAlso">
-          <span class="label">seeAlso</span>
-          <a class="value" href={parsed.seeAlso[0].href} innerHTML={parsed.seeAlso[0].label}/>
-        </div>
-      : null,
+      {parsed.seeAlso.length > 0
+        ? <div class="seeAlso">
+            <span class="label">seeAlso</span>
+            <a class="value" href={parsed.seeAlso[0].href} innerHTML={parsed.seeAlso[0].label}/>
+          </div>
+        : null
+      }
 
-      parsed.logo.length > 0
-      ? <div class="logo">
-          <span class="label">logo</span>
-          <a class="value" href={parsed.logo[0].src} innerHTML={parsed.logo[0].src}/>
-        </div>
-      : null,
+      {parsed.logo.length > 0
+        ? <div class="logo">
+            <span class="label">logo</span>
+            <a class="value" href={parsed.logo[0].src} innerHTML={parsed.logo[0].src}/>
+          </div>
+        : null
+      }
 
-      parsed.rights 
+      {parsed.rights 
         ? <div class="rights">
             <span class="label">rights</span>
             <a class="value" href={parsed.rights} innerHTML={parsed.rights}/>
           </div>
-        : null,
+        : null
+      }
 
-      parsed.requiredStatement 
+      {parsed.requiredStatement 
         ? <div class="requiredStatement">
             <span class="label">requiredStatement</span>
             <ul><li>
@@ -308,7 +315,8 @@ export class ManifestViewer {
               <span class="value" innerHTML={parsed.requiredStatement.value}></span>
             </li></ul>
           </div>
-        : null,
+        : null
+      }
   
       <div class="imageData">
         <div><span class="label">image</span><a class="value" href={parsed.imageData.id} innerHTML={parsed.imageData.id}/></div>
@@ -317,21 +325,24 @@ export class ManifestViewer {
         <div><span class="label">height</span><span class="value" innerHTML={parsed.imageData.height}/></div>
       </div>,
         
-        parsed.thumbnail 
+      {parsed.thumbnail 
         ? <div class="thumbnail">
             <span class="label">thumbnail</span>
             { /* <img src={parsed.thumbnail}/> */ }
             <a class="value" href={parsed.thumbnail} innerHTML={parsed.thumbnail}/>
           </div>
-        : null,
+        : null
+      }
       
-      parsed.service 
+      {parsed.service 
         ? <div class="service">
             <span class="label">service</span>
             <a class="value" href={parsed.service} innerHTML={parsed.service}/>
           </div>
-        : null,    
-    ]
+        : null
+      }
+
+    </div>
   )}
 
   render() {

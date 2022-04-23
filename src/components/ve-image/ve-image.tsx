@@ -30,7 +30,7 @@ export class ImageViewer {
   @Prop() fit: string
   @Prop({ mutable: true, reflect: true }) alt: string
   @Prop() entities: string
-  @Prop({ mutable: true, reflect: true }) user: string
+  @Prop({ mutable: true, reflect: true }) user: string = null
   @Prop({ mutable: true, reflect: true }) path: string
   @Prop() compare: string
   @Prop() width: string
@@ -43,10 +43,17 @@ export class ImageViewer {
   @State() _entities: string[] = []
   @State() _annotator: any
   @State() _annoTarget: any
-  @State() _showAnnotations: boolean = false
+  @State() _showAnnotations: boolean = true
   @State() _showAnnotationsBrowser: boolean = false
   @State() _showAnnotationsPane: boolean = false
 
+  @Watch('user')
+  userChanged() {
+    console.log(`userChanged: user=${this.user}`)
+    this._annotator.setUser(this.user)
+    this.showAnnotationsToolbar(this.user !== null)
+    this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
+  }
 
   @State() _images: any[] = []
   @Watch('_images')
@@ -196,7 +203,7 @@ export class ImageViewer {
   }
 
   async componentWillLoad() {
-    // console.log(`componentWillLoad: user=${this.user} path=${this.path}`)
+    console.log(`componentWillLoad: user=${this.user}`)
     this.buildImagesList()
   }
   
@@ -264,7 +271,7 @@ export class ImageViewer {
       : imageData
         ? Math.round(imageData.height/imageData.width * width) // height scaled to width
         : width
-    // console.log(`ve-image.setHostDimensions: width=${width} height=${height}`)
+    console.log(`ve-image.setHostDimensions: width=${width} height=${height}`)
     // this.el.style.width = `${width}px`
     // this.el.style.height = `${height}px`
     osd.style.width = `${width}px`
@@ -383,10 +390,10 @@ export class ImageViewer {
     // console.log(`homeFillsViewer=${osdConfig.homeFillsViewer}`)
     this._viewer = OpenSeadragon(osdOptions)
     
-    this._annotator = new Annotator(this._viewer, this.el.shadowRoot.querySelector('#toolbar'))
+    this._annotator = new Annotator(this._viewer, this.el.shadowRoot.querySelector('#toolbar'), this.user)
     if (this._annoTarget)
       this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
-    this.showAnnotationsToolbar(false)
+    this.showAnnotationsToolbar(true)
     this.showAnnotations(this._showAnnotations)
 
     this._viewer.addHandler('page', (e) => this._selectedIdx = e.page)
@@ -429,28 +436,30 @@ export class ImageViewer {
   render() {
     return this._images.length > 0
     ? [
-      this.user && !this.compare && <div id="toolbar"></div>,
-      <div id="osd"></div>,
+      <div id="toolbar"></div>,
+      <div id="osd">
+        <ve-drawer open={this._showAnnotationsPane}>
+          <h3>Manifest</h3>
+          <div style={{width:'100%', height:'200px'}}>
+            <ve-manifest images={encodeURIComponent(JSON.stringify(this._images))} condensed></ve-manifest>
+          </div>
+        </ve-drawer>
+      </div>,
       this.compare && <ve-image-toolbar hasAnnotations={this._annotations.length > 0} canEdit={false}></ve-image-toolbar>,
       !this.compare && <span id="info-icon" onClick={this._showInfoPopup.bind(this)} innerHTML={infoCircleIcon} title="Show image info"></span>,
       !this.compare && <span id="coords" class="viewport-coords" onClick={this._copyTextToClipboard.bind(this)}>{this._viewportBounds}</span>,
-      <ve-drawer open={this._showAnnotationsPane}>
-        <h3>Manifest</h3>
-        <div style={{width:'100%', height:'200px'}}>
-          <ve-manifest images={encodeURIComponent(JSON.stringify(this._images))} condensed></ve-manifest>
-        </div>
-      </ve-drawer>,
+
       this.compare
         ? <div id="caption">Compare viewer: move cursor over image to change view</div>
         : <div id="caption">
             <span id="annotations-icon" onClick={this.toggleAnnotations.bind(this)} innerHTML={annotationsIcon} title="Show annotations"></span>
             {this.alt}
           </div>,
-      this._showAnnotationsBrowser && <ve-image-annotations-browser annotations={encodeURIComponent(JSON.stringify(this._annotations))}></ve-image-annotations-browser>,
+      false && this._showAnnotationsBrowser && <ve-image-annotations-browser annotations={encodeURIComponent(JSON.stringify(this._annotations))}></ve-image-annotations-browser>,
       <div id="image-info-popup"></div>
     ]
     : [
-      this.user && !this.compare && <div id="toolbar"></div>,
+      <div id="toolbar"></div>,
       <div id="osd"></div>
     ]
   }

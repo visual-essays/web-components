@@ -7,22 +7,30 @@ const annotationsEndpoint = location.hostname === 'localhost'
 
 export class Annotator {
 
-  constructor(viewer, toolbar) {
+  constructor(viewer, toolbar, authenticatedUser) {
     this._path
-    this._user
+    this._user = authenticatedUser
     this._target
 
-    console.log(`annotator.constructor`)
-    this._annotorious = Annotorious.default(viewer, {readOnly: true})
-    console.log(this._annotorious)
-    if (toolbar) {
-      Toolbar(this._annotorious, toolbar)
+    this._annotorious = Annotorious.default(viewer, {readOnly: !this._user})
+    console.log(`annotator.constructor: user=${this._user} toolbar=${toolbar}`)
+    if (this._user) {
+      if (toolbar) Toolbar(this._annotorious, toolbar)
       this._annotorious.on('createAnnotation', async (anno) => this._createAnnotation(anno))
       this._annotorious.on('updateAnnotation', async (anno) => this._updateAnnotation(anno))
       this._annotorious.on('deleteAnnotation', async (anno) => this._deleteAnnotation(anno))
-      this._annotorious.on('mouseEnterAnnotation', async (anno) => this.selectAnnotation(anno))
-      this._annotorious.on('mouseLeaveAnnotation', async () => this.selectAnnotation())
+      //this._annotorious.on('mouseEnterAnnotation', async (anno) => this.selectAnnotation(anno))
+      //this._annotorious.on('mouseLeaveAnnotation', async () => this.selectAnnotation())
     }
+  }
+
+  setUser(user) {
+    this._user = user
+    this._annotorious.readOnly = user === null
+  }
+
+  destroy() {
+    this._annotorious.destroy()
   }
 
   selectAnnotation(anno) {
@@ -32,7 +40,6 @@ export class Annotator {
   async loadAnnotations(path) {
     this._path = path
     let annotations = []
-    console.log('loadAnnotations')
     let resp = await fetch(`${annotationsEndpoint}/annotations/${this._path}/`, {
       headers: {
         Accept: 'application/ld+json;profile="http://www.w3.org/ns/anno.jsonld'
@@ -40,7 +47,6 @@ export class Annotator {
     })
     if (resp.ok) {
       resp = await resp.json()
-      console.log(resp)
       this._user = resp.user
       this._target = resp.target
       annotations = resp.annotations
