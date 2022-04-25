@@ -7,17 +7,16 @@
 
 ## Properties
 
-| Property      | Attribute     | Description | Type     | Default     |
-| ------------- | ------------- | ----------- | -------- | ----------- |
-| `annotations` | `annotations` |             | `string` | `undefined` |
+| Property | Attribute | Description | Type      | Default |
+| -------- | --------- | ----------- | --------- | ------- |
+| `open`   | `open`    |             | `boolean` | `false` |
 
 
 ## Events
 
-| Event                     | Description | Type                  |
-| ------------------------- | ----------- | --------------------- |
-| `closeAnnotationsBrowser` |             | `CustomEvent<any>`    |
-| `zoomToRegion`            |             | `CustomEvent<string>` |
+| Event       | Description | Type               |
+| ----------- | ----------- | ------------------ |
+| `closeMenu` |             | `CustomEvent<any>` |
 
 
 ## Dependencies
@@ -29,8 +28,8 @@
 ### Graph
 ```mermaid
 graph TD;
-  ve-image --> ve-image-annotations-browser
-  style ve-image-annotations-browser fill:#f9f,stroke:#333,stroke-width:4px
+  ve-image --> ve-drawer
+  style ve-drawer fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
 ----------------------------------------------

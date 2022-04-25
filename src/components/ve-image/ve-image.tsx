@@ -10,6 +10,7 @@ import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imag
 import { Annotator } from './annotator'
 import infoCircleIcon from '../../icons/info-circle-solid.svg'
 import annotationsIcon from '../../icons/message-lines-regular.svg'
+import menuIcon from '../../icons/bars-solid.svg'
 
 import { parseInt } from 'lodash';
 
@@ -35,6 +36,8 @@ export class ImageViewer {
   @Prop() compare: string
   @Prop() width: string
   @Prop() height: string
+  @Prop() authToken: string
+  @Prop() annoBase: string
 
   @Element() el: HTMLElement;
 
@@ -42,17 +45,34 @@ export class ImageViewer {
   @State() _viewportBounds: string
   @State() _entities: string[] = []
   @State() _annotator: any
-  @State() _annoTarget: any
-  @State() _showAnnotations: boolean = true
-  @State() _showAnnotationsBrowser: boolean = false
-  @State() _showAnnotationsPane: boolean = false
+  @State() _showAnnotations: boolean = false
+  @State() _showMenu: boolean = false
+  @State() _annoTarget: string
+
+  @Watch('authToken')
+  authTokenChanged() {
+    console.log(`authTokenChanged: isDefined=${this.authToken !== null}`)
+    if (this._annotator) this._annotator.setAuthToken(this.authToken)
+  }
+
+  @Watch('annoBase')
+  annoBaseChanged() {
+    console.log(`annoBaseChanged: annoBase=${this.annoBase}`)
+    this.setAnnoTarget()
+  }
+
+  @Watch('_annoTarget')
+  _annoTargetChanged() {
+    console.log(`_annoTargetChanged: _annoTarget=${this._annoTarget}`)
+  }
 
   @Watch('user')
   userChanged() {
     console.log(`userChanged: user=${this.user}`)
-    this._annotator.setUser(this.user)
-    this.showAnnotationsToolbar(this.user !== null)
-    this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
+    if (this.user && this.authToken) this._showAnnotations = true
+    this.setAnnoTarget()
+    if (this._annotator)
+      this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
   }
 
   @State() _images: any[] = []
@@ -80,11 +100,7 @@ export class ImageViewer {
   @Watch('_current')
   _currentChanged() {
     this.alt = this._value(this._current.manifest.label).toString()
-    let sourceHash = sha256(imageInfo(this._current.manifest).id).slice(0,8)
-    // let path = location.pathname.split('/').filter(elem => elem).join('/') || 'default'
-    // this._annoTarget = `${this.path}/${sourceHash}`
-    this._annoTarget = `${location.pathname.split('/').filter(elem => elem).join('/') || 'default'}/${sourceHash}`
-    console.log(`location=${location.pathname} sourceHash=${sourceHash} annoTarget=${this._annoTarget}`)
+    this.setAnnoTarget()
     if (this._annotator)
       this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
   }
@@ -92,9 +108,11 @@ export class ImageViewer {
   @State() _annotations: any[] = []
   @Watch('_annotations')
   _annotationsChanged() {
-    this._showAnnotationsBrowser = this._annotations.length > 0
     console.log(`annotations=${this._annotations.length}`)
   }
+
+  @Listen('closeMenu')
+  onCloseMenu() { this._showMenu = false }
 
   @Listen('iconClicked')
   onIconClicked(event: CustomEvent) { this[event.detail]() }
@@ -102,8 +120,15 @@ export class ImageViewer {
   @Listen('zoomToRegion')
   onZoomToRegion(event: CustomEvent) { this.setRegion(event.detail) }
 
-  @Listen('closeAnnotationsBrowser')
-  onCloseAnnotationsBrowser() { this._showAnnotationsBrowser = false }
+  setAnnoTarget() {
+    console.log(location, this.user, this.annoBase)
+    if (this._current) {
+      let sourceHash = sha256(imageInfo(this._current.manifest).id).slice(0,8)
+      this._annoTarget = this.annoBase
+        ? `${this.annoBase}/${sourceHash}`
+        : [...[this.user], ...location.pathname.replace(/\/editor/, '').split('/').filter(elem => elem), ...[sourceHash]].join('/')
+    }
+  }
 
   goHome() {
     this._viewer.viewport.goHome()
@@ -127,10 +152,6 @@ export class ImageViewer {
     this._showAnnotations = !this._showAnnotations
     this.showAnnotations(this._showAnnotations)
   }
-
-  toggleShowAnnotationsBrowser() { 
-    this._showAnnotationsBrowser = !this._showAnnotationsBrowser
-   }
   
   editAnnotations() { console.log('editAnnotations') }
 
@@ -199,11 +220,12 @@ export class ImageViewer {
   }
 
   connectedCallback() {
+    console.log(`connectedCallback: annoBase=${this.annoBase}`)
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
   }
 
   async componentWillLoad() {
-    console.log(`componentWillLoad: user=${this.user}`)
+    if (this.user && this.authToken) this._showAnnotations = true
     this.buildImagesList()
   }
   
@@ -271,7 +293,7 @@ export class ImageViewer {
       : imageData
         ? Math.round(imageData.height/imageData.width * width) // height scaled to width
         : width
-    console.log(`ve-image.setHostDimensions: width=${width} height=${height}`)
+    // console.log(`ve-image.setHostDimensions: width=${width} height=${height}`)
     // this.el.style.width = `${width}px`
     // this.el.style.height = `${height}px`
     osd.style.width = `${width}px`
@@ -390,7 +412,7 @@ export class ImageViewer {
     // console.log(`homeFillsViewer=${osdConfig.homeFillsViewer}`)
     this._viewer = OpenSeadragon(osdOptions)
     
-    this._annotator = new Annotator(this._viewer, this.el.shadowRoot.querySelector('#toolbar'), this.user)
+    this._annotator = new Annotator(this._viewer, this.el.shadowRoot.querySelector('#toolbar'), this.user, this.authToken)
     if (this._annoTarget)
       this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
     this.showAnnotationsToolbar(true)
@@ -429,8 +451,13 @@ export class ImageViewer {
     Array.from(this.el.shadowRoot.querySelectorAll('.a9s-annotationlayer')).forEach((elem:HTMLElement) => elem.style.display = show ? 'unset' : 'none')
   }
 
+  toggleMenu() {
+    this._showMenu = !this._showMenu
+  }
+
   toggleAnnotations() {
-    this._showAnnotationsPane = !this._showAnnotationsPane
+    this._showAnnotations = !this._showAnnotations
+    this.showAnnotations(this._showAnnotations)
   }
 
   render() {
@@ -438,11 +465,17 @@ export class ImageViewer {
     ? [
       <div id="toolbar"></div>,
       <div id="osd">
-        <ve-drawer open={this._showAnnotationsPane}>
-          <h3>Manifest</h3>
-          <div style={{width:'100%', height:'200px'}}>
-            <ve-manifest images={encodeURIComponent(JSON.stringify(this._images))} condensed></ve-manifest>
-          </div>
+        <ve-drawer open={this._showMenu}>
+          <ve-manifest images={encodeURIComponent(JSON.stringify(this._images))} condensed></ve-manifest>
+          {this._annotations.length > 0
+            ? <div>
+              <h3>Annotations</h3>
+              {this._annotations.map((anno) => 
+                <div class="anno-link" onClick={this.setRegion.bind(this, anno.target.selector.value.split('=').pop())}>{anno.body[0].value}</div>
+              )}
+              </div>
+            : null
+          }
         </ve-drawer>
       </div>,
       this.compare && <ve-image-toolbar hasAnnotations={this._annotations.length > 0} canEdit={false}></ve-image-toolbar>,
@@ -452,10 +485,22 @@ export class ImageViewer {
       this.compare
         ? <div id="caption">Compare viewer: move cursor over image to change view</div>
         : <div id="caption">
-            <span id="annotations-icon" onClick={this.toggleAnnotations.bind(this)} innerHTML={annotationsIcon} title="Show annotations"></span>
-            {this.alt}
+            <span id="menu-icon" 
+                  onClick={this.toggleMenu.bind(this)}
+                  innerHTML={menuIcon} title="Open Menu"
+            ></span>
+            {this._annotations.length > 0
+              ? <span 
+                  id="annotations-icon" 
+                  onClick={this.toggleAnnotations.bind(this)}
+                  title="Show Annotations"
+                  data-count={this._annotations.length}>
+                  <span innerHTML={annotationsIcon}></span>
+                </span>
+              : null
+            }
+            <div>{this.alt}</div>
           </div>,
-      false && this._showAnnotationsBrowser && <ve-image-annotations-browser annotations={encodeURIComponent(JSON.stringify(this._annotations))}></ve-image-annotations-browser>,
       <div id="image-info-popup"></div>
     ]
     : [

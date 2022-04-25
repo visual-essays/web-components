@@ -1,4 +1,5 @@
-import { Component, Element, Prop, Watch, h } from '@stencil/core';
+import { Component, Element, Event, EventEmitter, Prop, Watch, h } from '@stencil/core';
+import timesCircleIcon from '../../icons/times-circle-regular.svg'
 
 @Component({
   tag: 've-drawer',
@@ -22,16 +23,18 @@ export class Drawer {
     }
   }
 
-  componentWillLoad() {
-  }
+  @Event({ bubbles: true, composed: true }) closeMenu: EventEmitter
 
-  componentDidLoad() {
-  }
+  componentWillLoad() {}
 
+  componentDidLoad() {}
+
+  close() { this.closeMenu.emit() }
 
   render() { 
     return <section class="wrapper">
       <section id="drawer">
+        <div id="close-icon" onClick={this.close.bind(this)} innerHTML={timesCircleIcon} title="Close"></div>
         <slot/>
       </section>
     </section>

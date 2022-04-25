@@ -36,10 +36,11 @@ export class ManifestViewer {
 
     let summary = m.getProperty('summary')
     let description = m.getProperty('description')
+    console.log(description)
     parsed.summary = summary
       ? this._value(summary)
       : description
-        ? description[0]['@value']
+        ? description['@value']
         : null
 
     parsed.rights = m.getProperty('rights') || m.getLicense()

@@ -23,6 +23,8 @@ export namespace Components {
     }
     interface VeImage {
         "alt": string;
+        "annoBase": string;
+        "authToken": string;
         "compare": string;
         "entities": string;
         "fit": string;
@@ -112,6 +114,7 @@ declare global {
 }
 declare namespace LocalJSX {
     interface VeDrawer {
+        "onCloseMenu"?: (event: CustomEvent<any>) => void;
         "open"?: boolean;
     }
     interface VeEntities {
@@ -128,6 +131,8 @@ declare namespace LocalJSX {
     }
     interface VeImage {
         "alt"?: string;
+        "annoBase"?: string;
+        "authToken"?: string;
         "compare"?: string;
         "entities"?: string;
         "fit"?: string;
