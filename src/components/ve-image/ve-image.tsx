@@ -8,7 +8,6 @@ import './openseadragon-curtain-sync'
 import debounce from 'lodash.debounce'
 import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isNum } from '../../utils'
 import { Annotator } from './annotator'
-import infoCircleIcon from '../../icons/info-circle-solid.svg'
 import annotationsIcon from '../../icons/message-lines-regular.svg'
 import menuIcon from '../../icons/bars-solid.svg'
 
@@ -64,7 +63,7 @@ export class ImageViewer {
 
   @Watch('_annoTarget')
   _annoTargetChanged() {
-    // console.log(`_annoTargetChanged: _annoTarget=${this._annoTarget}`)
+    console.log(`_annoTargetChanged: _annoTarget=${this._annoTarget}`)
   }
 
   @Watch('user')
@@ -420,6 +419,7 @@ export class ImageViewer {
 
   async _osdInit() {
     let tileSources = await this._loadTileSources()
+    console.log(tileSources)
     let osdElem: HTMLElement = this.el.shadowRoot.querySelector('#osd')
     const osdOptions: OpenSeadragon.Options = {
       element: osdElem,
@@ -434,7 +434,7 @@ export class ImageViewer {
       showZoomControl: true,
       showFullPageControl: true,
       showNavigator: false,
-      sequenceMode: false,
+      sequenceMode: true,
       showReferenceStrip: true,
       //visibilityRatio: 1.0,
       //animationTime: 2,
@@ -510,29 +510,29 @@ export class ImageViewer {
           }
         </ve-drawer>
       </div>,
-      this.compare && <ve-image-toolbar hasAnnotations={this._annotations.length > 0} canEdit={false}></ve-image-toolbar>,
-      !this.compare && <span id="info-icon" onClick={this._showInfoPopup.bind(this)} innerHTML={infoCircleIcon} title="Show image info"></span>,
       !this.compare && <span id="coords" class="viewport-coords" onClick={this._copyTextToClipboard.bind(this)}>{this._viewportBounds}</span>,
-
-      this.compare
-        ? <div id="caption">Compare viewer: move cursor over image to change view</div>
-        : <div id="caption">
-            <span id="menu-icon" 
-                  onClick={this.toggleMenu.bind(this)}
-                  innerHTML={menuIcon} title="Open Menu"
-            ></span>
-            {this._annotations.length > 0
-              ? <span 
-                  id="annotations-icon" 
-                  onClick={this.toggleAnnotations.bind(this)}
-                  title="Show Annotations"
-                  data-count={this._annotations.length}>
-                  <span innerHTML={annotationsIcon}></span>
-                </span>
-              : null
-            }
-            <div>{this.alt}</div>
-          </div>,
+      <div id="caption">
+        <span id="menu-icon" 
+          onClick={this.toggleMenu.bind(this)}
+          innerHTML={menuIcon} title="Open Menu"
+        ></span>
+        {!this.compare && this._annotations.length > 0
+          ? <span 
+              id="annotations-icon" 
+              onClick={this.toggleAnnotations.bind(this)}
+              title="Show Annotations"
+              data-count={this._annotations.length}>
+              <span innerHTML={annotationsIcon}></span>
+            </span>
+          : null
+        }
+        <div>
+          {this.compare
+            ? 'Compare viewer: move cursor over image to change view'
+            : this.alt
+          }
+        </div>
+      </div>,
       <div id="image-info-popup"></div>
     ]
     : [

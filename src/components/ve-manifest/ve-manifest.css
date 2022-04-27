@@ -34,7 +34,7 @@
     color: #444;
 }
 
-.summary {
+.summary, .rights {
     clear: both;
 }
 .summary .value {

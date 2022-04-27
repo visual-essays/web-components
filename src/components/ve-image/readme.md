@@ -9,6 +9,7 @@
 
 | Property    | Attribute    | Description | Type     | Default     |
 | ----------- | ------------ | ----------- | -------- | ----------- |
+| `align`     | `align`      |             | `string` | `undefined` |
 | `alt`       | `alt`        |             | `string` | `undefined` |
 | `annoBase`  | `anno-base`  |             | `string` | `undefined` |
 | `authToken` | `auth-token` |             | `string` | `undefined` |

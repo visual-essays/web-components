@@ -77,7 +77,7 @@ export class Annotator {
       annotations = resp.annotations
       this._annotorious.setAnnotations(resp.annotations)
     }
-    // console.log(`loadAnnotations: path=${this._path}`, this.getAnnotations())
+    console.log(`loadAnnotations: path=${this._path}`, this.getAnnotations())
     return annotations
   }
 
