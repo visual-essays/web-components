@@ -36,6 +36,7 @@ export class ImageViewer {
   @Prop() compare: string
   @Prop() width: string
   @Prop() height: string
+  @Prop() align: string // 'left', 'center', 'right'
   @Prop() authToken: string
   @Prop() annoBase: string
 
@@ -51,28 +52,27 @@ export class ImageViewer {
 
   @Watch('authToken')
   authTokenChanged() {
-    console.log(`authTokenChanged: isDefined=${this.authToken !== null}`)
+    // console.log(`authTokenChanged: isDefined=${this.authToken !== null}`)
     if (this._annotator) this._annotator.setAuthToken(this.authToken)
   }
 
   @Watch('annoBase')
   annoBaseChanged() {
-    console.log(`annoBaseChanged: annoBase=${this.annoBase}`)
+    // console.log(`annoBaseChanged: annoBase=${this.annoBase}`)
     this.setAnnoTarget()
   }
 
   @Watch('_annoTarget')
   _annoTargetChanged() {
-    console.log(`_annoTargetChanged: _annoTarget=${this._annoTarget}`)
+    // console.log(`_annoTargetChanged: _annoTarget=${this._annoTarget}`)
   }
 
   @Watch('user')
   userChanged() {
-    console.log(`userChanged: user=${this.user}`)
+    // console.log(`userChanged: user=${this.user}`)
     if (this.user && this.authToken) this._showAnnotations = true
     this.setAnnoTarget()
-    if (this._annotator)
-      this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
+    if (this._annotator) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
   }
 
   @State() _images: any[] = []
@@ -101,14 +101,13 @@ export class ImageViewer {
   _currentChanged() {
     this.alt = this._value(this._current.manifest.label).toString()
     this.setAnnoTarget()
-    if (this._annotator)
-      this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
+    if (this._annotator) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
   }
 
   @State() _annotations: any[] = []
   @Watch('_annotations')
   _annotationsChanged() {
-    console.log(`annotations=${this._annotations.length}`)
+    // console.log(`annotations=${this._annotations.length}`)
   }
 
   @Listen('closeMenu')
@@ -121,7 +120,7 @@ export class ImageViewer {
   onZoomToRegion(event: CustomEvent) { this.setRegion(event.detail) }
 
   setAnnoTarget() {
-    console.log(location, this.user, this.annoBase)
+    // console.log(location, this.user, this.annoBase)
     if (this._current) {
       let sourceHash = sha256(imageInfo(this._current.manifest).id).slice(0,8)
       this._annoTarget = this.annoBase
@@ -220,7 +219,7 @@ export class ImageViewer {
   }
 
   connectedCallback() {
-    console.log(`connectedCallback: annoBase=${this.annoBase}`)
+    // console.log(`connectedCallback: annoBase=${this.annoBase}`)
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
   }
 
@@ -277,27 +276,61 @@ export class ImageViewer {
     })
   }
 
-  _setHostDimensions(imageData:any = null) {
-    // console.log(`ve-image.setHostDimensions: el.width=${this.el.clientWidth} parent.width=${this.el.parentElement.clientWidth} this.width=${this.width} height=${this.height}`)
+  _setHostDimensions(imageData: any = null) {
+    let captionEl = this.el.shadowRoot.getElementById('caption')
+    let captionHeight = captionEl ? captionEl.clientHeight : 33
     let osd = this.el.shadowRoot.getElementById('osd')
-    // let caption = this.el.shadowRoot.getElementById('caption')
-    let width = this.width
+    let parentWidth = this.el.parentElement.clientWidth
+    let parentHeight = this.el.parentElement.clientHeight
+    let requestedWidth = this.width
       ? this.width.indexOf('px') > 0
         ? parseInt(this.width.slice(0,-2))
-        : Math.round(this.el.parentElement.clientWidth * (parseFloat(this.width.slice(0,-1))/100))
-      : this.el.clientWidth || this.el.parentElement.clientWidth
-    let height = this.height
+        : Math.round(parentWidth * (parseFloat(this.width.slice(0,-1))/100))
+      : null
+    let requestedHeight = this.height
       ? this.height.indexOf('px') > 0
         ? parseInt(this.height.slice(0,-2))
-        : Math.round(this.el.parentElement.clientHeight * (parseFloat(this.height.slice(0,-1))/100))
-      : imageData
-        ? Math.round(imageData.height/imageData.width * width) // height scaled to width
-        : width
-    // console.log(`ve-image.setHostDimensions: width=${width} height=${height}`)
-    // this.el.style.width = `${width}px`
-    // this.el.style.height = `${height}px`
+        : Math.round(parentHeight * (parseFloat(this.height.slice(0,-1))/100))
+      : null
+    let imageWidth = imageData ? imageData.width : null
+    let imageHeight = imageData ? imageData.height : null
+    // console.log(`ve-image.setHostDimensions: parentWidth=${parentWidth} parentHeight=${parentHeight} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} imageWidth=${imageWidth} imageHeight=${imageHeight}`)
+    
+    let width, height
+    if (requestedWidth) {
+      width = requestedWidth
+      height = requestedHeight
+        ? requestedHeight
+        : Math.min(
+          parentHeight,
+          imageData
+            ? Math.round(imageHeight/imageWidth * requestedWidth) + captionHeight // height scaled to width
+            : requestedWidth
+        )
+    } else if (requestedHeight) {
+      height = requestedHeight
+      width = Math.min(
+        parentWidth,
+        imageData
+          ? Math.round(imageWidth/imageHeight * (requestedHeight - captionHeight)) // width scaled to height
+          : requestedWidth
+        )
+    } else {
+      width = parentWidth
+      height = Math.min(
+        Math.round(imageHeight/imageWidth * parentWidth + captionHeight), // height scaled to width
+        parentHeight)
+    }
+
+    console.log(`ve-image.setHostDimensions: width=${width} height=${height} caption=${captionHeight}`)
     osd.style.width = `${width}px`
     osd.style.height = `${height}px`
+    this.el.style.width = `${width}px`
+    this.el.style.height = `${height}px`
+    if (this.align) {
+      if (this.align === 'center') this.el.style.margin = 'auto'
+      else this.el.style.float = this.align
+    }
   }
 
   async _tileSource(imgUrl: any, options: any) {
@@ -413,8 +446,7 @@ export class ImageViewer {
     this._viewer = OpenSeadragon(osdOptions)
     
     this._annotator = new Annotator(this._viewer, this.el.shadowRoot.querySelector('#toolbar'), this.user, this.authToken)
-    if (this._annoTarget)
-      this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
+    if (this._annoTarget) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
     this.showAnnotationsToolbar(true)
     this.showAnnotations(this._showAnnotations)
 

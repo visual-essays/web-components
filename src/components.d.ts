@@ -22,6 +22,7 @@ export namespace Components {
         "subtitle": string;
     }
     interface VeImage {
+        "align": string;
         "alt": string;
         "annoBase": string;
         "authToken": string;
@@ -130,6 +131,7 @@ declare namespace LocalJSX {
         "subtitle"?: string;
     }
     interface VeImage {
+        "align"?: string;
         "alt"?: string;
         "annoBase"?: string;
         "authToken"?: string;

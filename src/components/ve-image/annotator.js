@@ -17,7 +17,7 @@ export class Annotator {
     this._target
     // this.validateToken(this._token)
 
-    console.log(`annotator.constructor: user=${this._user} toolbar=${toolbar}`)
+    // console.log(`annotator.constructor: user=${this._user} toolbar=${toolbar}`)
 
     if (this._user && this._token) {
       if (toolbar) Toolbar(this._annotorious, toolbar)
@@ -77,7 +77,7 @@ export class Annotator {
       annotations = resp.annotations
       this._annotorious.setAnnotations(resp.annotations)
     }
-    console.log(`loadAnnotations: path=${this._path}`, this.getAnnotations())
+    // console.log(`loadAnnotations: path=${this._path}`, this.getAnnotations())
     return annotations
   }
 
