@@ -31,14 +31,12 @@
 
 - [ve-drawer](../ve-drawer)
 - [ve-manifest](../ve-manifest)
-- [ve-image-toolbar](../ve-image-toolbar)
 
 ### Graph
 ```mermaid
 graph TD;
   ve-image --> ve-drawer
   ve-image --> ve-manifest
-  ve-image --> ve-image-toolbar
   style ve-image fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
