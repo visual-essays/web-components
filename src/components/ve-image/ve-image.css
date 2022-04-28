@@ -1,4 +1,5 @@
 :host, ve-image {
+  box-sizing: border-box;
   max-width: 100%;
   position: relative;
   display: flex;
@@ -7,7 +8,7 @@
   float: right;
   */
 }
-
+* { box-sizing: border-box; }
 ve-image-toolbar {
   position: absolute;
   top: 10px;
@@ -151,11 +152,12 @@ h3 {
   display: flex;
   align-items: center;
   font-family: sans-serif;
-  width: calc(100% - 12px);
+  width: 100%;
   background: rgba(0, 0, 0, 0.7);
   color: white;
   padding: 4px 6px;
   bottom: 0;
+  height: 32px;
 }
 
 #caption div {
@@ -163,7 +165,7 @@ h3 {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 1em;
+  font-size: 1rem;
 }
 
 .a9s-toolbar-btn {

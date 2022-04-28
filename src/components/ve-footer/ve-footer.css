@@ -1,0 +1,9 @@
+:host {
+  font-family: Roboto, sans-serif;
+  box-sizing: border-box;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: #eee;
+  padding: 12px;
+}

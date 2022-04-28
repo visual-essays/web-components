@@ -277,7 +277,7 @@ export class ImageViewer {
 
   _setHostDimensions(imageData: any = null) {
     let captionEl = this.el.shadowRoot.getElementById('caption')
-    let captionHeight = captionEl ? captionEl.clientHeight : 33
+    let captionHeight = captionEl ? captionEl.clientHeight : 32
     let osd = this.el.shadowRoot.getElementById('osd')
     let parentWidth = this.el.parentElement.clientWidth
     let parentHeight = this.el.parentElement.clientHeight
@@ -293,7 +293,7 @@ export class ImageViewer {
       : null
     let imageWidth = imageData ? imageData.width : null
     let imageHeight = imageData ? imageData.height : null
-    // console.log(`ve-image.setHostDimensions: parentWidth=${parentWidth} parentHeight=${parentHeight} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} imageWidth=${imageWidth} imageHeight=${imageHeight}`)
+    console.log(`ve-image.setHostDimensions: parentWidth=${parentWidth} parentHeight=${parentHeight} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} imageWidth=${imageWidth} imageHeight=${imageHeight}`)
     
     let width, height
     if (requestedWidth) {
@@ -322,8 +322,9 @@ export class ImageViewer {
     }
 
     console.log(`ve-image.setHostDimensions: width=${width} height=${height} caption=${captionHeight}`)
-    osd.style.width = `${width}px`
-    osd.style.height = `${height}px`
+    // osd.style.width = `${width}px`
+    osd.style.width = '100%'
+    osd.style.height = `${height - captionHeight}px`
     this.el.style.width = `${width}px`
     this.el.style.height = `${height}px`
     if (this.align) {
@@ -445,7 +446,7 @@ export class ImageViewer {
     // console.log(`homeFillsViewer=${osdConfig.homeFillsViewer}`)
     this._viewer = OpenSeadragon(osdOptions)
     
-    this._annotator = new Annotator(this._viewer, this.el.shadowRoot.querySelector('#toolbar'), this.user, this.authToken)
+    this._annotator = new Annotator(this._viewer, this.el.shadowRoot.querySelector('#toolbar'), this.authToken)
     if (this._annoTarget) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
     this.showAnnotationsToolbar(true)
     this.showAnnotations(this._showAnnotations)

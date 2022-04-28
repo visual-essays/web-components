@@ -12,6 +12,8 @@ export namespace Components {
     interface VeEntities {
         "entities": string;
     }
+    interface VeFooter {
+    }
     interface VeHeader {
         "background": string;
         "height": number;
@@ -66,6 +68,12 @@ declare global {
         prototype: HTMLVeEntitiesElement;
         new (): HTMLVeEntitiesElement;
     };
+    interface HTMLVeFooterElement extends Components.VeFooter, HTMLStencilElement {
+    }
+    var HTMLVeFooterElement: {
+        prototype: HTMLVeFooterElement;
+        new (): HTMLVeFooterElement;
+    };
     interface HTMLVeHeaderElement extends Components.VeHeader, HTMLStencilElement {
     }
     var HTMLVeHeaderElement: {
@@ -105,6 +113,7 @@ declare global {
     interface HTMLElementTagNameMap {
         "ve-drawer": HTMLVeDrawerElement;
         "ve-entities": HTMLVeEntitiesElement;
+        "ve-footer": HTMLVeFooterElement;
         "ve-header": HTMLVeHeaderElement;
         "ve-image": HTMLVeImageElement;
         "ve-image-annotations-browser": HTMLVeImageAnnotationsBrowserElement;
@@ -120,6 +129,8 @@ declare namespace LocalJSX {
     }
     interface VeEntities {
         "entities"?: string;
+    }
+    interface VeFooter {
     }
     interface VeHeader {
         "background"?: string;
@@ -167,6 +178,7 @@ declare namespace LocalJSX {
     interface IntrinsicElements {
         "ve-drawer": VeDrawer;
         "ve-entities": VeEntities;
+        "ve-footer": VeFooter;
         "ve-header": VeHeader;
         "ve-image": VeImage;
         "ve-image-annotations-browser": VeImageAnnotationsBrowser;
@@ -181,6 +193,7 @@ declare module "@stencil/core" {
         interface IntrinsicElements {
             "ve-drawer": LocalJSX.VeDrawer & JSXBase.HTMLAttributes<HTMLVeDrawerElement>;
             "ve-entities": LocalJSX.VeEntities & JSXBase.HTMLAttributes<HTMLVeEntitiesElement>;
+            "ve-footer": LocalJSX.VeFooter & JSXBase.HTMLAttributes<HTMLVeFooterElement>;
             "ve-header": LocalJSX.VeHeader & JSXBase.HTMLAttributes<HTMLVeHeaderElement>;
             "ve-image": LocalJSX.VeImage & JSXBase.HTMLAttributes<HTMLVeImageElement>;
             "ve-image-annotations-browser": LocalJSX.VeImageAnnotationsBrowser & JSXBase.HTMLAttributes<HTMLVeImageAnnotationsBrowserElement>;
