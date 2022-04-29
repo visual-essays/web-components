@@ -1,3 +1,5 @@
+@import "../../global/shoelace.css";
+
 :host, ve-image {
   box-sizing: border-box;
   max-width: 100%;
@@ -27,7 +29,23 @@ ve-image-toolbar {
 #menu-icon, #annotations-icon {
   position: relative;
   cursor: pointer;
-  margin-right: 10px;;
+  margin-right: 6px;;
+}
+
+.drawer-contained::part(panel) {
+  padding: 3px;
+  background-color: white;
+  border-top: 1px solid #ccc;
+  border-left: 1px solid #ccc;
+  box-shadow: 5px 0 10px -5px rgba(115,115,115,0.75);
+}
+.drawer-contained::part(overlay) {
+  background: none;
+}
+
+#menu-icon::part(base) {
+  fill: white;
+  font-size: 1rem;
 }
 
 h3 {
@@ -38,11 +56,10 @@ h3 {
   margin-right: 20px;;
 }
 
-#menu-icon svg, #annotations-icon svg {
+#annotations-icon svg {
   display: inline-block;
   height: 18px;
   fill: white;
-  padding-top: 3px;
 }
 
 #annotations-icon[data-count]:after{

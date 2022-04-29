@@ -11,6 +11,10 @@ import { Annotator } from './annotator'
 import annotationsIcon from '../../icons/message-lines-regular.svg'
 import menuIcon from '../../icons/bars-solid.svg'
 
+import '@shoelace-style/shoelace/dist/components/drawer/drawer'
+import '@shoelace-style/shoelace/dist/components/icon/icon'
+import '@shoelace-style/shoelace/dist/components/icon-button/icon-button'
+
 import { parseInt } from 'lodash';
 
 @Component({
@@ -485,7 +489,9 @@ export class ImageViewer {
   }
 
   toggleMenu() {
-    this._showMenu = !this._showMenu
+    // this._showMenu = !this._showMenu
+    let drawer:any = this.el.shadowRoot.querySelector('.drawer-contained')
+    drawer.open = !drawer.open
   }
 
   toggleAnnotations() {
@@ -498,8 +504,8 @@ export class ImageViewer {
     ? [
       <div id="toolbar"></div>,
       <div id="osd">
-        <ve-drawer open={this._showMenu}>
-          <ve-manifest images={encodeURIComponent(JSON.stringify(this._images))} condensed></ve-manifest>
+        <sl-drawer label="" contained class="drawer-contained" placement="start" style={{'--size': '40%'}}>
+        <ve-manifest images={encodeURIComponent(JSON.stringify(this._images))} condensed></ve-manifest>
           {this._annotations.length > 0
             ? <div>
               <h3>Annotations</h3>
@@ -509,14 +515,11 @@ export class ImageViewer {
               </div>
             : null
           }
-        </ve-drawer>
+        </sl-drawer>
       </div>,
       !this.compare && <span id="coords" class="viewport-coords" onClick={this._copyTextToClipboard.bind(this)}>{this._viewportBounds}</span>,
       <div id="caption">
-        <span id="menu-icon" 
-          onClick={this.toggleMenu.bind(this)}
-          innerHTML={menuIcon} title="Open Menu"
-        ></span>
+        <sl-icon-button id="menu-icon" name="bars-solid" onClick={this.toggleMenu.bind(this)} label="Open Menu"></sl-icon-button>
         {!this.compare && this._annotations.length > 0
           ? <span 
               id="annotations-icon" 

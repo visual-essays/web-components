@@ -1,3 +1,5 @@
+@import "../../global/shoelace.css";
+
 :host {
   font-family: Roboto, sans-serif;
   box-sizing: border-box;
@@ -6,4 +8,8 @@
   width: 100%;
   background-color: #eee;
   padding: 12px;
+}
+
+.drawer-contained::part(overlay) {
+  background: None;
 }
