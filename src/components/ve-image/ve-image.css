@@ -29,7 +29,6 @@ ve-image-toolbar {
 #menu-icon, #annotations-icon {
   position: relative;
   cursor: pointer;
-  margin-right: 6px;;
 }
 
 .drawer-contained::part(panel) {
@@ -42,39 +41,46 @@ ve-image-toolbar {
 .drawer-contained::part(overlay) {
   background: none;
 }
+.drawer-contained::part(body) {
+  padding: 0;
+}
+.drawer-contained::part(title) {
+  padding: 0;
+}
+.drawer-contained::part(close-button) {
+  padding: 0;
+}
 
-#menu-icon::part(base) {
-  fill: white;
-  font-size: 1rem;
+#menu-icon::part(base), #annotations-icon::part(base) {
+  color: white;
+  font-size: 1.2rem;
+  padding: 3px;
 }
 
 h3 {
   margin: 12px 0 9px 0;
 }
 
-#annotations-icon {
-  margin-right: 20px;;
-}
-
-#annotations-icon svg {
+#caption div.button-icon-with-badge {
   display: inline-block;
-  height: 18px;
-  fill: white;
+  position: relative;
+  width: 50px;
 }
 
-#annotations-icon[data-count]:after{
+.button-icon-with-badge sl-badge {
   position: absolute;
-  right: -1em;
-  top: -0.5em;
-  content: attr(data-count);
-  font-size: 50%;
-  font-weight: 900;
-  padding: .7em;
-  border-radius: 999px;
-  line-height: 0.8em;
+  left: 40%;
+  top: 4px;
+  cursor: pointer;
+
+}
+.button-icon-with-badge sl-badge::part(base) {
+  font-size: .5rem;
+  background-color: yellow;
   color: black;
-  background: rgba(255,255,0,1.0);
-  text-align: center;
+  font-weight: bold;
+  padding: 3px 4px;
+  border: unset;
 }
 
 .anno-link {

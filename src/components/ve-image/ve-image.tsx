@@ -2,6 +2,7 @@ import { Component, Element, Listen, Prop, State, Watch, h } from '@stencil/core
 
 import OpenSeadragon from 'openseadragon'
 import { sha256 } from 'js-sha256'
+import jwt_decode from 'jwt-decode'
 
 import './openseadragon-curtain-sync'
 
@@ -11,10 +12,11 @@ import { Annotator } from './annotator'
 import annotationsIcon from '../../icons/message-lines-regular.svg'
 import menuIcon from '../../icons/bars-solid.svg'
 
-import '@shoelace-style/shoelace/dist/components/drawer/drawer'
+/*import '@shoelace-style/shoelace/dist/components/drawer/drawer'
 import '@shoelace-style/shoelace/dist/components/icon/icon'
 import '@shoelace-style/shoelace/dist/components/icon-button/icon-button'
-
+import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
+*/
 import { parseInt } from 'lodash';
 
 @Component({
@@ -40,7 +42,7 @@ export class ImageViewer {
   @Prop() width: string
   @Prop() height: string
   @Prop() align: string // 'left', 'center', 'right'
-  @Prop() authToken: string
+  @Prop() authToken: string = null
   @Prop() annoBase: string
 
   @Element() el: HTMLElement;
@@ -52,11 +54,14 @@ export class ImageViewer {
   @State() _showAnnotations: boolean = false
   @State() _showMenu: boolean = false
   @State() _annoTarget: string
+  @State() _infoPanelIsOpen = false
 
   @Watch('authToken')
   authTokenChanged() {
     // console.log(`authTokenChanged: isDefined=${this.authToken !== null}`)
     if (this._annotator) this._annotator.setAuthToken(this.authToken)
+    this.showAnnotationsToolbar(this.authToken !== null)
+    this.setAnnoTarget()
   }
 
   @Watch('annoBase')
@@ -67,7 +72,8 @@ export class ImageViewer {
 
   @Watch('_annoTarget')
   _annoTargetChanged() {
-    console.log(`_annoTargetChanged: _annoTarget=${this._annoTarget}`)
+    // console.log(`_annoTargetChanged: _annoTarget=${this._annoTarget}`)
+    if (this._annotator) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
   }
 
   @Watch('user')
@@ -123,12 +129,13 @@ export class ImageViewer {
   onZoomToRegion(event: CustomEvent) { this.setRegion(event.detail) }
 
   setAnnoTarget() {
-    // console.log(location, this.user, this.annoBase)
     if (this._current) {
       let sourceHash = sha256(imageInfo(this._current.manifest).id).slice(0,8)
       this._annoTarget = this.annoBase
         ? `${this.annoBase}/${sourceHash}`
-        : [...[this.user], ...location.pathname.replace(/\/editor/, '').split('/').filter(elem => elem), ...[sourceHash]].join('/')
+        : this.authToken
+          ? [...[sha256((jwt_decode(this.authToken) as any).email).slice(0,7)], ...location.pathname.replace(/\/editor/, '').split('/').filter(elem => elem), ...[sourceHash]].join('/')
+          : null
     }
   }
 
@@ -155,8 +162,6 @@ export class ImageViewer {
     this.showAnnotations(this._showAnnotations)
   }
   
-  editAnnotations() { console.log('editAnnotations') }
-
   setRegion(region: string) {
     this._viewer.viewport.fitBounds(parseRegionString(region, this._viewer), false)
   }
@@ -227,7 +232,6 @@ export class ImageViewer {
   }
 
   async componentWillLoad() {
-    if (this.user && this.authToken) this._showAnnotations = true
     this.buildImagesList()
   }
   
@@ -240,7 +244,7 @@ export class ImageViewer {
   }
 
   componentDidLoad() {
-    this._setHostDimensions()
+    if (this._images.length > 0) this._setHostDimensions()
     this.listenForSlotChanges()
 
     Array.from(document.querySelectorAll('mark')).forEach(mark => {
@@ -280,8 +284,11 @@ export class ImageViewer {
   }
 
   _setHostDimensions(imageData: any = null) {
+    let wrapper = this.el.shadowRoot.getElementById('wrapper')
+    console.dir(wrapper)
     let captionEl = this.el.shadowRoot.getElementById('caption')
     let captionHeight = captionEl ? captionEl.clientHeight : 32
+
     let osd = this.el.shadowRoot.getElementById('osd')
     let parentWidth = this.el.parentElement.clientWidth
     let parentHeight = this.el.parentElement.clientHeight
@@ -327,10 +334,12 @@ export class ImageViewer {
 
     console.log(`ve-image.setHostDimensions: width=${width} height=${height} caption=${captionHeight}`)
     // osd.style.width = `${width}px`
+    wrapper.style.width = `${width}px`
+    wrapper.style.height = `${height}px`
     osd.style.width = '100%'
     osd.style.height = `${height - captionHeight}px`
-    this.el.style.width = `${width}px`
-    this.el.style.height = `${height}px`
+    //this.el.style.width = `${width}px`
+    //this.el.style.height = `${height}px`
     if (this.align) {
       if (this.align === 'center') this.el.style.margin = 'auto'
       else this.el.style.float = this.align
@@ -424,7 +433,7 @@ export class ImageViewer {
 
   async _osdInit() {
     let tileSources = await this._loadTileSources()
-    console.log(tileSources)
+    // console.log(tileSources)
     let osdElem: HTMLElement = this.el.shadowRoot.querySelector('#osd')
     const osdOptions: OpenSeadragon.Options = {
       element: osdElem,
@@ -452,7 +461,7 @@ export class ImageViewer {
     
     this._annotator = new Annotator(this._viewer, this.el.shadowRoot.querySelector('#toolbar'), this.authToken)
     if (this._annoTarget) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
-    this.showAnnotationsToolbar(true)
+    this.showAnnotationsToolbar(this.authToken !== null)
     this.showAnnotations(this._showAnnotations)
 
     this._viewer.addHandler('page', (e) => this._selectedIdx = e.page)
@@ -479,6 +488,7 @@ export class ImageViewer {
   }
 
   showAnnotationsToolbar(show: boolean) {
+    // console.log(`showAnnotationsToolbar=${show}`)
     Array.from(this.el.shadowRoot.querySelectorAll('.a9s-toolbar')).forEach((elem:HTMLElement) => {
       elem.style.display = show ? 'unset' : 'none'
     })
@@ -489,9 +499,11 @@ export class ImageViewer {
   }
 
   toggleMenu() {
-    // this._showMenu = !this._showMenu
     let drawer:any = this.el.shadowRoot.querySelector('.drawer-contained')
-    drawer.open = !drawer.open
+    if (drawer) {
+      this._infoPanelIsOpen = !this._infoPanelIsOpen
+      drawer.open = this._infoPanelIsOpen
+    }
   }
 
   toggleAnnotations() {
@@ -501,47 +513,51 @@ export class ImageViewer {
 
   render() {
     return this._images.length > 0
-    ? [
-      <div id="toolbar"></div>,
-      <div id="osd">
-        <sl-drawer label="" contained class="drawer-contained" placement="start" style={{'--size': '40%'}}>
-        <ve-manifest images={encodeURIComponent(JSON.stringify(this._images))} condensed></ve-manifest>
+    ? [<div id="toolbar"></div>,
+        <div id="wrapper">
+          <div id="osd">
+          <sl-drawer label="" contained class="drawer-contained" placement="start" style={{'--size': '40%'}}>
+          <ve-manifest images={encodeURIComponent(JSON.stringify(this._images))} condensed></ve-manifest>
+          <a href={`https://tools.visual-essays.net/wc/?manifest=${encodeURIComponent(this._current.manifest.id)}`} target="_blank">Open annotator</a>
           {this._annotations.length > 0
             ? <div>
-              <h3>Annotations</h3>
-              {this._annotations.map((anno) => 
-                <div class="anno-link" onClick={this.setRegion.bind(this, anno.target.selector.value.split('=').pop())}>{anno.body[0].value}</div>
-              )}
+                <h3>Annotations</h3>
+                {this._annotations.map((anno) => 
+                  <div class="anno-link" onClick={this.setRegion.bind(this, anno.target.selector.value.split('=').pop())}>{anno.body[0].value}</div>
+                )}
               </div>
             : null
           }
-        </sl-drawer>
-      </div>,
-      !this.compare && <span id="coords" class="viewport-coords" onClick={this._copyTextToClipboard.bind(this)}>{this._viewportBounds}</span>,
-      <div id="caption">
-        <sl-icon-button id="menu-icon" name="bars-solid" onClick={this.toggleMenu.bind(this)} label="Open Menu"></sl-icon-button>
-        {!this.compare && this._annotations.length > 0
-          ? <span 
-              id="annotations-icon" 
-              onClick={this.toggleAnnotations.bind(this)}
-              title="Show Annotations"
-              data-count={this._annotations.length}>
-              <span innerHTML={annotationsIcon}></span>
-            </span>
-          : null
-        }
-        <div>
-          {this.compare
-            ? 'Compare viewer: move cursor over image to change view'
-            : this.alt
-          }
+          </sl-drawer>
         </div>
-      </div>,
-      <div id="image-info-popup"></div>
-    ]
+        {!this.compare && <span id="coords" class="viewport-coords" onClick={this._copyTextToClipboard.bind(this)}>{this._viewportBounds}</span>}
+        <div id="caption">
+          <sl-tooltip content={`${this._infoPanelIsOpen ? 'Close' : 'Open'} image info panel`}>
+            <sl-icon-button onClick={this.toggleMenu.bind(this)} id="menu-icon" name="three-dots-vertical" label="Open image info panel"></sl-icon-button>
+          </sl-tooltip>
+          {!this.compare && this._annotations.length > 0
+            ? <sl-tooltip content={`${this._infoPanelIsOpen ? 'Hide' : 'Show'} annotations`}>
+                <div class="button-icon-with-badge" onClick={this.toggleAnnotations.bind(this)}>
+                  <sl-icon-button id="annotations-icon" name="chat-square-text" label="Show annotations"></sl-icon-button>
+                  <sl-badge variant="danger" pill>1</sl-badge>
+                </div>
+              </sl-tooltip>
+            : null
+          }
+          <div>
+            {this.compare
+              ? 'Compare viewer: move cursor over image to change view'
+              : this.alt
+            }
+          </div>
+        </div>
+        <div id="image-info-popup"></div>
+      </div>]
     : [
-      <div id="toolbar"></div>,
-      <div id="osd"></div>
+        <div id="toolbar"></div>,
+        <div id="wrapper">
+          <div id="osd"></div>
+        </div>
     ]
   }
 }

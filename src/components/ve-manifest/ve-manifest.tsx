@@ -95,7 +95,7 @@ export class ManifestViewer {
   componentWillLoad() {
     if (this.images) {
       this._images = JSON.parse(decodeURIComponent(this.images))
-    } else {
+    } else if (this.src) {
       getManifest(this.src).then(manifest => this._images = [{manifest}])
     }
   }

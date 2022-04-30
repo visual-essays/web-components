@@ -15,18 +15,21 @@ export class Annotator {
     this._path
     this._target
 
-    if (this._user && this._token) {
+    //if (this._token) {
       if (toolbar) Toolbar(this._annotorious, toolbar)
       this._annotorious.on('createAnnotation', async (anno) => this._createAnnotation(anno))
       this._annotorious.on('updateAnnotation', async (anno) => this._updateAnnotation(anno))
       this._annotorious.on('deleteAnnotation', async (anno) => this._deleteAnnotation(anno))
+    /*
     } else {
       this._annotorious.on('mouseEnterAnnotation', async (anno) => this.selectAnnotation(anno))
       this._annotorious.on('mouseLeaveAnnotation', async () => this.selectAnnotation())
     }
+    */
   }
 
   setAuthToken(authToken) {
+    // console.log(`setAuthToken=${authToken}`)
     this._token = authToken
   }
 
@@ -79,7 +82,6 @@ export class Annotator {
       body: JSON.stringify({annotation: anno, path: this._path})
     })
     if (resp.ok && resp.status === 201) {
-      console.log(this._annotorious.getAnnotations())
       this._annotorious.setAnnotations(this._annotorious.getAnnotations())
     } else {
       console.log(`createAnnotation: unexpected resp_code=${resp.status}`)
