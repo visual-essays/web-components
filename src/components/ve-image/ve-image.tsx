@@ -9,14 +9,6 @@ import './openseadragon-curtain-sync'
 import debounce from 'lodash.debounce'
 import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isNum } from '../../utils'
 import { Annotator } from './annotator'
-import annotationsIcon from '../../icons/message-lines-regular.svg'
-import menuIcon from '../../icons/bars-solid.svg'
-
-/*import '@shoelace-style/shoelace/dist/components/drawer/drawer'
-import '@shoelace-style/shoelace/dist/components/icon/icon'
-import '@shoelace-style/shoelace/dist/components/icon-button/icon-button'
-import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
-*/
 import { parseInt } from 'lodash';
 
 @Component({
@@ -39,7 +31,7 @@ export class ImageViewer {
   @Prop({ mutable: true, reflect: true }) user: string = null
   @Prop({ mutable: true, reflect: true }) path: string
   @Prop() compare: string
-  @Prop() width: string
+  @Prop() width: string = '40%'
   @Prop() height: string
   @Prop() align: string // 'left', 'center', 'right'
   @Prop() authToken: string = null
@@ -55,12 +47,14 @@ export class ImageViewer {
   @State() _showMenu: boolean = false
   @State() _annoTarget: string
   @State() _infoPanelIsOpen = false
+  @State() _annotatorWindow: any = null
 
   @Watch('authToken')
   authTokenChanged() {
     // console.log(`authTokenChanged: isDefined=${this.authToken !== null}`)
     if (this._annotator) this._annotator.setAuthToken(this.authToken)
     this.showAnnotationsToolbar(this.authToken !== null)
+    this.showAnnotations(this.authToken !== null)
     this.setAnnoTarget()
   }
 
@@ -79,7 +73,7 @@ export class ImageViewer {
   @Watch('user')
   userChanged() {
     // console.log(`userChanged: user=${this.user}`)
-    if (this.user && this.authToken) this._showAnnotations = true
+    this.showAnnotations(this.user !== null && this.authToken !== null)
     this.setAnnoTarget()
     if (this._annotator) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
   }
@@ -312,7 +306,7 @@ export class ImageViewer {
       height = requestedHeight
         ? requestedHeight
         : Math.min(
-          parentHeight,
+          //parentHeight,
           imageData
             ? Math.round(imageHeight/imageWidth * requestedWidth) + captionHeight // height scaled to width
             : requestedWidth
@@ -327,9 +321,11 @@ export class ImageViewer {
         )
     } else {
       width = parentWidth
-      height = Math.min(
-        Math.round(imageHeight/imageWidth * parentWidth + captionHeight), // height scaled to width
-        parentHeight)
+      height = 
+        Math.min(
+          Math.round(imageHeight/imageWidth * parentWidth + captionHeight), // height scaled to width
+          //parentHeight
+        )
     }
 
     console.log(`ve-image.setHostDimensions: width=${width} height=${height} caption=${captionHeight}`)
@@ -462,7 +458,7 @@ export class ImageViewer {
     this._annotator = new Annotator(this._viewer, this.el.shadowRoot.querySelector('#toolbar'), this.authToken)
     if (this._annoTarget) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
     this.showAnnotationsToolbar(this.authToken !== null)
-    this.showAnnotations(this._showAnnotations)
+    this.showAnnotations(this.authToken !== null)
 
     this._viewer.addHandler('page', (e) => this._selectedIdx = e.page)
     // this._viewer.world.addHandler('add-item', (e) => {console.log('add-item', e)})
@@ -495,6 +491,7 @@ export class ImageViewer {
   }
 
   showAnnotations(show: boolean) {
+    this._showAnnotations = show
     Array.from(this.el.shadowRoot.querySelectorAll('.a9s-annotationlayer')).forEach((elem:HTMLElement) => elem.style.display = show ? 'unset' : 'none')
   }
 
@@ -507,8 +504,19 @@ export class ImageViewer {
   }
 
   toggleAnnotations() {
-    this._showAnnotations = !this._showAnnotations
-    this.showAnnotations(this._showAnnotations)
+    this.showAnnotations(!this._showAnnotations)
+  }
+
+  openAnnotator() {
+    console.log('openAnnotator')
+    this.openWindow(`https://annotator.visual-essays.net/?manifest=${this._current.manifest.id}`, `toolbar=yes,location=yes,left=0,top=0,width=800,height=800,scrollbars=yes,status=yes`)
+  }
+
+  openWindow(url, options) {
+    console.log('openWindow', url)
+    if (this._annotatorWindow) { this._annotatorWindow.close() }
+    if (options === undefined) options = 'toolbar=yes,location=yes,left=0,top=0,width=1000,height=1200,scrollbars=yes,status=yes'
+    this._annotatorWindow = window.open(url, '_blank', options)
   }
 
   render() {
@@ -518,10 +526,19 @@ export class ImageViewer {
           <div id="osd">
           <sl-drawer label="" contained class="drawer-contained" placement="start" style={{'--size': '40%'}}>
           <ve-manifest images={encodeURIComponent(JSON.stringify(this._images))} condensed></ve-manifest>
-          <a href={`https://tools.visual-essays.net/wc/?manifest=${encodeURIComponent(this._current.manifest.id)}`} target="_blank">Open annotator</a>
+          <div class="annotations-heading">
+            <span>Annotations</span>
+            { location.hostname.indexOf('annotator') < 0
+              ? <sl-tooltip content="Annotate image">
+                  <div class="annotator-link" onClick={this.openAnnotator.bind(this)} >
+                    <sl-icon name="pencil-square"></sl-icon>
+                  </div>
+                </sl-tooltip>
+              : null
+            }
+          </div>
           {this._annotations.length > 0
             ? <div>
-                <h3>Annotations</h3>
                 {this._annotations.map((anno) => 
                   <div class="anno-link" onClick={this.setRegion.bind(this, anno.target.selector.value.split('=').pop())}>{anno.body[0].value}</div>
                 )}
@@ -536,10 +553,10 @@ export class ImageViewer {
             <sl-icon-button onClick={this.toggleMenu.bind(this)} id="menu-icon" name="three-dots-vertical" label="Open image info panel"></sl-icon-button>
           </sl-tooltip>
           {!this.compare && this._annotations.length > 0
-            ? <sl-tooltip content={`${this._infoPanelIsOpen ? 'Hide' : 'Show'} annotations`}>
+            ? <sl-tooltip content={`${this._showAnnotations ? 'Hide' : 'Show'} annotations`}>
                 <div class="button-icon-with-badge" onClick={this.toggleAnnotations.bind(this)}>
                   <sl-icon-button id="annotations-icon" name="chat-square-text" label="Show annotations"></sl-icon-button>
-                  <sl-badge variant="danger" pill>1</sl-badge>
+                  <sl-badge variant="danger" pill>{this._annotations.length}</sl-badge>
                 </div>
               </sl-tooltip>
             : null
