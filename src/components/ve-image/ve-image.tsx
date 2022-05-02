@@ -503,8 +503,11 @@ export class ImageViewer {
   }
 
   openAnnotator() {
-    console.log('openAnnotator')
-    this.openWindow(`https://annotator.visual-essays.net/?manifest=${this._current.manifest.id}`, `toolbar=yes,location=yes,left=0,top=0,width=800,height=800,scrollbars=yes,status=yes`)
+    // console.log('openAnnotator', this._current)
+    let url = 'https://annotator.visual-essays.net/'
+    url += `?manifest=${this._current.manifest.id || this._current.manifest['@id']}`
+    if (this.annoBase) url += `&anno-base=${this.annoBase}`
+    this.openWindow(url, `toolbar=yes,location=yes,left=0,top=0,width=800,height=800,scrollbars=yes,status=yes`)
   }
 
   openWindow(url, options) {
