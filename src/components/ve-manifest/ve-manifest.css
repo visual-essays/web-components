@@ -7,12 +7,12 @@
 
 .manifest.condensed {
     border: 1px solid #ccc;
+    font-size: 0.9rem;
+    color: #444;
 }
 
 .manifest.condensed:not(:first-of-type) {
     margin-top: 1.5em;
-    font-size: 0.9rem;
-    color: #444;
 }
 
 .manifest.condensed .thumbnail {

@@ -22,7 +22,7 @@
 | `seq`       | `seq`        |             | `number` | `undefined` |
 | `src`       | `src`        |             | `string` | `undefined` |
 | `user`      | `user`       |             | `string` | `null`      |
-| `width`     | `width`      |             | `string` | `'40%'`     |
+| `width`     | `width`      |             | `string` | `undefined` |
 
 
 ## Dependencies

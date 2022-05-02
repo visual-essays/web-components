@@ -31,7 +31,7 @@ export class ImageViewer {
   @Prop({ mutable: true, reflect: true }) user: string = null
   @Prop({ mutable: true, reflect: true }) path: string
   @Prop() compare: string
-  @Prop() width: string = '40%'
+  @Prop() width: string
   @Prop() height: string
   @Prop() align: string // 'left', 'center', 'right'
   @Prop() authToken: string = null
@@ -66,7 +66,7 @@ export class ImageViewer {
 
   @Watch('_annoTarget')
   _annoTargetChanged() {
-    // console.log(`_annoTargetChanged: _annoTarget=${this._annoTarget}`)
+    console.log(`_annoTargetChanged: _annoTarget=${this._annoTarget}`)
     if (this._annotator) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
   }
 
@@ -123,13 +123,15 @@ export class ImageViewer {
   onZoomToRegion(event: CustomEvent) { this.setRegion(event.detail) }
 
   setAnnoTarget() {
+    console.log('setAnnoTarget', this._current)
     if (this._current) {
+      let locationPath = location.pathname.split('/').filter(pe => pe).join('/')
       let sourceHash = sha256(imageInfo(this._current.manifest).id).slice(0,8)
       this._annoTarget = this.annoBase
         ? `${this.annoBase}/${sourceHash}`
         : this.authToken
           ? [...[sha256((jwt_decode(this.authToken) as any).email).slice(0,7)], ...location.pathname.replace(/\/editor/, '').split('/').filter(elem => elem), ...[sourceHash]].join('/')
-          : null
+          : `${locationPath}/${sourceHash}`
     }
   }
 
@@ -282,50 +284,43 @@ export class ImageViewer {
     console.dir(wrapper)
     let captionEl = this.el.shadowRoot.getElementById('caption')
     let captionHeight = captionEl ? captionEl.clientHeight : 32
-
     let osd = this.el.shadowRoot.getElementById('osd')
-    let parentWidth = this.el.parentElement.clientWidth
-    let parentHeight = this.el.parentElement.clientHeight
+
+    let elWidth = this.el.clientWidth || this.el.parentElement.clientWidth
+    let elHeight = this.el.clientHeight || this.el.parentElement.clientHeight
     let requestedWidth = this.width
       ? this.width.indexOf('px') > 0
         ? parseInt(this.width.slice(0,-2))
-        : Math.round(parentWidth * (parseFloat(this.width.slice(0,-1))/100))
+        : Math.round(elWidth * (parseFloat(this.width.slice(0,-1))/100))
       : null
     let requestedHeight = this.height
       ? this.height.indexOf('px') > 0
         ? parseInt(this.height.slice(0,-2))
-        : Math.round(parentHeight * (parseFloat(this.height.slice(0,-1))/100))
+        : Math.round(elHeight * (parseFloat(this.height.slice(0,-1))/100))
       : null
     let imageWidth = imageData ? imageData.width : null
     let imageHeight = imageData ? imageData.height : null
-    console.log(`ve-image.setHostDimensions: parentWidth=${parentWidth} parentHeight=${parentHeight} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} imageWidth=${imageWidth} imageHeight=${imageHeight}`)
+    console.log(`ve-image.setHostDimensions: elWidth=${elWidth} elHeight=${elHeight} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} imageWidth=${imageWidth} imageHeight=${imageHeight}`)
     
     let width, height
     if (requestedWidth) {
       width = requestedWidth
       height = requestedHeight
         ? requestedHeight
-        : Math.min(
-          //parentHeight,
-          imageData
-            ? Math.round(imageHeight/imageWidth * requestedWidth) + captionHeight // height scaled to width
-            : requestedWidth
-        )
+        : imageData
+          ? Math.round(imageHeight/imageWidth * requestedWidth) + captionHeight // height scaled to width
+          : requestedWidth
     } else if (requestedHeight) {
       height = requestedHeight
       width = Math.min(
-        parentWidth,
+        elWidth,
         imageData
           ? Math.round(imageWidth/imageHeight * (requestedHeight - captionHeight)) // width scaled to height
           : requestedWidth
         )
     } else {
-      width = parentWidth
-      height = 
-        Math.min(
-          Math.round(imageHeight/imageWidth * parentWidth + captionHeight), // height scaled to width
-          //parentHeight
-        )
+      width = elWidth
+      height = Math.round(imageHeight/imageWidth * elWidth + captionHeight) // height scaled to width
     }
 
     console.log(`ve-image.setHostDimensions: width=${width} height=${height} caption=${captionHeight}`)
