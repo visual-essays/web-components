@@ -1,16 +1,43 @@
-@import "../../global/shoelace.css";
+* {box-sizing: border-box;}
 
 :host {
   font-family: Roboto, sans-serif;
-  box-sizing: border-box;
   position: fixed;
   bottom: 0;
   width: 100%;
   background-color: #eee;
-  padding: 12px;
   z-index: 100;
 }
 
-.drawer-contained::part(overlay) {
-  background: None;
+.container {
+  display: flex;
+  padding: 12px;
+  align-items: center;
+  gap: 12px;
+}
+
+.container a {
+  text-decoration: none;
+}
+
+.logo {
+  height:20px;
+}
+
+.contact {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.push {
+  margin-left:auto;
+}
+
+.contact-dialog::part(body) {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  gap: 16px;
 }
