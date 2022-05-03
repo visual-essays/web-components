@@ -14,7 +14,7 @@ import { parseInt } from 'lodash';
 @Component({
   tag: 've-image',
   styleUrl: 've-image.css',
-  assetsDirs: ['../../assets'],
+  // assetsDirs: ['../../assets'],
   shadow: true,
 })
 export class ImageViewer {

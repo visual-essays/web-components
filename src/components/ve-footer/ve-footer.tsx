@@ -1,27 +1,63 @@
 import { Component, Element, State, h } from '@stencil/core'
 
+const emailAddressRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+
 @Component({
   tag: 've-footer',
   styleUrl: 've-footer.css',
-  assetsDirs: ['../../assets'],
   shadow: true,
 })
 export class Footer {
 
   @Element() el: HTMLElement
   @State() contactDialog: any
-  @State() input: HTMLElement
+  @State() from: HTMLInputElement
+  @State() emailAlert: any
+  @State() message: HTMLTextAreaElement
+  @State() noMessageAlert: any
 
   componentDidLoad() {
     this.contactDialog = this.el.shadowRoot.querySelector('.contact-dialog')
-    this.input = this.contactDialog.querySelector('sl-input')
-    const closeButton = this.contactDialog.querySelector('sl-button[slot="footer"]')
-    closeButton.addEventListener('click', () => this.contactDialog.hide())
+    this.from = this.el.shadowRoot.getElementById('from') as HTMLInputElement
+    this.message = this.el.shadowRoot.getElementById('message') as HTMLTextAreaElement
+    this.emailAlert = this.el.shadowRoot.getElementById('bad-email-alert') as any
+    this.noMessageAlert = this.el.shadowRoot.getElementById('no-message-alert') as any
+  }
+
+  hideContactForm() {
+    this.contactDialog.hide()
+    this.from.value = ''
+    this.message.value = ''
+    this.emailAlert.hide()
+    this.noMessageAlert.hide()
   }
 
   showContactForm() {
-    console.log('showContactForm', this.contactDialog)
     this.contactDialog.show()
+  }
+
+  async sendmail() {
+    let emailIsValid = emailAddressRegex.test(this.from.value)
+    if (emailIsValid) this.emailAlert.hide()
+    else this.emailAlert.show()
+    
+    let messageIsValid = this.message.value.trim().length > 0
+    if (messageIsValid) this.noMessageAlert.hide()
+    else this.noMessageAlert.show()
+
+    if (emailIsValid && messageIsValid) { 
+      this.hideContactForm()
+      let body = {
+        to: 'Ron Snyder <ron@snyderjr.com>',
+        from: this.from.value,
+        subject: 'Visual Essays Contact',
+        message: this.message.value
+      }
+      let resp: any = await fetch('https://api.visual-essays.net/sendmail/', {
+        method: 'POST', body: JSON.stringify(body)
+      })
+      if (resp.ok) console.log(await resp.json())
+    }
   }
 
   render() {
@@ -41,10 +77,19 @@ export class Footer {
       </section>,
 
       <sl-dialog label="Contact Us" class="contact-dialog">
-        <sl-input autofocus type="email" label="Email address" Placeholder="Email"></sl-input>
-        <sl-input label="Subject"></sl-input>
-        <sl-textarea label="Message"></sl-textarea>
-        <sl-button slot="footer" variant="primary">Close</sl-button>
+        <sl-input id="from" autofocus type="email" label="Email address"></sl-input>
+        <sl-alert id="bad-email-alert" variant="danger">
+          <sl-icon slot="icon" name="exclamation-octagon"></sl-icon>
+          <strong>Invalid email address</strong><br />
+          Please fix and resubmit
+        </sl-alert>
+        <sl-textarea id="message" label="Message"></sl-textarea>
+        <sl-alert id="no-message-alert" variant="danger">
+          <sl-icon slot="icon" name="exclamation-octagon"></sl-icon>
+          <strong>No message entered</strong><br />
+        </sl-alert>
+        <sl-button id="cancel" slot="footer" onClick={this.hideContactForm.bind(this)}>Cancel</sl-button>
+        <sl-button slot="footer" variant="primary" onClick={this.sendmail.bind(this)}>Submit</sl-button>
       </sl-dialog>
     ]
   }
