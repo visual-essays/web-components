@@ -54,8 +54,9 @@ export class ImageViewer {
   authTokenChanged() {
     // console.log(`authTokenChanged: isDefined=${this.authToken !== null}`)
     if (this._annotator) this._annotator.setAuthToken(this.authToken)
-    this.showAnnotationsToolbar(this.authToken !== null)
-    this.showAnnotations(this.authToken !== null)
+    console.log(location.hostname)
+    this.showAnnotationsToolbar(this.canAnnotate())
+    this.showAnnotations(this.canAnnotate())
     this.setAnnoTarget()
   }
 
@@ -124,10 +125,10 @@ export class ImageViewer {
   onZoomToRegion(event: CustomEvent) { this.setRegion(event.detail) }
 
   setAnnoTarget() {
-    console.log('setAnnoTarget', this._current)
     if (this._current) {
       let locationPath = location.pathname.split('/').filter(pe => pe).join('/')
       let sourceHash = sha256(imageInfo(this._current.manifest).id).slice(0,8)
+      // console.log(`setAnnoTarget: annoBase=${this.annoBase} sourceHash=${sourceHash} locationPath=${locationPath} authToken=${this.authToken}`)
       this._annoTarget = this.annoBase
         ? `${this.annoBase}/${sourceHash}`
         : this.authToken
@@ -233,6 +234,11 @@ export class ImageViewer {
   }
   
   findVeImage(el: HTMLSpanElement) {
+    let sib = el.previousSibling
+    while (sib) {
+      if (sib.nodeName === 'VE-IMAGE') return sib === this.el ? sib : null
+      sib = sib.previousSibling
+    }
     while (el.parentElement && el.tagName !== 'MAIN') {
       el = el.parentElement
       let veImage = el.querySelector(':scope > ve-image')
@@ -248,7 +254,7 @@ export class ImageViewer {
       for (let idx=0; idx < mark.attributes.length; idx++) {
         let attr = mark.attributes.item(idx)
         if (/^\d+,\d+,\d+,\d+$/.test(attr.value)) {
-          let veImage = this.findVeImage(mark)
+          let veImage = this.findVeImage(mark.parentElement)
           if (veImage) {
             mark.addEventListener('click', () => setTimeout(() => this.zoomto(attr.value), 200))
           }
@@ -389,6 +395,18 @@ export class ImageViewer {
       : langObj
   }
 
+  annotatorIsParent() {
+    return location.hostname.indexOf('editor') >= 0 || location.port === '4444'
+  }
+
+  editorIsParent() {
+    return location.hostname.indexOf('annotator') >= 0 || location.port === '5555'
+  }
+
+  canAnnotate() {
+    return this.annotatorIsParent() && this.authToken !== null
+  }
+
   _showInfoPopup() {
     let popup: HTMLElement = this.el.shadowRoot.querySelector('#image-info-popup')
     // let manifestUrl = this._images[this._selectedIdx].manifest.id || this._images[this._selectedIdx].manifest['@id']
@@ -453,8 +471,9 @@ export class ImageViewer {
     
     this._annotator = new Annotator(this._viewer, this.el.shadowRoot.querySelector('#toolbar'), this.authToken)
     if (this._annoTarget) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
-    this.showAnnotationsToolbar(this.authToken !== null)
-    this.showAnnotations(this.authToken !== null)
+    
+    this.showAnnotationsToolbar(this.canAnnotate())
+    this.showAnnotations(this.canAnnotate())
 
     this._viewer.addHandler('page', (e) => this._selectedIdx = e.page)
     // this._viewer.world.addHandler('add-item', (e) => {console.log('add-item', e)})
@@ -504,15 +523,24 @@ export class ImageViewer {
   }
 
   openAnnotator() {
-    // console.log('openAnnotator', this._current)
-    let url = 'https://annotator.visual-essays.net/'
+    let width, height
+    let imgInfo = imageInfo(this._current.manifest)
+    let ratio = imgInfo.width / imgInfo.height
+    if (ratio < 0) {
+      width = 800
+      height = width * ratio
+    } else {
+      height = 800
+      width = height * ratio
+    }
+    let url = location.hostname === 'localhost'? 'http://localhost:4444/' : 'https://annotator.visual-essays.net/'
     url += `?manifest=${this._current.manifest.id || this._current.manifest['@id']}`
     if (this.annoBase) url += `&anno-base=${this.annoBase}`
-    this.openWindow(url, `toolbar=yes,location=yes,left=0,top=0,width=800,height=800,scrollbars=yes,status=yes`)
+    url += `&auth-token=${this.authToken}`
+    this.openWindow(url, `toolbar=yes,location=yes,left=0,top=0,width=${width},height=${height+200},scrollbars=yes,status=yes`)
   }
 
   openWindow(url, options) {
-    console.log('openWindow', url)
     if (this._annotatorWindow) { this._annotatorWindow.close() }
     if (options === undefined) options = 'toolbar=yes,location=yes,left=0,top=0,width=1000,height=1200,scrollbars=yes,status=yes'
     this._annotatorWindow = window.open(url, '_blank', options)
@@ -526,8 +554,11 @@ export class ImageViewer {
           <sl-drawer label="" contained class="drawer-contained" placement="start" style={{'--size': '40%'}}>
           <ve-manifest images={encodeURIComponent(JSON.stringify(this._images))} condensed></ve-manifest>
           <div class="annotations-heading">
-            <span>Annotations</span>
-            { location.hostname.indexOf('annotator') < 0
+            { this.editorIsParent() || this._annotations.length > 0
+              ? <span>Annotations</span>
+              : null
+            }
+            { this.editorIsParent()
               ? <sl-tooltip content="Annotate image">
                   <div class="annotator-link" onClick={this.openAnnotator.bind(this)} >
                     <sl-icon name="pencil-square"></sl-icon>

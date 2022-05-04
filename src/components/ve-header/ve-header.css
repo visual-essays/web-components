@@ -54,7 +54,7 @@
 
 :host(.sticky) {
   position: sticky;
-  top: -164;
+  top: -164px;
   z-index: 1000;
   margin-left: -1.1em;
   margin-top: -1.1em;

@@ -46,13 +46,13 @@ export class Footer {
     else this.noMessageAlert.show()
 
     if (emailIsValid && messageIsValid) { 
-      this.hideContactForm()
       let body = {
         to: 'Ron Snyder <ron@snyderjr.com>',
         from: this.from.value,
         subject: 'Visual Essays Contact',
         message: this.message.value
       }
+      this.hideContactForm()
       let resp: any = await fetch('https://api.visual-essays.net/sendmail/', {
         method: 'POST', body: JSON.stringify(body)
       })
