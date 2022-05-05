@@ -1,6 +1,8 @@
 import { Component, Element, Listen, Prop, State, Watch, h } from '@stencil/core';
 
 import OpenSeadragon from 'openseadragon'
+import OpenSeadragonViewerInputHook from '@openseadragon-imaging/openseadragon-viewerinputhook';
+
 import { sha256 } from 'js-sha256'
 import jwt_decode from 'jwt-decode'
 
@@ -68,7 +70,7 @@ export class ImageViewer {
 
   @Watch('_annoTarget')
   _annoTargetChanged() {
-    console.log(`_annoTargetChanged: _annoTarget=${this._annoTarget}`)
+    // console.log(`_annoTargetChanged: _annoTarget=${this._annoTarget}`)
     if (this._annotator) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
   }
 
@@ -133,7 +135,9 @@ export class ImageViewer {
         ? `${this.annoBase}/${sourceHash}`
         : this.authToken
           ? [...[sha256((jwt_decode(this.authToken) as any).email).slice(0,7)], ...location.pathname.replace(/\/editor/, '').split('/').filter(elem => elem), ...[sourceHash]].join('/')
-          : `${locationPath}/${sourceHash}`
+          : this.user
+            ? locationPath ? `${this.user}/${locationPath}/${sourceHash}` : `${this.user}/${sourceHash}`
+            : locationPath ? `${locationPath}/${sourceHash}` : sourceHash
     }
   }
 
@@ -177,7 +181,6 @@ export class ImageViewer {
   }
 
   async zoomto(arg: string) {
-    console.log(`zoomto=${arg}`)
     let region
     let annoRegex = new RegExp('[0-9a-f]{7}')
     if (annoRegex.test(arg)) {
@@ -386,6 +389,12 @@ export class ImageViewer {
     return this.annotatorIsParent() && this.authToken !== null
   }
 
+  isTouchEnabled() {
+    return ( 'ontouchstart' in window ) ||
+           ( navigator.maxTouchPoints > 0 ) ||
+           ( ((navigator as any).msMaxTouchPoints || 0) > 0 )
+}
+
   _showInfoPopup() {
     let popup: HTMLElement = this.el.shadowRoot.querySelector('#image-info-popup')
     // let manifestUrl = this._images[this._selectedIdx].manifest.id || this._images[this._selectedIdx].manifest['@id']
@@ -393,6 +402,48 @@ export class ImageViewer {
     let images = encodeURIComponent(JSON.stringify(this._images))
     popup.innerHTML = `<ve-manifest images="${images}" condensed></ve-manifest>`
     popup.style.display = popup.style.display === 'block' ? 'none' : 'block'
+  }
+
+  configureForTouchDevice() {
+    // let instructions = this.el.shadowRoot.getElementById('instructions')
+    const canvas: any = this.el.shadowRoot.querySelector('.openseadragon-canvas')
+    canvas.style.touchAction = 'pan-y'
+
+    new OpenSeadragonViewerInputHook({ viewer: this._viewer, hooks: [
+      {tracker: 'viewer', handler: 'scrollHandler', hookHandler: (event) => {
+        if (!this._viewer.isFullPage() && !event.originalEvent.ctrlKey) {
+          event.preventDefaultAction = true
+          event.stopHandlers = true
+          // display meta key warning
+          //if (instructions.className == 'hidden') instructions.className = 'visible'
+        } else {
+          //if (instructions.className == 'visible') instructions.className = 'hidden'
+        }
+        return true
+      }}
+    ]})
+
+    new OpenSeadragonViewerInputHook({ viewer: this._viewer, hooks: [
+      {tracker: 'viewer', handler: 'dragHandler', hookHandler: (event) => {
+        // if mobile disable drag event 
+        // pinch event handles panning with 2 fingers
+        if (!this._viewer.isFullPage() && this.isTouchEnabled()) {
+          event.preventDefaultAction = true
+          event.stopHandlers = true
+          //if (instructions.className == 'hidden') instructions.className = 'visible'
+        } else {
+          //if (instructions.className == 'visible') instructions.className = 'hidden';
+        }
+        return true
+      }}
+    ]})
+
+    new OpenSeadragonViewerInputHook({ viewer: this._viewer, hooks: [
+      {tracker: 'viewer', handler: 'dragEndHandler', hookHandler: (event) => {
+        event.preventDefaultAction = true
+        event.stopHandlers = true
+      }}
+    ]})
   }
 
   async _compareViewerInit() {
@@ -446,8 +497,11 @@ export class ImageViewer {
     }
 
     // console.log(`homeFillsViewer=${osdConfig.homeFillsViewer}`)
+    // this._viewer = OpenSeadragon(osdOptions);
+
     this._viewer = OpenSeadragon(osdOptions)
-    
+    if (this.isTouchEnabled()) this.configureForTouchDevice()
+
     this._annotator = new Annotator(this._viewer, this.el.shadowRoot.querySelector('#toolbar'), this.authToken)
     if (this._annoTarget) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
     
@@ -529,7 +583,9 @@ export class ImageViewer {
     return this._images.length > 0
     ? [<div id="toolbar"></div>,
         <div id="wrapper">
-          <div id="osd">
+          <div class="osd-wrapper">
+            <div id="osd"></div>
+            <div id="instructions" class="hidden">use ctrl + scroll or 2 fingers to zoom image.</div>
           <sl-drawer label="" contained class="drawer-contained" placement="start" style={{'--size': '40%'}}>
           <ve-manifest images={encodeURIComponent(JSON.stringify(this._images))} condensed></ve-manifest>
           <div class="annotations-heading">
@@ -587,7 +643,10 @@ export class ImageViewer {
     : [
         <div id="toolbar"></div>,
         <div id="wrapper">
-          <div id="osd"></div>
+          <div class="osd-wrapper">
+            <div id="osd"></div>
+            <div id="instructions" class="hidden">use ctrl + scroll or 2 fingers to zoom image.</div>
+          </div>
         </div>
     ]
   }

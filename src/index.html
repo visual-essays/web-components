@@ -10,7 +10,6 @@
     <link href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.73/dist/themes/light.css" rel="stylesheet"/>
     <style>
       body { margin:0;}
-      ve-image {width:30%;}
     </style>
     <script src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.73/dist/shoelace.js" type="module"></script>
     <script type="module" src="/build/visual-essays.esm.js"></script>
@@ -18,7 +17,15 @@
   </head>
   <body>
     
-    <ve-header 
+    <div style="width:100%; height:20vh"></div>
+    <div style="display:flex;justify-content:center;">
+      <ve-image src="gh:rdsnyder/images/Positano.jpg" user="a3b5125"></ve-image>
+    </div>
+    <div style="width:100%; height:100vh"></div>
+
+    <!--
+
+      <ve-header 
       label="Vincent Van Gogh Self Portraits"
       background="wc:Zelfportret_met_strohoed_-_s0164V1962_-_Van_Gogh_Museum.jpg"
       options="pct:0,25,80,20"
@@ -35,8 +42,6 @@
     </section>
     <ve-footer></ve-footer>
     
-    <!--
-
     <div style="width:100%; height:100vh; padding:20px;">
       <ve-image src="gh:rdsnyder/images/Positano.jpg" width="50%" user="a3b5125"></ve-image>
     </div>

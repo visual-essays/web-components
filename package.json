@@ -1,6 +1,6 @@
 {
   "name": "visual-essays",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "Visual Essays Web Components",
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
@@ -20,6 +20,7 @@
     "generate": "stencil generate"
   },
   "dependencies": {
+    "@openseadragon-imaging/openseadragon-viewerinputhook": "^2.2.1",
     "@recogito/annotorious-openseadragon": "^2.7.4",
     "@recogito/annotorious-toolbar": "^1.1.0",
     "@stencil/core": "^2.15.1",
@@ -28,7 +29,7 @@
     "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
     "manifesto.js": "^4.2.9",
-    "openseadragon": "^3.0.0"
+    "openseadragon": "^2.4.2"
   },
   "devDependencies": {
     "@types/jest": "^27.4.1",
