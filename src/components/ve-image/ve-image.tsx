@@ -177,15 +177,15 @@ export class ImageViewer {
   }
 
   async zoomto(arg: string) {
+    console.log(`zoomto=${arg}`)
     let region
-    let annoRegex = new RegExp('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}')
+    let annoRegex = new RegExp('[0-9a-f]{7}')
     if (annoRegex.test(arg)) {
-      let anno = await this._annotator.getAnnotation(arg)
+      let anno = this._annotations.find(item => item.id.split('/').pop() === arg)
       if (anno) region = anno.target.selector.value.split('=')[1]
     } else {
       region = arg
     }
-    // console.log(`zoomto: arg=${arg} region=${region}`)
     if (region) this.setRegion(region)
   }
 
@@ -253,7 +253,7 @@ export class ImageViewer {
     Array.from(document.querySelectorAll('mark')).forEach(mark => {
       for (let idx=0; idx < mark.attributes.length; idx++) {
         let attr = mark.attributes.item(idx)
-        if (/^\d+,\d+,\d+,\d+$/.test(attr.value)) {
+        if (/^\d+,\d+,\d+,\d+|[a-f0-9]{7}$/.test(attr.value)) {
           let veImage = this.findVeImage(mark.parentElement)
           if (veImage) {
             mark.addEventListener('click', () => setTimeout(() => this.zoomto(attr.value), 200))
@@ -263,27 +263,6 @@ export class ImageViewer {
       }
     })
 
-    Array.from(document.querySelectorAll('mark')).forEach(mark => {
-      let value = mark.attributes.getNamedItem('click')?.value
-      if (value) {
-        let match = value.match(/^\s*([a-z0-9_\-]+)\s*\|\s*([a-z0-9_\-:]+)\s*\|\s*([a-z0-9\-\.,:]+)\s*/i)
-        if (match) {
-          let elemId = match[2].split(':')[0]
-          if (this.el.id === elemId) {
-            mark.addEventListener('click', (e) => {
-              let value = (e.target as HTMLElement).attributes.getNamedItem('click').value
-              let match = value.match(/^\s*([a-z0-9_\-]+)\s*\|\s*([a-z0-9_\-:]+)\s*\|\s*([a-z0-9\-\.,:]+)\s*/i)
-              let method = match[1]
-              let [elemId, seq] = match[2].split(':')
-              let arg = match[3]
-              console.log(`click: method=${method} id=${elemId} seq=${seq} arg=${arg}`)
-              if (seq) this._viewer.goToPage(parseInt(seq)-1)
-              if (method === 'zoomto') setTimeout(() => this.zoomto(arg), 200)
-            })
-          }
-        }
-      }
-    })
   }
 
   _setHostDimensions(imageData: any = null) {
@@ -376,8 +355,8 @@ export class ImageViewer {
     return await Promise.all(imgUrls.map((imgUrl, idx) => this._tileSource(imgUrl, this._images[idx].options )))
   }
 
-  _copyTextToClipboard() {
-    if (navigator.clipboard) navigator.clipboard.writeText(this._viewportBounds)
+  _copyTextToClipboard(text: string) {
+    if (navigator.clipboard) navigator.clipboard.writeText(text)
   }
 
   _getViewportBounds() {
@@ -396,11 +375,11 @@ export class ImageViewer {
   }
 
   annotatorIsParent() {
-    return location.hostname.indexOf('editor') >= 0 || location.port === '4444'
+    return location.hostname.indexOf('annotator') >= 0 || location.port === '4444'
   }
 
   editorIsParent() {
-    return location.hostname.indexOf('annotator') >= 0 || location.port === '5555'
+    return location.hostname.indexOf('editor') >= 0 || location.port === '5555'
   }
 
   canAnnotate() {
@@ -569,15 +548,20 @@ export class ImageViewer {
           </div>
           {this._annotations.length > 0
             ? <div>
-                {this._annotations.map((anno) => 
-                  <div class="anno-link" onClick={this.setRegion.bind(this, anno.target.selector.value.split('=').pop())}>{anno.body[0].value}</div>
+                {this._annotations.map((anno) =>
+                  <div class="anno">
+                    <sl-tooltip content="Copy annotation ID">
+                      <sl-icon-button class="anno-copy" onClick={this._copyTextToClipboard.bind(this, anno.id.split('/').pop())} name="clipboard" label="Copy annotation ID"></sl-icon-button>
+                    </sl-tooltip>
+                    <span class="anno-link" onClick={this.setRegion.bind(this, anno.target.selector.value.split('=').pop())}>{anno.body[0].value}</span>
+                  </div>
                 )}
               </div>
             : null
           }
           </sl-drawer>
         </div>
-        {!this.compare && <span id="coords" class="viewport-coords" onClick={this._copyTextToClipboard.bind(this)}>{this._viewportBounds}</span>}
+        {!this.compare && <span id="coords" class="viewport-coords" onClick={this._copyTextToClipboard.bind(this, this._viewportBounds)}>{this._viewportBounds}</span>}
         <div id="caption">
           <sl-tooltip content={`${this._infoPanelIsOpen ? 'Close' : 'Open'} image info panel`}>
             <sl-icon-button onClick={this.toggleMenu.bind(this)} id="menu-icon" name="three-dots-vertical" label="Open image info panel"></sl-icon-button>

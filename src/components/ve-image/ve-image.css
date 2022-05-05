@@ -81,10 +81,20 @@ h3 {
   border: unset;
 }
 
-.anno-link {
+.anno {
+  font-family: Roboto,sans-serif;
   color: #0000EE;
   cursor: pointer;
+  padding: 4px;
   margin-bottom: 6px;
+  border: 0.5px solid #ccc;
+  font-size: 0.8em;
+}
+.anno-link {
+  color: #0000EE;
+}
+.anno-copy::part(base) {
+  padding: 0 4px 0 0;
 }
 
 .anno-link:hover {
@@ -106,8 +116,8 @@ h3 {
   font-family: sans-serif;
   bottom: 0;
   right: 0;
-  width: 120px;
-  height: 16px;
+  width: 130px;
+  height: 32px;
   padding: 3px 6px;
   font-size: 0.8rem;
   background-color: rgba(255, 255, 255, 0.5);
