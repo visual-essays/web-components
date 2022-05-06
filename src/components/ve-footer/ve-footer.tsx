@@ -1,4 +1,4 @@
-import { Component, Element, State, h } from '@stencil/core'
+import { Component, Element, Prop, State, h } from '@stencil/core'
 
 const emailAddressRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
 
@@ -8,6 +8,8 @@ const emailAddressRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(
   shadow: true,
 })
 export class Footer {
+
+  @Prop() sticky: boolean
 
   @Element() el: HTMLElement
   @State() contactDialog: any
@@ -22,6 +24,11 @@ export class Footer {
     this.message = this.el.shadowRoot.getElementById('message') as HTMLTextAreaElement
     this.emailAlert = this.el.shadowRoot.getElementById('bad-email-alert') as any
     this.noMessageAlert = this.el.shadowRoot.getElementById('no-message-alert') as any
+    if (this.sticky) {
+      this.el.style.position = 'fixed'
+      this.el.style.bottom = '0'
+      this.el.style.left = '0'
+    }
   }
 
   hideContactForm() {
@@ -70,7 +77,6 @@ export class Footer {
         <a href="https://visual-essays.net" target="_blank">visual-essays.net</a>
         <div class="contact push" onClick={this.showContactForm.bind(this)}>
           <sl-tooltip content="Contact us">
-            <span>Contact us</span>
             <sl-icon name="envelope" label="Contact us"></sl-icon>
           </sl-tooltip>
         </div>
@@ -80,8 +86,7 @@ export class Footer {
         <sl-input id="from" autofocus type="email" label="Email address"></sl-input>
         <sl-alert id="bad-email-alert" variant="danger">
           <sl-icon slot="icon" name="exclamation-octagon"></sl-icon>
-          <strong>Invalid email address</strong><br />
-          Please fix and resubmit
+          <strong>Invalid email address</strong><br />Please fix and resubmit
         </sl-alert>
         <sl-textarea id="message" label="Message"></sl-textarea>
         <sl-alert id="no-message-alert" variant="danger">

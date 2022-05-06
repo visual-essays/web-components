@@ -10,6 +10,7 @@ export namespace Components {
         "entities": string;
     }
     interface VeFooter {
+        "sticky": boolean;
     }
     interface VeHeader {
         "background": string;
@@ -96,6 +97,7 @@ declare namespace LocalJSX {
         "entities"?: string;
     }
     interface VeFooter {
+        "sticky"?: boolean;
     }
     interface VeHeader {
         "background"?: string;
