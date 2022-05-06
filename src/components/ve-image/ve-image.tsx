@@ -259,7 +259,12 @@ export class ImageViewer {
         if (/^\d+,\d+,\d+,\d+|[a-f0-9]{7}$/.test(attr.value)) {
           let veImage = this.findVeImage(mark.parentElement)
           if (veImage) {
-            mark.addEventListener('click', () => setTimeout(() => this.zoomto(attr.value), 200))
+            let zoomedIn = false
+            mark.addEventListener('click', () => setTimeout(() => {
+              zoomedIn = !zoomedIn
+              if (zoomedIn) this.zoomto(attr.value)
+              else this.goHome()
+            }, 200))
           }
           break
         }
@@ -522,7 +527,7 @@ export class ImageViewer {
     }, 100))
     this._viewer.addHandler('open-failed', (e) => {
       // If info.json tile source failed, try loading source image as pyramid
-      if (e.message === 'Unable to load TileSource' && e.source.indexOf('/info.json') > 0) {
+      if (e.message === 'Unable to load TileSource' && (e.source as any).indexOf('/info.json') > 0) {
         let imageData = imageInfo(this._current.manifest, this._current.seq)
         console.log(`Error: Unable to load IIIF TileSource, retrying with source image - ${decodeURIComponent(imageData.id)}`)
         this._viewer.open({ url: imageData.id, type: 'image', buildPyramid: true })
@@ -619,11 +624,11 @@ export class ImageViewer {
         </div>
         {!this.compare && <span id="coords" class="viewport-coords" onClick={this._copyTextToClipboard.bind(this, this._viewportBounds)}>{this._viewportBounds}</span>}
         <div id="caption">
-          <sl-tooltip content={`${this._infoPanelIsOpen ? 'Close' : 'Open'} image info panel`}>
+          <sl-tooltip content={`${this._infoPanelIsOpen ? 'Close' : 'Open'} image info panel`} disabled={this.isTouchEnabled()}>
             <sl-icon-button onClick={this.toggleMenu.bind(this)} id="menu-icon" name="three-dots-vertical" label="Open image info panel"></sl-icon-button>
           </sl-tooltip>
           {!this.compare && this._annotations.length > 0
-            ? <sl-tooltip content={`${this._showAnnotations ? 'Hide' : 'Show'} annotations`}>
+            ? <sl-tooltip content={`${this._showAnnotations ? 'Hide' : 'Show'} annotations`} disabled={this.isTouchEnabled()}>
                 <div class="button-icon-with-badge" onClick={this.toggleAnnotations.bind(this)}>
                   <sl-icon-button id="annotations-icon" name="chat-square-text" label="Show annotations"></sl-icon-button>
                   <sl-badge variant="danger" pill>{this._annotations.length}</sl-badge>
