@@ -181,15 +181,21 @@ export class ImageViewer {
   }
 
   async zoomto(arg: string) {
+    const found = arg.match(/^(\d+:)?(\d+,\d+,\d+,\d+|[a-f0-9]{7})$/)
+    console.log(found)
+    let imgIdx = found[1] ? parseInt(found[1].slice(0,-1))-1 : 0
     let region
     let annoRegex = new RegExp('[0-9a-f]{7}')
-    if (annoRegex.test(arg)) {
-      let anno = this._annotations.find(item => item.id.split('/').pop() === arg)
+    if (annoRegex.test(found[2])) {
+      let anno = this._annotations.find(item => item.id.split('/').pop() === found[2])
       if (anno) region = anno.target.selector.value.split('=')[1]
     } else {
-      region = arg
+      region = found[2]
     }
-    if (region) this.setRegion(region)
+    console.log(`zoomto: imgIdx=${imgIdx} region=${region}`)
+    if (region) {
+    this._viewer.goToPage(imgIdx)
+    setTimeout(() => { this.setRegion(region) }, 100) }
   }
 
   buildImagesList() {
@@ -256,7 +262,7 @@ export class ImageViewer {
     Array.from(document.querySelectorAll('mark')).forEach(mark => {
       for (let idx=0; idx < mark.attributes.length; idx++) {
         let attr = mark.attributes.item(idx)
-        if (/^\d+,\d+,\d+,\d+|[a-f0-9]{7}$/.test(attr.value)) {
+        if (/^(\d+:)?(\d+,\d+,\d+,\d+|[a-f0-9]{7})$/.test(attr.value)) {
           let veImage = this.findVeImage(mark.parentElement)
           if (veImage) {
             let zoomedIn = false
@@ -275,7 +281,6 @@ export class ImageViewer {
 
   _setHostDimensions(imageData: any = null) {
     let wrapper = this.el.shadowRoot.getElementById('wrapper')
-    console.dir(wrapper)
     let captionEl = this.el.shadowRoot.getElementById('caption')
     let captionHeight = captionEl ? captionEl.clientHeight : 32
     let osd = this.el.shadowRoot.getElementById('osd')
@@ -328,6 +333,12 @@ export class ImageViewer {
     if (this.align) {
       if (this.align === 'center') this.el.style.margin = 'auto'
       else this.el.style.float = this.align
+    }
+
+    let veHeader = document.querySelector('ve-header')
+    if (veHeader && veHeader.getAttribute('sticky') === 'true') {
+      let titlePanel = veHeader.shadowRoot.querySelector('.title-panel')
+      this.el.style.top = `${titlePanel.clientHeight + 6}px`
     }
   }
 
