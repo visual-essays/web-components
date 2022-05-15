@@ -18,17 +18,20 @@ export class Footer {
   @State() message: HTMLTextAreaElement
   @State() noMessageAlert: any
 
+  componentWillLoad() {
+    if (this.sticky) {
+      this.el.style.position = 'fixed'
+      this.el.style.bottom = '0'
+      this.el.style.left = '0'
+    }
+  }
+
   componentDidLoad() {
     this.contactDialog = this.el.shadowRoot.querySelector('.contact-dialog')
     this.from = this.el.shadowRoot.getElementById('from') as HTMLInputElement
     this.message = this.el.shadowRoot.getElementById('message') as HTMLTextAreaElement
     this.emailAlert = this.el.shadowRoot.getElementById('bad-email-alert') as any
     this.noMessageAlert = this.el.shadowRoot.getElementById('no-message-alert') as any
-    if (this.sticky) {
-      this.el.style.position = 'fixed'
-      this.el.style.bottom = '0'
-      this.el.style.left = '0'
-    }
   }
 
   hideContactForm() {

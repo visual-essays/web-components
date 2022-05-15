@@ -27,6 +27,11 @@ export class ManifestViewer {
     if (src) getManifest(this.src).then(manifest => this._images = [{manifest}])
   }
 
+  @Watch('images')
+  imagesChanged() {
+    this._images = JSON.parse(decodeURIComponent(this.images))
+  }
+
   parseManifest(imageRec: any) {
     let manifest = imageRec.manifest
     let parsed: any = {}

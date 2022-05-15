@@ -32,7 +32,7 @@ export class Header {
   async _imageInfoChanged(imageInfo: any, priorValue: any) {
     if (imageInfo !== priorValue) {
       this._imgUrl = imageInfo.service
-        ? this._iiifUrl(imageInfo.service.id, this.imageOptions)
+        ? this._iiifUrl(imageInfo.service[0].id, this.imageOptions)
         : await imageDataUrl(imageInfo.id, this.imageOptions.region, {width: this.el.clientWidth, height: this.height})
     }
   }

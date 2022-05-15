@@ -1,5 +1,6 @@
 import { Config } from '@stencil/core';
 import { inlineSvg } from 'stencil-inline-svg';
+// import nodePolyfills from 'rollup-plugin-node-polyfills';
 
 export const config: Config = {
   namespace: 'visual-essays',
@@ -19,5 +20,8 @@ export const config: Config = {
       serviceWorker: null, // disable service workers
     },
   ],
-  plugins: [inlineSvg()],
+  plugins: [
+    inlineSvg(),
+    // nodePolyfills()
+  ],
 };

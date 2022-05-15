@@ -6,6 +6,26 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
+    interface VeAnno {
+    }
+    interface VeDepicts {
+        "depicted": any[];
+        "edit": () => Promise<void>;
+        "editable": boolean;
+        "format": string;
+        "manifest": string;
+        "refresh": (depicted: any[]) => Promise<void>;
+    }
+    interface VeDepictsDialog {
+        "depicted": any[];
+        "imageHash": string;
+        "label": string;
+        "show": boolean;
+        "source": string;
+        "sourceId": string;
+        "summary": string;
+        "thumbnail": string;
+    }
     interface VeEntities {
         "entities": string;
     }
@@ -45,8 +65,29 @@ export namespace Components {
         "images": string;
         "src": string;
     }
+    interface VeWikidataSearch {
+        "language": string;
+    }
 }
 declare global {
+    interface HTMLVeAnnoElement extends Components.VeAnno, HTMLStencilElement {
+    }
+    var HTMLVeAnnoElement: {
+        prototype: HTMLVeAnnoElement;
+        new (): HTMLVeAnnoElement;
+    };
+    interface HTMLVeDepictsElement extends Components.VeDepicts, HTMLStencilElement {
+    }
+    var HTMLVeDepictsElement: {
+        prototype: HTMLVeDepictsElement;
+        new (): HTMLVeDepictsElement;
+    };
+    interface HTMLVeDepictsDialogElement extends Components.VeDepictsDialog, HTMLStencilElement {
+    }
+    var HTMLVeDepictsDialogElement: {
+        prototype: HTMLVeDepictsDialogElement;
+        new (): HTMLVeDepictsDialogElement;
+    };
     interface HTMLVeEntitiesElement extends Components.VeEntities, HTMLStencilElement {
     }
     var HTMLVeEntitiesElement: {
@@ -83,16 +124,48 @@ declare global {
         prototype: HTMLVeManifestElement;
         new (): HTMLVeManifestElement;
     };
+    interface HTMLVeWikidataSearchElement extends Components.VeWikidataSearch, HTMLStencilElement {
+    }
+    var HTMLVeWikidataSearchElement: {
+        prototype: HTMLVeWikidataSearchElement;
+        new (): HTMLVeWikidataSearchElement;
+    };
     interface HTMLElementTagNameMap {
+        "ve-anno": HTMLVeAnnoElement;
+        "ve-depicts": HTMLVeDepictsElement;
+        "ve-depicts-dialog": HTMLVeDepictsDialogElement;
         "ve-entities": HTMLVeEntitiesElement;
         "ve-footer": HTMLVeFooterElement;
         "ve-header": HTMLVeHeaderElement;
         "ve-image": HTMLVeImageElement;
         "ve-image-grid": HTMLVeImageGridElement;
         "ve-manifest": HTMLVeManifestElement;
+        "ve-wikidata-search": HTMLVeWikidataSearchElement;
     }
 }
 declare namespace LocalJSX {
+    interface VeAnno {
+    }
+    interface VeDepicts {
+        "depicted"?: any[];
+        "editable"?: boolean;
+        "format"?: string;
+        "manifest"?: string;
+        "onDroToggled"?: (event: CustomEvent<any>) => void;
+        "onEntityRemoved"?: (event: CustomEvent<any>) => void;
+        "onProminentToggled"?: (event: CustomEvent<any>) => void;
+    }
+    interface VeDepictsDialog {
+        "depicted"?: any[];
+        "imageHash"?: string;
+        "label"?: string;
+        "onDepictedChanged"?: (event: CustomEvent<any>) => void;
+        "show"?: boolean;
+        "source"?: string;
+        "sourceId"?: string;
+        "summary"?: string;
+        "thumbnail"?: string;
+    }
     interface VeEntities {
         "entities"?: string;
     }
@@ -132,25 +205,37 @@ declare namespace LocalJSX {
         "images"?: string;
         "src"?: string;
     }
+    interface VeWikidataSearch {
+        "language"?: string;
+        "onEntitySelected"?: (event: CustomEvent<any>) => void;
+    }
     interface IntrinsicElements {
+        "ve-anno": VeAnno;
+        "ve-depicts": VeDepicts;
+        "ve-depicts-dialog": VeDepictsDialog;
         "ve-entities": VeEntities;
         "ve-footer": VeFooter;
         "ve-header": VeHeader;
         "ve-image": VeImage;
         "ve-image-grid": VeImageGrid;
         "ve-manifest": VeManifest;
+        "ve-wikidata-search": VeWikidataSearch;
     }
 }
 export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "ve-anno": LocalJSX.VeAnno & JSXBase.HTMLAttributes<HTMLVeAnnoElement>;
+            "ve-depicts": LocalJSX.VeDepicts & JSXBase.HTMLAttributes<HTMLVeDepictsElement>;
+            "ve-depicts-dialog": LocalJSX.VeDepictsDialog & JSXBase.HTMLAttributes<HTMLVeDepictsDialogElement>;
             "ve-entities": LocalJSX.VeEntities & JSXBase.HTMLAttributes<HTMLVeEntitiesElement>;
             "ve-footer": LocalJSX.VeFooter & JSXBase.HTMLAttributes<HTMLVeFooterElement>;
             "ve-header": LocalJSX.VeHeader & JSXBase.HTMLAttributes<HTMLVeHeaderElement>;
             "ve-image": LocalJSX.VeImage & JSXBase.HTMLAttributes<HTMLVeImageElement>;
             "ve-image-grid": LocalJSX.VeImageGrid & JSXBase.HTMLAttributes<HTMLVeImageGridElement>;
             "ve-manifest": LocalJSX.VeManifest & JSXBase.HTMLAttributes<HTMLVeManifestElement>;
+            "ve-wikidata-search": LocalJSX.VeWikidataSearch & JSXBase.HTMLAttributes<HTMLVeWikidataSearchElement>;
         }
     }
 }

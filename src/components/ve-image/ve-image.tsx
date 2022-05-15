@@ -1,4 +1,4 @@
-import { Component, Element, Listen, Prop, State, Watch, h } from '@stencil/core';
+import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
 
 import OpenSeadragon from 'openseadragon'
 import OpenSeadragonViewerInputHook from '@openseadragon-imaging/openseadragon-viewerinputhook';
@@ -9,7 +9,7 @@ import jwt_decode from 'jwt-decode'
 import './openseadragon-curtain-sync'
 
 import debounce from 'lodash.debounce'
-import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isNum } from '../../utils'
+import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isNum, isMobile } from '../../utils'
 import { Annotator } from './annotator'
 import { parseInt } from 'lodash';
 
@@ -70,7 +70,7 @@ export class ImageViewer {
 
   @Watch('_annoTarget')
   _annoTargetChanged() {
-    // console.log(`_annoTargetChanged: _annoTarget=${this._annoTarget}`)
+    console.log(`_annoTargetChanged: _annoTarget=${this._annoTarget}`)
     if (this._annotator) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
   }
 
@@ -102,7 +102,7 @@ export class ImageViewer {
   _selectedIdxChanged(idx: number) {
     this._current = this._images.length > idx ? this._images[idx] : null
   }
-
+  
   @State() _current: any = null
   @Watch('_current')
   _currentChanged() {
@@ -111,34 +111,37 @@ export class ImageViewer {
     if (this._annotator) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
   }
 
+
   @State() _annotations: any[] = []
   @Watch('_annotations')
   _annotationsChanged() {
     // console.log(`annotations=${this._annotations.length}`)
   }
 
-  @Listen('closeMenu')
-  onCloseMenu() { this._showMenu = false }
+  serializedManifests() {
+    return encodeURIComponent(JSON.stringify(
+      this.compare ? this._images : [this._images[this._selectedIdx]]
+    ))
+  }
 
-  @Listen('iconClicked')
-  onIconClicked(event: CustomEvent) { this[event.detail]() }
+  annoTarget(manifest:any) {
+    let locationPath = location.pathname.split('/').filter(pe => pe).join('/')
+    let sourceHash = sha256(imageInfo(manifest).id).slice(0,7)
+    console.log(`annoTarget: annoBase=${this.annoBase} sourceHash=${sourceHash} locationPath=${locationPath} user=${this.user} authToken=${this.authToken}`)
+    return this.annoBase
+      ? `${this.annoBase}/${sourceHash}`
+      : this.authToken
+        ? this.editorIsParent()
+          ? [...location.pathname.split('/').filter(elem => elem), ...[sourceHash]].join('/')
+          : [...[sha256((jwt_decode(this.authToken) as any).email).slice(0,7)], ...location.pathname.split('/').filter(elem => elem), ...[sourceHash]].join('/')
+        : this.user
+          ? locationPath ? `${this.user}/${locationPath}/${sourceHash}` : `${this.user}/${sourceHash}`
+          : locationPath ? `${locationPath}/${sourceHash}` : sourceHash
 
-  @Listen('zoomToRegion')
-  onZoomToRegion(event: CustomEvent) { this.setRegion(event.detail) }
+  }
 
   setAnnoTarget() {
-    if (this._current) {
-      let locationPath = location.pathname.split('/').filter(pe => pe).join('/')
-      let sourceHash = sha256(imageInfo(this._current.manifest).id).slice(0,8)
-      // console.log(`setAnnoTarget: annoBase=${this.annoBase} sourceHash=${sourceHash} locationPath=${locationPath} authToken=${this.authToken}`)
-      this._annoTarget = this.annoBase
-        ? `${this.annoBase}/${sourceHash}`
-        : this.authToken
-          ? [...[sha256((jwt_decode(this.authToken) as any).email).slice(0,7)], ...location.pathname.replace(/\/editor/, '').split('/').filter(elem => elem), ...[sourceHash]].join('/')
-          : this.user
-            ? locationPath ? `${this.user}/${locationPath}/${sourceHash}` : `${this.user}/${sourceHash}`
-            : locationPath ? `${locationPath}/${sourceHash}` : sourceHash
-    }
+    if (this._current) this._annoTarget = this.annoTarget(this._current.manifest)
   }
 
   goHome() {
@@ -187,8 +190,17 @@ export class ImageViewer {
     let region
     let annoRegex = new RegExp('[0-9a-f]{7}')
     if (annoRegex.test(found[2])) {
-      let anno = this._annotations.find(item => item.id.split('/').pop() === found[2])
-      if (anno) region = anno.target.selector.value.split('=')[1]
+      let annoId = `https://api.visual-essays.net/annotation/${this.annoTarget(this._images[imgIdx].manifest)}/${found[2]}/`
+      console.log(annoId)
+      let resp = await fetch(annoId)
+      if (resp.ok) {
+        let anno = await resp.json()
+        if (anno) {
+          if (anno) region = anno.target.selector.value.split('=')[1]
+        }
+      }
+      // let anno = this._annotations.find(item => item.id.split('/').pop() === found[2])
+      // if (anno) region = anno.target.selector.value.split('=')[1]
     } else {
       region = found[2]
     }
@@ -214,6 +226,7 @@ export class ImageViewer {
         images[idx].manifestId = (images[idx].manifest.id || images[idx].manifest['@id']).split('/').slice(-2)[0]
       })
       this._images = images
+      console.log(this._images)
     })
   }
 
@@ -336,7 +349,7 @@ export class ImageViewer {
     }
 
     let veHeader = document.querySelector('ve-header')
-    if (veHeader && veHeader.getAttribute('sticky') === 'true') {
+    if (veHeader && veHeader.getAttribute('sticky') === 'true' && !isMobile()) {
       let titlePanel = veHeader.shadowRoot.querySelector('.title-panel')
       this.el.style.top = `${titlePanel.clientHeight + 6}px`
     }
@@ -367,8 +380,9 @@ export class ImageViewer {
   async _loadTileSources() {
     let imgUrls: any = this._images.map(item => {
       let _imageInfo = imageInfo(item.manifest, item.seq)
+      console.log(_imageInfo)
       return _imageInfo.service
-        ? `${_imageInfo.service.id}/info.json`
+        ? `${_imageInfo.service[0].id}/info.json`
         : _imageInfo.id
     })
     return await Promise.all(imgUrls.map((imgUrl, idx) => this._tileSource(imgUrl, this._images[idx].options )))
@@ -413,14 +427,18 @@ export class ImageViewer {
 
   _showInfoPopup() {
     let popup: HTMLElement = this.el.shadowRoot.querySelector('#image-info-popup')
-    // let manifestUrl = this._images[this._selectedIdx].manifest.id || this._images[this._selectedIdx].manifest['@id']
-    // popup.innerHTML = `<ve-manifest src=${manifestUrl} condensed></ve-manifest>`
-    let images = encodeURIComponent(JSON.stringify(this._images))
-    popup.innerHTML = `<ve-manifest images="${images}" condensed></ve-manifest>`
+    popup.innerHTML = `<ve-manifest images="${this.serializedManifests()}" condensed></ve-manifest>`
     popup.style.display = popup.style.display === 'block' ? 'none' : 'block'
   }
 
   configureForTouchDevice() {
+    /* This is intended to provide touch-based scrolling of OSD iages in mobile mode.  Pan/zoom is
+    disabled to permit scrolling.  The technique for doing this is as described in this
+    OSD Github issue - https://github.com/openseadragon/openseadragon/issues/1791#issuecomment-1000045888
+    Unfortunately, this only works with OSD v2.4.2, which is not compatible with the latest version of the
+    Annotorious plugin (requires 3.0).  As a result, the current configuration is pinned 
+    to OSD 2.4.2 and annotorious 2.6.0
+    */
     // let instructions = this.el.shadowRoot.getElementById('instructions')
     const canvas: any = this.el.shadowRoot.querySelector('.openseadragon-canvas')
     canvas.style.touchAction = 'pan-y'
@@ -524,7 +542,10 @@ export class ImageViewer {
     this.showAnnotationsToolbar(this.canAnnotate())
     this.showAnnotations(this.canAnnotate())
 
-    this._viewer.addHandler('page', (e) => this._selectedIdx = e.page)
+    this._viewer.addHandler('page', (e) => {
+      console.log(`page=${e.page}`)
+      this._selectedIdx = e.page
+    })
     // this._viewer.world.addHandler('add-item', (e) => {console.log('add-item', e)})
 
     this._viewer.world.addHandler('add-item', () => {
@@ -575,6 +596,7 @@ export class ImageViewer {
     let width, height
     let imgInfo = imageInfo(this._current.manifest)
     let ratio = imgInfo.width / imgInfo.height
+    let depictsPanelWidth = 300
     if (ratio < 0) {
       width = 800
       height = width * ratio
@@ -586,7 +608,7 @@ export class ImageViewer {
     url += `?manifest=${this._current.manifest.id || this._current.manifest['@id']}`
     if (this.annoBase) url += `&anno-base=${this.annoBase}`
     url += `&auth-token=${this.authToken}`
-    this.openWindow(url, `toolbar=yes,location=yes,left=0,top=0,width=${width},height=${height+200},scrollbars=yes,status=yes`)
+    this.openWindow(url, `toolbar=yes,location=yes,left=0,top=0,width=${width+depictsPanelWidth},height=${height+200},scrollbars=yes,status=yes`)
   }
 
   openWindow(url, options) {
@@ -603,7 +625,7 @@ export class ImageViewer {
             <div id="osd"></div>
             <div id="instructions" class="hidden">use ctrl + scroll or 2 fingers to zoom image.</div>
           <sl-drawer label="" contained class="drawer-contained" placement="start" style={{'--size': '40%'}}>
-          <ve-manifest images={encodeURIComponent(JSON.stringify(this._images))} condensed></ve-manifest>
+          <ve-manifest images={this.serializedManifests()} condensed></ve-manifest>
           <div class="annotations-heading">
             { this.editorIsParent() || this._annotations.length > 0
               ? <span>Annotations</span>
