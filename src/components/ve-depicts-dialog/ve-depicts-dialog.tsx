@@ -37,7 +37,7 @@ export class DepictsDialog {
   }
 
   async connectedCallback() {
-    console.log(`Depicts.Dialog.connectedCallback label=${this.label} summary=${this.summary} thumbnail=${this.thumbnail} imageHash=${this.imageHash} source=${this.source} sourceId=${this.sourceId} depicted=${this.depicted.length}`)
+    // console.log(`Depicts.Dialog.connectedCallback label=${this.label} summary=${this.summary} thumbnail=${this.thumbnail} imageHash=${this.imageHash} source=${this.source} sourceId=${this.sourceId} depicted=${this.depicted.length}`)
     if (this.depicted) {
       this._depicted = [...this.depicted]
     }
@@ -128,8 +128,6 @@ export class DepictsDialog {
   }
 
   async apply() {
-    // console.log(`apply _id=${this.imageHash} entities=${this._depicted.length}`, this._depicted)
-
     let statements: any = {
       P180: this._depicted.map(entity => {
         return {

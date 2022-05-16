@@ -177,7 +177,7 @@ export function parseRegionString(region: string, viewer: OpenSeadragon.Viewer) 
 let entityData = {}
 export async function getEntityData(qids: string[] = [], language: string = 'en') {
   let values = qids.filter(qid => !entityData[qid]).map(qid => `(<http://www.wikidata.org/entity/${qid}>)`)
-  console.log(`getEntityData: qids=${qids.length} toGet=${values.length}`)
+  // console.log(`getEntityData: qids=${qids.length} toGet=${values.length}`)
   if (values.length > 0) {
     let query = `
       SELECT ?item ?label ?description ?alias ?image ?coords ?wikipedia WHERE {
@@ -225,7 +225,7 @@ export async function getEntityData(qids: string[] = [], language: string = 'en'
 export async function getDepictedEntities(hash: string) {
   let depicted: any[] = []
   let payload = {query: { query_string: { query: `_id:${hash}`}}, size: 1}
-  console.log(`getDepictedEntities: hash=${hash}`, payload)
+  // console.log(`getDepictedEntities: hash=${hash}`, payload)
   let resp: any = await fetch('https://www.jstor.org/api/labs-search-service/labs/about/', {
     method: 'POST',
     headers: {'Content-Type': 'application/json', Accept: 'application/json'},

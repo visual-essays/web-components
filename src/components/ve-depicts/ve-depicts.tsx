@@ -20,7 +20,7 @@ export class Depicts {
   @State() imageHash: string
 
   async connectedCallback() {
-    console.log(`ve-depicts.connectedCallback format=${this.format} depicted=${this.depicted.length}`)
+    // console.log(`ve-depicts.connectedCallback format=${this.format} depicted=${this.depicted.length}`)
     if (this.manifest) {
       this._manifest = await getManifest(this.manifest)
       this.imageHash = sha256(imageInfo(this._manifest).id)
@@ -64,12 +64,12 @@ export class Depicts {
   }
 
   @Method()
-  edit() {
+  async edit() {
     let dialog: any = this.el.shadowRoot.querySelector('ve-depicts-dialog')
     dialog.show = !dialog.show
   }
 
-  label(qid:string, from:string) {
+  label(qid:string) {
     return this.entityData[qid]?.label
   }
 
@@ -78,7 +78,7 @@ export class Depicts {
       <ul>
       { this.depicted.map((entity) =>
         <li>
-          <a href={`https://www.wikidata.org/entity/${entity.id}`} innerHTML={this.label(entity.id, 'default')}></a>
+          <a href={`https://www.wikidata.org/entity/${entity.id}`} innerHTML={this.label(entity.id)}></a>
         </li>
       )}
       </ul>
@@ -108,7 +108,7 @@ export class Depicts {
         </li>
         {this.depicted.map((entity) =>
           <li>
-            <div class="label" innerHTML={this.label(entity.id, 'table')}></div>
+            <div class="label" innerHTML={this.label(entity.id)}></div>
             <div class="dro">
               <input type="checkbox" id="dro" name="dro" checked={entity.dro} onClick={this.toggleDro.bind(this, entity.id)}/>
             </div>
