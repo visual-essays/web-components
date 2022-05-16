@@ -188,7 +188,7 @@ export class ImageViewer {
     console.log(found)
     let imgIdx = found[1] ? parseInt(found[1].slice(0,-1))-1 : 0
     let region
-    let annoRegex = new RegExp('[0-9a-f]{7}')
+    let annoRegex = new RegExp('[0-9a-f]{8}')
     if (annoRegex.test(found[2])) {
       let annoId = `https://api.visual-essays.net/annotation/${this.annoTarget(this._images[imgIdx].manifest)}/${found[2]}/`
       console.log(annoId)
