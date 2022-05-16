@@ -1,7 +1,6 @@
 import * as Annotorious from '@recogito/annotorious-openseadragon'
 import Toolbar from '@recogito/annotorious-toolbar'
-// import jwt_decode from 'jwt-decode'
-import { sha256 } from 'js-sha256'
+import { sha256 } from '../../utils' 
 
 const annotationsEndpoint = location.hostname === 'localhost'
   ? 'http://localhost:8000'
@@ -69,8 +68,8 @@ export class Annotator {
   }
 
   async _createAnnotation(anno) {
-    anno.id = `https://api.visual-essays.net/annotation/${this._path}/${sha256(anno.id).slice(0,7)}`
-    anno.target.id = this._path
+    anno.id = sha256(anno.id).slice(0,8)
+    anno.target.id = this.sourceHash
     console.log(`createAnnotation: target=${anno.target.id} creator=${anno.creator}`, anno)
     let resp = await fetch(`${annotationsEndpoint}/annotation/`, {
       method: 'POST',

@@ -23,7 +23,7 @@ export class Depicts {
     // console.log(`ve-depicts.connectedCallback format=${this.format} depicted=${this.depicted.length}`)
     if (this.manifest) {
       this._manifest = await getManifest(this.manifest)
-      this.imageHash = sha256(imageInfo(this._manifest).id)
+      this.imageHash = sha256(imageInfo(this._manifest).id).slice(0,8)
       this.depicted = await getDepictedEntities(this.imageHash)
     } else if (this.depicted) {
       this.getEntityData()

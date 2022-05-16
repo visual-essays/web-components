@@ -1,11 +1,15 @@
 import OpenSeadragon from 'openseadragon'
-import { sha256 as _sha256 } from 'js-sha256'
-import md5 from 'blueimp-md5'
+import { sha256 as __sha256 } from 'js-sha256'
+import __md5 from 'js-md5'
 
 const iiifServer = location.hostname === 'localhost' ? 'http://localhost:8088' : 'https://iiif.visual-essays.net'
 
 export function sha256(str: string) {
-  return _sha256(str)
+  return __sha256(str)
+}
+
+export function md5(str: string) {
+  return __md5(str)
 }
 
 export async function getManifest(manifestId: string) {

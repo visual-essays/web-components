@@ -76,7 +76,7 @@ export class ManifestViewer {
     })
 
     parsed.imageData = imageInfo(manifest)
-    parsed.service = parsed.imageData.service && `${parsed.imageData.service.id}/info.json`
+    parsed.service = parsed.imageData.service && `${parsed.imageData.service.id || parsed.imageData.service['@id']}/info.json`
 
     let rs = m.getRequiredStatement()
     if (rs.value.length > 0) {

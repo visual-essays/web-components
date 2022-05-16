@@ -3,7 +3,7 @@ import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
 import OpenSeadragon from 'openseadragon'
 import OpenSeadragonViewerInputHook from '@openseadragon-imaging/openseadragon-viewerinputhook';
 
-import { sha256 } from 'js-sha256'
+import { sha256 } from '../../utils'
 import jwt_decode from 'jwt-decode'
 
 import './openseadragon-curtain-sync'
@@ -126,14 +126,14 @@ export class ImageViewer {
 
   annoTarget(manifest:any) {
     let locationPath = location.pathname.split('/').filter(pe => pe).join('/')
-    let sourceHash = sha256(imageInfo(manifest).id).slice(0,7)
+    let sourceHash = sha256(imageInfo(manifest).id).slice(0,8)
     console.log(`annoTarget: annoBase=${this.annoBase} sourceHash=${sourceHash} locationPath=${locationPath} user=${this.user} authToken=${this.authToken}`)
     return this.annoBase
       ? `${this.annoBase}/${sourceHash}`
       : this.authToken
         ? this.editorIsParent()
           ? [...location.pathname.split('/').filter(elem => elem), ...[sourceHash]].join('/')
-          : [...[sha256((jwt_decode(this.authToken) as any).email).slice(0,7)], ...location.pathname.split('/').filter(elem => elem), ...[sourceHash]].join('/')
+          : [...[sha256((jwt_decode(this.authToken) as any).email.toLowerCase()).slice(0,8)], ...location.pathname.split('/').filter(elem => elem), ...[sourceHash]].join('/')
         : this.user
           ? locationPath ? `${this.user}/${locationPath}/${sourceHash}` : `${this.user}/${sourceHash}`
           : locationPath ? `${locationPath}/${sourceHash}` : sourceHash
@@ -382,7 +382,7 @@ export class ImageViewer {
       let _imageInfo = imageInfo(item.manifest, item.seq)
       console.log(_imageInfo)
       return _imageInfo.service
-        ? `${_imageInfo.service[0].id}/info.json`
+        ? `${_imageInfo.service[0].id || _imageInfo.service[0]['@id']}/info.json`
         : _imageInfo.id
     })
     return await Promise.all(imgUrls.map((imgUrl, idx) => this._tileSource(imgUrl, this._images[idx].options )))
