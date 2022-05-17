@@ -184,7 +184,7 @@ export class ImageViewer {
   }
 
   async zoomto(arg: string) {
-    const found = arg.match(/^(\d+:)?(\d+,\d+,\d+,\d+|[a-f0-9]{7})$/)
+    const found = arg.match(/^(\d+:)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})$/)
     console.log(found)
     let imgIdx = found[1] ? parseInt(found[1].slice(0,-1))-1 : 0
     let region
@@ -275,7 +275,7 @@ export class ImageViewer {
     Array.from(document.querySelectorAll('mark')).forEach(mark => {
       for (let idx=0; idx < mark.attributes.length; idx++) {
         let attr = mark.attributes.item(idx)
-        if (/^(\d+:)?(\d+,\d+,\d+,\d+|[a-f0-9]{7})$/.test(attr.value)) {
+        if (/^(\d+:)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})$/.test(attr.value)) {
           let veImage = this.findVeImage(mark.parentElement)
           if (veImage) {
             let zoomedIn = false
