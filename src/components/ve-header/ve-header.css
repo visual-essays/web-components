@@ -24,9 +24,9 @@
   position: sticky;
   top: -220px;
   z-index: 1000;
-  margin-left: -1.1em;
-  margin-top: -1.1em;
-  width: calc(100% + 1.5em)
+  margin-left: -1rem;
+  margin-top: -1rem;
+  width: calc(100% + 2rem);
 }
 
 .title-panel {
