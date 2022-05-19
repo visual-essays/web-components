@@ -18,15 +18,27 @@
   </head>
   <body>
 
-    <div style="width:100%; height:20vh"></div>
-    <div style="display:flex;justify-content:center;width:400px;">
-      <ve-image user="jstor-labs" anno-base="jstor-labs/plant-humanities/dragon_tree" height="100%" width="100%" alt="D. draco">
-        <li>https://jqz7t23pp9.execute-api.us-east-1.amazonaws.com/dev/manifest/8a1g2/manifest.json contain</li>
-      </ve-image>
-    </div>
-    <div style="width:100%; height:100vh"></div>
-
+  <div style="width:100%; height:20vh"></div>
+  <sl-icon-button name="pencil" onclick="toggleMode()"></sl-icon-button>  
+  <div style="display:flex;justify-content:center;width:40%;">
+    <ve-image compare="curtain">
+      <ul>
+        <li>https://iiif.harvardartmuseums.org/manifests/object/299843 pct:21,15,48,47//!0</li>
+        <li>https://media.nga.gov/public/manifests/nga_highlights.json pct:20,4,60,55</li>
+      </ul>
+    </ve-image>
+  </div>
+  <div style="width:100%; height:100vh"></div>
   
+  <script>
+    function toggleMode(e) {
+      let viewer = document.querySelector('ve-image')
+      let mode = viewer.getAttribute('compare')
+      viewer.setAttribute('compare', mode === 'sync' ? 'curtain' : 'sync')
+      console.log(`mode=${viewer.getAttribute('compare')}`)
+    }
+  </script>
+
     <!--
     
   <sl-icon-button name="pencil" onclick="openEditDialog()"></sl-icon-button>

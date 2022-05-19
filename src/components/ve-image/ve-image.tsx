@@ -33,7 +33,7 @@ export class ImageViewer {
   @Prop() entities: string
   @Prop({ mutable: true, reflect: true }) user: string = null
   @Prop({ mutable: true, reflect: true }) path: string
-  @Prop() compare: string
+  @Prop({ mutable: true, reflect: true }) compare: string
   @Prop() width: string
   @Prop() height: string
   @Prop() align: string // 'left', 'center', 'right'
@@ -51,6 +51,12 @@ export class ImageViewer {
   @State() _annoTarget: string
   @State() _infoPanelIsOpen = false
   @State() _annotatorWindow: any = null
+
+  @Watch('compare')
+  compareModeChanged() {
+    console.log(`compareModeChanged: compare=${this.compare}`)
+    this._compareViewerInit()
+  }
 
   @Watch('authToken')
   authTokenChanged() {
@@ -109,7 +115,6 @@ export class ImageViewer {
     this.setAnnoTarget()
     if (this._annotator) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
   }
-
 
   @State() _annotations: any[] = []
   @Watch('_annotations')
@@ -201,7 +206,7 @@ export class ImageViewer {
     } else {
       region = found[2]
     }
-    // console.log(`zoomto: imgIdx=${imgIdx} region=${region}`)
+    console.log(`zoomto: imgIdx=${imgIdx} region=${region}`)
     if (imgIdx) this._viewer.goToPage(imgIdx)
     if (region) setTimeout(() => { this.setRegion(region) }, 100)
   }
@@ -273,8 +278,9 @@ export class ImageViewer {
         if (/^(\d+:|\d+)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})?$/.test(attr.value)) {
           let veImage = this.findVeImage(mark.parentElement)
           if (veImage) {
-            let zoomedIn = false
             mark.addEventListener('click', () => setTimeout(() => {
+              let zoomedIn = false
+              console.log('click', zoomedIn)
               zoomedIn = !zoomedIn
               if (zoomedIn) this.zoomto(attr.value)
               else this.goHome()
@@ -476,7 +482,16 @@ export class ImageViewer {
 
   async _compareViewerInit() {
     let tileSources = await this._loadTileSources()
-    let container: HTMLElement = this.el.shadowRoot.querySelector('#osd')
+    let osdWrapper = this.el.shadowRoot.querySelector('.osd-wrapper')
+    let height = osdWrapper.clientHeight
+    let container: HTMLElement = this.el.shadowRoot.getElementById('osd')
+    if (container) {
+      osdWrapper.removeChild(container)
+    }
+    container = document.createElement('div')
+    container.id = 'osd'
+    container.style.height = `${height}px`
+    osdWrapper.appendChild(container)
     this._viewer = new (window as any).CurtainSyncViewer({
       mode: this.compare, // 'sync' or 'curtain'
       container,
