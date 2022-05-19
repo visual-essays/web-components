@@ -56,7 +56,6 @@ export class ImageViewer {
   authTokenChanged() {
     // console.log(`authTokenChanged: isDefined=${this.authToken !== null}`)
     if (this._annotator) this._annotator.setAuthToken(this.authToken)
-    console.log(location.hostname)
     this.showAnnotationsToolbar(this.canAnnotate())
     this.showAnnotations(this.canAnnotate())
     this.setAnnoTarget()
@@ -70,7 +69,7 @@ export class ImageViewer {
 
   @Watch('_annoTarget')
   _annoTargetChanged() {
-    console.log(`_annoTargetChanged: _annoTarget=${this._annoTarget}`)
+    // console.log(`_annoTargetChanged: _annoTarget=${this._annoTarget}`)
     if (this._annotator) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
   }
 
@@ -127,7 +126,7 @@ export class ImageViewer {
   annoTarget(manifest:any) {
     let locationPath = location.pathname.split('/').filter(pe => pe).join('/')
     let sourceHash = sha256(imageInfo(manifest).id).slice(0,8)
-    console.log(`annoTarget: annoBase=${this.annoBase} sourceHash=${sourceHash} locationPath=${locationPath} user=${this.user} authToken=${this.authToken}`)
+    // console.log(`annoTarget: annoBase=${this.annoBase} sourceHash=${sourceHash} locationPath=${locationPath} user=${this.user} authToken=${this.authToken}`)
     return this.annoBase
       ? `${this.annoBase}/${sourceHash}`
       : this.authToken
@@ -184,14 +183,12 @@ export class ImageViewer {
   }
 
   async zoomto(arg: string) {
-    const found = arg.match(/^(\d+:)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})$/)
-    console.log(found)
-    let imgIdx = found[1] ? parseInt(found[1].slice(0,-1))-1 : 0
+    const found = arg.match(/^(\d+:|\d+)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})?$/)
+    let imgIdx = found[1] ? parseInt(found[1].replace(/:$/,''))-1 : 0
     let region
     let annoRegex = new RegExp('[0-9a-f]{8}')
     if (annoRegex.test(found[2])) {
       let annoId = `https://api.visual-essays.net/annotation/${this.annoTarget(this._images[imgIdx].manifest)}/${found[2]}/`
-      console.log(annoId)
       let resp = await fetch(annoId)
       if (resp.ok) {
         let anno = await resp.json()
@@ -204,10 +201,9 @@ export class ImageViewer {
     } else {
       region = found[2]
     }
-    console.log(`zoomto: imgIdx=${imgIdx} region=${region}`)
-    if (region) {
-    this._viewer.goToPage(imgIdx)
-    setTimeout(() => { this.setRegion(region) }, 100) }
+    // console.log(`zoomto: imgIdx=${imgIdx} region=${region}`)
+    if (imgIdx) this._viewer.goToPage(imgIdx)
+    if (region) setTimeout(() => { this.setRegion(region) }, 100)
   }
 
   buildImagesList() {
@@ -226,7 +222,6 @@ export class ImageViewer {
         images[idx].manifestId = (images[idx].manifest.id || images[idx].manifest['@id']).split('/').slice(-2)[0]
       })
       this._images = images
-      console.log(this._images)
     })
   }
 
@@ -275,7 +270,7 @@ export class ImageViewer {
     Array.from(document.querySelectorAll('mark')).forEach(mark => {
       for (let idx=0; idx < mark.attributes.length; idx++) {
         let attr = mark.attributes.item(idx)
-        if (/^(\d+:)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})$/.test(attr.value)) {
+        if (/^(\d+:|\d+)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})?$/.test(attr.value)) {
           let veImage = this.findVeImage(mark.parentElement)
           if (veImage) {
             let zoomedIn = false
@@ -312,7 +307,7 @@ export class ImageViewer {
       : null
     let imageWidth = imageData ? imageData.width : null
     let imageHeight = imageData ? imageData.height : null
-    console.log(`ve-image.setHostDimensions: elWidth=${elWidth} elHeight=${elHeight} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} imageWidth=${imageWidth} imageHeight=${imageHeight}`)
+    // console.log(`ve-image.setHostDimensions: elWidth=${elWidth} elHeight=${elHeight} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} imageWidth=${imageWidth} imageHeight=${imageHeight}`)
     
     let width, height
     if (requestedWidth) {
@@ -335,7 +330,7 @@ export class ImageViewer {
       height = Math.round(imageHeight/imageWidth * elWidth + captionHeight) // height scaled to width
     }
 
-    console.log(`ve-image.setHostDimensions: width=${width} height=${height} caption=${captionHeight}`)
+    // console.log(`ve-image.setHostDimensions: width=${width} height=${height} caption=${captionHeight}`)
     // osd.style.width = `${width}px`
     wrapper.style.width = `${width}px`
     wrapper.style.height = `${height}px`
@@ -380,7 +375,6 @@ export class ImageViewer {
   async _loadTileSources() {
     let imgUrls: any = this._images.map(item => {
       let _imageInfo = imageInfo(item.manifest, item.seq)
-      console.log(_imageInfo)
       return _imageInfo.service
         ? `${_imageInfo.service[0].id || _imageInfo.service[0]['@id']}/info.json`
         : _imageInfo.id
