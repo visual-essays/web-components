@@ -34,6 +34,7 @@ export class ManifestViewer {
 
   parseManifest(imageRec: any) {
     let manifest = imageRec.manifest
+    console.log(manifest)
     let parsed: any = {}
     let m = manifesto.parseManifest(manifest)
     parsed.id = this._value(m.getProperty('id'))
@@ -76,7 +77,7 @@ export class ManifestViewer {
     })
 
     parsed.imageData = imageInfo(manifest)
-    parsed.service = parsed.imageData.service && `${parsed.imageData.service.id || parsed.imageData.service['@id']}/info.json`
+    parsed.service = parsed.imageData.service[0] && `${parsed.imageData.service[0].id || parsed.imageData.service[0]['@id']}/info.json`
 
     let rs = m.getRequiredStatement()
     if (rs.value.length > 0) {
