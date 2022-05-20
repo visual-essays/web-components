@@ -1,6 +1,5 @@
 import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
 import { getManifest, imageInfo } from '../../utils'
-import * as manifesto from 'manifesto.js'
 
 @Component({
   tag: 've-manifest',
@@ -34,67 +33,59 @@ export class ManifestViewer {
 
   parseManifest(imageRec: any) {
     let manifest = imageRec.manifest
-    console.log(manifest)
+    // console.log(manifest)
     let parsed: any = {}
-    let m = manifesto.parseManifest(manifest)
-    parsed.id = this._value(m.getProperty('id'))
-    parsed.label = this._value(m.getProperty('label'))
 
-    let summary = m.getProperty('summary')
-    let description = m.getProperty('description')
-    parsed.summary = summary
-      ? this._value(summary)
-      : description
-        ? description['@value']
-        : null
+    parsed.id = this._value(manifest.id)
+    parsed.label = this._value(manifest.label)
 
-    parsed.rights = m.getProperty('rights') || m.getLicense()
-
-    parsed.thumbnail = m.getThumbnail()?.id
+    if (manifest.summary) parsed.summary = this._value(manifest.summary)
+    if (manifest.rights) parsed.rights = manifest.rights
+    if (manifest.thumbnail) parsed.thumbnail = manifest.thumbnail[0].id
     
-    parsed.metadata = m.getMetadata()
-      .map(item => item.resource)
-      .map(item => ({label: this._value(item.label)[0], value: this._value(item.value)}))
-    let sourceUrl = parsed.metadata.find(item => item.label == 'source_url')
-    parsed.sourceUrl = sourceUrl ? sourceUrl.value[0] : null
+    if (manifest.metadata) {
+      parsed.metadata = manifest.metadata.map(item => ({label: this._value(item.label), value: this._value(item.value)}))
+      let sourceUrl = parsed.metadata.find(item => item.label == 'source_url')
+      parsed.sourceUrl = sourceUrl ? sourceUrl.value[0] : null
+    }
 
-    parsed.provider = (m.getProperty('provider') || [])
-      .map(provider => {
+    if (manifest.provider) {
+      parsed.provider = manifest.provider.map(provider => {
         let entry: any = {label: this._value(provider.label), href:provider.id}
         if (provider.logo) entry.logo = {src:provider.logo[0].id}
         return entry
       })
-
-    let logo = m.getProperty('logo')
-    if (logo && !Array.isArray(logo)) logo = [logo]
-    parsed.logo = (logo || []).map(item => {
-      let logoObj: any = { src: typeof item === 'object' ? item.id || item['@id'] : item }
-      if (typeof item === 'object') {
-        if (item.width) logoObj.width = item.width
-        if (item.height) logoObj.height = item.height
-      }
-      return logoObj
-    })
-
-    parsed.imageData = imageInfo(manifest)
-    parsed.service = parsed.imageData.service[0] && `${parsed.imageData.service[0].id || parsed.imageData.service[0]['@id']}/info.json`
-
-    let rs = m.getRequiredStatement()
-    if (rs.value.length > 0) {
-      parsed.requiredStatement = rs.label
-        ? {label: rs.label[0].value, value: rs.value[0].value}
-        : {label: 'attribution', value: rs.value[0].value}
-    } else {
-      parsed.requiredStatement = null
     }
 
-    parsed.homepage = (manifest.homepage || [])
-      .map(homepage => ({label: this._value(homepage.label), href: homepage.id}))
+    if (manifest.logo) {
+      parsed.logo = manifest.logo.map(item => {
+        let logoObj: any = { src: typeof item === 'object' ? item.id || item['@id'] : item }
+        if (typeof item === 'object') {
+          if (item.width) logoObj.width = item.width
+          if (item.height) logoObj.height = item.height
+        }
+        return logoObj
+      })
+    }
 
-    parsed.seeAlso = (manifest.seeAlso || [])
-      .map(seeAlso => ({label: this._value(seeAlso.label || seeAlso['@id']), href: seeAlso.id || seeAlso['@id']}))
+    parsed.imageData = imageInfo(manifest)
+    parsed.service = parsed.imageData.service && `${parsed.imageData.service[0].id || parsed.imageData.service[0]['@id']}/info.json`
+
+    if (manifest.requiredStatement) {
+      let rs = manifest.requiredStatement
+      parsed.requiredStatement = {label: this._value(rs.label), value: this._value(rs.value)}
+    }
+
+    if (manifest.homepage) {
+      parsed.homepage = {label: manifest.homepage.label ? this._value(manifest.homepage.label) : manifest.homepage.id, href: manifest.homepage.id}
+    }
+
+    if (manifest.seeAlso) {
+      parsed.seeAlso = manifest.seeAlso.map(seeAlso => ({label: seeAlso.label ? this._value(seeAlso.label) : seeAlso.id, href: seeAlso.id}))
+    }
     
-    parsed.navDate = manifest.navDate
+    // console.log(parsed)
+
     return parsed
   }
 
@@ -109,7 +100,7 @@ export class ManifestViewer {
   _value(langObj: any, language='en') {
     return typeof langObj === 'object' && !Array.isArray(langObj)
       ? langObj[language] || langObj.none || langObj[Object.keys(langObj).sort()[0]]
-      : Array.isArray(langObj) ? langObj : [langObj]
+      : langObj
   }
 
   onManifestIconDrag(dragEvent: DragEvent) {
@@ -155,7 +146,7 @@ export class ManifestViewer {
         : parsed.label
       }
       </div>
-      {parsed.summary && parsed.summary.length > 0
+      {parsed.summary
       ? <div class="summary">
           <span class="value">{parsed.summary}</span>
         </div>
@@ -170,7 +161,7 @@ export class ManifestViewer {
             <a class="value" href={parsed.rights} innerHTML={this.licenseBadge(parsed)}/>
           </div>
         : null}
-      {parsed.provider.length > 0
+      {parsed.provider
         ? <div class="provider">
           {
             parsed.provider.length == 1
@@ -214,7 +205,7 @@ export class ManifestViewer {
         <span class="label">label</span><span class="value">{parsed.label}</span>
       </div>
       
-      {parsed.summary && parsed.summary.length > 0
+      {parsed.summary
         ? <div class="summary">
             <span class="label">summary</span>
             <span class="value">{parsed.summary}</span>
@@ -222,7 +213,7 @@ export class ManifestViewer {
         : null
       }
 
-      {parsed.metadata.length > 0
+      {parsed.metadata
         ? <div class="metadata">
           <span class="label">metadata</span>
             <ul>
@@ -251,7 +242,7 @@ export class ManifestViewer {
         : null
       }
 
-      {parsed.provider.length > 0
+      {parsed.provider
         ? <div class="provider">
             <span class="label">provider</span>
             {
@@ -281,15 +272,15 @@ export class ManifestViewer {
         : null
       }
 
-      {parsed.homepage.length > 0
+      {parsed.homepage
         ? <div class="homepage">
             <span class="label">homepage</span>
-            <a class="value" href={parsed.homepage[0].href} innerHTML={parsed.homepage[0].label}/>
+            <a class="value" href={parsed.homepage.href} innerHTML={parsed.homepage.label}/>
           </div>
         : null
       }
 
-      {parsed.seeAlso.length > 0
+      {parsed.seeAlso
         ? <div class="seeAlso">
             <span class="label">seeAlso</span>
             <a class="value" href={parsed.seeAlso[0].href} innerHTML={parsed.seeAlso[0].label}/>
@@ -297,7 +288,7 @@ export class ManifestViewer {
         : null
       }
 
-      {parsed.logo.length > 0
+      {parsed.logo
         ? <div class="logo">
             <span class="label">logo</span>
             <a class="value" href={parsed.logo[0].src} innerHTML={parsed.logo[0].src}/>
@@ -313,11 +304,14 @@ export class ManifestViewer {
         : null
       }
 
-      {parsed.requiredStatement 
+      {parsed.requiredStatement
         ? <div class="requiredStatement">
             <span class="label">requiredStatement</span>
             <ul><li>
-              <span class="label" innerHTML={parsed.requiredStatement.label}></span>
+              {parsed.requiredStatement.label && parsed.requiredStatement.label[0]
+                ? <span class="label" innerHTML={parsed.requiredStatement.label}></span>
+                : null
+              }
               <span class="value" innerHTML={parsed.requiredStatement.value}></span>
             </li></ul>
           </div>

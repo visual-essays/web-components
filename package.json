@@ -25,13 +25,11 @@
     "@recogito/annotorious-openseadragon": "2.6.0",
     "@recogito/annotorious-toolbar": "^1.1.0",
     "@stencil/core": "^2.15.1",
-    "iiif-prezi2to3": "^2.0.2",
     "js-md5": "^0.7.3",
     "js-sha256": "^0.9.0",
     "jwt-decode": "^3.1.2",
     "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
-    "manifesto.js": "^4.2.11",
     "openseadragon": "2.4.2",
     "rollup-plugin-node-polyfills": "^0.2.1"
   },
