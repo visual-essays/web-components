@@ -69,9 +69,10 @@ export class ManifestViewer {
     }
 
     parsed.imageData = imageInfo(manifest)
-    parsed.service = parsed.imageData.service && `${parsed.imageData.service[0].id || parsed.imageData.service[0]['@id']}/info.json`
+    parsed.service = parsed.imageData.service && `${(parsed.imageData.service[0].id || parsed.imageData.service[0]['@id'])
+      .replace(/\/info\.json$/,'')}/info.json`
 
-    if (manifest.requiredStatement) {
+      if (manifest.requiredStatement) {
       let rs = manifest.requiredStatement
       parsed.requiredStatement = {label: this._value(rs.label), value: this._value(rs.value)}
     }

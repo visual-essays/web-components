@@ -89,7 +89,7 @@ export async function imgUrlFromManifest(manifestUrl: string, forceImage = false
     let manifest = await resp.json()
     let _imageInfo = imageInfo(manifest)
     return _imageInfo.service && !forceImage
-      ? `${_imageInfo.service[0].id || _imageInfo.service[0]['@id']}/info.json`
+      ? `${(_imageInfo.service[0].id || _imageInfo.service[0]['@id']).replace(/\/info\.json$/,'')}/info.json`
       : _imageInfo.id
   }
 }

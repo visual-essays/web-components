@@ -51,6 +51,7 @@ export class ImageViewer {
   @State() _annoTarget: string
   @State() _infoPanelIsOpen = false
   @State() _annotatorWindow: any = null
+  @State() _zoomedIn: any = {}
 
   @Watch('compare')
   compareModeChanged() {
@@ -188,7 +189,7 @@ export class ImageViewer {
   }
 
   async zoomto(arg: string) {
-    const found = arg.match(/^(\d+:|\d+)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})?$/)
+    const found = arg.match(/^(\d+:|\d+$)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})?$/)
     let imgIdx = found[1] ? parseInt(found[1].replace(/:$/,''))-1 : 0
     let region
     let annoRegex = new RegExp('[0-9a-f]{8}')
@@ -275,14 +276,13 @@ export class ImageViewer {
     Array.from(document.querySelectorAll('mark')).forEach(mark => {
       for (let idx=0; idx < mark.attributes.length; idx++) {
         let attr = mark.attributes.item(idx)
-        if (/^(\d+:|\d+)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})?$/.test(attr.value)) {
+        if (/^(\d+:|\d+$)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})?$/.test(attr.value)) {
           let veImage = this.findVeImage(mark.parentElement)
           if (veImage) {
+            this._zoomedIn[attr.value] = false
             mark.addEventListener('click', () => setTimeout(() => {
-              let zoomedIn = false
-              console.log('click', zoomedIn)
-              zoomedIn = !zoomedIn
-              if (zoomedIn) this.zoomto(attr.value)
+              this._zoomedIn[attr.value] = !this._zoomedIn[attr.value]
+              if (this._zoomedIn[attr.value]) this.zoomto(attr.value)
               else this.goHome()
             }, 200))
           }
@@ -382,7 +382,7 @@ export class ImageViewer {
     let imgUrls: any = this._images.map(item => {
       let _imageInfo = imageInfo(item.manifest, item.seq)
       return _imageInfo.service
-        ? `${_imageInfo.service[0].id || _imageInfo.service[0]['@id']}/info.json`
+        ? `${(_imageInfo.service[0].id || _imageInfo.service[0]['@id']).replace(/\/info\.json$/,'')}/info.json`
         : _imageInfo.id
     })
     return await Promise.all(imgUrls.map((imgUrl, idx) => this._tileSource(imgUrl, this._images[idx].options )))
@@ -431,15 +431,15 @@ export class ImageViewer {
     popup.style.display = popup.style.display === 'block' ? 'none' : 'block'
   }
 
-  configureForTouchDevice() {
-    /* This is intended to provide touch-based scrolling of OSD iages in mobile mode.  Pan/zoom is
+  configureScrollBehavior() {
+    /* This is intended to provide touch-based scrolling of OSD images in mobile mode.  Pan/zoom is
     disabled to permit scrolling.  The technique for doing this is as described in this
     OSD Github issue - https://github.com/openseadragon/openseadragon/issues/1791#issuecomment-1000045888
     Unfortunately, this only works with OSD v2.4.2, which is not compatible with the latest version of the
     Annotorious plugin (requires 3.0).  As a result, the current configuration is pinned 
     to OSD 2.4.2 and annotorious 2.6.0
     */
-    // let instructions = this.el.shadowRoot.getElementById('instructions')
+    let instructions = this.el.shadowRoot.getElementById('instructions')
     const canvas: any = this.el.shadowRoot.querySelector('.openseadragon-canvas')
     canvas.style.touchAction = 'pan-y'
 
@@ -449,9 +449,12 @@ export class ImageViewer {
           event.preventDefaultAction = true
           event.stopHandlers = true
           // display meta key warning
-          //if (instructions.className == 'hidden') instructions.className = 'visible'
+          if (instructions.className == 'hidden') {
+            instructions.className = 'visible'
+            setTimeout(() => instructions.className = 'hidden', 2000)
+          }
         } else {
-          //if (instructions.className == 'visible') instructions.className = 'hidden'
+          if (instructions.className == 'visible') instructions.className = 'hidden'
         }
         return true
       }}
@@ -464,9 +467,9 @@ export class ImageViewer {
         if (!this._viewer.isFullPage() && this.isTouchEnabled()) {
           event.preventDefaultAction = true
           event.stopHandlers = true
-          //if (instructions.className == 'hidden') instructions.className = 'visible'
+          if (instructions.className == 'hidden') instructions.className = 'visible'
         } else {
-          //if (instructions.className == 'visible') instructions.className = 'hidden';
+          if (instructions.className == 'visible') instructions.className = 'hidden';
         }
         return true
       }}
@@ -543,7 +546,7 @@ export class ImageViewer {
     // this._viewer = OpenSeadragon(osdOptions);
 
     this._viewer = OpenSeadragon(osdOptions)
-    if (this.isTouchEnabled()) this.configureForTouchDevice()
+    this.configureScrollBehavior()
 
     this._annotator = new Annotator(this._viewer, this.el.shadowRoot.querySelector('#toolbar'), this.authToken)
     if (this._annoTarget) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
