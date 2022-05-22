@@ -19,6 +19,20 @@
   </head>
   <body>
 
+    <sl-icon-button name="pencil" onclick="openEditDialog()"></sl-icon-button>
+    <div class="wrapper">
+      <ve-depicts editable="true" manifest="http://localhost:8088/gh:rdsnyder/images/italy-2022/amalfi-coast/Positano__2.jpg/manifest.json">
+      </ve-depicts>
+    </div>
+    
+    <script>
+      function openEditDialog(e) {
+        document.querySelector('ve-depicts').edit()
+      }
+    </script>
+
+  <!--
+
   <div style="max-width:60rem;margin:0 auto;position:relative;">
     <ve-header 
       label="Vincent Van Gogh Self Portraits"
@@ -36,7 +50,6 @@
     <div style="width:100%; height:100vh"></div>
   </div>
 
-  <!--
 
     <div style="width:50%;margin:12px 24px;">
       <ve-manifest condensed src="https://media.getty.edu/iiif/manifest/53be857e-41e8-4198-b45d-2e0f52d3051b"></ve-manifest>
