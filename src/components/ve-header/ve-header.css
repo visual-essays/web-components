@@ -20,6 +20,7 @@
 
 :host(.sticky) {
   position: sticky;
+  position: -webkit-sticky;
   top: -220px;
 }
 
@@ -34,7 +35,7 @@
   padding: 1rem 2rem 1rem 5rem;
   font-weight: bold;
   left: 0;
-  bottom: 4px;
+  bottom: 0;
   right: 0;
 }
 
@@ -56,172 +57,42 @@
   font-size: 1.2rem;
 }
 
-/*
- * Made by Erik Terwan
- * 24th of November 2015
- * MIT License
- *
- *
- * If you are thinking of using this in
- * production code, beware of the browser
- * prefixes.
- */
-
-body
-{
-  margin: 0;
-  padding: 0;
-  
-  /* make it look decent enough */
-  background: #232323;
-  color: #cdcdcd;
-  font-family: "Avenir Next", "Avenir", sans-serif;
+.ve-header {
+  position: relative;
+  height: 100%;
 }
 
-#menuToggle
-{
-  display: block;
-  position: absolute;
-  top: 16px;
-  left: 28px;
-  
+nav {
+  padding-left: 16px;
+  padding-top: 16px;
   z-index: 1;
-  
   -webkit-user-select: none;
   user-select: none;
 }
 
-:host(.sticky) #menuToggle {
+nav sl-menu-item::part(label) {
+}
+
+sl-button::part(base) {
+  background-color: rgba(0, 0, 0, 0.2);
+}
+
+:host(.sticky) nav {
+  position: sticky;
+  top: 0;
+}
+/*:host(.sticky) nav {
   position: fixed;
-}
+  top: 0;
+  padding-top: 16px;
+}*/
 
-#menuToggle a
-{
-  text-decoration: none;
-  color: #232323;
-  
-  transition: color 0.3s ease;
-}
-
-#menuToggle a:hover
-{
-  color: tomato;
-}
-
-
-#menuToggle input
-{
-  display: block;
-  width: 40px;
-  height: 32px;
-  position: absolute;
-  top: -7px;
-  left: -5px;
-  
+nav sl-icon {
+  color: white;
+  font-size: 32px;
+  font-weight: bold;
   cursor: pointer;
-  
-  opacity: 0; /* hide this */
-  z-index: 2; /* and place it over the hamburger */
-  
-  -webkit-touch-callout: none;
-}
-
-/*
- * Just a quick hamburger
- */
-#menuToggle span
-{
-  display: block;
-  width: 33px;
-  height: 4px;
-  margin-bottom: 5px;
-  position: relative;
-  
-  background: #cdcdcd;
-  border-radius: 3px;
-  
-  z-index: 1;
-  
-  transform-origin: 4px 0px;
-  
-  transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
-              background 0.5s cubic-bezier(0.77,0.2,0.05,1.0),
-              opacity 0.55s ease;
-}
-
-#menuToggle span:first-child
-{
-  transform-origin: 0% 0%;
-}
-
-#menuToggle span:nth-last-child(2)
-{
-  transform-origin: 0% 100%;
-}
-
-/* 
- * Transform all the slices of hamburger
- * into a crossmark.
- */
-#menuToggle input:checked ~ span
-{
-  opacity: 1;
-  transform: rotate(45deg) translate(-2px, -1px);
-  background: #232323;
-}
-
-/*
- * But let's hide the middle one.
- */
-#menuToggle input:checked ~ span:nth-last-child(3)
-{
-  opacity: 0;
-  transform: rotate(0deg) scale(0.2, 0.2);
-}
-
-/*
- * Ohyeah and the last one should go the other direction
- */
-#menuToggle input:checked ~ span:nth-last-child(2)
-{
-  transform: rotate(-45deg) translate(0, -1px);
-}
-
-/*
- * Make this absolute positioned
- * at the top left of the screen
- */
-#menu
-{
-  position: absolute;
-  width: 300px;
-  margin: -100px 0 0 -50px;
-  padding: 50px;
-  padding-top: 125px;
-  
-  background: #ededed;
-  list-style-type: none;
-  -webkit-font-smoothing: antialiased;
-  /* to stop flickering of text in safari */
-  
-  transform-origin: 0% 0%;
-  transform: translate(-100%, 0);
-  
-  transition: transform 0.5s cubic-bezier(0.77,0.2,0.05,1.0);
-}
-
-#menu li
-{
-  padding: 10px 0;
-  font-size: 22px;
-}
-
-/*
- * And let's slide it in from the left
- */
-#menuToggle input:checked ~ ul
-{
-  transform: none;
+  padding-top: 8px;
 }
 
 #info-icon {
@@ -277,7 +148,7 @@ body
 @media (min-width: 481px) {
 
   :host(.sticky) {
-    top: -164px;
+    top: -168px;
   }
 
   .title-panel {

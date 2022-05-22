@@ -130,15 +130,18 @@ export class ImageViewer {
   }
 
   annoTarget(manifest:any) {
-    let locationPath = location.pathname.split('/').filter(pe => pe).join('/')
+    // let locationPath = location.pathname.split('/').filter(pe => pe).join('/')
+    let locationPath = this.editorIsParent()
+      ? location.hash.length > 1 ? location.hash.slice(1).split('/').filter(pe => pe).join('/') : ''
+      : location.pathname.split('/').filter(pe => pe).join('/')
     let sourceHash = sha256(imageInfo(manifest).id).slice(0,8)
     // console.log(`annoTarget: annoBase=${this.annoBase} sourceHash=${sourceHash} locationPath=${locationPath} user=${this.user} authToken=${this.authToken}`)
     return this.annoBase
       ? `${this.annoBase}/${sourceHash}`
       : this.authToken
         ? this.editorIsParent()
-          ? [...location.pathname.split('/').filter(elem => elem), ...[sourceHash]].join('/')
-          : [...[sha256((jwt_decode(this.authToken) as any).email.toLowerCase()).slice(0,8)], ...location.pathname.split('/').filter(elem => elem), ...[sourceHash]].join('/')
+          ? [...[locationPath.split('/')[0]], ...[sourceHash]].join('/')
+          : [...[sha256((jwt_decode(this.authToken) as any).email.toLowerCase()).slice(0,8)], ...[sourceHash]].join('/')
         : this.user
           ? locationPath ? `${this.user}/${locationPath}/${sourceHash}` : `${this.user}/${sourceHash}`
           : locationPath ? `${locationPath}/${sourceHash}` : sourceHash
@@ -277,6 +280,7 @@ export class ImageViewer {
       for (let idx=0; idx < mark.attributes.length; idx++) {
         let attr = mark.attributes.item(idx)
         if (/^(\d+:|\d+$)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})?$/.test(attr.value)) {
+          console.log('here')
           let veImage = this.findVeImage(mark.parentElement)
           if (veImage) {
             this._zoomedIn[attr.value] = false
@@ -554,10 +558,12 @@ export class ImageViewer {
     this.showAnnotationsToolbar(this.canAnnotate())
     this.showAnnotations(this.canAnnotate())
 
-    this._viewer.addHandler('page', (e) => {
-      console.log(`page=${e.page}`)
-      this._selectedIdx = e.page
-    })
+    this._viewer.addHandler('page', (e) => this._selectedIdx = e.page)
+
+    // Reposition image in viewport after transition back from full screen mode
+    // this._viewer.addHandler('full-screen', () => setTimeout(() => this._viewer.viewport.goHome(true), 10))
+    this._viewer.addHandler('resize', () => setTimeout(() => this._viewer.viewport.goHome(true), 10))
+
     // this._viewer.world.addHandler('add-item', (e) => {console.log('add-item', e)})
 
     this._viewer.world.addHandler('add-item', () => {
