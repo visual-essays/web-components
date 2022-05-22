@@ -17,6 +17,9 @@
   color: #444;
 }
 
+:host ul {
+  display: none;
+}
 
 :host(.sticky) {
   position: sticky;
@@ -63,14 +66,12 @@
 }
 
 nav {
+  display: inline-block;
   padding-left: 16px;
   padding-top: 16px;
   z-index: 1;
   -webkit-user-select: none;
   user-select: none;
-}
-
-nav sl-menu-item::part(label) {
 }
 
 sl-button::part(base) {

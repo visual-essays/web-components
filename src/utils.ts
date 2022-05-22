@@ -251,7 +251,7 @@ export async function getDepictedEntities(hash: string) {
 }
 
 export function isMobile() {
-  console.log(`isMobile: ontouchstart=${'ontouchstart' in document.documentElement} mobi=${/mobi/i.test(navigator.userAgent)}`)
+  // console.log(`isMobile: ontouchstart=${'ontouchstart' in document.documentElement} mobi=${/mobi/i.test(navigator.userAgent)}`)
   return ('ontouchstart' in document.documentElement && /mobi/i.test(navigator.userAgent) )
 }
 

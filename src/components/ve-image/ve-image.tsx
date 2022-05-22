@@ -455,7 +455,7 @@ export class ImageViewer {
           // display meta key warning
           if (instructions.className == 'hidden') {
             instructions.className = 'visible'
-            setTimeout(() => instructions.className = 'hidden', 2000)
+            setTimeout(() => instructions.className = 'hidden', 1000)
           }
         } else {
           if (instructions.className == 'visible') instructions.className = 'hidden'
@@ -471,7 +471,10 @@ export class ImageViewer {
         if (!this._viewer.isFullPage() && this.isTouchEnabled()) {
           event.preventDefaultAction = true
           event.stopHandlers = true
-          if (instructions.className == 'hidden') instructions.className = 'visible'
+          if (instructions.className == 'hidden') {
+            instructions.className = 'visible'
+            setTimeout(() => instructions.className = 'hidden', 1000)
+          }
         } else {
           if (instructions.className == 'visible') instructions.className = 'hidden';
         }

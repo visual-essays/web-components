@@ -47,7 +47,7 @@ export class Header {
   _iiifUrl(serviceUrl: string, options: any) {
     //let size = `${this.el.clientWidth > 1000 ? 1000 : this.el.clientWidth},${this.height > 1000 ? 1000 : this.height}`
     //let url = `${serviceUrl}/${options.region}/!${size}/${options.rotation}/${options.quality}.${options.format}`
-    let url = `${serviceUrl}/${options.region}/${options.size}/${options.rotation}/${options.quality}.${options.format}`
+    let url = `${serviceUrl.replace(/\/info.json$/,'')}/${options.region}/${options.size}/${options.rotation}/${options.quality}.${options.format}`
     // console.log('_iiifUrl', url)
     return url
   }
