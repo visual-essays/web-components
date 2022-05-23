@@ -88,24 +88,24 @@ export class Header {
   render() {
     return [
       <section class="ve-header">
-        { this.navItems.length > 0 && 
-          <nav>
-            <sl-dropdown>
-              <sl-button id="menu-toggle" slot="trigger" variant="default" size="large" circle>
-                <sl-icon name="three-dots-vertical" label="Navigation Meno"></sl-icon>
-              </sl-button>
-              <sl-menu>
-                { this.navItems.map((item:any) => <sl-menu-item onClick={this.newPage.bind(this, item.href)}>{item.label}</sl-menu-item>) }
-              </sl-menu>
-            </sl-dropdown>
-          </nav>
-        }
-        <span id="info-icon" onClick={this._showInfoPopup.bind(this)} title="Image info">i</span>
         <div class="title-panel">
+          <span id="info-icon" onClick={this._showInfoPopup.bind(this)} title="Image info">i</span>
+          { this.navItems.length > 0 && 
+            <nav>
+              <sl-dropdown>
+                <sl-button id="menu-toggle" slot="trigger" variant="default" size="medium" circle>
+                  <sl-icon name="three-dots-vertical" label="Navigation Meno"></sl-icon>
+                </sl-button>
+                <sl-menu>
+                  { this.navItems.map((item:any) => <sl-menu-item onClick={this.newPage.bind(this, item.href)}>{item.label}</sl-menu-item>) }
+                </sl-menu>
+              </sl-dropdown>
+            </nav>
+          }
           <a href="/"><div class="title">{this.label}</div></a>
           {this.subtitle && <div class="subtitle">{this.subtitle}</div>}
+          <div id="image-info-popup"></div>
         </div>
-        <div id="image-info-popup"></div>
       </section>
     ]
   }

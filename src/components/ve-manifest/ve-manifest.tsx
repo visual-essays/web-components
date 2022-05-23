@@ -33,7 +33,7 @@ export class ManifestViewer {
 
   parseManifest(imageRec: any) {
     let manifest = imageRec.manifest
-    // console.log(manifest)
+    console.log(manifest)
     let parsed: any = {}
 
     parsed.id = this._value(manifest.id)
@@ -44,9 +44,12 @@ export class ManifestViewer {
     if (manifest.thumbnail) parsed.thumbnail = manifest.thumbnail[0].id
     
     if (manifest.metadata) {
-      parsed.metadata = manifest.metadata.map(item => ({label: this._value(item.label), value: this._value(item.value)}))
+      parsed.metadata = manifest.metadata.map(item => ({label: this._value(item.label)[0], value: this._value(item.value)}))
       let sourceUrl = parsed.metadata.find(item => item.label == 'source_url')
       parsed.sourceUrl = sourceUrl ? sourceUrl.value[0] : null
+
+      let depicts = parsed.metadata.find(md => md.label === 'depicts')
+      if (depicts) parsed.depicts = depicts.value
     }
 
     if (manifest.provider) {
@@ -190,6 +193,23 @@ export class ManifestViewer {
           }
         </div>
       : null}
+      {parsed.imageData.width
+        ? <div>
+            <span class="label">Dimensions</span> <span innerHTML={parsed.imageData.width.toLocaleString()}></span> x <span innerHTML={parsed.imageData.height.toLocaleString()}></span>
+          </div>
+        : null
+      }
+      {parsed.depicts
+        ? <div>
+            <span class="label">Depicts</span>
+            <ul>
+              {parsed.depicts.map(depicts =>
+                <li innerHTML={depicts}></li>
+              )}
+            </ul>
+          </div>
+        : null
+      }
       <a draggable={true} onDragStart={this.onManifestIconDrag.bind(this)} href={parsed.id}><img src="https://avatars.githubusercontent.com/u/5812589?v=3&s=24" alt="IIIF Manifest"></img></a>
     </div>
     )

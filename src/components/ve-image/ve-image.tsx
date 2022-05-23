@@ -553,7 +553,7 @@ export class ImageViewer {
     // this._viewer = OpenSeadragon(osdOptions);
 
     this._viewer = OpenSeadragon(osdOptions)
-    this.configureScrollBehavior()
+    if (location.hostname.indexOf('iiif') < 0) this.configureScrollBehavior()
 
     this._annotator = new Annotator(this._viewer, this.el.shadowRoot.querySelector('#toolbar'), this.authToken)
     if (this._annoTarget) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)

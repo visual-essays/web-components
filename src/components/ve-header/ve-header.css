@@ -24,40 +24,48 @@
 :host(.sticky) {
   position: sticky;
   position: -webkit-sticky;
-  top: -220px;
+  top: -178px;
 }
 
 .title-panel {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  justify-content: start;
+  gap: 6px;
   font-family: Roboto, sans-serif;
   position: absolute;
-  height: 70px;
+  height: 100px;
   background: rgba(0, 0, 0, 0.3);
   border-radius: 3px;;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   color: white;
-  padding: 1rem 2rem 1rem 5rem;
+  /* padding: 1rem 2rem 1rem 1rem; */
+  padding: 1rem 5rem .5rem 2rem;
   font-weight: bold;
   left: 0;
   bottom: 0;
   right: 0;
 }
 
+.title, .subtitle {
+  line-height: 3rem;
+}
 .title-panel a {
   text-decoration: none;
 }
 
 .title, .subtitle {
-  line-height: 1.6rem;
+  line-height: 1.8rem;
   color: white;
 }
 
 .title {
-  font-size: 1.5rem;
-  padding-top: 24px;
+  font-size: 1.8rem;
 }
 
 .subtitle {
-  font-size: 1.2rem;
+  font-size: 1.4rem;
 }
 
 .ve-header {
@@ -67,8 +75,13 @@
 
 nav {
   display: inline-block;
-  padding-left: 16px;
-  padding-top: 16px;
+  position: absolute;
+  top: 16px;
+  right: 24px;
+  /*
+  padding-left: 58rem;
+  padding-top: 12px;
+  */
   z-index: 1;
   -webkit-user-select: none;
   user-select: none;
@@ -78,10 +91,6 @@ sl-button::part(base) {
   background-color: rgba(0, 0, 0, 0.2);
 }
 
-:host(.sticky) nav {
-  position: sticky;
-  top: 0;
-}
 /*:host(.sticky) nav {
   position: fixed;
   top: 0;
@@ -90,17 +99,18 @@ sl-button::part(base) {
 
 nav sl-icon {
   color: white;
-  font-size: 32px;
+  font-size: 24px;
   font-weight: bold;
   cursor: pointer;
-  padding-top: 8px;
+  padding-top: 7px;
 }
 
 #info-icon {
   position: absolute;
   font-family: serif;
-  top: 24px;
-  right: 24px;
+  z-index: 1;
+  bottom: 12px;
+  right: 30px;
   width: 22px;
   height: 22px;
   border-radius: 50%;
@@ -127,8 +137,8 @@ nav sl-icon {
   height: auto;
   max-height: 500px;
   background: #fff;
-  right: 20px; 
-  top: 55px;
+  right: 72px; 
+  top: 8px;
   padding: 6px;
   border: 1px solid #444;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
@@ -149,11 +159,11 @@ nav sl-icon {
 @media (min-width: 481px) {
 
   :host(.sticky) {
-    top: -168px;
+    top: -146px;
   }
 
   .title-panel {
-    height: 100px;
+    height: 132px;
   }
 
   .title, .subtitle {
@@ -161,17 +171,13 @@ nav sl-icon {
   }
   
   .title {
-    font-size: 2.5rem;
+    font-size: 3rem;
     color: white;
     padding-top: 0;
   }
   
   .subtitle {
     font-size: 2rem;
-  }
-
-  .title, .subtitle {
-    line-height: 3rem;
   }
   
   #menuToggle {
