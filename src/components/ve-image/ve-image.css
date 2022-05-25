@@ -30,7 +30,7 @@
 :host, ve-image {
   box-sizing: border-box;
   max-width: 100%;
-  position: relative;
+  /* position: relative; */
   display: flex;
   flex-direction: column;
   /*

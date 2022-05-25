@@ -65,6 +65,13 @@ export namespace Components {
         "images": string;
         "src": string;
     }
+    interface VeMeta {
+        "description": string;
+        "title": string;
+    }
+    interface VeStyle {
+        "href": string;
+    }
     interface VeWikidataSearch {
         "language": string;
     }
@@ -124,6 +131,18 @@ declare global {
         prototype: HTMLVeManifestElement;
         new (): HTMLVeManifestElement;
     };
+    interface HTMLVeMetaElement extends Components.VeMeta, HTMLStencilElement {
+    }
+    var HTMLVeMetaElement: {
+        prototype: HTMLVeMetaElement;
+        new (): HTMLVeMetaElement;
+    };
+    interface HTMLVeStyleElement extends Components.VeStyle, HTMLStencilElement {
+    }
+    var HTMLVeStyleElement: {
+        prototype: HTMLVeStyleElement;
+        new (): HTMLVeStyleElement;
+    };
     interface HTMLVeWikidataSearchElement extends Components.VeWikidataSearch, HTMLStencilElement {
     }
     var HTMLVeWikidataSearchElement: {
@@ -140,6 +159,8 @@ declare global {
         "ve-image": HTMLVeImageElement;
         "ve-image-grid": HTMLVeImageGridElement;
         "ve-manifest": HTMLVeManifestElement;
+        "ve-meta": HTMLVeMetaElement;
+        "ve-style": HTMLVeStyleElement;
         "ve-wikidata-search": HTMLVeWikidataSearchElement;
     }
 }
@@ -205,6 +226,13 @@ declare namespace LocalJSX {
         "images"?: string;
         "src"?: string;
     }
+    interface VeMeta {
+        "description"?: string;
+        "title"?: string;
+    }
+    interface VeStyle {
+        "href"?: string;
+    }
     interface VeWikidataSearch {
         "language"?: string;
         "onEntitySelected"?: (event: CustomEvent<any>) => void;
@@ -219,6 +247,8 @@ declare namespace LocalJSX {
         "ve-image": VeImage;
         "ve-image-grid": VeImageGrid;
         "ve-manifest": VeManifest;
+        "ve-meta": VeMeta;
+        "ve-style": VeStyle;
         "ve-wikidata-search": VeWikidataSearch;
     }
 }
@@ -235,6 +265,8 @@ declare module "@stencil/core" {
             "ve-image": LocalJSX.VeImage & JSXBase.HTMLAttributes<HTMLVeImageElement>;
             "ve-image-grid": LocalJSX.VeImageGrid & JSXBase.HTMLAttributes<HTMLVeImageGridElement>;
             "ve-manifest": LocalJSX.VeManifest & JSXBase.HTMLAttributes<HTMLVeManifestElement>;
+            "ve-meta": LocalJSX.VeMeta & JSXBase.HTMLAttributes<HTMLVeMetaElement>;
+            "ve-style": LocalJSX.VeStyle & JSXBase.HTMLAttributes<HTMLVeStyleElement>;
             "ve-wikidata-search": LocalJSX.VeWikidataSearch & JSXBase.HTMLAttributes<HTMLVeWikidataSearchElement>;
         }
     }

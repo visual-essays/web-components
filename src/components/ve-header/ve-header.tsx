@@ -53,6 +53,14 @@ export class Header {
   }
 
   connectedCallback() {
+    if (this.label) {
+      let titleEl = document.querySelector('title')
+      if (!titleEl) {
+        titleEl = document.createElement('title')
+        titleEl.innerText = this.label
+        document.head.appendChild(titleEl)
+      }
+    }
     this.imageOptions = parseImageOptions(this.options)
     this.navItems = Array.from(this.el.querySelectorAll('li')).map(navItem =>
       navItem.firstChild.nodeName === 'A'
