@@ -74,7 +74,10 @@ export class Header {
 
   componentDidLoad() {  
     this.el.style.height = `${this.height}px`
-    if (this.sticky) this.el.classList.add('sticky')  
+    if (this.sticky) {
+      this.el.classList.add('sticky')
+      document.querySelector('main').classList.add('sticky-header')
+    } 
     getManifest(this.background).then(manifest => this._manifest = manifest)
   }
 

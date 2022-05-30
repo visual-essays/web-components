@@ -9,7 +9,8 @@
 
 | Property | Attribute | Description | Type     | Default     |
 | -------- | --------- | ----------- | -------- | ----------- |
-| `href`   | `href`    |             | `string` | `undefined` |
+| `layout` | `layout`  |             | `string` | `undefined` |
+| `theme`  | `theme`   |             | `string` | `undefined` |
 
 
 ----------------------------------------------

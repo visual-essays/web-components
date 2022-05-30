@@ -9,12 +9,13 @@
   background-size: cover;
   background-position: center;
   position: relative;
-  margin: 0;
+  margin: 0 0 12px 0;
   z-index: 1000;
-  margin-left: -1rem;
+  margin-left: -.5rem;
   margin-top: -1rem;
-  width: calc(100% + 2rem);
+  width: calc(100% + 1rem);
   color: #444;
+  max-height: 220px;
 }
 
 :host ul {
@@ -24,24 +25,22 @@
 :host(.sticky) {
   position: sticky;
   position: -webkit-sticky;
-  top: -178px;
+  top: -114px;
 }
 
 .title-panel {
   display: flex;
-  position: relative;
   flex-direction: column;
-  justify-content: start;
-  gap: 6px;
+  justify-content: center;
+  gap: 4px;
   font-family: Roboto, sans-serif;
   position: absolute;
-  height: 100px;
+  height: 90px;
   background: rgba(0, 0, 0, 0.3);
   border-radius: 3px;;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
   color: white;
-  /* padding: 1rem 2rem 1rem 1rem; */
-  padding: 1rem 5rem .5rem 2rem;
+  padding: .5rem 3.2rem .5rem .5rem;
   font-weight: bold;
   left: 0;
   bottom: 0;
@@ -56,16 +55,18 @@
 }
 
 .title, .subtitle {
-  line-height: 1.8rem;
   color: white;
 }
 
 .title {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
+  line-height: 1.8rem;
+  padding-top: 0;
 }
 
 .subtitle {
   font-size: 1.4rem;
+  line-height: 1.4rem;
 }
 
 .ve-header {
@@ -77,11 +78,7 @@ nav {
   display: inline-block;
   position: absolute;
   top: 16px;
-  right: 24px;
-  /*
-  padding-left: 58rem;
-  padding-top: 12px;
-  */
+  right: 12px;
   z-index: 1;
   -webkit-user-select: none;
   user-select: none;
@@ -158,26 +155,38 @@ nav sl-icon {
 /* Laptops and Desktops */
 @media (min-width: 481px) {
 
-  :host(.sticky) {
-    top: -146px;
+  :host {
+    margin-left: -1rem;
+    width: calc(100% + 2rem);
+    max-height: 300px;
   }
 
+  :host(.sticky) {
+    top: -158px;
+  }
+  
   .title-panel {
     height: 132px;
   }
 
-  .title, .subtitle {
-    line-height: 3rem;
+  .title-panel {
+    height: 120px;
+    padding: 1rem 5rem .5rem 2rem;
   }
-  
+
+  nav {
+    top: 34px;
+    right: 24px;
+  }  
+
   .title {
-    font-size: 3rem;
-    color: white;
-    padding-top: 0;
+    font-size: 2.5rem;
+    line-height: 2.6rem;
   }
   
   .subtitle {
     font-size: 2rem;
+    line-height: 2rem;
   }
   
   #menuToggle {

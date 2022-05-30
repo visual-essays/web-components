@@ -9,7 +9,7 @@ import jwt_decode from 'jwt-decode'
 import './openseadragon-curtain-sync'
 
 import debounce from 'lodash.debounce'
-import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isNum, isMobile } from '../../utils'
+import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isNum } from '../../utils'
 import { Annotator } from './annotator'
 import { parseInt } from 'lodash';
 
@@ -192,13 +192,16 @@ export class ImageViewer {
   }
 
   async zoomto(arg: string) {
-    const found = arg.match(/^(\d+:|\d+$)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})?$/)
+    const found = arg?.match(/^(\d+:|\d+$)?(pct:)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})?$/)
+    if (!found) return
     let imgIdx = found[1] ? parseInt(found[1].replace(/:$/,''))-1 : 0
     let region
     let annoRegex = new RegExp('[0-9a-f]{8}')
-    if (annoRegex.test(found[2])) {
-      let annoId = `https://api.visual-essays.net/annotation/${this.annoTarget(this._images[imgIdx].manifest)}/${found[2]}/`
+    if (annoRegex.test(found[3])) {
+      let endpoint = location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://api.visual-essays.net'
+      let annoId = `${endpoint}/annotation/${this.annoTarget(this._images[imgIdx].manifest)}/${found[3]}/`
       let resp = await fetch(annoId)
+      console.log(resp)
       if (resp.ok) {
         let anno = await resp.json()
         if (anno) {
@@ -208,7 +211,7 @@ export class ImageViewer {
       // let anno = this._annotations.find(item => item.id.split('/').pop() === found[2])
       // if (anno) region = anno.target.selector.value.split('=')[1]
     } else {
-      region = found[2]
+      region = found[2] ? `${found[2]}${found[3]}` : found[3]
     }
     console.log(`zoomto: imgIdx=${imgIdx} region=${region}`)
     if (imgIdx) this._viewer.goToPage(imgIdx)
@@ -272,14 +275,37 @@ export class ImageViewer {
     }
   }
 
+  addMutationObserver(el: HTMLElement) {
+    // console.log('addMutationObserver', el.attributes.getNamedItem('active').value)
+    let prevClassState = el.classList.contains('active')
+    let observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName == 'class') {
+          let currentClassState = (mutation.target as HTMLElement).classList.contains('active')
+          if (prevClassState !== currentClassState) {
+            prevClassState = currentClassState
+            console.log(`isActive=${currentClassState}`)
+            if (currentClassState) this.zoomto(el.attributes.getNamedItem('enter')?.value)
+            else this.zoomto(el.attributes.getNamedItem('exit')?.value)
+          }
+        }
+      })
+    })
+    observer.observe(el, {attributes: true})
+  }
+
   componentDidLoad() {
     if (this._images.length > 0) this._setHostDimensions()
     this.listenForSlotChanges()
 
+    Array.from(document.querySelectorAll('[enter],[exit]')).forEach((el:HTMLElement) => {
+      this.addMutationObserver(el)
+    })
+
     Array.from(document.querySelectorAll('mark')).forEach(mark => {
       for (let idx=0; idx < mark.attributes.length; idx++) {
         let attr = mark.attributes.item(idx)
-        if (/^(\d+:|\d+$)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})?$/.test(attr.value)) {
+        if (/^(\d+:|\d+$)?(pct:)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})?$/.test(attr.value)) {
           console.log('here')
           let veImage = this.findVeImage(mark.parentElement)
           if (veImage) {
@@ -298,13 +324,17 @@ export class ImageViewer {
   }
 
   _setHostDimensions(imageData: any = null) {
+    console.dir(this.el)
     let wrapper = this.el.shadowRoot.getElementById('wrapper')
     let captionEl = this.el.shadowRoot.getElementById('caption')
     let captionHeight = captionEl ? captionEl.clientHeight : 32
     let osd = this.el.shadowRoot.getElementById('osd')
 
-    let elWidth = this.el.clientWidth || this.el.parentElement.clientWidth
-    let elHeight = this.el.clientHeight || this.el.parentElement.clientHeight
+    // let elWidth = this.el.clientWidth || this.el.parentElement.clientWidth
+    // let elHeight = this.el.clientHeight || this.el.parentElement.clientHeight
+    let elWidth = this.el.clientWidth
+    let elHeight = this.el.clientHeight
+    
     let requestedWidth = this.width
       ? this.width.indexOf('px') > 0
         ? parseInt(this.width.slice(0,-2))
@@ -317,7 +347,7 @@ export class ImageViewer {
       : null
     let imageWidth = imageData ? imageData.width : null
     let imageHeight = imageData ? imageData.height : null
-    // console.log(`ve-image.setHostDimensions: elWidth=${elWidth} elHeight=${elHeight} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} imageWidth=${imageWidth} imageHeight=${imageHeight}`)
+    console.log(`ve-image.setHostDimensions: elWidth=${elWidth} elHeight=${elHeight} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} imageWidth=${imageWidth} imageHeight=${imageHeight}`)
     
     let width, height
     if (requestedWidth) {
@@ -336,11 +366,21 @@ export class ImageViewer {
           : requestedWidth
         )
     } else {
-      width = elWidth
-      height = Math.round(imageHeight/imageWidth * elWidth + captionHeight) // height scaled to width
+      if (elHeight) {
+        height = elHeight
+        width = Math.min(
+          elWidth,
+          imageData
+            ? Math.round(imageWidth/imageHeight * (requestedHeight - captionHeight)) // width scaled to height
+            : requestedWidth
+          )
+      } else {
+        width = elWidth
+        height = Math.round(imageHeight/imageWidth * elWidth + captionHeight) // height scaled to width
+      }
     }
 
-    // console.log(`ve-image.setHostDimensions: width=${width} height=${height} caption=${captionHeight}`)
+    console.log(`ve-image.setHostDimensions: width=${width} height=${height} caption=${captionHeight}`)
     // osd.style.width = `${width}px`
     wrapper.style.width = `${width}px`
     wrapper.style.height = `${height}px`
@@ -351,12 +391,6 @@ export class ImageViewer {
     if (this.align) {
       if (this.align === 'center') this.el.style.margin = 'auto'
       else this.el.style.float = this.align
-    }
-
-    let veHeader = document.querySelector('ve-header')
-    if (veHeader && veHeader.getAttribute('sticky') === 'true' && !isMobile()) {
-      let titlePanel = veHeader.shadowRoot.querySelector('.title-panel')
-      this.el.style.top = `${titlePanel.clientHeight + 6}px`
     }
   }
 

@@ -70,7 +70,8 @@ export namespace Components {
         "title": string;
     }
     interface VeStyle {
-        "href": string;
+        "layout": string;
+        "theme": string;
     }
     interface VeWikidataSearch {
         "language": string;
@@ -231,7 +232,8 @@ declare namespace LocalJSX {
         "title"?: string;
     }
     interface VeStyle {
-        "href"?: string;
+        "layout"?: string;
+        "theme"?: string;
     }
     interface VeWikidataSearch {
         "language"?: string;

@@ -4,7 +4,8 @@ import { Component, Prop } from '@stencil/core';
   tag: 've-style'
 })
 export class Style {
-  @Prop() href: string
+  @Prop() layout: string
+  @Prop() theme: string
 
   removeLinkTag(href: string) {
     let link: HTMLLinkElement = document.querySelector(`link[href$="${href}"]`)
@@ -12,10 +13,19 @@ export class Style {
   }
 
   connectedCallback() {
-    this.removeLinkTag('/static/css/default-theme.css')
-    if (this.href) {
+    let server = location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://visual-essays.net'
+    console.log(`layout=${this.layout} theme=${this.theme}`)
+    if (this.layout) {
+      this.removeLinkTag('/static/css/default-layout.css')
       let link = document.createElement('link')
-      link.href = this.href
+      link.href = this.layout.indexOf('http') === 0 ? this.layout : `${server}${this.layout}`
+      link.rel = 'stylesheet'
+      document.head.appendChild(link)
+    }
+    if (this.theme) {
+      this.removeLinkTag('/static/css/default-theme.css')
+      let link = document.createElement('link')
+      link.href = this.theme.indexOf('http') === 0 ? this.theme : `${server}${this.theme}`
       link.rel = 'stylesheet'
       document.head.appendChild(link)
     }
