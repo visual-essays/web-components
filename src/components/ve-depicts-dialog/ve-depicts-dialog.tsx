@@ -172,7 +172,7 @@ export class DepictsDialog {
       <sl-dialog id="depicts-dialog" label="Entities depicted in image" class="dialog-overview">
         <div style={{display:'flex', padding:'12px', border:'1px solid #ccc', marginBottom:'18px'}}>
           {this.thumbnail
-            ? <img style={{maxWidth: '40%'}} src={this.thumbnail} alt={this.label}/>
+            ? <img style={{maxWidth:'40%', height:'100%'}} src={this.thumbnail} alt={this.label}/>
             : ''
           }
           <div style={{display: 'flex', flexDirection: 'column', padding: '0px'}}>

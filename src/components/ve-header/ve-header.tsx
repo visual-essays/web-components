@@ -114,7 +114,7 @@ export class Header {
             </nav>
           }
           <a href="/"><div class="title">{this.label}</div></a>
-          {this.subtitle && <div class="subtitle">{this.subtitle}</div>}
+          <div class="subtitle">{this.subtitle}</div>
           <div id="image-info-popup"></div>
         </div>
       </section>

@@ -299,7 +299,8 @@ export class ImageViewer {
     this.listenForSlotChanges()
 
     Array.from(document.querySelectorAll('[enter],[exit]')).forEach((el:HTMLElement) => {
-      this.addMutationObserver(el)
+      let veImage = this.findVeImage(el)
+      if (veImage) this.addMutationObserver(el)
     })
 
     Array.from(document.querySelectorAll('mark')).forEach(mark => {

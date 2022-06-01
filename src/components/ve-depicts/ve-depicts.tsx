@@ -49,6 +49,10 @@ export class Depicts {
   async refresh(depicted: any[]) {
     this.depicted = depicted
     this.getEntityData()
+    console.log('refresh', this._manifest?.id)
+    if (this._manifest) getManifest(this._manifest.id, true).then(resp => {
+      console.log(resp)
+    })
   }
     
   toggleDro(qid: string) {

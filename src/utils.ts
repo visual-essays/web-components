@@ -12,11 +12,11 @@ export function md5(str: string) {
   return __md5(str)
 }
 
-export async function getManifest(manifestId: string) {
+export async function getManifest(manifestId: string, refresh: boolean=false) {
   let manifestUrl = manifestId.indexOf('http') === 0
     ? manifestId
     : `${iiifServer}/${manifestId}/manifest.json`
-  let manifests = await loadManifests([manifestUrl])
+  let manifests = await loadManifests([manifestUrl], refresh)
   return manifests[0]
 }
 
@@ -51,7 +51,7 @@ export function imageInfo(manifest:any, seq=1) {
   return findItem({type:'Annotation', motivation:'painting'}, manifest, seq).body
 }
 
-export async function loadManifests(manifestUrls: string[]) {
+export async function loadManifests(manifestUrls: string[], refresh: boolean=false) {
   let requests: any = manifestUrls
     .map(manifestId =>
       manifestId.indexOf('http') === 0
@@ -59,6 +59,9 @@ export async function loadManifests(manifestUrls: string[]) {
         : `${iiifServer}/${manifestId}/manifest.json`
     )
     .map(manifestUrl => {
+      if (refresh && ['localhost', 'iiif.visual-essays.net'].includes(new URL(manifestUrl).hostname)) {
+        manifestUrl += '?refresh'
+      }
       return fetch(manifestUrl,
         ['localhost', 'iiif.visual-essays.net'].includes(new URL(manifestUrl).hostname)
           ? {headers: {'X-Requested-From': window.location.href}}
