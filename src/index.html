@@ -16,7 +16,7 @@
   <body>
 
     <ve-meta title="Testing" description="Test description"></ve-meta>
-    <ve-style layout="/static/css/sticky-layout.css"></ve-style>
+    <ve-style layout="/static/css/default-layout.css"></ve-style>
     
     <main>
       <ve-header 
@@ -33,10 +33,35 @@
       </ve-header>
 
       <section style="width:100%; height:100vh;">
+
+        <ve-image compare="curtain">
+          <ul>
+            <li>https://iiif.harvardartmuseums.org/manifests/object/299843 pct:21,15,48,47//!0</li>
+            <li>wc:Van-Gogh.jpg</li>
+          </ul>
+        </ve-image>
+
         <ve-image
           src="jstor:community.24604882"
           options="pct:35,42,10,25"
-          ></ve-image>
+        ></ve-image>
+
+        <ve-image-grid>
+          <ul>
+            <li>https://iiif.harvardartmuseums.org/manifests/object/299843</li>
+            <li>https://media.nga.gov/public/manifests/nga_highlights.json</li>
+            <li>jstor:community.18430071</li>
+            <li>met:436532</li>
+            <li>wc:Zelfportret_met_strohoed_-_s0164V1962_-_Van_Gogh_Museum.jpg</li>
+            <li>wc:Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project_(454045).jpg</li>
+            <li>wc:Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project.jpg</li>
+            <li>wc:Van_Gogh_-_Selbstbildnis_27.jpg</li>
+            <li>wc:Selbstporträt_Van_Gogh_Museum_04.jpg</li>
+            <li>wc:Van-Gogh.jpg</li>
+            <li>wc:Van_Gogh_-_Selbstbildnis_mit_verbundenem_Ohr.jpeg</li>
+            <li>wc:Van_Gogh_-_Selbstbildnis_mit_verbundenem_Ohr_und_Pfeife.jpeg</li>
+          </ul>
+        </ve-image-grid>
 
         <div style="height:100vh;"
       </section>
