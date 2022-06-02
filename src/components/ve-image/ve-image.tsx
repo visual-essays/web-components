@@ -39,6 +39,7 @@ export class ImageViewer {
   @Prop() align: string // 'left', 'center', 'right'
   @Prop() authToken: string = null
   @Prop() annoBase: string
+  @Prop() shoelace: boolean = false
 
   @Element() el: HTMLElement;
 
@@ -52,6 +53,7 @@ export class ImageViewer {
   @State() _infoPanelIsOpen = false
   @State() _annotatorWindow: any = null
   @State() _zoomedIn: any = {}
+  @State() _tileSources: any[] = []
 
   @Watch('compare')
   compareModeChanged() {
@@ -192,7 +194,7 @@ export class ImageViewer {
   }
 
   async zoomto(arg: string) {
-    const found = arg?.match(/^(\d+:|\d+$)?(pct:)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})?$/)
+    const found = arg?.match(/\b(\d+:|\d+$)?(pct:)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})?(curtain|sync)?\b/g)
     if (!found) return
     let imgIdx = found[1] ? parseInt(found[1].replace(/:$/,''))-1 : 0
     let region
@@ -526,37 +528,40 @@ export class ImageViewer {
   }
 
   async _compareViewerInit() {
-    let tileSources = await this._loadTileSources()
-    let osdWrapper = this.el.shadowRoot.querySelector('.osd-wrapper')
-    let height = osdWrapper.clientHeight
-    let container: HTMLElement = this.el.shadowRoot.getElementById('osd')
-    if (container) {
-      osdWrapper.removeChild(container)
-    }
-    container = document.createElement('div')
-    container.id = 'osd'
-    container.style.height = `${height}px`
-    osdWrapper.appendChild(container)
-    this._viewer = new (window as any).CurtainSyncViewer({
-      mode: this.compare, // 'sync' or 'curtain'
-      container,
-      images: tileSources.map((tileSource, idx) => ({ key: `item-${idx}`, tileSource, shown: true })),
-      osdOptions: { // OpenSeaDragon options
-        autoHideControls: false,
-        showHomeControl: true,
-        showZoomControl: true,
-        homeFillsViewer: true,
-        prefixUrl: 'https://openseadragon.github.io/openseadragon/images/',
-        zoomPerClick: 2,
-        visibilityRatio: 1,
-        wrapHorizontal: false,
-        constrainDuringPan: true,
-        minZoomImageRatio: 1.35,  
-        // maxZoomPixelRatio: Infinity,
-        maxZoomPixelRatio: 3,
-        viewportMargins: {left:0, top:0, bottom:0, right:0}
+    this._tileSources = await this._loadTileSources()
+    // let tileSources = await this._loadTileSources()
+    if (!this.shoelace) {
+      let osdWrapper = this.el.shadowRoot.querySelector('.osd-wrapper')
+      let height = osdWrapper.clientHeight
+      let container: HTMLElement = this.el.shadowRoot.getElementById('osd')
+      if (container) {
+        osdWrapper.removeChild(container)
       }
-    })
+      container = document.createElement('div')
+      container.id = 'osd'
+      container.style.height = `${height}px`
+      osdWrapper.appendChild(container)
+      this._viewer = new (window as any).CurtainSyncViewer({
+        mode: this.compare, // 'sync' or 'curtain'
+        container,
+        images: this._tileSources.map((tileSource, idx) => ({ key: `item-${idx}`, tileSource, shown: true })),
+        osdOptions: { // OpenSeaDragon options
+          autoHideControls: false,
+          showHomeControl: true,
+          showZoomControl: true,
+          homeFillsViewer: true,
+          prefixUrl: 'https://openseadragon.github.io/openseadragon/images/',
+          zoomPerClick: 2,
+          visibilityRatio: 1,
+          wrapHorizontal: false,
+          constrainDuringPan: true,
+          minZoomImageRatio: 1.35,  
+          // maxZoomPixelRatio: Infinity,
+          maxZoomPixelRatio: 3,
+          viewportMargins: {left:0, top:0, bottom:0, right:0}
+        }
+      })
+    }
   }
 
   async _osdInit() {
@@ -678,8 +683,19 @@ export class ImageViewer {
     ? [<div id="toolbar"></div>,
         <div id="wrapper">
           <div class="osd-wrapper">
-            <div id="osd"></div>
-            <div id="instructions" class="hidden">use ctrl + scroll or 2 fingers to zoom image.</div>
+          {this.compare && this.shoelace
+            ? <sl-image-comparer style={{height:'360px'}}>
+              {this._tileSources.map((ts:any, idx:number) =>
+                <img
+                  slot={idx === 0 ? 'before' : 'after'}
+                  src={ts.url}
+                  alt={this._value(this._images[idx].manifest.label).toString()}
+                />
+              )}
+              </sl-image-comparer>
+            : <div id="osd"></div>
+          }
+          <div id="instructions" class="hidden">use ctrl + scroll or 2 fingers to zoom image.</div>
           <sl-drawer label="" contained class="drawer-contained" placement="start" style={{'--size': '40%'}}>
           <ve-manifest images={this.serializedManifests()} condensed></ve-manifest>
           <div class="annotations-heading">

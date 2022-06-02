@@ -53,6 +53,7 @@ export namespace Components {
         "options": string;
         "path": string;
         "seq": number;
+        "shoelace": boolean;
         "src": string;
         "user": string;
         "width": string;
@@ -215,6 +216,7 @@ declare namespace LocalJSX {
         "options"?: string;
         "path"?: string;
         "seq"?: number;
+        "shoelace"?: boolean;
         "src"?: string;
         "user"?: string;
         "width"?: string;
