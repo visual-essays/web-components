@@ -7,22 +7,23 @@
 
 ## Properties
 
-| Property    | Attribute    | Description | Type     | Default     |
-| ----------- | ------------ | ----------- | -------- | ----------- |
-| `align`     | `align`      |             | `string` | `undefined` |
-| `alt`       | `alt`        |             | `string` | `undefined` |
-| `annoBase`  | `anno-base`  |             | `string` | `undefined` |
-| `authToken` | `auth-token` |             | `string` | `null`      |
-| `compare`   | `compare`    |             | `string` | `undefined` |
-| `entities`  | `entities`   |             | `string` | `undefined` |
-| `fit`       | `fit`        |             | `string` | `undefined` |
-| `height`    | `height`     |             | `string` | `undefined` |
-| `options`   | `options`    |             | `string` | `undefined` |
-| `path`      | `path`       |             | `string` | `undefined` |
-| `seq`       | `seq`        |             | `number` | `undefined` |
-| `src`       | `src`        |             | `string` | `undefined` |
-| `user`      | `user`       |             | `string` | `null`      |
-| `width`     | `width`      |             | `string` | `undefined` |
+| Property    | Attribute    | Description | Type      | Default     |
+| ----------- | ------------ | ----------- | --------- | ----------- |
+| `align`     | `align`      |             | `string`  | `undefined` |
+| `alt`       | `alt`        |             | `string`  | `undefined` |
+| `annoBase`  | `anno-base`  |             | `string`  | `undefined` |
+| `authToken` | `auth-token` |             | `string`  | `null`      |
+| `compare`   | `compare`    |             | `string`  | `undefined` |
+| `entities`  | `entities`   |             | `string`  | `undefined` |
+| `fit`       | `fit`        |             | `string`  | `undefined` |
+| `height`    | `height`     |             | `string`  | `undefined` |
+| `options`   | `options`    |             | `string`  | `undefined` |
+| `path`      | `path`       |             | `string`  | `undefined` |
+| `seq`       | `seq`        |             | `number`  | `undefined` |
+| `shoelace`  | `shoelace`   |             | `boolean` | `false`     |
+| `src`       | `src`        |             | `string`  | `undefined` |
+| `user`      | `user`       |             | `string`  | `null`      |
+| `width`     | `width`      |             | `string`  | `undefined` |
 
 
 ## Dependencies

@@ -684,7 +684,7 @@ export class ImageViewer {
         <div id="wrapper">
           <div class="osd-wrapper">
           {this.compare && this.shoelace
-            ? <sl-image-comparer style={{height:'360px'}}>
+            ? <sl-image-comparer>
               {this._tileSources.map((ts:any, idx:number) =>
                 <img
                   slot={idx === 0 ? 'before' : 'after'}
