@@ -194,7 +194,7 @@ export class ImageViewer {
   }
 
   async zoomto(arg: string) {
-    const found = arg?.match(/\b(\d+:|\d+$)?(pct:)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})?(curtain|sync)?\b/g)
+    const found = arg?.match(/^(\d+:|\d+$)?(pct:)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})$/)
     if (!found) return
     let imgIdx = found[1] ? parseInt(found[1].replace(/:$/,''))-1 : 0
     let region
@@ -308,8 +308,7 @@ export class ImageViewer {
     Array.from(document.querySelectorAll('mark')).forEach(mark => {
       for (let idx=0; idx < mark.attributes.length; idx++) {
         let attr = mark.attributes.item(idx)
-        if (/^(\d+:|\d+$)?(pct:)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})?$/.test(attr.value)) {
-          console.log('here')
+        if (/^(\d+:|\d+$)?(pct:)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})$/.test(attr.value)) {
           let veImage = this.findVeImage(mark.parentElement)
           if (veImage) {
             this._zoomedIn[attr.value] = false
@@ -363,7 +362,7 @@ export class ImageViewer {
     } else if (requestedHeight) {
       height = requestedHeight
       width = Math.min(
-        elWidth,
+        // elWidth,
         imageData
           ? Math.round(imageWidth/imageHeight * (requestedHeight - captionHeight)) // width scaled to height
           : requestedWidth
@@ -372,7 +371,7 @@ export class ImageViewer {
       if (elHeight) {
         height = elHeight
         width = Math.min(
-          elWidth,
+          // elWidth,
           imageData
             ? Math.round(imageWidth/imageHeight * (requestedHeight - captionHeight)) // width scaled to height
             : requestedWidth
