@@ -15,11 +15,6 @@ export class ManifestViewer {
   @Element() el: HTMLElement;
 
   @State() _images: any[] = []
-
-  @Watch('depicts')
-  depictsChanged(depicts: string[]) {
-    console.log(`depictsChanged: ${depicts}`)
-  }
   
   @Watch('src')
   srcChanged(src: object) {
@@ -33,7 +28,7 @@ export class ManifestViewer {
 
   parseManifest(imageRec: any) {
     let manifest = imageRec.manifest
-    console.log(manifest)
+    // console.log(manifest)
     let parsed: any = {}
 
     parsed.id = this._value(manifest.id)

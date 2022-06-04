@@ -57,7 +57,6 @@ export class ImageViewer {
 
   @Watch('compare')
   compareModeChanged() {
-    console.log(`compareModeChanged: compare=${this.compare}`)
     this._compareViewerInit()
   }
 
@@ -154,10 +153,6 @@ export class ImageViewer {
     if (this._current) this._annoTarget = this.annoTarget(this._current.manifest)
   }
 
-  goHome() {
-    this._viewer.viewport.goHome()
-  }
-
   zoomIn() {
     let zoomTo = this._viewer.viewport.getZoom() * 1.5
     this._viewer.viewport.zoomTo(zoomTo)
@@ -177,8 +172,8 @@ export class ImageViewer {
     this.showAnnotations(this._showAnnotations)
   }
   
-  setRegion(region: string) {
-    this._viewer.viewport.fitBounds(parseRegionString(region, this._viewer), false)
+  setRegion(region: string, immediately:boolean=false) {
+    this._viewer.viewport.fitBounds(parseRegionString(region, this._viewer), immediately)
   }
 
   parseImageStr(str: string) {
@@ -203,7 +198,6 @@ export class ImageViewer {
       let endpoint = location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://api.visual-essays.net'
       let annoId = `${endpoint}/annotation/${this.annoTarget(this._images[imgIdx].manifest)}/${found[3]}/`
       let resp = await fetch(annoId)
-      console.log(resp)
       if (resp.ok) {
         let anno = await resp.json()
         if (anno) {
@@ -215,28 +209,30 @@ export class ImageViewer {
     } else {
       region = found[2] ? `${found[2]}${found[3]}` : found[3]
     }
-    console.log(`zoomto: imgIdx=${imgIdx} region=${region}`)
+    // console.log(`zoomto: imgIdx=${imgIdx} region=${region}`)
     if (imgIdx) this._viewer.goToPage(imgIdx)
-    if (region) setTimeout(() => { this.setRegion(region) }, 100)
+    if (region) setTimeout(() => { this.setRegion(region, false) }, 100)
   }
 
   buildImagesList() {
     let images: any[] = []
     if (this.src) images.push({manifest: this.src, options: parseImageOptions(this.options)})
+    
     Array.from(this.el.querySelectorAll('li, span'))
       .forEach(li => images.push(this.parseImageStr(li.innerHTML)))
 
     // If no manifest defined in src attribute or images list, use most recent entity QID, if available 
     if (images.length === 0 && this._entities.length > 0)
       images.push({manifest: `wd:${this._entities[0]}`, options: parseImageOptions('')})
+    
     loadManifests(images.map(item => item.manifest))
-    .then(manifests => {
-      manifests.forEach((manifest, idx) => {
-        images[idx].manifest = manifest
-        images[idx].manifestId = (images[idx].manifest.id || images[idx].manifest['@id']).split('/').slice(-2)[0]
+      .then(manifests => {
+        manifests.forEach((manifest, idx) => {
+          images[idx].manifest = manifest
+          images[idx].manifestId = (images[idx].manifest.id || images[idx].manifest['@id']).split('/').slice(-2)[0]
+        })
+        this._images = images
       })
-      this._images = images
-    })
   }
 
   listenForSlotChanges() {
@@ -286,7 +282,6 @@ export class ImageViewer {
           let currentClassState = (mutation.target as HTMLElement).classList.contains('active')
           if (prevClassState !== currentClassState) {
             prevClassState = currentClassState
-            console.log(`isActive=${currentClassState}`)
             if (currentClassState) this.zoomto(el.attributes.getNamedItem('enter')?.value)
             else this.zoomto(el.attributes.getNamedItem('exit')?.value)
           }
@@ -315,7 +310,7 @@ export class ImageViewer {
             mark.addEventListener('click', () => setTimeout(() => {
               this._zoomedIn[attr.value] = !this._zoomedIn[attr.value]
               if (this._zoomedIn[attr.value]) this.zoomto(attr.value)
-              else this.goHome()
+              else this.goHome(false)
             }, 200))
           }
           break
@@ -332,11 +327,13 @@ export class ImageViewer {
     let captionHeight = captionEl ? captionEl.clientHeight : 32
     let osd = this.el.shadowRoot.getElementById('osd')
 
-    // let elWidth = this.el.clientWidth || this.el.parentElement.clientWidth
+    let elWidth = this.el.clientWidth || this.el.parentElement.clientWidth
+    // let elWidth = this.el.clientWidth
     // let elHeight = this.el.clientHeight || this.el.parentElement.clientHeight
-    let elWidth = this.el.clientWidth
     let elHeight = this.el.clientHeight
-    
+    let parentOffset = this.el.offsetTop - this.el.parentElement.offsetTop
+
+
     let requestedWidth = this.width
       ? this.width.indexOf('px') > 0
         ? parseInt(this.width.slice(0,-2))
@@ -345,11 +342,11 @@ export class ImageViewer {
     let requestedHeight = this.height
       ? this.height.indexOf('px') > 0
         ? parseInt(this.height.slice(0,-2))
-        : Math.round(elHeight * (parseFloat(this.height.slice(0,-1))/100))
+        : Math.round((elHeight - parentOffset) * parseFloat(this.height.slice(0,-1))/100)
       : null
     let imageWidth = imageData ? imageData.width : null
     let imageHeight = imageData ? imageData.height : null
-    console.log(`ve-image.setHostDimensions: elWidth=${elWidth} elHeight=${elHeight} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} imageWidth=${imageWidth} imageHeight=${imageHeight}`)
+    // console.log(`ve-image.setHostDimensions: elWidth=${elWidth} elHeight=${elHeight} parentOffset=${parentOffset} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} imageWidth=${imageWidth} imageHeight=${imageHeight}`)
     
     let width, height
     if (requestedWidth) {
@@ -362,7 +359,7 @@ export class ImageViewer {
     } else if (requestedHeight) {
       height = requestedHeight
       width = Math.min(
-        // elWidth,
+        elWidth,
         imageData
           ? Math.round(imageWidth/imageHeight * (requestedHeight - captionHeight)) // width scaled to height
           : requestedWidth
@@ -371,7 +368,7 @@ export class ImageViewer {
       if (elHeight) {
         height = elHeight
         width = Math.min(
-          // elWidth,
+          elWidth,
           imageData
             ? Math.round(imageWidth/imageHeight * (requestedHeight - captionHeight)) // width scaled to height
             : requestedWidth
@@ -382,10 +379,10 @@ export class ImageViewer {
       }
     }
 
-    console.log(`ve-image.setHostDimensions: width=${width} height=${height} caption=${captionHeight}`)
+    // console.log(`ve-image.setHostDimensions: width=${width} height=${height} caption=${captionHeight}`)
     // osd.style.width = `${width}px`
-    wrapper.style.width = `${width}px`
-    wrapper.style.height = `${height}px`
+    wrapper.style.width = this.compare ? '100%' : `${width}px`
+    wrapper.style.height = this.compare ? '100%' : `${height}px`
     osd.style.width = '100%'
     osd.style.height = `${height - captionHeight}px`
     //this.el.style.width = `${width}px`
@@ -574,7 +571,7 @@ export class ImageViewer {
       showNavigationControl: true,
       minZoomImageRatio: 0.2,
       maxZoomPixelRatio: 5,
-      homeFillsViewer: this.fit === 'cover',
+      // homeFillsViewer: this.fit === 'cover',
       //animationTime: 100,
       showHomeControl: true,
       showZoomControl: true,
@@ -600,23 +597,17 @@ export class ImageViewer {
     this.showAnnotationsToolbar(this.canAnnotate())
     this.showAnnotations(this.canAnnotate())
 
+    this._viewer.addHandler('home', (e) => this.positionImage(e.immediately))
     this._viewer.addHandler('page', (e) => this._selectedIdx = e.page)
 
     // Reposition image in viewport after transition back from full screen mode
-    // this._viewer.addHandler('full-screen', () => setTimeout(() => this._viewer.viewport.goHome(true), 10))
     this._viewer.addHandler('resize', () => setTimeout(() => this._viewer.viewport.goHome(true), 10))
 
-    // this._viewer.world.addHandler('add-item', (e) => {console.log('add-item', e)})
-
-    this._viewer.world.addHandler('add-item', () => {
-      if (this._current.options.region !== 'full') {
-        setTimeout(() => this.setRegion(this._current.options.region), 100)
-      }
-      setTimeout(() => this._viewer.viewport.goHome(true), 10)
-    })
+    this._viewer.world.addHandler('add-item', () => this.positionImage(true))
     this._viewer.addHandler('viewport-change', debounce(() => {
       this._viewportBounds = this._getViewportBounds()
     }, 100))
+  
     this._viewer.addHandler('open-failed', (e) => {
       // If info.json tile source failed, try loading source image as pyramid
       if (e.message === 'Unable to load TileSource' && (e.source as any).indexOf('/info.json') > 0) {
@@ -627,9 +618,33 @@ export class ImageViewer {
     })
 
   }
+  positionImage (immediately: boolean=false) {
+    // console.log(`positionImage immediately=${immediately}`)
+    setTimeout(() => {
+      if (this._current.options.region !== 'full') {
+        this.setRegion(this._current.options.region, immediately)
+      } else {
+        let imageData = imageInfo(this._current.manifest)
+        let osdElem = this.el.shadowRoot.getElementById('osd')
+        const scaleX = osdElem.clientHeight/imageData.height
+        const scaleY = osdElem.clientWidth/imageData.width
+        const fit = this._current.fit === 'cover'
+          ? scaleY/scaleX > 1 ? 'horizontal' : 'vertical'
+          : scaleY/scaleX > 1 ? 'vertical' : 'horizontal'
+        if (fit === 'horizontal') {
+          this._viewer.viewport.fitHorizontally(immediately)
+        } else {
+          this._viewer.viewport.fitVertically(immediately)
+        }
+      }
+    }, 1)
+  }
+
+  goHome(immediately:boolean = false) {
+    if (this._viewer) this._viewer.viewport.goHome(immediately)
+  }
 
   showAnnotationsToolbar(show: boolean) {
-    // console.log(`showAnnotationsToolbar=${show}`)
     Array.from(this.el.shadowRoot.querySelectorAll('.a9s-toolbar')).forEach((elem:HTMLElement) => {
       elem.style.display = show ? 'unset' : 'none'
     })
@@ -718,7 +733,7 @@ export class ImageViewer {
                     <sl-tooltip content="Copy annotation ID">
                       <sl-icon-button class="anno-copy" onClick={this._copyTextToClipboard.bind(this, anno.id.split('/').pop())} name="clipboard" label="Copy annotation ID"></sl-icon-button>
                     </sl-tooltip>
-                    <span class="anno-link" onClick={this.setRegion.bind(this, anno.target.selector.value.split('=').pop())}>{anno.body[0].value}</span>
+                    <span class="anno-link" onClick={this.setRegion.bind(this, anno.target.selector.value.split('=').pop(), false)}>{anno.body[0].value}</span>
                   </div>
                 )}
               </div>

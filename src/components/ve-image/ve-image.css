@@ -27,6 +27,14 @@
   visibility: visible;
 }
 
+sl-image-comparer {
+  display: unset;
+}
+
+sl-image-comparer img {
+  width: 100%;
+}
+
 :host, ve-image {
   box-sizing: border-box;
   max-width: 100%;

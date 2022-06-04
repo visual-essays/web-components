@@ -1,5 +1,5 @@
 import { Component, Element, State, h } from '@stencil/core';
-import { loadManifests, thumbnail } from '../../utils'
+import { loadManifests, label, thumbnail } from '../../utils'
 
 @Component({
   tag: 've-image-grid',
@@ -24,7 +24,7 @@ export class ImageGallery {
     return [
       <section class="ve-image-grid">
         { 
-          this.manifests.map((manifest) => <img src={thumbnail(manifest)}/>) 
+          this.manifests.map((manifest) => <img src={thumbnail(manifest)} alt={label(manifest)}/>) 
         }
       </section>
     ]

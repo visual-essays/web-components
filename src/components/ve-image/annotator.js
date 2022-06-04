@@ -54,7 +54,7 @@ export class Annotator {
       annotations = resp.annotations
       this._annotorious.setAnnotations(resp.annotations)
     }
-    console.log(`loadAnnotations: path=${this._path}`, this.getAnnotations())
+    // console.log(`loadAnnotations: path=${this._path}`, this.getAnnotations())
     return annotations
   }
 
@@ -70,7 +70,7 @@ export class Annotator {
   async _createAnnotation(anno) {
     anno.id = sha256(anno.id).slice(0,8)
     anno.target.id = this.sourceHash
-    console.log(`createAnnotation: target=${anno.target.id} creator=${anno.creator}`, anno)
+    // console.log(`createAnnotation: target=${anno.target.id} creator=${anno.creator}`, anno)
     let resp = await fetch(`${annotationsEndpoint}/annotation/`, {
       method: 'POST',
       headers: {
@@ -89,7 +89,7 @@ export class Annotator {
   
   async _updateAnnotation(anno) {
     anno.target.id = this._target
-    console.log(`updateAnnotation: target=${anno.target.id}`, anno)
+    // console.log(`updateAnnotation: target=${anno.target.id}`, anno)
     let resp = await fetch(`${annotationsEndpoint}/annotation/${this._path}/${anno.id.split('/').pop()}/`, {
       method: 'PUT',
       headers: {
@@ -105,7 +105,7 @@ export class Annotator {
   }
 
   async _deleteAnnotation(anno) {
-    console.log('deleteAnnotation', anno)
+    // console.log('deleteAnnotation', anno)
     let resp = await fetch(`${annotationsEndpoint}/annotation/${this._path}/${anno.id.split('/').pop()}/`, {
       method: 'DELETE',
       headers: {Authorization: `Bearer: ${this._token}`}

@@ -75,7 +75,7 @@ export class Footer {
 
       <section class="container">
         <a href="https://visual-essays.net" target="_blank">
-          <img class="logo" src="https://visual-essays.github.io/content/static/images/favicon.svg"/>
+          <img class="logo" src="https://visual-essays.github.io/content/static/images/favicon.svg" alt="Logo"/>
         </a>
         <a href="https://visual-essays.net" target="_blank">visual-essays.net</a>
         <div class="contact push" onClick={this.showContactForm.bind(this)}>
