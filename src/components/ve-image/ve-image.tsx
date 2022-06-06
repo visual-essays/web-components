@@ -216,7 +216,11 @@ export class ImageViewer {
 
   buildImagesList() {
     let images: any[] = []
-    if (this.src) images.push({manifest: this.src, options: parseImageOptions(this.options)})
+    if (this.src) {
+      let img: any = {manifest: this.src, options: parseImageOptions(this.options)}
+      if (this.fit) img.fit = this.fit
+      images.push(img)
+    }
     
     Array.from(this.el.querySelectorAll('li, span'))
       .forEach(li => images.push(this.parseImageStr(li.innerHTML)))
@@ -346,7 +350,7 @@ export class ImageViewer {
       : null
     let imageWidth = imageData ? imageData.width : null
     let imageHeight = imageData ? imageData.height : null
-    // console.log(`ve-image.setHostDimensions: elWidth=${elWidth} elHeight=${elHeight} parentOffset=${parentOffset} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} imageWidth=${imageWidth} imageHeight=${imageHeight}`)
+    console.log(`ve-image.setHostDimensions: elWidth=${elWidth} elHeight=${elHeight} parentOffset=${parentOffset} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} imageWidth=${imageWidth} imageHeight=${imageHeight}`)
     
     let width, height
     if (requestedWidth) {
@@ -379,7 +383,7 @@ export class ImageViewer {
       }
     }
 
-    // console.log(`ve-image.setHostDimensions: width=${width} height=${height} caption=${captionHeight}`)
+    console.log(`ve-image.setHostDimensions: width=${width} height=${height} caption=${captionHeight}`)
     // osd.style.width = `${width}px`
     wrapper.style.width = this.compare ? '100%' : `${width}px`
     wrapper.style.height = this.compare ? '100%' : `${height}px`
@@ -619,7 +623,7 @@ export class ImageViewer {
 
   }
   positionImage (immediately: boolean=false) {
-    // console.log(`positionImage immediately=${immediately}`)
+    // console.log(`positionImage immediately=${immediately}`, this._current)
     setTimeout(() => {
       if (this._current.options.region !== 'full') {
         this.setRegion(this._current.options.region, immediately)
@@ -641,6 +645,7 @@ export class ImageViewer {
   }
 
   goHome(immediately:boolean = false) {
+    // if (this._viewer) this.positionImage(immediately)
     if (this._viewer) this._viewer.viewport.goHome(immediately)
   }
 
@@ -698,7 +703,7 @@ export class ImageViewer {
         <div id="wrapper">
           <div class="osd-wrapper">
           {this.compare && this.shoelace
-            ? <sl-image-comparer>
+            ? <sl-image-comparer position="0">
               {this._tileSources.map((ts:any, idx:number) =>
                 <img
                   slot={idx === 0 ? 'before' : 'after'}
