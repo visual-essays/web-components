@@ -1,0 +1,61 @@
+#ve-search-container > * {
+    font-family: Roboto, sans-serif;
+    font-size: 20px;
+    border-radius: 0px;
+    box-shadow: none;
+    -webkit-appearance: none; 
+    -moz-appearance: none;
+    padding: 3px;
+}
+
+#ve-search-container {
+    width: 100%;
+}
+
+#ve-search-input {
+    width: 80%;
+    margin-left: 0%;
+    border: 2px solid #eee;
+    padding: 3px;
+}
+
+#ve-search-button {
+    width: 15%;
+    margin-right: 0%;
+    border: 2px solid #eee;
+}
+
+#ve-search-hide {
+    margin-right: 0%;
+    font-size: 18px;
+    border: 2px solid #eee;
+    display: none;
+}
+
+#ve-search-output {
+    width: 80%;
+    margin-top: 0%;
+    display: none;
+    list-style: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    padding: 5px;
+    padding-left: 15px;
+    z-index: 1;
+}
+
+.ve-search-snippet {
+    font-size: 0.7em;
+    margin-left: 2%;
+    margin-top: 0%;
+}
+
+.ve-search-link, .ve-search-link:hover {
+    color: rgb(147 179 243);
+    text-decoration: none;
+}
+
+.ve-search-link:visited {
+    color: rgb(188 140 242);
+    text-decoration: none;
+}
