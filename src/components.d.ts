@@ -72,6 +72,7 @@ export namespace Components {
     }
     interface VeSearch {
         "API": string;
+        "DOMAIN": string;
         "NO_RESULTS_MESSAGE": string;
         "SEARCH_ENGINE_ID": string;
         "SEARCH_QUOTA_EXCEEDED_MESSAGE": string;
@@ -248,6 +249,7 @@ declare namespace LocalJSX {
     }
     interface VeSearch {
         "API"?: string;
+        "DOMAIN"?: string;
         "NO_RESULTS_MESSAGE"?: string;
         "SEARCH_ENGINE_ID"?: string;
         "SEARCH_QUOTA_EXCEEDED_MESSAGE"?: string;
