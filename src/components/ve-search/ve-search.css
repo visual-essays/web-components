@@ -28,6 +28,10 @@
     font-size: 11px;
 }
 
+#ve-search-hide-button {
+    display: none;
+}
+
 #ve-search-dropdown {
     margin-top: 0%;
     width: 50%;
