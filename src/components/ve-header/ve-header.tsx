@@ -100,12 +100,15 @@ export class Header {
     return [
       <section class="ve-header">
         <div class="title-panel">
-          <span id="info-icon" onClick={this._showInfoPopup.bind(this)} title="Image info">i</span>
-          { this.navItems.length > 0 && 
+          <span id="info-icon" onClick={this._showInfoPopup.bind(this)} title="Image info">i</span>          { this.navItems.length > 0 && 
             <nav>
               <sl-dropdown>
                 <sl-button id="menu-toggle" slot="trigger" variant="default" size="medium" circle>
                   <sl-icon name="three-dots-vertical" label="Navigation Meno"></sl-icon>
+                </sl-button>
+                <sl-button id = "search-toggle" slot = "prefix" varient = "default" size = "medium" circle>
+                  <sl-icon name = "search" label = "Site Searchs"></sl-icon>
+                  <p>Hi</p>
                 </sl-button>
                 <sl-menu>
                   { this.navItems.map((item:any) => <sl-menu-item onClick={this.newPage.bind(this, item.href)}>{item.label}</sl-menu-item>) }
