@@ -195,7 +195,8 @@ export class ImageViewer {
     let region
     let annoRegex = new RegExp('[0-9a-f]{8}')
     if (annoRegex.test(found[3])) {
-      let endpoint = location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://api.visual-essays.net'
+      // let endpoint = location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://api.visual-essays.net'
+      let endpoint = 'https://api.visual-essays.net'
       let annoId = `${endpoint}/annotation/${this.annoTarget(this._images[imgIdx].manifest)}/${found[3]}/`
       let resp = await fetch(annoId)
       if (resp.ok) {
@@ -403,6 +404,7 @@ export class ImageViewer {
         let url = `${imgUrl.slice(0,-10)}/${options.region}/${options.size}/${options.rotation}/${options.quality}.${options.format}`
         return { url, type: 'image', buildPyramid: true }
       } else {
+        console.log(imgUrl)
         return imgUrl
       }
     } else {
@@ -684,7 +686,8 @@ export class ImageViewer {
       height = 800
       width = height * ratio
     }
-    let url = location.hostname === 'localhost'? 'http://localhost:4444/' : 'https://annotator.visual-essays.net/'
+    // let url = location.hostname === 'localhost'? 'http://localhost:4444/' : 'https://annotator.visual-essays.net/'
+    let url = 'https://annotator.visual-essays.net/'
     url += `?manifest=${this._current.manifest.id || this._current.manifest['@id']}`
     if (this.annoBase) url += `&anno-base=${this.annoBase}`
     url += `&auth-token=${this.authToken}`

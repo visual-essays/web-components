@@ -8,6 +8,11 @@ import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
     interface VeAnno {
     }
+    interface VeCard {
+        "entities": string;
+        "label": string;
+        "manifest": string;
+    }
     interface VeDepicts {
         "depicted": any[];
         "edit": () => Promise<void>;
@@ -85,6 +90,12 @@ declare global {
         prototype: HTMLVeAnnoElement;
         new (): HTMLVeAnnoElement;
     };
+    interface HTMLVeCardElement extends Components.VeCard, HTMLStencilElement {
+    }
+    var HTMLVeCardElement: {
+        prototype: HTMLVeCardElement;
+        new (): HTMLVeCardElement;
+    };
     interface HTMLVeDepictsElement extends Components.VeDepicts, HTMLStencilElement {
     }
     var HTMLVeDepictsElement: {
@@ -153,6 +164,7 @@ declare global {
     };
     interface HTMLElementTagNameMap {
         "ve-anno": HTMLVeAnnoElement;
+        "ve-card": HTMLVeCardElement;
         "ve-depicts": HTMLVeDepictsElement;
         "ve-depicts-dialog": HTMLVeDepictsDialogElement;
         "ve-entities": HTMLVeEntitiesElement;
@@ -168,6 +180,11 @@ declare global {
 }
 declare namespace LocalJSX {
     interface VeAnno {
+    }
+    interface VeCard {
+        "entities"?: string;
+        "label"?: string;
+        "manifest"?: string;
     }
     interface VeDepicts {
         "depicted"?: any[];
@@ -243,6 +260,7 @@ declare namespace LocalJSX {
     }
     interface IntrinsicElements {
         "ve-anno": VeAnno;
+        "ve-card": VeCard;
         "ve-depicts": VeDepicts;
         "ve-depicts-dialog": VeDepictsDialog;
         "ve-entities": VeEntities;
@@ -261,6 +279,7 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "ve-anno": LocalJSX.VeAnno & JSXBase.HTMLAttributes<HTMLVeAnnoElement>;
+            "ve-card": LocalJSX.VeCard & JSXBase.HTMLAttributes<HTMLVeCardElement>;
             "ve-depicts": LocalJSX.VeDepicts & JSXBase.HTMLAttributes<HTMLVeDepictsElement>;
             "ve-depicts-dialog": LocalJSX.VeDepictsDialog & JSXBase.HTMLAttributes<HTMLVeDepictsDialogElement>;
             "ve-entities": LocalJSX.VeEntities & JSXBase.HTMLAttributes<HTMLVeEntitiesElement>;
