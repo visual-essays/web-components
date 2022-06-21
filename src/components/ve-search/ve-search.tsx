@@ -56,7 +56,7 @@
         .then(res => {
             this.items = this.applyFilters([...this.items, ...res["items"]])
         })
-        .catch(TypeError => {
+        .catch(_ => {
             this.error = "searchQuotaExceeded"
         })
         .catch(error => {
