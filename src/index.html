@@ -15,6 +15,29 @@
   </head>
   <body>
 
+    <main>
+      <ve-header 
+        label="Kent Maps Online"
+        background="gh:kent-map/images/Kent_Maps.jpg"
+        sticky="true"
+        >
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/about">About</a></li>
+        </ul>
+      </ve-header>
+
+      <div style="padding-top:10px; width:400px;">
+        <ve-wikidata-search></ve-wikidata-search>
+      </div>
+
+      <ve-search></ve-search>
+
+      <div style="height:100vh"></div>
+    </main>
+
+
+    <!--
     <ve-meta title="Testing" description="Test description"></ve-meta>
     <ve-style layout="/static/css/default-layout.css"></ve-style>
 
@@ -35,9 +58,6 @@
       </section>
     </main>
     
-    <ve-search></ve-search>
-    <!-- <ve-wikidata-search></ve-wikidata-searcg> -->
-
     <ve-image compare="curtain" shoelace="true">
       <ul>
         <li>https://iiif.harvardartmuseums.org/manifests/object/299843 pct:12,14,60,77//!0</li>
@@ -45,7 +65,7 @@
       </ul>
     </ve-image>
 
-    <!-- <ve-header 
+    <ve-header 
     label="Vincent Van Gogh Self Portraits"
     background="wc:Zelfportret_met_strohoed_-_s0164V1962_-_Van_Gogh_Museum.jpg"
     options="pct:0,21.5,80,20"
