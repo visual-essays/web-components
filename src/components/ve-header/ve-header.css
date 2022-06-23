@@ -102,6 +102,15 @@ nav sl-icon {
   padding-top: 7px;
 }
 
+nav sl-menu-item sl-icon {
+  color: inherit;
+  padding: 0 6px 0 0;
+  font-size: 20px;
+}
+nav sl-menu-item:hover sl-icon {
+  color: inherit;
+}
+
 #info-icon {
   position: absolute;
   font-family: serif;
