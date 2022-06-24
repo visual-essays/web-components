@@ -1,8 +1,6 @@
 import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
 import { parseImageOptions, imageInfo, getManifest, imageDataUrl } from '../../utils'
 
-const emailAddressRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-
 const navIcons = {
   home: 'house-fill',
   about: 'info-circle-fill',
@@ -29,12 +27,6 @@ export class Header {
 
   @State() imageOptions: any
   @State() navItems: any = []
-
-  @State() contactDialog: any
-  @State() from: HTMLInputElement
-  @State() emailAlert: any
-  @State() message: HTMLTextAreaElement
-  @State() noMessageAlert: any
 
   @State() _manifest: any
   @Watch('_manifest')
@@ -88,11 +80,6 @@ export class Header {
   }
 
   componentDidLoad() {  
-    this.contactDialog = this.el.shadowRoot.querySelector('.contact-dialog')
-    this.from = this.el.shadowRoot.getElementById('from') as HTMLInputElement
-    this.message = this.el.shadowRoot.getElementById('message') as HTMLTextAreaElement
-    this.emailAlert = this.el.shadowRoot.getElementById('bad-email-alert') as any
-    this.noMessageAlert = this.el.shadowRoot.getElementById('no-message-alert') as any
     this.el.style.height = `${this.height}px`
     if (this.sticky) {
       this.el.classList.add('sticky')
@@ -115,45 +102,10 @@ export class Header {
   menuItemSelected(item: any) {
     console.log('menuItemSelected', item)
     if (item.label.toLowerCase().indexOf('contact') === 0 && this.contact) {
-      this.showContactForm()
+      let contactDialog = this.el.shadowRoot.querySelector('ve-contact')
+      contactDialog.show = !contactDialog.show
     } else if (item.href) {
       location.href = item.href
-    }
-  }
-
-  hideContactForm() {
-    this.contactDialog.hide()
-    this.from.value = ''
-    this.message.value = ''
-    this.emailAlert.hide()
-    this.noMessageAlert.hide()
-  }
-
-  showContactForm() {
-    this.contactDialog.show()
-  }
-
-  async sendmail() {
-    let emailIsValid = emailAddressRegex.test(this.from.value)
-    if (emailIsValid) this.emailAlert.hide()
-    else this.emailAlert.show()
-    
-    let messageIsValid = this.message.value.trim().length > 0
-    if (messageIsValid) this.noMessageAlert.hide()
-    else this.noMessageAlert.show()
-
-    if (emailIsValid && messageIsValid) { 
-      let body = {
-        to: this.contact,
-        from: this.from.value,
-        subject: 'Contact Us',
-        message: this.message.value
-      }
-      this.hideContactForm()
-      let resp: any = await fetch('https://api.visual-essays.net/sendmail/', {
-        method: 'POST', body: JSON.stringify(body)
-      })
-      if (resp.ok) console.log(await resp.json())
     }
   }
 
@@ -161,10 +113,8 @@ export class Header {
     let iconName = ''
     let menuLabel = item.label.toLowerCase()
     Object.keys(navIcons).forEach(key => {
-      console.log(menuLabel, key)
       if (menuLabel.indexOf(key) >= 0) iconName = navIcons[key]
     })
-    console.log(`iconName=${iconName}`)
     return iconName
   }
 
@@ -201,20 +151,7 @@ export class Header {
         </div>
       </section>,
 
-      <sl-dialog label="Contact Us" class="contact-dialog">
-      <sl-input id="from" autofocus type="email" label="Email address"></sl-input>
-      <sl-alert id="bad-email-alert" variant="danger">
-        <sl-icon slot="icon" name="exclamation-octagon"></sl-icon>
-        <strong>Invalid email address</strong><br />Please fix and resubmit
-      </sl-alert>
-      <sl-textarea id="message" label="Message"></sl-textarea>
-      <sl-alert id="no-message-alert" variant="danger">
-        <sl-icon slot="icon" name="exclamation-octagon"></sl-icon>
-        <strong>No message entered</strong><br />
-      </sl-alert>
-      <sl-button id="cancel" slot="footer" onClick={this.hideContactForm.bind(this)}>Cancel</sl-button>
-      <sl-button slot="footer" variant="primary" onClick={this.sendmail.bind(this)}>Submit</sl-button>
-      </sl-dialog>
+      <ve-contact contact={this.contact}></ve-contact>
     ]
   }
 }

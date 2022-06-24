@@ -13,6 +13,10 @@ export namespace Components {
         "label": string;
         "manifest": string;
     }
+    interface VeContact {
+        "contact": string;
+        "show": boolean;
+    }
     interface VeDepicts {
         "depicted": any[];
         "edit": () => Promise<void>;
@@ -35,6 +39,7 @@ export namespace Components {
         "entities": string;
     }
     interface VeFooter {
+        "contact": string;
         "sticky": boolean;
     }
     interface VeHeader {
@@ -103,6 +108,12 @@ declare global {
     var HTMLVeCardElement: {
         prototype: HTMLVeCardElement;
         new (): HTMLVeCardElement;
+    };
+    interface HTMLVeContactElement extends Components.VeContact, HTMLStencilElement {
+    }
+    var HTMLVeContactElement: {
+        prototype: HTMLVeContactElement;
+        new (): HTMLVeContactElement;
     };
     interface HTMLVeDepictsElement extends Components.VeDepicts, HTMLStencilElement {
     }
@@ -179,6 +190,7 @@ declare global {
     interface HTMLElementTagNameMap {
         "ve-anno": HTMLVeAnnoElement;
         "ve-card": HTMLVeCardElement;
+        "ve-contact": HTMLVeContactElement;
         "ve-depicts": HTMLVeDepictsElement;
         "ve-depicts-dialog": HTMLVeDepictsDialogElement;
         "ve-entities": HTMLVeEntitiesElement;
@@ -200,6 +212,10 @@ declare namespace LocalJSX {
         "entities"?: string;
         "label"?: string;
         "manifest"?: string;
+    }
+    interface VeContact {
+        "contact"?: string;
+        "show"?: boolean;
     }
     interface VeDepicts {
         "depicted"?: any[];
@@ -225,6 +241,7 @@ declare namespace LocalJSX {
         "entities"?: string;
     }
     interface VeFooter {
+        "contact"?: string;
         "sticky"?: boolean;
     }
     interface VeHeader {
@@ -284,6 +301,7 @@ declare namespace LocalJSX {
     interface IntrinsicElements {
         "ve-anno": VeAnno;
         "ve-card": VeCard;
+        "ve-contact": VeContact;
         "ve-depicts": VeDepicts;
         "ve-depicts-dialog": VeDepictsDialog;
         "ve-entities": VeEntities;
@@ -304,6 +322,7 @@ declare module "@stencil/core" {
         interface IntrinsicElements {
             "ve-anno": LocalJSX.VeAnno & JSXBase.HTMLAttributes<HTMLVeAnnoElement>;
             "ve-card": LocalJSX.VeCard & JSXBase.HTMLAttributes<HTMLVeCardElement>;
+            "ve-contact": LocalJSX.VeContact & JSXBase.HTMLAttributes<HTMLVeContactElement>;
             "ve-depicts": LocalJSX.VeDepicts & JSXBase.HTMLAttributes<HTMLVeDepictsElement>;
             "ve-depicts-dialog": LocalJSX.VeDepictsDialog & JSXBase.HTMLAttributes<HTMLVeDepictsDialogElement>;
             "ve-entities": LocalJSX.VeEntities & JSXBase.HTMLAttributes<HTMLVeEntitiesElement>;
