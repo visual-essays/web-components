@@ -31,9 +31,9 @@
     @State() filtersObject: Object = new Object()
 
     @ClickOutside()
-        hideOutputOnOutsideClick() {
-            this.hideOutput();
-        }
+        // hideOutputOnOutsideClick() {
+        //     this.hideOutput();
+        // }
 
     // Reads filters given in the <ve-search> tag and stores them in filtersObjects
     fillFilters() {
@@ -69,8 +69,8 @@
             this.items = [];
         }
 
-        // let url = `https://www.googleapis.com/customsearch/v1?key=${this.API}&cx=${this.cx}&q=${query}&start=${start}`;
-        let url = `http://localhost:3333/v1.json`; // Pre-created JSON to test with after daily searches reached
+        let url = `https://www.googleapis.com/customsearch/v1?key=${this.API}&cx=${this.cx}&q=${query}&start=${start}`;
+        // let url = `http://localhost:3333/v1.json`; // Pre-created JSON to test with after daily searches reached
 
         fetch(url)
         .then(res => res.json())
@@ -83,7 +83,7 @@
                 document.getElementById("ve-search-show-more").style.display = "none";
             }
         })
-        .catch(TypeError => {
+        .catch(_ => {
             this.error = "searchQuotaExceeded"
         })
         .catch(error => {
@@ -113,7 +113,7 @@
         if (this.activeFilter == "all") {
             return items;
         }
-        
+
         else {
 
             for (let i = 0; i < items.length; i++) {

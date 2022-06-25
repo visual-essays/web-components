@@ -1,6 +1,12 @@
 import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
 import { parseImageOptions, imageInfo, getManifest, imageDataUrl } from '../../utils'
 
+const navIcons = {
+  home: 'house-fill',
+  about: 'info-circle-fill',
+  contact: 'envelope-fill'
+}
+
 @Component({
   tag: 've-header',
   styleUrl: 've-header.css',
@@ -17,6 +23,7 @@ export class Header {
   @Prop() height: number = 300
   @Prop() sticky: boolean
   @Prop() position: string = 'center' // center, top, bottom
+  @Prop() contact: string // Email address for Contact Us
 
   @State() imageOptions: any
   @State() navItems: any = []
@@ -92,12 +99,28 @@ export class Header {
     popup.style.display = popup.style.display === 'block' ? 'none' : 'block'
   }
 
-  newPage(href: string) {
-    location.href = href
+  menuItemSelected(item: any) {
+    console.log('menuItemSelected', item)
+    if (item.label.toLowerCase().indexOf('contact') === 0 && this.contact) {
+      let contactDialog = this.el.shadowRoot.querySelector('ve-contact')
+      contactDialog.show = !contactDialog.show
+    } else if (item.href) {
+      location.href = item.href
+    }
+  }
+
+  navIcon(item: any) {
+    let iconName = ''
+    let menuLabel = item.label.toLowerCase()
+    Object.keys(navIcons).forEach(key => {
+      if (menuLabel.indexOf(key) >= 0) iconName = navIcons[key]
+    })
+    return iconName
   }
 
   render() {
     return [
+
       <section class="ve-header">
         <div class="title-panel">
           {/* <span id="info-icon" onClick={this._showInfoPopup.bind(this)} title="Image info">i</span> */}
@@ -114,7 +137,13 @@ export class Header {
                   <sl-icon name="three-dots-vertical" label="Navigation Meno"></sl-icon>
                 </sl-button>
                 <sl-menu>
-                  { this.navItems.map((item:any) => <sl-menu-item onClick={this.newPage.bind(this, item.href)}>{item.label}</sl-menu-item>) }
+                  { this.navItems.map((item:any) => 
+                    <sl-menu-item 
+                      onClick={this.menuItemSelected.bind(this, item)}>
+                        <sl-icon slot="prefix" name={this.navIcon(item)} label={item.label}></sl-icon>
+                        {item.label}
+                    </sl-menu-item>
+                  )}
                 </sl-menu>
               </sl-dropdown>
             </nav>
@@ -123,8 +152,9 @@ export class Header {
           <div class="subtitle">{this.subtitle}</div>
           <div id="image-info-popup"></div>
         </div>
-        
-      </section>
+      </section>,
+
+      <ve-contact contact={this.contact}></ve-contact>
     ]
   }
 }

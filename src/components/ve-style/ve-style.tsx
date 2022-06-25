@@ -13,7 +13,8 @@ export class Style {
   }
 
   connectedCallback() {
-    let server = location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://visual-essays.net'
+    // let server = location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://visual-essays.net'
+    let server = 'https://visual-essays.net'
     // console.log(`layout=${this.layout} theme=${this.theme}`)
     if (this.layout) {
       this.removeLinkTag('/static/css/default-layout.css')

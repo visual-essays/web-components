@@ -2,9 +2,8 @@ import * as Annotorious from '@recogito/annotorious-openseadragon'
 import Toolbar from '@recogito/annotorious-toolbar'
 import { sha256 } from '../../utils' 
 
-const annotationsEndpoint = location.hostname === 'localhost'
-  ? 'http://localhost:8000'
-  : 'https://api.visual-essays.net'
+// const annotationsEndpoint = location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://api.visual-essays.net'
+const annotationsEndpoint = 'https://api.visual-essays.net'
 
 export class Annotator {
 

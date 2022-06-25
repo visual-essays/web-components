@@ -2,7 +2,8 @@ import OpenSeadragon from 'openseadragon'
 import { sha256 as __sha256 } from 'js-sha256'
 import __md5 from 'js-md5'
 
-const iiifServer = location.hostname === 'localhost' ? 'http://localhost:8088' : 'https://iiif.visual-essays.net'
+// const iiifServer = location.hostname === 'localhost' ? 'http://localhost:8088' : 'https://iiif.visual-essays.net'
+const iiifServer = 'https://iiif.visual-essays.net'
 
 export function sha256(str: string) {
   return __sha256(str)

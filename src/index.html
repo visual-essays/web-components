@@ -15,13 +15,47 @@
   </head>
   <body>
 
-    <ve-meta title="Testing" description="Test description"></ve-meta>
-    <ve-style layout="/static/css/default-layout.css"></ve-style>
-    
-    <!-- <ve-header></ve-header> -->
-    <ve-search cx = '0a5115e988de8e8a9' filters = '16c:16c,17c:17c,18c:18c,19c:19c,20c:20c,21c:21c,austen:Jane Austen,canterbury:Canterbury,churches:Churches,dickens:Dickens' tooltip = "Click to search the site"></ve-search>
-    <!-- <ve-search cx = '0a5115e988de8e8a9' icon tooltip = "Click to search the site"></ve-search> -->
+    <main>
+      <ve-header 
+        label="Kent Maps Online"
+        background="gh:kent-map/images/Kent_Maps.jpg"
+        sticky="true"
+        contact="ron.snyder@ithaka.org"
+        >
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/about">About</a></li>
+          <li>Contact Us</li>
+        </ul>
+      </ve-header>
 
+      <ve-search cx = '0a5115e988de8e8a9' filters = '16c:16c,17c:17c,18c:18c,19c:19c,20c:20c,21c:21c,austen:Jane Austen,canterbury:Canterbury,churches:Churches,dickens:Dickens' tooltip = "Click to search the site"></ve-search>
+      <!-- <ve-search cx = '0a5115e988de8e8a9' icon tooltip = "Click to search the site"></ve-search> -->
+
+      <div style="padding-top:10px; width:400px;">
+        <ve-wikidata-search></ve-wikidata-search>
+      </div>
+
+      <div style="height:100vh"></div>
+    </main>
+
+    <main>
+      <section class="cards">
+        <ve-card manifest="wc:White-cheeked_Honeyeater_-_Maddens_Plains.jpg" label="White-cheeked Honeyeater">
+          The white-cheeked honeyeater is a medium-sized black and white honeyeater, with a long, sturdy bill that curves downwards.
+          It has large bright-yellow tail and wing panels, with a large conspicuous white cheek-patch on a mainly black head. The eye 
+          is dark brown and it has a long, tapering, white brow-line. Young birds have a yellow gape and brow and the plumage is dusky
+          or dull brownish. It is gregarious, active and noisy with swift, erratic flight.
+        </ve-card>
+        <ve-card manifest="wc:White-cheeked_Honeyeater_-_Maddens_Plains.jpg" label="Label"></ve-card>
+        <ve-card manifest="wc:White-cheeked_Honeyeater_-_Maddens_Plains.jpg" label="Label"></ve-card>
+        <ve-card manifest="wc:White-cheeked_Honeyeater_-_Maddens_Plains.jpg" label="Label"></ve-card>
+        <ve-card manifest="wc:White-cheeked_Honeyeater_-_Maddens_Plains.jpg" label="Label"></ve-card>
+        <ve-card manifest="wc:White-cheeked_Honeyeater_-_Maddens_Plains.jpg" label="Label"></ve-card>
+        <ve-card manifest="wc:White-cheeked_Honeyeater_-_Maddens_Plains.jpg" label="Label"></ve-card>
+      </section>
+    </main>
+    
     <ve-image compare="curtain" shoelace="true">
       <ul>
         <li>https://iiif.harvardartmuseums.org/manifests/object/299843 pct:12,14,60,77//!0</li>
@@ -29,7 +63,7 @@
       </ul>
     </ve-image>
 
-    <!-- <ve-header 
+    <ve-header 
     label="Vincent Van Gogh Self Portraits"
     background="wc:Zelfportret_met_strohoed_-_s0164V1962_-_Van_Gogh_Museum.jpg"
     options="pct:0,21.5,80,20"
