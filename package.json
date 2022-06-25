@@ -31,7 +31,8 @@
     "lodash.debounce": "^4.0.8",
     "lodash.throttle": "^4.1.1",
     "openseadragon": "2.4.2",
-    "rollup-plugin-node-polyfills": "^0.2.1"
+    "rollup-plugin-node-polyfills": "^0.2.1",
+    "stencil-click-outside": "^1.8.0"
   },
   "devDependencies": {
     "@types/jest": "^27.5.0",

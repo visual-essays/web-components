@@ -705,7 +705,7 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@stencil/core@^2.15.1":
+"@stencil/core@^2.15.1", "@stencil/core@>=1.9.0":
   "integrity" "sha512-D6dv2KAXlWt9mjC28q0s6anghQgXRn0k93suOf+4pqsv1Uq19zNJXpYL68N5GxMSiNZyMPTU4Tt2NCbut7DVGg=="
   "resolved" "https://registry.npmjs.org/@stencil/core/-/core-2.15.2.tgz"
   "version" "2.15.2"
@@ -3195,6 +3195,11 @@
   "version" "2.0.5"
   dependencies:
     "escape-string-regexp" "^2.0.0"
+
+"stencil-click-outside@^1.8.0":
+  "integrity" "sha512-eJiZbAAj3sE1nMK+F5Ihi4GzU9/P2sZmy94JaDm5ehAaVaWraDsBsA5+zAuXwORPnphJVEY4zIxX1uXhU19MFQ=="
+  "resolved" "https://registry.npmjs.org/stencil-click-outside/-/stencil-click-outside-1.8.0.tgz"
+  "version" "1.8.0"
 
 "stencil-inline-svg@^1.1.0":
   "integrity" "sha512-couT89xzsoycwHOIAgnl3WBpXaVRQ3ZlUBINo7HsT/AtWaFW9cxGlAzsK2JzkzxK7yUuoeIpdH2fNlvuH06DRg=="
