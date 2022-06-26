@@ -1,78 +1,89 @@
-#ve-search-container > * {
-    font-family: Roboto, sans-serif;
-    font-size: 11px;
+#ve-search-input-container {
+    outline: none;
+    border: 1px rgb(212, 212, 216) solid;
+    background: white;
+    border-left: none;
+    border-right: none;
     border-radius: 0px;
-    box-shadow: none;
-    -webkit-appearance: none; 
-    -moz-appearance: none;
-    padding: 3px;
-}
-
-#ve-search-container {
-    width: 60%;
-}
-
-#ve-search-input, #ve-search-button, #ve-search-hide-button, #ve-search-filters-button {
-    border: 2px solid rgb(120, 120, 120);
-    line-height: 1em;
 }
 
 #ve-search-input {
-    width: 65%;
-    margin-left: 0%;
-    padding: 3px;
+    outline: none;
+    border: none;
+    margin-top: 5%;
+    padding-left: 10px;
 }
 
-#ve-search-button, #ve-search-hide-button, #ve-search-filters-button {
-    margin-left: 0.5%;
-    font-size: 11px;
+#ve-search-bar-show-button::part(base), #ve-search-search-button::part(base), #ve-search-filter-dropdown > sl-button::part(base) {
+    background-color: white;
 }
 
-#ve-search-hide-button {
+#ve-search-bar {
+    width: max-content;
+}
+
+#ve-search-bar:hover {
+    box-shadow: 0 0 10px rgb(146, 209, 248);
+}
+
+#ve-search-hide-output {
+    background: none;
+    border: none;
     display: none;
+    padding-right: 10px;
+    cursor: pointer;
 }
 
 #ve-search-dropdown {
-    margin-top: 0%;
-    width: 50%;
-    background-color: #f9f9f9;
-    padding: 0px;
-    position: absolute;
-    z-index: 1;
-}
-
-#ve-search-output,  #ve-search-filters {
-    width: 90%;
-    margin-top: 0%;
+    width: 70%;
     display: none;
-    list-style: none;
-    padding: 5px;
-    padding-left: 10px;   
+    border: 1px rgb(212, 212, 216) solid;
+    background-color: white;
+    border-radius: 3px;
+    padding: 7px;
+    margin-top: 0;
+    position: absolute;
+    z-index: 2;
 }
 
-#ve-search-filters {
-    border-bottom: 1px solid rgb(120, 120, 120);
-
+#ve-search-output {
+    margin-left: 10px;
 }
 
-#ve-search-filters > li {
-    display: inline-block;
-    padding: 2px;
-    padding-right: 15px;
+#ve-search-output > * {
+    font-family: Roboto, sans-serif;
 }
 
-.ve-search-snippet {
-    font-size: 0.7em;
-    margin-left: 2%;
+#ve-search-output-title {
+    margin-bottom: 0;
+}
+
+#ve-search-output-title > a {
+    text-decoration: none;
+    color: rgb(147 179 243);
+}
+
+#ve-search-output-link {
+    font-style: italic;
+    font-size: 0.8em;
+    color: rgb(60, 131, 40);
     margin-top: 0%;
 }
 
-.ve-search-link, .ve-search-link:hover {
-    color: rgb(147 179 243);
-    text-decoration: none;
+#ve-search-output-title > a:visited {
+    color: rgb(188 140 242);
 }
 
-.ve-search-link:visited {
-    color: rgb(188 140 242);
-    text-decoration: none;
+#ve-search-end-of-output {
+    height: 1px;
+    width: 99%;
+    background-color:rgb(212, 212, 216);
+    border: none;
+}
+
+#ve-search-show-more {
+    border: none;
+    background: none;
+    margin-left: 9px;
+    cursor: pointer;
 }

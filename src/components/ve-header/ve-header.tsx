@@ -123,15 +123,12 @@ export class Header {
 
       <section class="ve-header">
         <div class="title-panel">
-          <span id="info-icon" onClick={this._showInfoPopup.bind(this)} title="Image info">i</span>          { this.navItems.length > 0 && 
+          {/* <span id="info-icon" onClick={this._showInfoPopup.bind(this)} title="Image info">i</span> */}
+          { this.navItems.length > 0 && 
             <nav>
               <sl-dropdown>
                 <sl-button id="menu-toggle" slot="trigger" variant="default" size="medium" circle>
                   <sl-icon name="three-dots-vertical" label="Navigation Meno"></sl-icon>
-                </sl-button>
-                <sl-button id = "search-toggle" slot = "prefix" varient = "default" size = "medium" circle>
-                  <sl-icon name = "search" label = "Site Searchs"></sl-icon>
-                  <p>Hi</p>
                 </sl-button>
                 <sl-menu>
                   { this.navItems.map((item:any) => 
@@ -148,6 +145,12 @@ export class Header {
           <a href="/"><div class="title">{this.label}</div></a>
           <div class="subtitle">{this.subtitle}</div>
           <div id="image-info-popup"></div>
+          <div class = "title-buttons">
+            <ve-search cx = '0a5115e988de8e8a9' filters = '16c:16c,17c:17c,18c:18c,19c:19c,20c:20c,21c:21c,austen:Jane Austen,canterbury:Canterbury,churches:Churches,dickens:Dickens' icon tooltip = "Click to search the site"></ve-search>
+            <sl-button id = "info-button" onClick={this._showInfoPopup.bind(this)} title = "Image info">
+              <sl-icon name = "info"></sl-icon>
+            </sl-button>
+          </div>
         </div>
       </section>,
 

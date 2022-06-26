@@ -49,6 +49,29 @@
   right: 0;
 }
 
+.title-buttons {
+  display: flex;
+  flex-direction: row;
+  position: absolute;
+  right: 20px;
+}
+
+#info-button::part(base) {
+  background-color: white;  
+}
+
+#info-button {
+  margin-left: 10px;
+}
+
+#info-button:hover {
+  box-shadow: 0 0 10px rgb(146, 209, 248);
+}
+
+#ve-search-search-button::part(base) {
+  background-color: white;
+}
+
 .title, .subtitle {
   line-height: 3rem;
 }

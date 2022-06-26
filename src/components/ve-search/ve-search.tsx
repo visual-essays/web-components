@@ -1,60 +1,93 @@
- import { Component, Prop, Element, State, h } from "@stencil/core";
+ import { Component, Prop, Element, State, Listen, h } from "@stencil/core";
+//  import { ClickOutside } from "stencil-click-outside";
  
  @Component({
     tag: "ve-search",
-    styleUrl: "ve-search.css"
+    styleUrl: "ve-search.css",
+    shadow: true
  })
 
  export class VeSearch {
+    @Prop() cx: string
+    @Prop() filters: string = ""
+    @Prop() icon : boolean = false
+    @Prop() tooltip : string = ""
 
-    @Prop() API: string = "AIzaSyCEoD17BDJpQxSeNpm-_vy9bJ-dHweFwEs" // Needs to be changed to one linked to Kent Maps
-    @Prop() SEARCH_ENGINE_ID: string = "0a5115e988de8e8a9"
-    @Prop() DOMAIN: string = "https://kent-maps.online/"
-    @Prop() SEARCH_QUOTA_EXCEEDED_MESSAGE: string = "Total site search quota exceeded for the day"
-    @Prop() NO_RESULTS_MESSAGE: string = "No results"
+    @State() API: string = "AIzaSyCEoD17BDJpQxSeNpm-_vy9bJ-dHweFwEs" // Needs to be changed to one linked to Kent Maps
+    @State() DOMAIN: string = "https://kent-maps.online/"
+    @State() SEARCH_QUOTA_EXCEEDED_MESSAGE: string = "Total site search quota exceeded for the day"
+    @State() NO_RESULTS_MESSAGE: string = "No results"
+    @State() RESULTS_PER_PAGE: number = 10
 
     @Element() el: HTMLElement
 
-    @State() query: string = "test"
+    @State() query: string
     @State() items: any[] = []
     @State() error: string = ""
     @State() search: boolean = false
+    @State() previousStart: number = 0
+    @State() activeFilter: string = "all"
 
     // Dictionary object with key as path to folder mapped to value to be displayed
-    @State() filters: Object = new Object()
+    @State() filtersObject: Object = new Object()
 
-    // Better solution should be found to allow ve-search re-use, potentially through meta tags
+    // @ClickOutside()
+        // hideOutputOnOutsideClick() {
+        //     console.log("hideOutputOnOutsideClick()");
+        //     this.hideOutput();
+        // }
+        
+    // Reads filters given in the <ve-search> tag and stores them in filtersObjects
     fillFilters() {
-        this.filters["16c"] = "16c";
-        this.filters["17c"] = "17c";
-        this.filters["18c"] = "18c";
-        this.filters["19c"] = "19c";
-        this.filters["20c"] = "20c";
-        this.filters["21c"] = "21c";
-        this.filters["austen"] = "Jane Austen";
-        this.filters["canterbury"] = "Canterbury";
-        this.filters["churches"] = "Churches";
-        this.filters["dickens"] = "Dickens";
+
+        this.filtersObject["all"] = "All";
+
+        // In the format ["tagValue:displayValue", ... , "tagValue:displayValue"]
+        var splitFilters = this.filters.split(",");
+
+        for (var i = 0; i < splitFilters.length; i++) {
+
+            // In the format ["tagValue", "displayValue"]
+            var splitFilter = splitFilters[i].split(":");
+
+            splitFilter[0] = splitFilter[0].replace(" ", "");
+
+            this.filtersObject[splitFilter[0]] = splitFilter[1];
+        }
     }
 
-    // Loads JSON file of Google site search
-    doSearch() {
 
-        this.items = [];
-        this.error = "";
-        this.search = true;
+    // Loads JSON file of Google site search
+    // start is search result to start on
+    doSearch(start) {
 
         var query = (document.getElementById("ve-search-input") as HTMLInputElement).value;
         query = query.replace(" ", "+");
-    
-        let url = `https://www.googleapis.com/customsearch/v1?key=${this.API}&cx=${this.SEARCH_ENGINE_ID}&q=${query}`;
 
+        this.error = "";
+        this.search = true;
+
+        if ((this.items == null) || (start == 0)) {
+            this.items = [];
+        }
+
+        let url = `https://www.googleapis.com/customsearch/v1?key=${this.API}&cx=${this.cx}&q=${query}&start=${start}`;
         // let url = `http://localhost:3333/v1.json`; // Pre-created JSON to test with after daily searches reached
 
         fetch(url)
         .then(res => res.json())
         .then(res => {
-            this.items = this.applyFilters([...this.items, ...res["items"]])
+            this.items = this.items.concat(this.applyFilters(res["items"]));
+
+            // If there is no more results after these
+            if (res["queries"]["nextPage"] == null) {
+                document.getElementById("ve-search-end-of-output").style.display = "none";
+                document.getElementById("ve-search-show-more").style.display = "none";
+            }
+            else {
+                document.getElementById("ve-search-end-of-output").style.display = "block";
+                document.getElementById("ve-search-show-more").style.display = "block";
+            }
         })
         .catch(_ => {
             this.error = "searchQuotaExceeded"
@@ -63,172 +96,237 @@
             console.log(error)
         });
 
+        this.previousStart = start;
+
         // Shows results and results hide button
-        document.getElementById("ve-search-hide-button").style.display = "inline-block";
-        document.getElementById("ve-search-output").style.display = "block";
+        document.getElementById("ve-search-hide-output").style.display = "inline-block";
+        document.getElementById("ve-search-dropdown").style.display = "block";
     }
 
     // Detects the enter key in the input field to begin search
     searchInputKeyPress(event) {
 
         if (event.key === "Enter") {
-            this.doSearch()
-          }
-    }
-
-    // Displays essay filter options
-    displayFilters() {
-
-        // Fills this.filters with pre-defined filter options
-        this.fillFilters();
-
-        var key;
-        var outputText = "<p id = 've-search-filter-heading'>Show essays from:<p>";
-
-        for (key in this.filters) {
-            outputText += "<li><input type = 'checkbox' id = 've-search-filter-" + key + "'> ";
-            outputText += this.filters[key] + "</input></li>";
+            this.doSearch(0)
         }
-
-        var outputElement = document.getElementById("ve-search-filters");
-        outputElement.innerHTML = outputText;
     }
 
     // Apply the selected filters to the search results (items)
     applyFilters(items) {
 
-        var key;
-        var activeFilters = [];
         var filteredItems = [];
 
-        // Generate a list of active filters by checking which inputs have been checked
-        for (key in this.filters) {
-            var element = document.getElementById("ve-search-filter-" + key);
-            var isChecked = (element as HTMLInputElement).checked;   
-
-            if (isChecked) {
-                activeFilters.push(key);
-            }
-        }
-
-        // If no active filters selected, all items should be included in results
-        if (activeFilters.length == 0) {
+        if (this.activeFilter == "all") {
             return items;
         }
 
-        // Checks if item included in one of the active filters for all items
-        for (let i = 0; i < items.length; i++) {
+        else {
 
-            var item = items[i];
-            var link = item["link"].replace(this.DOMAIN, "");
+            for (let i = 0; i < items.length; i++) {
 
-            for (let j = 0; j < activeFilters.length; j++) {
-
-                var filter = activeFilters[j];
-                    
-                if (link.startsWith(filter)) {
+                var item = items[i];
+                var link = item["link"].replace(this.DOMAIN, "");
+    
+                if (link.startsWith(this.activeFilter)) {
                     filteredItems.push(item);
                 }
-            }
-        }
 
-        return filteredItems;
-    }
 
-    // Displays Google results to output div
-    displayItems() {
+                // Code for when tags used for filtering rather than file path (not tested)
 
-        var outputText = "";
+                // var metaTags = item["pagemap"]["metatags"];
 
-        // Only display items if a search has been performed
-        if (this.search) {
+                // for (let j = 0; j < metaTags.length; j++) {
+                //     var metaTag = metaTags[i];
 
-            if (this.items.length == 0) {
-                outputText = this.NO_RESULTS_MESSAGE;
+                //     if (metaTag == this.activeFilter) {
+                //         filteredItems.push(item);
+                //     }
+
+                // }
             }
 
-            else if (this.error == "searchQuotaExceeded") {
-                outputText = this.SEARCH_QUOTA_EXCEEDED_MESSAGE;
-            }
-
-            else {
-
-                // Display items
-                for (let i = 0; i < this.items.length; i++) {
-                    
-                    var item = this.items[i];
-                    
-                    outputText += "<li><a class = 've-search-link' href = '" + item["link"] + "'>";
-                    outputText += item["title"] + "</a>";
-                    outputText += "<p class = 've-search-snippet'><i>" + item["snippet"] + "</i></p></li>";
-                }
-            }
-    
-            var outputElement = document.getElementById("ve-search-output");
-            outputElement.innerHTML = outputText;
+            return filteredItems;
         }
     }
 
     // Hide search output if currently shown and visa-versa
     // Activated when user presses the hide button
     invertOutput() {
+        var outputDisplay = document.getElementById("ve-search-dropdown").style.display;
 
-        var outputDisplay = document.getElementById("ve-search-output").style.display;
-
-        // Hide output
         if (outputDisplay == "block") {
-            document.getElementById("ve-search-hide-button").innerText = "▼ Results";
-            document.getElementById("ve-search-output").style.display = "none";
+            this.hideOutput();
         }
-
-        // Show output
         else {
-            document.getElementById("ve-search-hide-button").innerText = "▲ Results";
-            document.getElementById("ve-search-output").style.display = "block";
+            this.showOutput();
         }
     }
+    
+    hideOutput() {
+        document.getElementById("ve-search-hide-output").innerText = "▼";
+        document.getElementById("ve-search-dropdown").style.display = "none";
+    }
 
-    // Hide filters if currently shown and visa-versa
-    // Activated when user presses the filters button
-    invertFilters() {
+    showOutput() {
+        document.getElementById("ve-search-hide-output").innerText = "▲";
+        document.getElementById("ve-search-dropdown").style.display = "block";
+    }
 
-        var filtersDisplay = document.getElementById("ve-search-filters").style.display;
+    updateFilter(filter) {
+        this.activeFilter = filter;
+        document.getElementById("ve-search-filter-item-" + filter).setAttribute("checked", "true");
+    }
 
-        // Hide output
-        if (filtersDisplay == "block") {
-            document.getElementById("ve-search-filters-button").innerText = "▼ Filters";
-            document.getElementById("ve-search-filters").style.display = "none";
+    // Used when <ve-search> initially an icon
+    showSearchBar() {
+        document.getElementById("ve-search-bar").style.display = "block";
+        document.getElementById("ve-search-bar-show-button").style.display = "none";
+    }
+
+    // Displays essay filter options
+    displayFilters() {
+
+        var outputText = [];
+
+        if (this.filters.length > 0) {
+
+            var key;
+            
+            for (key in this.filtersObject) {
+                outputText = outputText.concat([
+                    <sl-menu-item id = {"ve-search-filter-item-" + key} value = {key} onClick = {() => this.updateFilter(key)}>{this.filtersObject[key]}</sl-menu-item>
+                ]);
+            }
         }
 
-        // Show output
+        // If there are no filters hide the filter dropdown
         else {
-            
-            // this.displayFilters();
+            var noFiltersCSS = `
+            #ve-search-input-container {
+                border-left: 1px rgb(212, 212, 216) solid;
+                border-top-left-radius: 3px;
+                border-bottom-left-radius: 3px;
+            }
+            #ve-search-filter-dropdown {
+                display: none;
+            }`;
+            var outputText = [<style type = "text/css" innerHTML={noFiltersCSS}></style>]
+        }
 
-            // Generates the required HTML to show the filters if it has not already been filtered
-            if (Object.keys(this.filters).length == 0) {
-                this.displayFilters();
+        return outputText;
+    }
+
+    // Displays search results
+    displayOutput() {
+
+        var outputText = "";
+        
+        // Only display items if a search has been performed
+        if (this.search) {
+                
+            if (this.items.length == 0) {
+                outputText = `<p>${this.NO_RESULTS_MESSAGE}</p>`;
             }
 
-            document.getElementById("ve-search-filters-button").innerText = "▲ Filters";
-            document.getElementById("ve-search-filters").style.display = "block";
+            else if (this.error == "searchQuotaExceeded") {
+                outputText = `<p>${this.SEARCH_QUOTA_EXCEEDED_MESSAGE}</p>`;
+            }
+
+            else {
+
+                // Display items
+                for (let i = 0; i < this.items.length; i++) {
+
+                    var item = this.items[i];
+
+                    outputText += `<p id = 've-search-output-title'><a href = '${item["link"]}'>"${item["title"]}</a></p>`
+                    outputText += `<p id = 've-search-output-link'>${item["link"]}"</p>`;
+                }
+            }
+        }
+
+        return outputText;
+    }
+
+    // Adds tooltip to search icon if tool tip enabled
+    displayTooltip() {
+
+        var hideSearchBar = `
+            #ve-search-bar {
+                display: none;
+            }`;
+
+        var searchBarStyleSheet = [<style type = "text/css" id = "search-bar-style" innerHTML={hideSearchBar}></style>]
+        
+        var searchBarShowButton = [
+            <sl-button id = "ve-search-bar-show-button" onclick = {() => this.showSearchBar()}>
+                <sl-icon name = "search" label = "Search"></sl-icon>
+            </sl-button>
+        ]
+
+        // Tooltip given
+        if (this.tooltip.length > 0) {
+            return [
+            <sl-tooltip content = {this.tooltip}>
+                {searchBarStyleSheet}
+                {searchBarShowButton}
+            </sl-tooltip>
+            ]
+        }
+
+        // No tooltip
+        else {
+            return [
+                <sl-tooltip content = {this.tooltip} disabled>
+                    {searchBarStyleSheet}
+                    {searchBarShowButton}
+                </sl-tooltip>
+            ]
         }
     }
 
     render() {
-        return [ 
-            <div id = "ve-search-container">
-                <input id = "ve-search-input" type = "text" placeholder = "Search the site" onKeyPress = {() => this.searchInputKeyPress(event)}/>
-                <button id = "ve-search-hide-button" onClick = {() => this.invertOutput()}>▼ Results</button>
-                <button id = "ve-search-filters-button" onClick = {() => this.invertFilters()}>▼ Filters</button>
-                <button id = "ve-search-button" onClick = {() => this.doSearch()}>Search</button>
-                <div id = "ve-search-dropdown">
-                    <ul id = "ve-search-filters"></ul>                
-                    <ul id = "ve-search-output"></ul>
-                </div>
-                {this.displayItems()}
-            </div>
+        var outputText = [];
+
+        this.fillFilters();
+
+        outputText = outputText.concat([
+            <div id = "search-container">
+
+                <sl-button-group  id = "ve-search-bar">
             
-        ]
+                    <sl-dropdown id = "ve-search-filter-dropdown">
+                        <sl-button id = "ve-search-active-filter" slot = "trigger" caret>{this.filtersObject[this.activeFilter]}</sl-button>
+                        <sl-menu id = "ve-search-filter-menu">{this.displayFilters()}</sl-menu>
+                    </sl-dropdown>
+                    
+                    <div id = "ve-search-input-container">
+
+                        <input id = "ve-search-input" type = "text" placeholder = "Search the site..." onKeyPress = {() => this.searchInputKeyPress(event)}/>
+                        
+                        <button id = "ve-search-hide-output" onClick = {() => this.invertOutput()}>▲</button>
+
+                    </div>
+
+                    <sl-button id = "ve-search-search-button" onclick = {() => this.doSearch(0)}>
+                        <sl-icon name = "search" label = "Search"></sl-icon>
+                    </sl-button>
+
+                </sl-button-group>
+
+                <div id = "ve-search-dropdown">
+                    <div id = "ve-search-output" innerHTML = {this.displayOutput()}></div>
+                    <hr id = "ve-search-end-of-output"/>
+                    <button id = "ve-search-show-more" onClick = {() => this.doSearch(this.previousStart + this.RESULTS_PER_PAGE)}>Show more...</button>
+                </div>
+            </div>
+        ])
+
+        if (this.icon) {
+            outputText = outputText.concat([<div>{this.displayTooltip()}</div>]);
+        }
+
+        return outputText;
     }
  }
