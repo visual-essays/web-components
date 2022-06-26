@@ -8,11 +8,12 @@
 .container {
   clear: both;
   display: flex;
-  padding: 12px;
+  padding: 3px 12px;
   align-items: center;
   gap: 12px;
-  background-color: #eee;
   width: 100%;
+  background-color: inherit;
+  /* background-color: #eee; */
   /*
   margin-left: -1rem;
   margin-bottom: -1rem;

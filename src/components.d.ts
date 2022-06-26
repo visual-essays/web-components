@@ -66,6 +66,7 @@ export namespace Components {
         "seq": number;
         "shoelace": boolean;
         "src": string;
+        "sticky": boolean;
         "user": string;
         "width": string;
     }
@@ -268,6 +269,7 @@ declare namespace LocalJSX {
         "seq"?: number;
         "shoelace"?: boolean;
         "src"?: string;
+        "sticky"?: boolean;
         "user"?: string;
         "width"?: string;
     }

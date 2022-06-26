@@ -5,33 +5,110 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,500,700,900" rel="stylesheet">
-    <title>Visual Essays Web Components Demo</title>
     <link href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.73/dist/themes/light.css" rel="stylesheet" />
+    <title>Visual Essays Web Components</title>
+    <!--
+    <link href="https://api.visual-essays.net/static/v2/css/main.css" rel="stylesheet" />
+    <link href="https://api.visual-essays.net/static/v2/css/default-theme.css" rel="stylesheet" />
+    <link href="https://api.visual-essays.net/static/v2/css/default-layout.css" rel="stylesheet" />
+    -->
+    <link href="http://localhost:8000/static/v2/css/main.css" rel="stylesheet" />
+    <link href="http://localhost:8000/static/v2/css/default-theme.css" rel="stylesheet" />
+    <link href="http://localhost:8000/static/v2/css/default-layout.css" rel="stylesheet" />
 </head>
 <body>
     
-    <main>
-        <ve-header 
-          label="Kent Maps Online"
-          background="gh:kent-map/images/Kent_Maps.jpg"
-          sticky="true"
-          >
-          <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/about">About</a></li>
-          </ul>
-        </ve-header>
-  
-        <div style="padding-top:10px; width:400px;">
-          <ve-wikidata-search></ve-wikidata-search>
-        </div>
-  
-        <ve-search></ve-search>
-  
-        <div style="height:100vh"></div>
-      </main>
+  <main>
+    <ve-header 
+      label="Visual Essays Web Components"
+      subtitle="Demo"
+      background="wc:Zelfportret_met_strohoed_-_s0164V1962_-_Van_Gogh_Museum.jpg"
+      options="pct:0,21.5,80,20"
+      position="center"
+      contact="some.one@example.com"
+      sticky
+    >
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/about">About</a></li>
+        <li>Contact Us</li>
+      </ul>
+    </ve-header>
 
-    <script src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.73/dist/shoelace.js" type="module"></script>
-    <script src="https://unpkg.com/visual-essays/dist/visual-essays/visual-essays.esm.js" type="module"></script>
+    <section>
+      <h1>Visual Essays Web Components</h1>
+      <p>
+        This page demonstrates the use of a few web components from the <b>visual-essays</b> NPM package.
+        <ul>
+          <li><a href="#ve-header">ve-header</a></li>
+          <li><a href="#ve-image">ve-image</a></li>
+          <li><a href="#ve-footer">ve-footer</a></li>
+        </ul>
+      </p>
+
+      <section id="ve-header">
+        <h2>ve-header</h2>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et 
+          dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip 
+          ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
+          fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt 
+          mollit anim id est laborum.
+        </p>
+      </section>
+
+      <section id="ve-image">
+        <h2>ve-image</h2>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et 
+          dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip 
+          ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
+          fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt 
+          mollit anim id est laborum.
+        </p>
+        <ve-image sticky src="wc:Zelfportret_met_strohoed_-_s0164V1962_-_Van_Gogh_Museum.jpg"></ve-image>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et 
+          dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip 
+          ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
+          fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt 
+          mollit anim id est laborum.
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et 
+          dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip 
+          ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
+          fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt 
+          mollit anim id est laborum.
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et 
+          dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip 
+          ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
+          fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt 
+          mollit anim id est laborum.
+        </p>
+      </section>
+
+      <section id="ve-footer">
+        <h2>ve-footer</h2>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et 
+          dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip 
+          ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
+          fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt 
+          mollit anim id est laborum.
+        </p>
+      </section>
+
+    </section>
+
+    <ve-footer contact="some.one@example.com" style="background:#C0AB8C;"></ve-footer>
+
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.73/dist/shoelace.js" type="module"></script>
+  <!-- <script src="https://unpkg.com/visual-essays/dist/visual-essays/visual-essays.esm.js" type="module"></script> -->
+  <script type="module" src="http://localhost:3333/build/visual-essays.esm.js"></script>
 </body>
 </html>

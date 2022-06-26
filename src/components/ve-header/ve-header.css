@@ -10,10 +10,12 @@
   background-position: center;
   position: relative;
   margin: 0;
-  z-index: 1000;
+  z-index: 3;
+  /*
   margin-left: -.5rem;
-  margin-top: -1rem;
   width: calc(100% + 1rem);
+  */
+  margin-top: -1rem;
   color: #444;
   max-height: 220px;
 }
@@ -165,8 +167,10 @@ nav sl-menu-item:hover sl-icon {
 @media (min-width: 481px) {
 
   :host {
+    /*
     margin-left: -1rem;
     width: calc(100% + 2rem);
+    */
     max-height: 300px;
   }
 

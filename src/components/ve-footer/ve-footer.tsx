@@ -3,7 +3,7 @@ import { Component, Element, Prop, h } from '@stencil/core'
 @Component({
   tag: 've-footer',
   styleUrl: 've-footer.css',
-  shadow: true,
+  shadow: false,
 })
 export class Footer {
 
@@ -16,12 +16,13 @@ export class Footer {
     if (this.sticky) {
       this.el.style.position = 'fixed'
       this.el.style.bottom = '0'
-      this.el.style.left = '0'
+      // this.el.style.left = '0'
+      this.el.style.width = `${this.el.parentElement.clientWidth}px`
     }
   }
 
   showContactForm() {
-    let contactDialog = this.el.shadowRoot.querySelector('ve-contact')
+    let contactDialog = this.el.querySelector('ve-contact')
     contactDialog.show = !contactDialog.show
   }
 

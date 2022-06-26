@@ -40,6 +40,7 @@ export class ImageViewer {
   @Prop() authToken: string = null
   @Prop() annoBase: string
   @Prop() shoelace: boolean = false
+  @Prop() sticky: boolean
 
   @Element() el: HTMLElement;
 
@@ -297,6 +298,9 @@ export class ImageViewer {
   }
 
   componentDidLoad() {
+    if (this.sticky) {
+      this.el.classList.add('sticky')
+    }
     if (this._images.length > 0) this._setHostDimensions()
     this.listenForSlotChanges()
 
