@@ -1,9 +1,10 @@
- import { Component, Prop, Element, State, h } from "@stencil/core";
- import { ClickOutside } from "stencil-click-outside";
+ import { Component, Prop, Element, State, Listen, h } from "@stencil/core";
+//  import { ClickOutside } from "stencil-click-outside";
  
  @Component({
     tag: "ve-search",
-    styleUrl: "ve-search.css"
+    styleUrl: "ve-search.css",
+    shadow: true
  })
 
  export class VeSearch {
@@ -30,11 +31,12 @@
     // Dictionary object with key as path to folder mapped to value to be displayed
     @State() filtersObject: Object = new Object()
 
-    @ClickOutside()
+    // @ClickOutside()
         // hideOutputOnOutsideClick() {
+        //     console.log("hideOutputOnOutsideClick()");
         //     this.hideOutput();
         // }
-
+        
     // Reads filters given in the <ve-search> tag and stores them in filtersObjects
     fillFilters() {
 
@@ -81,6 +83,10 @@
             if (res["queries"]["nextPage"] == null) {
                 document.getElementById("ve-search-end-of-output").style.display = "none";
                 document.getElementById("ve-search-show-more").style.display = "none";
+            }
+            else {
+                document.getElementById("ve-search-end-of-output").style.display = "block";
+                document.getElementById("ve-search-show-more").style.display = "block";
             }
         })
         .catch(_ => {
@@ -147,7 +153,6 @@
     // Hide search output if currently shown and visa-versa
     // Activated when user presses the hide button
     invertOutput() {
-
         var outputDisplay = document.getElementById("ve-search-dropdown").style.display;
 
         if (outputDisplay == "block") {
