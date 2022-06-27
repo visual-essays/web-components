@@ -7,16 +7,26 @@
 
 ## Properties
 
-| Property     | Attribute    | Description | Type      | Default     |
-| ------------ | ------------ | ----------- | --------- | ----------- |
-| `background` | `background` |             | `string`  | `undefined` |
-| `height`     | `height`     |             | `number`  | `300`       |
-| `label`      | `label`      |             | `string`  | `undefined` |
-| `options`    | `options`    |             | `string`  | `undefined` |
-| `position`   | `position`   |             | `string`  | `'center'`  |
-| `sticky`     | `sticky`     |             | `boolean` | `undefined` |
-| `subtitle`   | `subtitle`   |             | `string`  | `undefined` |
+| Property  | Attribute | Description | Type      | Default     |
+| --------- | --------- | ----------- | --------- | ----------- |
+| `contact` | `contact` |             | `string`  | `undefined` |
+| `show`    | `show`    |             | `boolean` | `false`     |
 
+
+## Dependencies
+
+### Used by
+
+ - [ve-footer](../ve-footer)
+ - [ve-header](../ve-header)
+
+### Graph
+```mermaid
+graph TD;
+  ve-footer --> ve-contact
+  ve-header --> ve-contact
+  style ve-contact fill:#f9f,stroke:#333,stroke-width:4px
+```
 
 ----------------------------------------------
 

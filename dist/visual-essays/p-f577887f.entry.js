@@ -1,0 +1,1 @@
+import{r as s,h as t}from"./p-f5d08bd3.js";const e=class{constructor(t){s(this,t)}render(){return[t("section",{class:"ve-entities"},this.entities)]}};e.style=":host{font-family:Roboto, sans-serif}";export{e as ve_entities}

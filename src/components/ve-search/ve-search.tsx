@@ -1,4 +1,4 @@
- import { Component, Prop, Element, State, Listen, h } from "@stencil/core";
+ import { Component, Prop, Element, State, h } from "@stencil/core";
 //  import { ClickOutside } from "stencil-click-outside";
  
  @Component({

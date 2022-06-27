@@ -1,0 +1,26 @@
+{
+  "entries": [
+    "./components/ve-anno/ve-anno.js",
+    "./components/ve-card/ve-card.js",
+    "./components/ve-contact/ve-contact.js",
+    "./components/ve-depicts/ve-depicts.js",
+    "./components/ve-depicts-dialog/ve-depicts-dialog.js",
+    "./components/ve-entities/ve-entities.js",
+    "./components/ve-footer/ve-footer.js",
+    "./components/ve-header/ve-header.js",
+    "./components/ve-image/ve-image.js",
+    "./components/ve-image-grid/ve-image-grid.js",
+    "./components/ve-manifest/ve-manifest.js",
+    "./components/ve-meta/ve-meta.js",
+    "./components/ve-search/ve-search.js",
+    "./components/ve-style/ve-style.js",
+    "./components/ve-wikidata-search/ve-wikidata-search.js"
+  ],
+  "compiler": {
+    "name": "@stencil/core",
+    "version": "2.15.2",
+    "typescriptVersion": "4.5.4"
+  },
+  "collections": [],
+  "bundles": []
+}

@@ -22,6 +22,7 @@
 | `seq`       | `seq`        |             | `number`  | `undefined` |
 | `shoelace`  | `shoelace`   |             | `boolean` | `false`     |
 | `src`       | `src`        |             | `string`  | `undefined` |
+| `sticky`    | `sticky`     |             | `boolean` | `undefined` |
 | `user`      | `user`       |             | `string`  | `null`      |
 | `width`     | `width`      |             | `string`  | `undefined` |
 
