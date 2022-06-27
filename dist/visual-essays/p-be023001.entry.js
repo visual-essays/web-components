@@ -1,4 +1,4 @@
-import{r,h as a,g as d}from"./p-f5d08bd3.js";import{g as o,t as e,l as s}from"./p-a12c2e8f.js";import{r as i,c as t,b as c,s as l,H as n,$ as h,o as p,n as v,v as b}from"./p-128f154d.js";import"./p-7a9c1438.js";var m=i`
+import{r,h as a,g as d}from"./p-f5d08bd3.js";import{g as o,t as e,d as s}from"./p-c262ddd9.js";import{r as i,c as t,_ as c,s as l,$ as n,o as h,n as p,k as m}from"./p-7059461a.js";import{H as v}from"./p-32764e44.js";import"./p-7a9c1438.js";var b=i`
   ${t}
 
   :host {
@@ -56,10 +56,10 @@ import{r,h as a,g as d}from"./p-f5d08bd3.js";import{g as o,t as e,l as s}from"./
   .card:not(.card--has-footer) .card__footer {
     display: none;
   }
-`,g=class extends l{constructor(){super(...arguments),this.hasSlotController=new n(this,"footer","header","image")}render(){return h`
+`,g=class extends l{constructor(){super(...arguments),this.hasSlotController=new v(this,"footer","header","image")}render(){return n`
       <div
         part="base"
-        class=${p({card:!0,"card--has-footer":this.hasSlotController.test("footer"),"card--has-image":this.hasSlotController.test("image"),"card--has-header":this.hasSlotController.test("header")})}
+        class=${h({card:!0,"card--has-footer":this.hasSlotController.test("footer"),"card--has-image":this.hasSlotController.test("image"),"card--has-header":this.hasSlotController.test("header")})}
       >
         <div part="image" class="card__image">
           <slot name="image"></slot>
@@ -77,4 +77,4 @@ import{r,h as a,g as d}from"./p-f5d08bd3.js";import{g as o,t as e,l as s}from"./
           <slot name="footer"></slot>
         </div>
       </div>
-    `}};g.styles=m,g=c([v("sl-card")],g),b("https://visual-essays.github.io/web-components/www");const f=class{constructor(a){r(this,a)}async connectedCallback(){this.description=this.el.innerHTML.trim(),this._manifest=await o(this.manifest)}render(){return[a("sl-card",{class:"card-overview"},a("img",{slot:"image",src:e(this._manifest),alt:s(this._manifest)}),a("div",{class:"label",innerHTML:this.label}),a("sl-icon",{name:"envelope"}),this.description&&a("div",{class:"description",innerHTML:this.description}))]}get el(){return d(this)}};f.style=":host{font-family:Roboto, sans-serif}.card-overview{max-width:200px}.label{font-size:1em;line-height:1.1em;font-weight:bold;padding-bottom:12px}.description{font-size:.8em;line-height:1.1em}";export{f as ve_card}
+    `}};g.styles=b,g=c([p("sl-card")],g),m("3333"===location.port?"":"/web-components/");const _=class{constructor(a){r(this,a)}async connectedCallback(){this.description=this.el.innerHTML.trim(),this._manifest=await o(this.manifest)}render(){return[a("sl-card",{class:"card-overview"},a("img",{slot:"image",src:e(this._manifest),alt:s(this._manifest)}),a("div",{class:"label",innerHTML:this.label}),a("sl-icon",{name:"envelope"}),this.description&&a("div",{class:"description",innerHTML:this.description}))]}get el(){return d(this)}};_.style=":host{font-family:Roboto, sans-serif}.card-overview{max-width:200px}.label{font-size:1em;line-height:1.1em;font-weight:bold;padding-bottom:12px}.description{font-size:.8em;line-height:1.1em}";export{_ as ve_card}

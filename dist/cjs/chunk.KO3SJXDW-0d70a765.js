@@ -1,4 +1,6 @@
-import { m as __spreadProps, p as __spreadValues, q as o$1, $ } from './chunk.GP3HCHHG.js';
+'use strict';
+
+const chunk_GP3HCHHG = require('./chunk.GP3HCHHG-fdad49b5.js');
 
 // src/internal/animate.ts
 function animateTo(el, keyframes, options) {
@@ -6,7 +8,7 @@ function animateTo(el, keyframes, options) {
     if ((options == null ? void 0 : options.duration) === Infinity) {
       throw new Error("Promise-based animations must be finite.");
     }
-    const animation = el.animate(keyframes, __spreadProps(__spreadValues({}, options), {
+    const animation = el.animate(keyframes, chunk_GP3HCHHG.__spreadProps(chunk_GP3HCHHG.__spreadValues({}, options), {
       duration: prefersReducedMotion() ? 0 : options.duration
     }));
     animation.addEventListener("cancel", resolve, { once: true });
@@ -196,7 +198,58 @@ var hasFocusVisible = (() => {
   }
   return isSupported;
 })();
-var focusVisibleSelector = o$1(hasFocusVisible ? ":focus-visible" : ":focus");
+var focusVisibleSelector = chunk_GP3HCHHG.o$1(hasFocusVisible ? ":focus-visible" : ":focus");
+
+// src/components/icon-button/icon-button.styles.ts
+var icon_button_styles_default = chunk_GP3HCHHG.r`
+  ${chunk_GP3HCHHG.component_styles_default}
+
+  :host {
+    display: inline-block;
+  }
+
+  .icon-button {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    border-radius: var(--sl-border-radius-medium);
+    font-size: inherit;
+    color: var(--sl-color-neutral-600);
+    padding: var(--sl-spacing-x-small);
+    cursor: pointer;
+    transition: var(--sl-transition-medium) color;
+    -webkit-appearance: none;
+  }
+
+  .icon-button:hover:not(.icon-button--disabled),
+  .icon-button:focus:not(.icon-button--disabled) {
+    color: var(--sl-color-primary-600);
+  }
+
+  .icon-button:active:not(.icon-button--disabled) {
+    color: var(--sl-color-primary-700);
+  }
+
+  .icon-button:focus {
+    outline: none;
+  }
+
+  .icon-button--disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .icon-button${focusVisibleSelector} {
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  .icon-button__icon {
+    pointer-events: none;
+  }
+`;
 
 // node_modules/lit-html/static.js
 var o = Symbol.for("");
@@ -228,105 +281,122 @@ var s = (t) => (r, ...o2) => {
   }
   return t(r, ...o2);
 };
-var n = s($);
+var n = s(chunk_GP3HCHHG.$);
 /**
  * @license
  * Copyright 2020 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-// src/internal/tabbable.ts
-function isTabbable(el) {
-  const tag = el.tagName.toLowerCase();
-  if (el.getAttribute("tabindex") === "-1") {
-    return false;
+// src/components/icon-button/icon-button.ts
+var SlIconButton = class extends chunk_GP3HCHHG.s4 {
+  constructor() {
+    super(...arguments);
+    this.hasFocus = false;
+    this.label = "";
+    this.disabled = false;
   }
-  if (el.hasAttribute("disabled")) {
-    return false;
+  click() {
+    this.button.click();
   }
-  if (el.hasAttribute("aria-disabled") && el.getAttribute("aria-disabled") !== "false") {
-    return false;
+  focus(options) {
+    this.button.focus(options);
   }
-  if (tag === "input" && el.getAttribute("type") === "radio" && !el.hasAttribute("checked")) {
-    return false;
+  blur() {
+    this.button.blur();
   }
-  if (el.offsetParent === null) {
-    return false;
+  handleBlur() {
+    this.hasFocus = false;
+    chunk_GP3HCHHG.emit(this, "sl-blur");
   }
-  if (window.getComputedStyle(el).visibility === "hidden") {
-    return false;
+  handleFocus() {
+    this.hasFocus = true;
+    chunk_GP3HCHHG.emit(this, "sl-focus");
   }
-  if ((tag === "audio" || tag === "video") && el.hasAttribute("controls")) {
-    return true;
-  }
-  if (el.hasAttribute("tabindex")) {
-    return true;
-  }
-  if (el.hasAttribute("contenteditable") && el.getAttribute("contenteditable") !== "false") {
-    return true;
-  }
-  return ["button", "input", "select", "textarea", "a", "audio", "video", "summary"].includes(tag);
-}
-function getTabbableBoundary(root) {
-  var _a, _b;
-  const allElements = [];
-  function walk(el) {
-    if (el instanceof HTMLElement) {
-      allElements.push(el);
-      if (el.shadowRoot !== null && el.shadowRoot.mode === "open") {
-        walk(el.shadowRoot);
-      }
-    }
-    [...el.querySelectorAll("*")].forEach((e) => walk(e));
-  }
-  walk(root);
-  const start = (_a = allElements.find((el) => isTabbable(el))) != null ? _a : null;
-  const end = (_b = allElements.reverse().find((el) => isTabbable(el))) != null ? _b : null;
-  return { start, end };
-}
-
-// src/internal/offset.ts
-function getOffset(element, parent) {
-  return {
-    top: Math.round(element.getBoundingClientRect().top - parent.getBoundingClientRect().top),
-    left: Math.round(element.getBoundingClientRect().left - parent.getBoundingClientRect().left)
-  };
-}
-
-// src/internal/scroll.ts
-var locks = /* @__PURE__ */ new Set();
-function lockBodyScrolling(lockingEl) {
-  locks.add(lockingEl);
-  document.body.classList.add("sl-scroll-lock");
-}
-function unlockBodyScrolling(lockingEl) {
-  locks.delete(lockingEl);
-  if (locks.size === 0) {
-    document.body.classList.remove("sl-scroll-lock");
-  }
-}
-function scrollIntoView(element, container, direction = "vertical", behavior = "smooth") {
-  const offset = getOffset(element, container);
-  const offsetTop = offset.top + container.scrollTop;
-  const offsetLeft = offset.left + container.scrollLeft;
-  const minX = container.scrollLeft;
-  const maxX = container.scrollLeft + container.offsetWidth;
-  const minY = container.scrollTop;
-  const maxY = container.scrollTop + container.offsetHeight;
-  if (direction === "horizontal" || direction === "both") {
-    if (offsetLeft < minX) {
-      container.scrollTo({ left: offsetLeft, behavior });
-    } else if (offsetLeft + element.clientWidth > maxX) {
-      container.scrollTo({ left: offsetLeft - container.offsetWidth + element.clientWidth, behavior });
+  handleClick(event) {
+    if (this.disabled) {
+      event.preventDefault();
+      event.stopPropagation();
     }
   }
-  if (direction === "vertical" || direction === "both") {
-    if (offsetTop < minY) {
-      container.scrollTo({ top: offsetTop, behavior });
-    } else if (offsetTop + element.clientHeight > maxY) {
-      container.scrollTo({ top: offsetTop - container.offsetHeight + element.clientHeight, behavior });
-    }
+  render() {
+    const isLink = this.href ? true : false;
+    const tag = isLink ? l`a` : l`button`;
+    return n`
+      <${tag}
+        part="base"
+        class=${chunk_GP3HCHHG.o({
+      "icon-button": true,
+      "icon-button--disabled": !isLink && this.disabled,
+      "icon-button--focused": this.hasFocus
+    })}
+        ?disabled=${chunk_GP3HCHHG.l(isLink ? void 0 : this.disabled)}
+        type=${chunk_GP3HCHHG.l(isLink ? void 0 : "button")}
+        href=${chunk_GP3HCHHG.l(isLink ? this.href : void 0)}
+        target=${chunk_GP3HCHHG.l(isLink ? this.target : void 0)}
+        download=${chunk_GP3HCHHG.l(isLink ? this.download : void 0)}
+        rel=${chunk_GP3HCHHG.l(isLink && this.target ? "noreferrer noopener" : void 0)}
+        role=${chunk_GP3HCHHG.l(isLink ? void 0 : "button")}
+        aria-disabled=${this.disabled ? "true" : "false"}
+        aria-label="${this.label}"
+        tabindex=${this.disabled ? "-1" : "0"}
+        @blur=${this.handleBlur}
+        @focus=${this.handleFocus}
+        @click=${this.handleClick}
+      >
+        <sl-icon
+          class="icon-button__icon"
+          name=${chunk_GP3HCHHG.l(this.name)}
+          library=${chunk_GP3HCHHG.l(this.library)}
+          src=${chunk_GP3HCHHG.l(this.src)}
+          aria-hidden="true"
+        ></sl-icon>
+      </${tag}>
+    `;
   }
-}
+};
+SlIconButton.styles = icon_button_styles_default;
+chunk_GP3HCHHG.__decorateClass([
+  chunk_GP3HCHHG.t$1()
+], SlIconButton.prototype, "hasFocus", 2);
+chunk_GP3HCHHG.__decorateClass([
+  chunk_GP3HCHHG.i2(".icon-button")
+], SlIconButton.prototype, "button", 2);
+chunk_GP3HCHHG.__decorateClass([
+  chunk_GP3HCHHG.e()
+], SlIconButton.prototype, "name", 2);
+chunk_GP3HCHHG.__decorateClass([
+  chunk_GP3HCHHG.e()
+], SlIconButton.prototype, "library", 2);
+chunk_GP3HCHHG.__decorateClass([
+  chunk_GP3HCHHG.e()
+], SlIconButton.prototype, "src", 2);
+chunk_GP3HCHHG.__decorateClass([
+  chunk_GP3HCHHG.e()
+], SlIconButton.prototype, "href", 2);
+chunk_GP3HCHHG.__decorateClass([
+  chunk_GP3HCHHG.e()
+], SlIconButton.prototype, "target", 2);
+chunk_GP3HCHHG.__decorateClass([
+  chunk_GP3HCHHG.e()
+], SlIconButton.prototype, "download", 2);
+chunk_GP3HCHHG.__decorateClass([
+  chunk_GP3HCHHG.e()
+], SlIconButton.prototype, "label", 2);
+chunk_GP3HCHHG.__decorateClass([
+  chunk_GP3HCHHG.e({ type: Boolean, reflect: true })
+], SlIconButton.prototype, "disabled", 2);
+SlIconButton = chunk_GP3HCHHG.__decorateClass([
+  chunk_GP3HCHHG.n("sl-icon-button")
+], SlIconButton);
 
-export { LocalizeController2 as L, stopAnimations as a, animateTo as b, getTabbableBoundary as c, lockBodyScrolling as d, scrollIntoView as e, focusVisibleSelector as f, getAnimation as g, hasFocusVisible as h, l, n, parseDuration as p, setDefaultAnimation as s, unlockBodyScrolling as u };
+exports.LocalizeController2 = LocalizeController2;
+exports.animateTo = animateTo;
+exports.focusVisibleSelector = focusVisibleSelector;
+exports.getAnimation = getAnimation;
+exports.hasFocusVisible = hasFocusVisible;
+exports.l = l;
+exports.n = n;
+exports.parseDuration = parseDuration;
+exports.setDefaultAnimation = setDefaultAnimation;
+exports.stopAnimations = stopAnimations;

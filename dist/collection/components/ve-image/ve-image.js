@@ -8,6 +8,14 @@ import debounce from 'lodash.debounce';
 import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isNum } from '../../utils';
 import { Annotator } from './annotator';
 import { parseInt } from 'lodash';
+import '@shoelace-style/shoelace/dist/components/badge/badge.js';
+import '@shoelace-style/shoelace/dist/components/drawer/drawer.js';
+import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js';
+import '@shoelace-style/shoelace/dist/components/icon/icon.js';
+import '@shoelace-style/shoelace/dist/components/image-comparer/image-comparer.js';
+import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js';
+import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
+setBasePath(location.port === '3333' ? '' : '/web-components/');
 export class ImageViewer {
   constructor() {
     this.user = null;

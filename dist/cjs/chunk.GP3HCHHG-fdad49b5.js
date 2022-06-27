@@ -42,65 +42,6 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 
-// src/internal/slot.ts
-var HasSlotController = class {
-  constructor(host, ...slotNames) {
-    this.slotNames = [];
-    (this.host = host).addController(this);
-    this.slotNames = slotNames;
-    this.handleSlotChange = this.handleSlotChange.bind(this);
-  }
-  hasDefaultSlot() {
-    return [...this.host.childNodes].some((node) => {
-      if (node.nodeType === node.TEXT_NODE && node.textContent.trim() !== "") {
-        return true;
-      }
-      if (node.nodeType === node.ELEMENT_NODE) {
-        const el = node;
-        const tagName = el.tagName.toLowerCase();
-        if (tagName === "sl-visually-hidden") {
-          return false;
-        }
-        if (!el.hasAttribute("slot")) {
-          return true;
-        }
-      }
-      return false;
-    });
-  }
-  hasNamedSlot(name) {
-    return this.host.querySelector(`:scope > [slot="${name}"]`) !== null;
-  }
-  test(slotName) {
-    return slotName === "[default]" ? this.hasDefaultSlot() : this.hasNamedSlot(slotName);
-  }
-  hostConnected() {
-    this.host.shadowRoot.addEventListener("slotchange", this.handleSlotChange);
-  }
-  hostDisconnected() {
-    this.host.shadowRoot.removeEventListener("slotchange", this.handleSlotChange);
-  }
-  handleSlotChange(event) {
-    const slot = event.target;
-    if (this.slotNames.includes("[default]") && !slot.name || slot.name && this.slotNames.includes(slot.name)) {
-      this.host.requestUpdate();
-    }
-  }
-};
-function getTextContent(slot) {
-  if (!slot) {
-    return "";
-  }
-  const nodes = slot.assignedNodes({ flatten: true });
-  let text = "";
-  [...nodes].forEach((node) => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      text += node.textContent;
-    }
-  });
-  return text;
-}
-
 // node_modules/lit-html/directive.js
 var t$2 = { ATTRIBUTE: 1, CHILD: 2, PROPERTY: 3, BOOLEAN_ATTRIBUTE: 4, EVENT: 5, ELEMENT: 6 };
 var e$2 = (t2) => (...e2) => ({ _$litDirective$: t2, values: e2 });
@@ -1212,7 +1153,6 @@ SlIcon = __decorateClass([
  */
 
 exports.$ = $;
-exports.HasSlotController = HasSlotController;
 exports.__decorateClass = __decorateClass;
 exports.__objRest = __objRest;
 exports.__spreadProps = __spreadProps;
@@ -1222,7 +1162,6 @@ exports.component_styles_default = component_styles_default;
 exports.e = e;
 exports.e$1 = e$2;
 exports.emit = emit;
-exports.getTextContent = getTextContent;
 exports.i = i$2;
 exports.i2 = i2;
 exports.l = l;
@@ -1232,8 +1171,8 @@ exports.o$1 = o$2;
 exports.r = r;
 exports.s4 = s4;
 exports.setBasePath = setBasePath;
-exports.t = t;
-exports.t$1 = t$2;
+exports.t = t$2;
+exports.t$1 = t;
 exports.w = w;
 exports.waitForEvent = waitForEvent;
 exports.watch = watch;

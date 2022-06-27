@@ -5,10 +5,9 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
     <link rel="stylesheet" href="/build/visual-essays.css" />
-    <!--
-    <link href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.76/dist/themes/light.css" rel="stylesheet"/>
-    <script src="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.73/dist/shoelace.js" type="module"></script>
-    -->
+    <link href="https://api.visual-essays.net/static/v2/css/main.css" rel="stylesheet" />
+    <link href="https://api.visual-essays.net/static/v2/css/default-theme.css" rel="stylesheet" />
+    <link href="https://api.visual-essays.net/static/v2/css/default-layout.css" rel="stylesheet" />
     <script type="module" src="/build/visual-essays.esm.js"></script>
     <script nomodule src="/build/visual-essays.js"></script>
   </head>
@@ -16,24 +15,91 @@
     
     <main>
       <ve-header 
-        label="Kent Maps Online"
-        background="gh:kent-map/images/Kent_Maps.jpg"
-        sticky="true"
-        contact="ron.snyder@ithaka.org"
-        >
+        label="Visual Essays Web Components"
+        subtitle="Demo"
+        background="wc:Zelfportret_met_strohoed_-_s0164V1962_-_Van_Gogh_Museum.jpg"
+        options="pct:0,21.5,80,20"
+        position="center"
+        contact="some.one@example.com"
+        sticky
+      >
         <ul>
           <li><a href="/">Home</a></li>
           <li><a href="/about">About</a></li>
           <li>Contact Us</li>
         </ul>
       </ve-header>
-
-      <!-- 
-      <ve-search cx = '0a5115e988de8e8a9' filters = '16c:16c,17c:17c,18c:18c,19c:19c,20c:20c,21c:21c,austen:Jane Austen,canterbury:Canterbury,churches:Churches,dickens:Dickens' icon tooltip = "Click to search the site"></ve-search>
-      <ve-search cx = '0a5115e988de8e8a9' icon tooltip = "Click to search the site"></ve-search> 
-      -->
-
-      <div style="height:100vh"></div>
+  
+      <section>
+        <h1>Visual Essays Web Components</h1>
+        <p>
+          This page demonstrates the use of a few web components from the <b>visual-essays</b> NPM package.
+          <ul>
+            <li><a href="#ve-header">ve-header</a></li>
+            <li><a href="#ve-image">ve-image</a></li>
+            <li><a href="#ve-footer">ve-footer</a></li>
+          </ul>
+        </p>
+  
+        <section id="ve-header">
+          <h2>ve-header</h2>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et 
+            dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip 
+            ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
+            fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt 
+            mollit anim id est laborum.
+          </p>
+        </section>
+  
+        <section id="ve-image">
+          <h2>ve-image</h2>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et 
+            dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip 
+            ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
+            fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt 
+            mollit anim id est laborum.
+          </p>
+          <ve-image sticky src="wc:Zelfportret_met_strohoed_-_s0164V1962_-_Van_Gogh_Museum.jpg"></ve-image>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et 
+            dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip 
+            ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
+            fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt 
+            mollit anim id est laborum.
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et 
+            dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip 
+            ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
+            fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt 
+            mollit anim id est laborum.
+          </p>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et 
+            dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip 
+            ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
+            fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt 
+            mollit anim id est laborum.
+          </p>
+        </section>
+  
+        <section id="ve-footer">
+          <h2>ve-footer</h2>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et 
+            dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip 
+            ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu 
+            fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt 
+            mollit anim id est laborum.
+          </p>
+        </section>
+  
+      </section>
+  
+      <ve-footer contact="some.one@example.com" style="background:#C0AB8C;"></ve-footer>
+  
     </main>
 
   </body>

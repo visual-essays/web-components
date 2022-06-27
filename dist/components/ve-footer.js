@@ -1,8 +1,12 @@
 import { proxyCustomElement, HTMLElement, h } from '@stencil/core/internal/client';
+import { a as setBasePath } from './chunk.GP3HCHHG.js';
+import './chunk.COG46KYT.js';
+import './chunk.H262HIXG.js';
 import { d as defineCustomElement$2 } from './ve-contact2.js';
 
 const veFooterCss = "*{box-sizing:border-box}:host{font-family:Roboto, sans-serif;z-index:100}.container{clear:both;display:flex;padding:3px 12px;align-items:center;gap:12px;width:100%;background-color:inherit;}.container a{text-decoration:none}.logo{height:20px}.contact{display:flex;align-items:center;gap:6px;cursor:pointer}.push{margin-left:auto}.contact-dialog::part(body){display:flex;flex-direction:column;padding:24px;gap:16px}";
 
+setBasePath(location.port === '3333' ? '' : '/web-components/');
 const Footer = /*@__PURE__*/ proxyCustomElement(class extends HTMLElement {
   constructor() {
     super();

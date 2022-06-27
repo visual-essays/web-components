@@ -1,6 +1,7 @@
 import { r as registerInstance, h, g as getElement } from './index-82518b18.js';
-import { g as getManifest, t as thumbnail, l as label } from './utils-e37b1a9e.js';
-import { r, c as component_styles_default, b as __decorateClass, s as s4, H as HasSlotController, $, o, n, v as setBasePath } from './chunk.GP3HCHHG-518fd269.js';
+import { g as getManifest, t as thumbnail, d as label } from './utils-4f3263de.js';
+import { r, c as component_styles_default, _ as __decorateClass, s as s4, $, o, n, k as setBasePath } from './chunk.GP3HCHHG-7c73cbfd.js';
+import { H as HasSlotController } from './chunk.3IYPB6RR-015e6daf.js';
 import './openseadragon-2626d5b4.js';
 
 // src/components/card/card.styles.ts
@@ -107,7 +108,7 @@ SlCard = __decorateClass([
 
 const veCardCss = ":host{font-family:Roboto, sans-serif}.card-overview{max-width:200px}.label{font-size:1em;line-height:1.1em;font-weight:bold;padding-bottom:12px}.description{font-size:.8em;line-height:1.1em}";
 
-setBasePath('https://visual-essays.github.io/web-components/www');
+setBasePath(location.port === '3333' ? '' : '/web-components/');
 const Card = class {
   constructor(hostRef) {
     registerInstance(this, hostRef);

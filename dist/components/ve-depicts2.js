@@ -1,5 +1,11 @@
 import { proxyCustomElement, HTMLElement, createEvent, h } from '@stencil/core/internal/client';
 import { g as getManifest, s as sha256, i as imageInfo, a as getDepictedEntities, b as getEntityData, l as label, c as summary, t as thumbnail, d as source, e as sourceId } from './utils.js';
+import './chunk.BQLXYG6H.js';
+import { a as setBasePath } from './chunk.GP3HCHHG.js';
+import './chunk.H262HIXG.js';
+import './chunk.COG46KYT.js';
+import './chunk.Q6VLS7NX.js';
+import './chunk.RP2CLKS2.js';
 import { d as defineCustomElement$2 } from './ve-wikidata-search2.js';
 
 const veDepictsDialogCss = ":host{font-family:Roboto, sans-serif}.wrapper{max-height:40vh;min-height:20vh;overflow-y:scroll}h4{margin:0 0 3px 0;font-size:1.2rem;font-weight:600}.card{max-height:200px}.card-body{padding:0.5rem;max-height:200px;overflow-y:scroll}.card-img{max-height:200px;object-fit:contain}.card-text{font-size:0.9rem;overflow-y:scroll}.depicted-entities{padding:0;list-style:none;overflow-y:scroll}.depicted-entities li{display:flex;align-items:center;justify-content:center;gap:18px}.depicted-entities li>*{flex:1;text-align:center;padding:6px 0}.header{border-bottom:2px solid black}div.label{text-align:left;min-width:30%}.controls{display:flex;align-items:center;justify-content:right;gap:18px}.controls button{cursor:pointer}.control label{margin-bottom:0}.depicts{padding:9px}.depicts .entities ul{margin:0;padding-left:6px;list-style-type:none}.depicts .entities ul li{display:grid;grid-auto-flow:column;align-items:center}.depicts .entities .controls{display:flex;justify-content:right}.depicts .entities .controls label{padding-left:6px;font-family:\"Helvetica Narrow\",\"Arial Narrow\",Tahoma,Arial,Helvetica,sans-serif}.buttons{display:grid;grid-auto-flow:column;justify-content:end;grid-column-gap:12px}";
@@ -201,6 +207,7 @@ function defineCustomElement$1() {
 
 const veDepictsCss = ":host{font-family:Roboto, sans-serif}*{box-sizing:border-box}.depicted-entities ul{margin:12px 0 0 0}.cards ul{padding:12px;list-style:none}.cards li{padding:6px}.card{display:flex;align-items:center;gap:12px}.card img{max-width:80px;box-shadow:0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)}.card div{display:flex;flex-direction:column;align-self:flex-start;gap:6px}.card div{display:flex;flex-direction:column;align-self:flex-start;gap:6px}.card .label{text-decoration:none;font-size:1.1em;font-weight:bold;color:black}.card .label:hover{text-decoration:underline}ul.depicted-entities.table{padding:0;list-style:none;overflow-y:scroll}.depicted-entities.table li{display:flex;align-items:center;justify-content:center;gap:18px}.depicted-entities.table li>*{flex:1;text-align:center;padding:6px 0}.header{border-bottom:2px solid black}.depicted-entities.table .header div.label{text-align:center;min-width:30%}.depicted-entities.table div.label{text-align:left;min-width:30%}.controls{display:flex;align-items:center;justify-content:right;gap:18px}.controls button{cursor:pointer}.control label{margin-bottom:0}";
 
+setBasePath(location.port === '3333' ? '' : '/web-components/');
 const Depicts = /*@__PURE__*/ proxyCustomElement(class extends HTMLElement {
   constructor() {
     super();

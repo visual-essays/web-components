@@ -4,7 +4,8 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 const index = require('./index-5f005592.js');
 const utils = require('./utils-37a145e2.js');
-const chunk_GP3HCHHG = require('./chunk.GP3HCHHG-3254b6af.js');
+const chunk_GP3HCHHG = require('./chunk.GP3HCHHG-fdad49b5.js');
+const chunk_3IYPB6RR = require('./chunk.3IYPB6RR-e2a8903b.js');
 require('./openseadragon-d6a5fb09.js');
 
 // src/components/card/card.styles.ts
@@ -72,7 +73,7 @@ var card_styles_default = chunk_GP3HCHHG.r`
 var SlCard = class extends chunk_GP3HCHHG.s4 {
   constructor() {
     super(...arguments);
-    this.hasSlotController = new chunk_GP3HCHHG.HasSlotController(this, "footer", "header", "image");
+    this.hasSlotController = new chunk_3IYPB6RR.HasSlotController(this, "footer", "header", "image");
   }
   render() {
     return chunk_GP3HCHHG.$`
@@ -111,7 +112,7 @@ SlCard = chunk_GP3HCHHG.__decorateClass([
 
 const veCardCss = ":host{font-family:Roboto, sans-serif}.card-overview{max-width:200px}.label{font-size:1em;line-height:1.1em;font-weight:bold;padding-bottom:12px}.description{font-size:.8em;line-height:1.1em}";
 
-chunk_GP3HCHHG.setBasePath('https://visual-essays.github.io/web-components/www');
+chunk_GP3HCHHG.setBasePath(location.port === '3333' ? '' : '/web-components/');
 const Card = class {
   constructor(hostRef) {
     index.registerInstance(this, hostRef);

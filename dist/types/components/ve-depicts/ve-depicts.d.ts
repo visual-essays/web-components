@@ -1,4 +1,6 @@
 import { EventEmitter } from '../../stencil-public-runtime';
+import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js';
+import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js';
 export declare class Depicts {
   manifest: string;
   depicted: any[];

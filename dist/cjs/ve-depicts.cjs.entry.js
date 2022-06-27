@@ -4,10 +4,14 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 const index = require('./index-5f005592.js');
 const utils = require('./utils-37a145e2.js');
+require('./chunk.KO3SJXDW-0d70a765.js');
+const chunk_GP3HCHHG = require('./chunk.GP3HCHHG-fdad49b5.js');
+require('./chunk.COG46KYT-c6ea5d41.js');
 require('./openseadragon-d6a5fb09.js');
 
 const veDepictsCss = ":host{font-family:Roboto, sans-serif}*{box-sizing:border-box}.depicted-entities ul{margin:12px 0 0 0}.cards ul{padding:12px;list-style:none}.cards li{padding:6px}.card{display:flex;align-items:center;gap:12px}.card img{max-width:80px;box-shadow:0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)}.card div{display:flex;flex-direction:column;align-self:flex-start;gap:6px}.card div{display:flex;flex-direction:column;align-self:flex-start;gap:6px}.card .label{text-decoration:none;font-size:1.1em;font-weight:bold;color:black}.card .label:hover{text-decoration:underline}ul.depicted-entities.table{padding:0;list-style:none;overflow-y:scroll}.depicted-entities.table li{display:flex;align-items:center;justify-content:center;gap:18px}.depicted-entities.table li>*{flex:1;text-align:center;padding:6px 0}.header{border-bottom:2px solid black}.depicted-entities.table .header div.label{text-align:center;min-width:30%}.depicted-entities.table div.label{text-align:left;min-width:30%}.controls{display:flex;align-items:center;justify-content:right;gap:18px}.controls button{cursor:pointer}.control label{margin-bottom:0}";
 
+chunk_GP3HCHHG.setBasePath(location.port === '3333' ? '' : '/web-components/');
 const Depicts = class {
   constructor(hostRef) {
     index.registerInstance(this, hostRef);

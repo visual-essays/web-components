@@ -1,4 +1,6 @@
 import { EventEmitter } from '../../stencil-public-runtime';
+import '@shoelace-style/shoelace/dist/components/button/button.js';
+import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
 export declare class DepictsDialog {
   show: boolean;
   depicted: any[];

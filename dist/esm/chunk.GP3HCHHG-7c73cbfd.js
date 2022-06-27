@@ -40,65 +40,6 @@ var __decorateClass = (decorators, target, key, kind) => {
   return result;
 };
 
-// src/internal/slot.ts
-var HasSlotController = class {
-  constructor(host, ...slotNames) {
-    this.slotNames = [];
-    (this.host = host).addController(this);
-    this.slotNames = slotNames;
-    this.handleSlotChange = this.handleSlotChange.bind(this);
-  }
-  hasDefaultSlot() {
-    return [...this.host.childNodes].some((node) => {
-      if (node.nodeType === node.TEXT_NODE && node.textContent.trim() !== "") {
-        return true;
-      }
-      if (node.nodeType === node.ELEMENT_NODE) {
-        const el = node;
-        const tagName = el.tagName.toLowerCase();
-        if (tagName === "sl-visually-hidden") {
-          return false;
-        }
-        if (!el.hasAttribute("slot")) {
-          return true;
-        }
-      }
-      return false;
-    });
-  }
-  hasNamedSlot(name) {
-    return this.host.querySelector(`:scope > [slot="${name}"]`) !== null;
-  }
-  test(slotName) {
-    return slotName === "[default]" ? this.hasDefaultSlot() : this.hasNamedSlot(slotName);
-  }
-  hostConnected() {
-    this.host.shadowRoot.addEventListener("slotchange", this.handleSlotChange);
-  }
-  hostDisconnected() {
-    this.host.shadowRoot.removeEventListener("slotchange", this.handleSlotChange);
-  }
-  handleSlotChange(event) {
-    const slot = event.target;
-    if (this.slotNames.includes("[default]") && !slot.name || slot.name && this.slotNames.includes(slot.name)) {
-      this.host.requestUpdate();
-    }
-  }
-};
-function getTextContent(slot) {
-  if (!slot) {
-    return "";
-  }
-  const nodes = slot.assignedNodes({ flatten: true });
-  let text = "";
-  [...nodes].forEach((node) => {
-    if (node.nodeType === Node.TEXT_NODE) {
-      text += node.textContent;
-    }
-  });
-  return text;
-}
-
 // node_modules/lit-html/directive.js
 var t$2 = { ATTRIBUTE: 1, CHILD: 2, PROPERTY: 3, BOOLEAN_ATTRIBUTE: 4, EVENT: 5, ELEMENT: 6 };
 var e$2 = (t2) => (...e2) => ({ _$litDirective$: t2, values: e2 });
@@ -1209,4 +1150,4 @@ SlIcon = __decorateClass([
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-export { $, HasSlotController as H, __spreadProps as _, __spreadValues as a, __decorateClass as b, component_styles_default as c, waitForEvent as d, e, emit as f, o$2 as g, e$2 as h, i2 as i, i$2 as j, t$2 as k, l, b as m, n, o$1 as o, w as p, __objRest as q, r, s4 as s, t, getTextContent as u, setBasePath as v, watch as w };
+export { $, __decorateClass as _, waitForEvent as a, emit as b, component_styles_default as c, e$2 as d, e, i$2 as f, b as g, w as h, i2 as i, t as j, setBasePath as k, l, __spreadProps as m, n, o$1 as o, __spreadValues as p, o$2 as q, r, s4 as s, t$2 as t, __objRest as u, watch as w };

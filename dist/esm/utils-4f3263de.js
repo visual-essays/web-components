@@ -1481,4 +1481,4 @@ function thumbnail(manifest) {
   }
 }
 
-export { imageDataUrl as a, parseRegionString as b, isNum as c, loadManifests as d, getDepictedEntities as e, getEntityData as f, getManifest as g, summary as h, imageInfo as i, source as j, sourceId as k, label as l, parseImageOptions as p, sha256 as s, thumbnail as t };
+export { imageDataUrl as a, parseRegionString as b, isNum as c, label as d, getDepictedEntities as e, getEntityData as f, getManifest as g, summary as h, imageInfo as i, source as j, sourceId as k, loadManifests as l, parseImageOptions as p, sha256 as s, thumbnail as t };

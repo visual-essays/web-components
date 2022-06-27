@@ -1,6 +1,9 @@
 import { proxyCustomElement, HTMLElement, h } from '@stencil/core/internal/client';
-import { s as setDefaultAnimation, L as LocalizeController2, a as stopAnimations, g as getAnimation, b as animateTo, f as focusVisibleSelector, l as l$1, n as n$1, c as getTabbableBoundary, d as lockBodyScrolling, u as unlockBodyScrolling, F as FormSubmitController } from './chunk.H262HIXG.js';
-import { r as r$1, c as component_styles_default, _ as __decorateClass, w as watch, i as i2, e, n, s as s4, H as HasSlotController, b as waitForEvent, d as emit, $, o, t, l as l$2, f as e$1, g as i, h as t$1, j as b, k as w } from './chunk.GP3HCHHG.js';
+import { s as setDefaultAnimation, L as LocalizeController2, a as stopAnimations, g as getAnimation, b as animateTo } from './chunk.H262HIXG.js';
+import { r as r$1, c as component_styles_default, _ as __decorateClass, w as watch, i as i2, e, n, s as s4, H as HasSlotController, b as waitForEvent, d as emit, $, o, f as e$1, g as i, t, h as b, j as w, k as t$1, l as l$1, a as setBasePath } from './chunk.GP3HCHHG.js';
+import './chunk.BQLXYG6H.js';
+import { F as FormSubmitController } from './chunk.Q6VLS7NX.js';
+import './chunk.RP2CLKS2.js';
 
 // src/components/alert/alert.styles.ts
 var alert_styles_default = r$1`
@@ -262,528 +265,6 @@ setDefaultAnimation("alert.hide", {
     { opacity: 0, transform: "scale(0.8)" }
   ],
   options: { duration: 250, easing: "ease" }
-});
-
-// src/components/icon-button/icon-button.styles.ts
-var icon_button_styles_default = r$1`
-  ${component_styles_default}
-
-  :host {
-    display: inline-block;
-  }
-
-  .icon-button {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    background: none;
-    border: none;
-    border-radius: var(--sl-border-radius-medium);
-    font-size: inherit;
-    color: var(--sl-color-neutral-600);
-    padding: var(--sl-spacing-x-small);
-    cursor: pointer;
-    transition: var(--sl-transition-medium) color;
-    -webkit-appearance: none;
-  }
-
-  .icon-button:hover:not(.icon-button--disabled),
-  .icon-button:focus:not(.icon-button--disabled) {
-    color: var(--sl-color-primary-600);
-  }
-
-  .icon-button:active:not(.icon-button--disabled) {
-    color: var(--sl-color-primary-700);
-  }
-
-  .icon-button:focus {
-    outline: none;
-  }
-
-  .icon-button--disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .icon-button${focusVisibleSelector} {
-    outline: var(--sl-focus-ring);
-    outline-offset: var(--sl-focus-ring-offset);
-  }
-
-  .icon-button__icon {
-    pointer-events: none;
-  }
-`;
-
-// src/components/icon-button/icon-button.ts
-var SlIconButton = class extends s4 {
-  constructor() {
-    super(...arguments);
-    this.hasFocus = false;
-    this.label = "";
-    this.disabled = false;
-  }
-  click() {
-    this.button.click();
-  }
-  focus(options) {
-    this.button.focus(options);
-  }
-  blur() {
-    this.button.blur();
-  }
-  handleBlur() {
-    this.hasFocus = false;
-    emit(this, "sl-blur");
-  }
-  handleFocus() {
-    this.hasFocus = true;
-    emit(this, "sl-focus");
-  }
-  handleClick(event) {
-    if (this.disabled) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-  }
-  render() {
-    const isLink = this.href ? true : false;
-    const tag = isLink ? l$1`a` : l$1`button`;
-    return n$1`
-      <${tag}
-        part="base"
-        class=${o({
-      "icon-button": true,
-      "icon-button--disabled": !isLink && this.disabled,
-      "icon-button--focused": this.hasFocus
-    })}
-        ?disabled=${l$2(isLink ? void 0 : this.disabled)}
-        type=${l$2(isLink ? void 0 : "button")}
-        href=${l$2(isLink ? this.href : void 0)}
-        target=${l$2(isLink ? this.target : void 0)}
-        download=${l$2(isLink ? this.download : void 0)}
-        rel=${l$2(isLink && this.target ? "noreferrer noopener" : void 0)}
-        role=${l$2(isLink ? void 0 : "button")}
-        aria-disabled=${this.disabled ? "true" : "false"}
-        aria-label="${this.label}"
-        tabindex=${this.disabled ? "-1" : "0"}
-        @blur=${this.handleBlur}
-        @focus=${this.handleFocus}
-        @click=${this.handleClick}
-      >
-        <sl-icon
-          class="icon-button__icon"
-          name=${l$2(this.name)}
-          library=${l$2(this.library)}
-          src=${l$2(this.src)}
-          aria-hidden="true"
-        ></sl-icon>
-      </${tag}>
-    `;
-  }
-};
-SlIconButton.styles = icon_button_styles_default;
-__decorateClass([
-  t()
-], SlIconButton.prototype, "hasFocus", 2);
-__decorateClass([
-  i2(".icon-button")
-], SlIconButton.prototype, "button", 2);
-__decorateClass([
-  e()
-], SlIconButton.prototype, "name", 2);
-__decorateClass([
-  e()
-], SlIconButton.prototype, "library", 2);
-__decorateClass([
-  e()
-], SlIconButton.prototype, "src", 2);
-__decorateClass([
-  e()
-], SlIconButton.prototype, "href", 2);
-__decorateClass([
-  e()
-], SlIconButton.prototype, "target", 2);
-__decorateClass([
-  e()
-], SlIconButton.prototype, "download", 2);
-__decorateClass([
-  e()
-], SlIconButton.prototype, "label", 2);
-__decorateClass([
-  e({ type: Boolean, reflect: true })
-], SlIconButton.prototype, "disabled", 2);
-SlIconButton = __decorateClass([
-  n("sl-icon-button")
-], SlIconButton);
-
-// src/internal/modal.ts
-var activeModals = [];
-var Modal = class {
-  constructor(element) {
-    this.tabDirection = "forward";
-    this.element = element;
-    this.handleFocusIn = this.handleFocusIn.bind(this);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
-    this.handleKeyUp = this.handleKeyUp.bind(this);
-  }
-  activate() {
-    activeModals.push(this.element);
-    document.addEventListener("focusin", this.handleFocusIn);
-    document.addEventListener("keydown", this.handleKeyDown);
-    document.addEventListener("keyup", this.handleKeyUp);
-  }
-  deactivate() {
-    activeModals = activeModals.filter((modal) => modal !== this.element);
-    document.removeEventListener("focusin", this.handleFocusIn);
-    document.removeEventListener("keydown", this.handleKeyDown);
-    document.removeEventListener("keyup", this.handleKeyUp);
-  }
-  isActive() {
-    return activeModals[activeModals.length - 1] === this.element;
-  }
-  checkFocus() {
-    if (this.isActive()) {
-      if (!this.element.matches(":focus-within")) {
-        const { start, end } = getTabbableBoundary(this.element);
-        const target = this.tabDirection === "forward" ? start : end;
-        if (typeof (target == null ? void 0 : target.focus) === "function") {
-          target.focus({ preventScroll: true });
-        }
-      }
-    }
-  }
-  handleFocusIn() {
-    this.checkFocus();
-  }
-  handleKeyDown(event) {
-    if (event.key === "Tab" && event.shiftKey) {
-      this.tabDirection = "backward";
-    }
-    requestAnimationFrame(() => this.checkFocus());
-  }
-  handleKeyUp() {
-    this.tabDirection = "forward";
-  }
-};
-
-// src/components/dialog/dialog.styles.ts
-var dialog_styles_default = r$1`
-  ${component_styles_default}
-
-  :host {
-    --width: 31rem;
-    --header-spacing: var(--sl-spacing-large);
-    --body-spacing: var(--sl-spacing-large);
-    --footer-spacing: var(--sl-spacing-large);
-
-    display: contents;
-  }
-
-  .dialog {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    z-index: var(--sl-z-index-dialog);
-  }
-
-  .dialog__panel {
-    display: flex;
-    flex-direction: column;
-    z-index: 2;
-    width: var(--width);
-    max-width: calc(100% - var(--sl-spacing-2x-large));
-    max-height: calc(100% - var(--sl-spacing-2x-large));
-    background-color: var(--sl-panel-background-color);
-    border-radius: var(--sl-border-radius-medium);
-    box-shadow: var(--sl-shadow-x-large);
-  }
-
-  .dialog__panel:focus {
-    outline: none;
-  }
-
-  /* Ensure there's enough vertical padding for phones that don't update vh when chrome appears (e.g. iPhone) */
-  @media screen and (max-width: 420px) {
-    .dialog__panel {
-      max-height: 80vh;
-    }
-  }
-
-  .dialog--open .dialog__panel {
-    display: flex;
-    opacity: 1;
-    transform: none;
-  }
-
-  .dialog__header {
-    flex: 0 0 auto;
-    display: flex;
-  }
-
-  .dialog__title {
-    flex: 1 1 auto;
-    font: inherit;
-    font-size: var(--sl-font-size-large);
-    line-height: var(--sl-line-height-dense);
-    padding: var(--header-spacing);
-    margin: 0;
-  }
-
-  .dialog__close {
-    flex: 0 0 auto;
-    display: flex;
-    align-items: center;
-    font-size: var(--sl-font-size-x-large);
-    padding: 0 var(--header-spacing);
-  }
-
-  .dialog__body {
-    flex: 1 1 auto;
-    padding: var(--body-spacing);
-    overflow: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .dialog__footer {
-    flex: 0 0 auto;
-    text-align: right;
-    padding: var(--footer-spacing);
-  }
-
-  .dialog__footer ::slotted(sl-button:not(:first-of-type)) {
-    margin-inline-start: var(--sl-spacing-x-small);
-  }
-
-  .dialog:not(.dialog--has-footer) .dialog__footer {
-    display: none;
-  }
-
-  .dialog__overlay {
-    position: fixed;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    background-color: var(--sl-overlay-background-color);
-  }
-`;
-
-// src/components/dialog/dialog.ts
-var SlDialog = class extends s4 {
-  constructor() {
-    super(...arguments);
-    this.hasSlotController = new HasSlotController(this, "footer");
-    this.localize = new LocalizeController2(this);
-    this.open = false;
-    this.label = "";
-    this.noHeader = false;
-  }
-  connectedCallback() {
-    super.connectedCallback();
-    this.modal = new Modal(this);
-  }
-  firstUpdated() {
-    this.dialog.hidden = !this.open;
-    if (this.open) {
-      this.modal.activate();
-      lockBodyScrolling(this);
-    }
-  }
-  disconnectedCallback() {
-    super.disconnectedCallback();
-    unlockBodyScrolling(this);
-  }
-  async show() {
-    if (this.open) {
-      return void 0;
-    }
-    this.open = true;
-    return waitForEvent(this, "sl-after-show");
-  }
-  async hide() {
-    if (!this.open) {
-      return void 0;
-    }
-    this.open = false;
-    return waitForEvent(this, "sl-after-hide");
-  }
-  requestClose(source) {
-    const slRequestClose = emit(this, "sl-request-close", {
-      cancelable: true,
-      detail: { source }
-    });
-    if (slRequestClose.defaultPrevented) {
-      const animation = getAnimation(this, "dialog.denyClose", { dir: this.localize.dir() });
-      animateTo(this.panel, animation.keyframes, animation.options);
-      return;
-    }
-    this.hide();
-  }
-  handleKeyDown(event) {
-    if (event.key === "Escape") {
-      event.stopPropagation();
-      this.requestClose("keyboard");
-    }
-  }
-  async handleOpenChange() {
-    if (this.open) {
-      emit(this, "sl-show");
-      this.originalTrigger = document.activeElement;
-      this.modal.activate();
-      lockBodyScrolling(this);
-      const autoFocusTarget = this.querySelector("[autofocus]");
-      if (autoFocusTarget) {
-        autoFocusTarget.removeAttribute("autofocus");
-      }
-      await Promise.all([stopAnimations(this.dialog), stopAnimations(this.overlay)]);
-      this.dialog.hidden = false;
-      requestAnimationFrame(() => {
-        const slInitialFocus = emit(this, "sl-initial-focus", { cancelable: true });
-        if (!slInitialFocus.defaultPrevented) {
-          if (autoFocusTarget) {
-            autoFocusTarget.focus({ preventScroll: true });
-          } else {
-            this.panel.focus({ preventScroll: true });
-          }
-        }
-        if (autoFocusTarget) {
-          autoFocusTarget.setAttribute("autofocus", "");
-        }
-      });
-      const panelAnimation = getAnimation(this, "dialog.show", { dir: this.localize.dir() });
-      const overlayAnimation = getAnimation(this, "dialog.overlay.show", { dir: this.localize.dir() });
-      await Promise.all([
-        animateTo(this.panel, panelAnimation.keyframes, panelAnimation.options),
-        animateTo(this.overlay, overlayAnimation.keyframes, overlayAnimation.options)
-      ]);
-      emit(this, "sl-after-show");
-    } else {
-      emit(this, "sl-hide");
-      this.modal.deactivate();
-      await Promise.all([stopAnimations(this.dialog), stopAnimations(this.overlay)]);
-      const panelAnimation = getAnimation(this, "dialog.hide", { dir: this.localize.dir() });
-      const overlayAnimation = getAnimation(this, "dialog.overlay.hide", { dir: this.localize.dir() });
-      await Promise.all([
-        animateTo(this.panel, panelAnimation.keyframes, panelAnimation.options),
-        animateTo(this.overlay, overlayAnimation.keyframes, overlayAnimation.options)
-      ]);
-      this.dialog.hidden = true;
-      unlockBodyScrolling(this);
-      const trigger = this.originalTrigger;
-      if (typeof (trigger == null ? void 0 : trigger.focus) === "function") {
-        setTimeout(() => trigger.focus());
-      }
-      emit(this, "sl-after-hide");
-    }
-  }
-  render() {
-    return $`
-      <div
-        part="base"
-        class=${o({
-      dialog: true,
-      "dialog--open": this.open,
-      "dialog--has-footer": this.hasSlotController.test("footer")
-    })}
-        @keydown=${this.handleKeyDown}
-      >
-        <div part="overlay" class="dialog__overlay" @click=${() => this.requestClose("overlay")} tabindex="-1"></div>
-
-        <div
-          part="panel"
-          class="dialog__panel"
-          role="dialog"
-          aria-modal="true"
-          aria-hidden=${this.open ? "false" : "true"}
-          aria-label=${l$2(this.noHeader ? this.label : void 0)}
-          aria-labelledby=${l$2(!this.noHeader ? "title" : void 0)}
-          tabindex="0"
-        >
-          ${!this.noHeader ? $`
-                <header part="header" class="dialog__header">
-                  <h2 part="title" class="dialog__title" id="title">
-                    <slot name="label"> ${this.label.length > 0 ? this.label : String.fromCharCode(65279)} </slot>
-                  </h2>
-                  <sl-icon-button
-                    part="close-button"
-                    exportparts="base:close-button__base"
-                    class="dialog__close"
-                    name="x"
-                    label=${this.localize.term("close")}
-                    library="system"
-                    @click="${() => this.requestClose("close-button")}"
-                  ></sl-icon-button>
-                </header>
-              ` : ""}
-
-          <div part="body" class="dialog__body">
-            <slot></slot>
-          </div>
-
-          <footer part="footer" class="dialog__footer">
-            <slot name="footer"></slot>
-          </footer>
-        </div>
-      </div>
-    `;
-  }
-};
-SlDialog.styles = dialog_styles_default;
-__decorateClass([
-  i2(".dialog")
-], SlDialog.prototype, "dialog", 2);
-__decorateClass([
-  i2(".dialog__panel")
-], SlDialog.prototype, "panel", 2);
-__decorateClass([
-  i2(".dialog__overlay")
-], SlDialog.prototype, "overlay", 2);
-__decorateClass([
-  e({ type: Boolean, reflect: true })
-], SlDialog.prototype, "open", 2);
-__decorateClass([
-  e({ reflect: true })
-], SlDialog.prototype, "label", 2);
-__decorateClass([
-  e({ attribute: "no-header", type: Boolean, reflect: true })
-], SlDialog.prototype, "noHeader", 2);
-__decorateClass([
-  watch("open", { waitUntilFirstUpdate: true })
-], SlDialog.prototype, "handleOpenChange", 1);
-SlDialog = __decorateClass([
-  n("sl-dialog")
-], SlDialog);
-setDefaultAnimation("dialog.show", {
-  keyframes: [
-    { opacity: 0, transform: "scale(0.8)" },
-    { opacity: 1, transform: "scale(1)" }
-  ],
-  options: { duration: 250, easing: "ease" }
-});
-setDefaultAnimation("dialog.hide", {
-  keyframes: [
-    { opacity: 1, transform: "scale(1)" },
-    { opacity: 0, transform: "scale(0.8)" }
-  ],
-  options: { duration: 250, easing: "ease" }
-});
-setDefaultAnimation("dialog.denyClose", {
-  keyframes: [{ transform: "scale(1)" }, { transform: "scale(1.02)" }, { transform: "scale(1)" }],
-  options: { duration: 250 }
-});
-setDefaultAnimation("dialog.overlay.show", {
-  keyframes: [{ opacity: 0 }, { opacity: 1 }],
-  options: { duration: 250 }
-});
-setDefaultAnimation("dialog.overlay.hide", {
-  keyframes: [{ opacity: 1 }, { opacity: 0 }],
-  options: { duration: 250 }
 });
 
 // src/styles/form-control.styles.ts
@@ -1126,7 +607,7 @@ var s = (o, i3 = f) => o._$AH = i3;
 // node_modules/lit-html/directives/live.js
 var l = e$1(class extends i {
   constructor(r2) {
-    if (super(r2), r2.type !== t$1.PROPERTY && r2.type !== t$1.ATTRIBUTE && r2.type !== t$1.BOOLEAN_ATTRIBUTE)
+    if (super(r2), r2.type !== t.PROPERTY && r2.type !== t.ATTRIBUTE && r2.type !== t.BOOLEAN_ATTRIBUTE)
       throw Error("The `live` directive is not allowed on child or event bindings");
     if (!r(r2))
       throw Error("`live` bindings can only contain a single expression");
@@ -1138,13 +619,13 @@ var l = e$1(class extends i {
     if (t2 === b || t2 === w)
       return t2;
     const o = i3.element, l2 = i3.name;
-    if (i3.type === t$1.PROPERTY) {
+    if (i3.type === t.PROPERTY) {
       if (t2 === o[l2])
         return b;
-    } else if (i3.type === t$1.BOOLEAN_ATTRIBUTE) {
+    } else if (i3.type === t.BOOLEAN_ATTRIBUTE) {
       if (!!t2 === o.hasAttribute(l2))
         return b;
-    } else if (i3.type === t$1.ATTRIBUTE && o.getAttribute(l2) === t2 + "")
+    } else if (i3.type === t.ATTRIBUTE && o.getAttribute(l2) === t2 + "")
       return b;
     return s(i3), t2;
   }
@@ -1324,25 +805,25 @@ var SlInput = class extends s4 {
               id="input"
               class="input__control"
               type=${this.type === "password" && this.isPasswordVisible ? "text" : this.type}
-              name=${l$2(this.name)}
+              name=${l$1(this.name)}
               ?disabled=${this.disabled}
               ?readonly=${this.readonly}
               ?required=${this.required}
-              placeholder=${l$2(this.placeholder)}
-              minlength=${l$2(this.minlength)}
-              maxlength=${l$2(this.maxlength)}
-              min=${l$2(this.min)}
-              max=${l$2(this.max)}
-              step=${l$2(this.step)}
+              placeholder=${l$1(this.placeholder)}
+              minlength=${l$1(this.minlength)}
+              maxlength=${l$1(this.maxlength)}
+              min=${l$1(this.min)}
+              max=${l$1(this.max)}
+              step=${l$1(this.step)}
               .value=${l(this.value)}
-              autocapitalize=${l$2(this.autocapitalize)}
-              autocomplete=${l$2(this.autocomplete)}
-              autocorrect=${l$2(this.autocorrect)}
+              autocapitalize=${l$1(this.autocapitalize)}
+              autocomplete=${l$1(this.autocomplete)}
+              autocorrect=${l$1(this.autocorrect)}
               ?autofocus=${this.autofocus}
-              spellcheck=${l$2(this.spellcheck)}
-              pattern=${l$2(this.pattern)}
-              enterkeyhint=${l$2(this.enterkeyhint)}
-              inputmode=${l$2(this.inputmode)}
+              spellcheck=${l$1(this.spellcheck)}
+              pattern=${l$1(this.pattern)}
+              enterkeyhint=${l$1(this.enterkeyhint)}
+              inputmode=${l$1(this.inputmode)}
               aria-describedby="help-text"
               aria-invalid=${this.invalid ? "true" : "false"}
               @change=${this.handleChange}
@@ -1411,10 +892,10 @@ __decorateClass([
   i2(".input__control")
 ], SlInput.prototype, "input", 2);
 __decorateClass([
-  t()
+  t$1()
 ], SlInput.prototype, "hasFocus", 2);
 __decorateClass([
-  t()
+  t$1()
 ], SlInput.prototype, "isPasswordVisible", 2);
 __decorateClass([
   e({ reflect: true })
@@ -1840,21 +1321,21 @@ var SlTextarea = class extends s4 {
               part="textarea"
               id="input"
               class="textarea__control"
-              name=${l$2(this.name)}
+              name=${l$1(this.name)}
               .value=${l(this.value)}
               ?disabled=${this.disabled}
               ?readonly=${this.readonly}
               ?required=${this.required}
-              placeholder=${l$2(this.placeholder)}
-              rows=${l$2(this.rows)}
-              minlength=${l$2(this.minlength)}
-              maxlength=${l$2(this.maxlength)}
-              autocapitalize=${l$2(this.autocapitalize)}
-              autocorrect=${l$2(this.autocorrect)}
+              placeholder=${l$1(this.placeholder)}
+              rows=${l$1(this.rows)}
+              minlength=${l$1(this.minlength)}
+              maxlength=${l$1(this.maxlength)}
+              autocapitalize=${l$1(this.autocapitalize)}
+              autocorrect=${l$1(this.autocorrect)}
               ?autofocus=${this.autofocus}
-              spellcheck=${l$2(this.spellcheck)}
-              enterkeyhint=${l$2(this.enterkeyhint)}
-              inputmode=${l$2(this.inputmode)}
+              spellcheck=${l$1(this.spellcheck)}
+              enterkeyhint=${l$1(this.enterkeyhint)}
+              inputmode=${l$1(this.inputmode)}
               aria-describedby="help-text"
               @change=${this.handleChange}
               @input=${this.handleInput}
@@ -1881,7 +1362,7 @@ __decorateClass([
   i2(".textarea__control")
 ], SlTextarea.prototype, "input", 2);
 __decorateClass([
-  t()
+  t$1()
 ], SlTextarea.prototype, "hasFocus", 2);
 __decorateClass([
   e({ reflect: true })
@@ -1964,8 +1445,7 @@ SlTextarea = __decorateClass([
 
 const veContactCss = ":host{z-index:2}#message{margin-top:24px}";
 
-// import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
-// setBasePath('https://visual-essays.github.io/web-components/www')
+setBasePath(location.port === '3333' ? '' : '/web-components/');
 const emailAddressRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 const Header = /*@__PURE__*/ proxyCustomElement(class extends HTMLElement {
   constructor() {

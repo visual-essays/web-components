@@ -1,4 +1,6 @@
 import { Component, Element, Event, Listen, Prop, State, h, Watch } from '@stencil/core';
+import '@shoelace-style/shoelace/dist/components/button/button.js';
+import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
 export class DepictsDialog {
   constructor() {
     this.show = false;

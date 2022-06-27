@@ -1,5 +1,9 @@
 import { Component, Element, Event, Prop, State, h, Watch, Method } from '@stencil/core';
 import { getManifest, imageInfo, getDepictedEntities, getEntityData, sha256, label, summary, thumbnail, source, sourceId } from '../../utils';
+import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js';
+import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js';
+import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
+setBasePath(location.port === '3333' ? '' : '/web-components/');
 export class Depicts {
   constructor() {
     this.depicted = [];

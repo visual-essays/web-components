@@ -1,19 +1,2249 @@
-'use strict';
+import { r as registerInstance, h, g as getElement } from './index-82518b18.js';
+import { s as setDefaultAnimation, L as LocalizeController2, a as stopAnimations, g as getAnimation, b as animateTo, h as hasFocusVisible, f as focusVisibleSelector } from './chunk.KO3SJXDW-cd62c3e7.js';
+import { H as HasSlotController, g as getTextContent } from './chunk.3IYPB6RR-015e6daf.js';
+import { r as r$2, c as component_styles_default, _ as __decorateClass, w as watch, i as i2$1, e as e$1, n as n$1, s as s4, a as waitForEvent, b as emit, $, o as o$1, d as e$2, f as i, t as t$1, g as b, h as w, j as t$2, l as l$1, k as setBasePath } from './chunk.GP3HCHHG-7c73cbfd.js';
+import { F as FormSubmitController, s as scrollIntoView, g as getTabbableBoundary, M as Modal, l as lockBodyScrolling, u as unlockBodyScrolling } from './chunk.RP2CLKS2-0789c3eb.js';
+import { N, z, T, b as b$1, D, k } from './chunk.COG46KYT-74ee6aa7.js';
+import { i as imageInfo, a as imageDataUrl, p as parseImageOptions, g as getManifest, s as sha256, b as parseRegionString, c as isNum, l as loadManifests } from './utils-4f3263de.js';
+import { c as createCommonjsModule, o as openseadragon, g as getDefaultExportFromCjs, a as commonjsGlobal } from './openseadragon-2626d5b4.js';
+import { o as openseadragonAnnotorious_min } from './openseadragon-annotorious.min-8d37bfc0.js';
 
-Object.defineProperty(exports, '__esModule', { value: true });
+// src/components/alert/alert.styles.ts
+var alert_styles_default = r$2`
+  ${component_styles_default}
 
-const index = require('./index-5f005592.js');
-const openseadragon = require('./openseadragon-d6a5fb09.js');
-const utils = require('./utils-37a145e2.js');
-const openseadragonAnnotorious_min = require('./openseadragon-annotorious.min-afb8098c.js');
+  :host {
+    display: contents;
 
-var openseadragonViewerinputhook = openseadragon.createCommonjsModule(function (module, exports) {
+    /* For better DX, we'll reset the margin here so the base part can inherit it */
+    margin: 0;
+  }
+
+  .alert {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    background-color: var(--sl-panel-background-color);
+    border: solid var(--sl-panel-border-width) var(--sl-panel-border-color);
+    border-top-width: calc(var(--sl-panel-border-width) * 3);
+    border-radius: var(--sl-border-radius-medium);
+    box-shadow: var(--box-shadow);
+    font-family: var(--sl-font-sans);
+    font-size: var(--sl-font-size-small);
+    font-weight: var(--sl-font-weight-normal);
+    line-height: 1.6;
+    color: var(--sl-color-neutral-700);
+    margin: inherit;
+  }
+
+  .alert:not(.alert--has-icon) .alert__icon,
+  .alert:not(.alert--closable) .alert__close-button {
+    display: none;
+  }
+
+  .alert__icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    font-size: var(--sl-font-size-large);
+    padding-inline-start: var(--sl-spacing-large);
+  }
+
+  .alert--primary {
+    border-top-color: var(--sl-color-primary-600);
+  }
+
+  .alert--primary .alert__icon {
+    color: var(--sl-color-primary-600);
+  }
+
+  .alert--success {
+    border-top-color: var(--sl-color-success-600);
+  }
+
+  .alert--success .alert__icon {
+    color: var(--sl-color-success-600);
+  }
+
+  .alert--neutral {
+    border-top-color: var(--sl-color-neutral-600);
+  }
+
+  .alert--neutral .alert__icon {
+    color: var(--sl-color-neutral-600);
+  }
+
+  .alert--warning {
+    border-top-color: var(--sl-color-warning-600);
+  }
+
+  .alert--warning .alert__icon {
+    color: var(--sl-color-warning-600);
+  }
+
+  .alert--danger {
+    border-top-color: var(--sl-color-danger-600);
+  }
+
+  .alert--danger .alert__icon {
+    color: var(--sl-color-danger-600);
+  }
+
+  .alert__message {
+    flex: 1 1 auto;
+    padding: var(--sl-spacing-large);
+    overflow: hidden;
+  }
+
+  .alert__close-button {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    font-size: var(--sl-font-size-large);
+    padding-inline-end: var(--sl-spacing-medium);
+  }
+`;
+
+// src/components/alert/alert.ts
+var toastStack = Object.assign(document.createElement("div"), { className: "sl-toast-stack" });
+var SlAlert = class extends s4 {
+  constructor() {
+    super(...arguments);
+    this.hasSlotController = new HasSlotController(this, "icon", "suffix");
+    this.localize = new LocalizeController2(this);
+    this.open = false;
+    this.closable = false;
+    this.variant = "primary";
+    this.duration = Infinity;
+  }
+  firstUpdated() {
+    this.base.hidden = !this.open;
+  }
+  async show() {
+    if (this.open) {
+      return void 0;
+    }
+    this.open = true;
+    return waitForEvent(this, "sl-after-show");
+  }
+  async hide() {
+    if (!this.open) {
+      return void 0;
+    }
+    this.open = false;
+    return waitForEvent(this, "sl-after-hide");
+  }
+  async toast() {
+    return new Promise((resolve) => {
+      if (toastStack.parentElement === null) {
+        document.body.append(toastStack);
+      }
+      toastStack.appendChild(this);
+      requestAnimationFrame(() => {
+        this.show();
+      });
+      this.addEventListener("sl-after-hide", () => {
+        toastStack.removeChild(this);
+        resolve();
+        if (toastStack.querySelector("sl-alert") === null) {
+          toastStack.remove();
+        }
+      }, { once: true });
+    });
+  }
+  restartAutoHide() {
+    clearTimeout(this.autoHideTimeout);
+    if (this.open && this.duration < Infinity) {
+      this.autoHideTimeout = window.setTimeout(() => this.hide(), this.duration);
+    }
+  }
+  handleCloseClick() {
+    this.hide();
+  }
+  handleMouseMove() {
+    this.restartAutoHide();
+  }
+  async handleOpenChange() {
+    if (this.open) {
+      emit(this, "sl-show");
+      if (this.duration < Infinity) {
+        this.restartAutoHide();
+      }
+      await stopAnimations(this.base);
+      this.base.hidden = false;
+      const { keyframes, options } = getAnimation(this, "alert.show", { dir: this.localize.dir() });
+      await animateTo(this.base, keyframes, options);
+      emit(this, "sl-after-show");
+    } else {
+      emit(this, "sl-hide");
+      clearTimeout(this.autoHideTimeout);
+      await stopAnimations(this.base);
+      const { keyframes, options } = getAnimation(this, "alert.hide", { dir: this.localize.dir() });
+      await animateTo(this.base, keyframes, options);
+      this.base.hidden = true;
+      emit(this, "sl-after-hide");
+    }
+  }
+  handleDurationChange() {
+    this.restartAutoHide();
+  }
+  render() {
+    return $`
+      <div
+        part="base"
+        class=${o$1({
+      alert: true,
+      "alert--open": this.open,
+      "alert--closable": this.closable,
+      "alert--has-icon": this.hasSlotController.test("icon"),
+      "alert--primary": this.variant === "primary",
+      "alert--success": this.variant === "success",
+      "alert--neutral": this.variant === "neutral",
+      "alert--warning": this.variant === "warning",
+      "alert--danger": this.variant === "danger"
+    })}
+        role="alert"
+        aria-live="assertive"
+        aria-atomic="true"
+        aria-hidden=${this.open ? "false" : "true"}
+        @mousemove=${this.handleMouseMove}
+      >
+        <span part="icon" class="alert__icon">
+          <slot name="icon"></slot>
+        </span>
+
+        <span part="message" class="alert__message">
+          <slot></slot>
+        </span>
+
+        ${this.closable ? $`
+              <sl-icon-button
+                part="close-button"
+                exportparts="base:close-button__base"
+                class="alert__close-button"
+                name="x"
+                library="system"
+                @click=${this.handleCloseClick}
+              ></sl-icon-button>
+            ` : ""}
+      </div>
+    `;
+  }
+};
+SlAlert.styles = alert_styles_default;
+__decorateClass([
+  i2$1('[part="base"]')
+], SlAlert.prototype, "base", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlAlert.prototype, "open", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlAlert.prototype, "closable", 2);
+__decorateClass([
+  e$1({ reflect: true })
+], SlAlert.prototype, "variant", 2);
+__decorateClass([
+  e$1({ type: Number })
+], SlAlert.prototype, "duration", 2);
+__decorateClass([
+  watch("open", { waitUntilFirstUpdate: true })
+], SlAlert.prototype, "handleOpenChange", 1);
+__decorateClass([
+  watch("duration")
+], SlAlert.prototype, "handleDurationChange", 1);
+SlAlert = __decorateClass([
+  n$1("sl-alert")
+], SlAlert);
+setDefaultAnimation("alert.show", {
+  keyframes: [
+    { opacity: 0, transform: "scale(0.8)" },
+    { opacity: 1, transform: "scale(1)" }
+  ],
+  options: { duration: 250, easing: "ease" }
+});
+setDefaultAnimation("alert.hide", {
+  keyframes: [
+    { opacity: 1, transform: "scale(1)" },
+    { opacity: 0, transform: "scale(0.8)" }
+  ],
+  options: { duration: 250, easing: "ease" }
+});
+
+// src/styles/form-control.styles.ts
+var form_control_styles_default = r$2`
+  .form-control .form-control__label {
+    display: none;
+  }
+
+  .form-control .form-control__help-text {
+    display: none;
+  }
+
+  /* Label */
+  .form-control--has-label .form-control__label {
+    display: inline-block;
+    color: var(--sl-input-label-color);
+    margin-bottom: var(--sl-spacing-3x-small);
+  }
+
+  .form-control--has-label.form-control--small .form-control__label {
+    font-size: var(--sl-input-label-font-size-small);
+  }
+
+  .form-control--has-label.form-control--medium .form-control__label {
+    font-size: var(--sl-input-label-font-size-medium);
+  }
+
+  .form-control--has-label.form-control--large .form-control_label {
+    font-size: var(--sl-input-label-font-size-large);
+  }
+
+  /* Help text */
+  .form-control--has-help-text .form-control__help-text {
+    display: block;
+    color: var(--sl-input-help-text-color);
+  }
+
+  .form-control--has-help-text .form-control__help-text ::slotted(*) {
+    margin-top: var(--sl-spacing-3x-small);
+  }
+
+  .form-control--has-help-text.form-control--small .form-control__help-text {
+    font-size: var(--sl-input-help-text-font-size-small);
+  }
+
+  .form-control--has-help-text.form-control--medium .form-control__help-text {
+    font-size: var(--sl-input-help-text-font-size-medium);
+  }
+
+  .form-control--has-help-text.form-control--large .form-control__help-text {
+    font-size: var(--sl-input-help-text-font-size-large);
+  }
+`;
+
+// src/components/input/input.styles.ts
+var input_styles_default = r$2`
+  ${component_styles_default}
+  ${form_control_styles_default}
+
+  :host {
+    display: block;
+  }
+
+  .input {
+    flex: 1 1 auto;
+    display: inline-flex;
+    align-items: stretch;
+    justify-content: start;
+    position: relative;
+    width: 100%;
+    font-family: var(--sl-input-font-family);
+    font-weight: var(--sl-input-font-weight);
+    letter-spacing: var(--sl-input-letter-spacing);
+    vertical-align: middle;
+    overflow: hidden;
+    cursor: text;
+    transition: var(--sl-transition-fast) color, var(--sl-transition-fast) border, var(--sl-transition-fast) box-shadow,
+      var(--sl-transition-fast) background-color;
+  }
+
+  /* Standard inputs */
+  .input--standard {
+    background-color: var(--sl-input-background-color);
+    border: solid var(--sl-input-border-width) var(--sl-input-border-color);
+  }
+
+  .input--standard:hover:not(.input--disabled) {
+    background-color: var(--sl-input-background-color-hover);
+    border-color: var(--sl-input-border-color-hover);
+  }
+
+  .input--standard.input--focused:not(.input--disabled) {
+    background-color: var(--sl-input-background-color-focus);
+    border-color: var(--sl-input-border-color-focus);
+    box-shadow: 0 0 0 var(--sl-focus-ring-width) var(--sl-input-focus-ring-color);
+  }
+
+  .input--standard.input--focused:not(.input--disabled) .input__control {
+    color: var(--sl-input-color-focus);
+  }
+
+  .input--standard.input--disabled {
+    background-color: var(--sl-input-background-color-disabled);
+    border-color: var(--sl-input-border-color-disabled);
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .input--standard.input--disabled .input__control {
+    color: var(--sl-input-color-disabled);
+  }
+
+  .input--standard.input--disabled .input__control::placeholder {
+    color: var(--sl-input-placeholder-color-disabled);
+  }
+
+  /* Filled inputs */
+  .input--filled {
+    border: none;
+    background-color: var(--sl-input-filled-background-color);
+    color: var(--sl-input-color);
+  }
+
+  .input--filled:hover:not(.input--disabled) {
+    background-color: var(--sl-input-filled-background-color-hover);
+  }
+
+  .input--filled.input--focused:not(.input--disabled) {
+    background-color: var(--sl-input-filled-background-color-focus);
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  .input--filled.input--disabled {
+    background-color: var(--sl-input-filled-background-color-disabled);
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .input__control {
+    flex: 1 1 auto;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    min-width: 0;
+    height: 100%;
+    color: var(--sl-input-color);
+    border: none;
+    background: none;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    cursor: inherit;
+    -webkit-appearance: none;
+  }
+
+  .input__control::-webkit-search-decoration,
+  .input__control::-webkit-search-cancel-button,
+  .input__control::-webkit-search-results-button,
+  .input__control::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+  }
+
+  .input__control:-webkit-autofill,
+  .input__control:-webkit-autofill:hover,
+  .input__control:-webkit-autofill:focus,
+  .input__control:-webkit-autofill:active {
+    box-shadow: 0 0 0 var(--sl-input-height-large) var(--sl-input-background-color-hover) inset !important;
+    -webkit-text-fill-color: var(--sl-color-primary-500);
+    caret-color: var(--sl-input-color);
+  }
+
+  .input--filled .input__control:-webkit-autofill,
+  .input--filled .input__control:-webkit-autofill:hover,
+  .input--filled .input__control:-webkit-autofill:focus,
+  .input--filled .input__control:-webkit-autofill:active {
+    box-shadow: 0 0 0 var(--sl-input-height-large) var(--sl-input-filled-background-color) inset !important;
+  }
+
+  .input__control::placeholder {
+    color: var(--sl-input-placeholder-color);
+    user-select: none;
+  }
+
+  .input:hover:not(.input--disabled) .input__control {
+    color: var(--sl-input-color-hover);
+  }
+
+  .input__control:focus {
+    outline: none;
+  }
+
+  .input__prefix,
+  .input__suffix {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    cursor: default;
+  }
+
+  .input__prefix ::slotted(sl-icon),
+  .input__suffix ::slotted(sl-icon) {
+    color: var(--sl-input-icon-color);
+  }
+
+  /*
+   * Size modifiers
+   */
+
+  .input--small {
+    border-radius: var(--sl-input-border-radius-small);
+    font-size: var(--sl-input-font-size-small);
+    height: var(--sl-input-height-small);
+  }
+
+  .input--small .input__control {
+    height: calc(var(--sl-input-height-small) - var(--sl-input-border-width) * 2);
+    padding: 0 var(--sl-input-spacing-small);
+  }
+
+  .input--small .input__clear,
+  .input--small .input__password-toggle {
+    width: calc(1em + var(--sl-input-spacing-small) * 2);
+  }
+
+  .input--small .input__prefix ::slotted(*) {
+    padding-inline-start: var(--sl-input-spacing-small);
+  }
+
+  .input--small .input__suffix ::slotted(*) {
+    padding-inline-end: var(--sl-input-spacing-small);
+  }
+
+  .input--medium {
+    border-radius: var(--sl-input-border-radius-medium);
+    font-size: var(--sl-input-font-size-medium);
+    height: var(--sl-input-height-medium);
+  }
+
+  .input--medium .input__control {
+    height: calc(var(--sl-input-height-medium) - var(--sl-input-border-width) * 2);
+    padding: 0 var(--sl-input-spacing-medium);
+  }
+
+  .input--medium .input__clear,
+  .input--medium .input__password-toggle {
+    width: calc(1em + var(--sl-input-spacing-medium) * 2);
+  }
+
+  .input--medium .input__prefix ::slotted(*) {
+    padding-inline-start: var(--sl-input-spacing-medium);
+  }
+
+  .input--medium .input__suffix ::slotted(*) {
+    padding-inline-end: var(--sl-input-spacing-medium);
+  }
+
+  .input--large {
+    border-radius: var(--sl-input-border-radius-large);
+    font-size: var(--sl-input-font-size-large);
+    height: var(--sl-input-height-large);
+  }
+
+  .input--large .input__control {
+    height: calc(var(--sl-input-height-large) - var(--sl-input-border-width) * 2);
+    padding: 0 var(--sl-input-spacing-large);
+  }
+
+  .input--large .input__clear,
+  .input--large .input__password-toggle {
+    width: calc(1em + var(--sl-input-spacing-large) * 2);
+  }
+
+  .input--large .input__prefix ::slotted(*) {
+    padding-inline-start: var(--sl-input-spacing-large);
+  }
+
+  .input--large .input__suffix ::slotted(*) {
+    padding-inline-end: var(--sl-input-spacing-large);
+  }
+
+  /*
+   * Pill modifier
+   */
+
+  .input--pill.input--small {
+    border-radius: var(--sl-input-height-small);
+  }
+
+  .input--pill.input--medium {
+    border-radius: var(--sl-input-height-medium);
+  }
+
+  .input--pill.input--large {
+    border-radius: var(--sl-input-height-large);
+  }
+
+  /*
+   * Clearable + Password Toggle
+   */
+
+  .input__clear,
+  .input__password-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: inherit;
+    color: var(--sl-input-icon-color);
+    border: none;
+    background: none;
+    padding: 0;
+    transition: var(--sl-transition-fast) color;
+    cursor: pointer;
+  }
+
+  .input__clear:hover,
+  .input__password-toggle:hover {
+    color: var(--sl-input-icon-color-hover);
+  }
+
+  .input__clear:focus,
+  .input__password-toggle:focus {
+    outline: none;
+  }
+
+  .input--empty .input__clear {
+    visibility: hidden;
+  }
+
+  /* Don't show the browser's password toggle in Edge */
+  ::-ms-reveal {
+    display: none;
+  }
+`;
+
+var r$1 = (o) => o.strings === void 0;
+var f = {};
+var s = (o, i3 = f) => o._$AH = i3;
+
+// node_modules/lit-html/directives/live.js
+var l = e$2(class extends i {
+  constructor(r2) {
+    if (super(r2), r2.type !== t$1.PROPERTY && r2.type !== t$1.ATTRIBUTE && r2.type !== t$1.BOOLEAN_ATTRIBUTE)
+      throw Error("The `live` directive is not allowed on child or event bindings");
+    if (!r$1(r2))
+      throw Error("`live` bindings can only contain a single expression");
+  }
+  render(r2) {
+    return r2;
+  }
+  update(i3, [t2]) {
+    if (t2 === b || t2 === w)
+      return t2;
+    const o = i3.element, l2 = i3.name;
+    if (i3.type === t$1.PROPERTY) {
+      if (t2 === o[l2])
+        return b;
+    } else if (i3.type === t$1.BOOLEAN_ATTRIBUTE) {
+      if (!!t2 === o.hasAttribute(l2))
+        return b;
+    } else if (i3.type === t$1.ATTRIBUTE && o.getAttribute(l2) === t2 + "")
+      return b;
+    return s(i3), t2;
+  }
+});
+/**
+ * @license
+ * Copyright 2020 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+// src/components/input/input.ts
+var SlInput = class extends s4 {
+  constructor() {
+    super(...arguments);
+    this.formSubmitController = new FormSubmitController(this);
+    this.hasSlotController = new HasSlotController(this, "help-text", "label");
+    this.localize = new LocalizeController2(this);
+    this.hasFocus = false;
+    this.isPasswordVisible = false;
+    this.type = "text";
+    this.size = "medium";
+    this.value = "";
+    this.filled = false;
+    this.pill = false;
+    this.label = "";
+    this.helpText = "";
+    this.clearable = false;
+    this.togglePassword = false;
+    this.disabled = false;
+    this.readonly = false;
+    this.required = false;
+    this.invalid = false;
+  }
+  get valueAsDate() {
+    var _a, _b;
+    return (_b = (_a = this.input) == null ? void 0 : _a.valueAsDate) != null ? _b : null;
+  }
+  set valueAsDate(newValue) {
+    this.input.valueAsDate = newValue;
+    this.value = this.input.value;
+  }
+  get valueAsNumber() {
+    var _a, _b;
+    return (_b = (_a = this.input) == null ? void 0 : _a.valueAsNumber) != null ? _b : parseFloat(this.value);
+  }
+  set valueAsNumber(newValue) {
+    this.input.valueAsNumber = newValue;
+    this.value = this.input.value;
+  }
+  firstUpdated() {
+    this.invalid = !this.input.checkValidity();
+  }
+  focus(options) {
+    this.input.focus(options);
+  }
+  blur() {
+    this.input.blur();
+  }
+  select() {
+    this.input.select();
+  }
+  setSelectionRange(selectionStart, selectionEnd, selectionDirection = "none") {
+    this.input.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
+  }
+  setRangeText(replacement, start, end, selectMode = "preserve") {
+    this.input.setRangeText(replacement, start, end, selectMode);
+    if (this.value !== this.input.value) {
+      this.value = this.input.value;
+      emit(this, "sl-input");
+      emit(this, "sl-change");
+    }
+  }
+  reportValidity() {
+    return this.input.reportValidity();
+  }
+  setCustomValidity(message) {
+    this.input.setCustomValidity(message);
+    this.invalid = !this.input.checkValidity();
+  }
+  handleBlur() {
+    this.hasFocus = false;
+    emit(this, "sl-blur");
+  }
+  handleChange() {
+    this.value = this.input.value;
+    emit(this, "sl-change");
+  }
+  handleClearClick(event) {
+    this.value = "";
+    emit(this, "sl-clear");
+    emit(this, "sl-input");
+    emit(this, "sl-change");
+    this.input.focus();
+    event.stopPropagation();
+  }
+  handleDisabledChange() {
+    this.input.disabled = this.disabled;
+    this.invalid = !this.input.checkValidity();
+  }
+  handleFocus() {
+    this.hasFocus = true;
+    emit(this, "sl-focus");
+  }
+  handleInput() {
+    this.value = this.input.value;
+    emit(this, "sl-input");
+  }
+  handleInvalid() {
+    this.invalid = true;
+  }
+  handleKeyDown(event) {
+    const hasModifier = event.metaKey || event.ctrlKey || event.shiftKey || event.altKey;
+    if (event.key === "Enter" && !hasModifier) {
+      setTimeout(() => {
+        if (!event.defaultPrevented) {
+          this.formSubmitController.submit();
+        }
+      });
+    }
+  }
+  handlePasswordToggle() {
+    this.isPasswordVisible = !this.isPasswordVisible;
+  }
+  handleValueChange() {
+    this.invalid = !this.input.checkValidity();
+  }
+  render() {
+    const hasLabelSlot = this.hasSlotController.test("label");
+    const hasHelpTextSlot = this.hasSlotController.test("help-text");
+    const hasLabel = this.label ? true : !!hasLabelSlot;
+    const hasHelpText = this.helpText ? true : !!hasHelpTextSlot;
+    const hasClearIcon = this.clearable && !this.disabled && !this.readonly && this.value.length > 0;
+    return $`
+      <div
+        part="form-control"
+        class=${o$1({
+      "form-control": true,
+      "form-control--small": this.size === "small",
+      "form-control--medium": this.size === "medium",
+      "form-control--large": this.size === "large",
+      "form-control--has-label": hasLabel,
+      "form-control--has-help-text": hasHelpText
+    })}
+      >
+        <label
+          part="form-control-label"
+          class="form-control__label"
+          for="input"
+          aria-hidden=${hasLabel ? "false" : "true"}
+        >
+          <slot name="label">${this.label}</slot>
+        </label>
+
+        <div part="form-control-input" class="form-control-input">
+          <div
+            part="base"
+            class=${o$1({
+      input: true,
+      "input--small": this.size === "small",
+      "input--medium": this.size === "medium",
+      "input--large": this.size === "large",
+      "input--pill": this.pill,
+      "input--standard": !this.filled,
+      "input--filled": this.filled,
+      "input--disabled": this.disabled,
+      "input--focused": this.hasFocus,
+      "input--empty": !this.value,
+      "input--invalid": this.invalid
+    })}
+          >
+            <span part="prefix" class="input__prefix">
+              <slot name="prefix"></slot>
+            </span>
+
+            <input
+              part="input"
+              id="input"
+              class="input__control"
+              type=${this.type === "password" && this.isPasswordVisible ? "text" : this.type}
+              name=${l$1(this.name)}
+              ?disabled=${this.disabled}
+              ?readonly=${this.readonly}
+              ?required=${this.required}
+              placeholder=${l$1(this.placeholder)}
+              minlength=${l$1(this.minlength)}
+              maxlength=${l$1(this.maxlength)}
+              min=${l$1(this.min)}
+              max=${l$1(this.max)}
+              step=${l$1(this.step)}
+              .value=${l(this.value)}
+              autocapitalize=${l$1(this.autocapitalize)}
+              autocomplete=${l$1(this.autocomplete)}
+              autocorrect=${l$1(this.autocorrect)}
+              ?autofocus=${this.autofocus}
+              spellcheck=${l$1(this.spellcheck)}
+              pattern=${l$1(this.pattern)}
+              enterkeyhint=${l$1(this.enterkeyhint)}
+              inputmode=${l$1(this.inputmode)}
+              aria-describedby="help-text"
+              aria-invalid=${this.invalid ? "true" : "false"}
+              @change=${this.handleChange}
+              @input=${this.handleInput}
+              @invalid=${this.handleInvalid}
+              @keydown=${this.handleKeyDown}
+              @focus=${this.handleFocus}
+              @blur=${this.handleBlur}
+            />
+
+            ${hasClearIcon ? $`
+                  <button
+                    part="clear-button"
+                    class="input__clear"
+                    type="button"
+                    aria-label=${this.localize.term("clearEntry")}
+                    @click=${this.handleClearClick}
+                    tabindex="-1"
+                  >
+                    <slot name="clear-icon">
+                      <sl-icon name="x-circle-fill" library="system"></sl-icon>
+                    </slot>
+                  </button>
+                ` : ""}
+            ${this.togglePassword && !this.disabled ? $`
+                  <button
+                    part="password-toggle-button"
+                    class="input__password-toggle"
+                    type="button"
+                    aria-label=${this.localize.term(this.isPasswordVisible ? "hidePassword" : "showPassword")}
+                    @click=${this.handlePasswordToggle}
+                    tabindex="-1"
+                  >
+                    ${this.isPasswordVisible ? $`
+                          <slot name="show-password-icon">
+                            <sl-icon name="eye-slash" library="system"></sl-icon>
+                          </slot>
+                        ` : $`
+                          <slot name="hide-password-icon">
+                            <sl-icon name="eye" library="system"></sl-icon>
+                          </slot>
+                        `}
+                  </button>
+                ` : ""}
+
+            <span part="suffix" class="input__suffix">
+              <slot name="suffix"></slot>
+            </span>
+          </div>
+        </div>
+
+        <div
+          part="form-control-help-text"
+          id="help-text"
+          class="form-control__help-text"
+          aria-hidden=${hasHelpText ? "false" : "true"}
+        >
+          <slot name="help-text">${this.helpText}</slot>
+        </div>
+      </div>
+    `;
+  }
+};
+SlInput.styles = input_styles_default;
+__decorateClass([
+  i2$1(".input__control")
+], SlInput.prototype, "input", 2);
+__decorateClass([
+  t$2()
+], SlInput.prototype, "hasFocus", 2);
+__decorateClass([
+  t$2()
+], SlInput.prototype, "isPasswordVisible", 2);
+__decorateClass([
+  e$1({ reflect: true })
+], SlInput.prototype, "type", 2);
+__decorateClass([
+  e$1({ reflect: true })
+], SlInput.prototype, "size", 2);
+__decorateClass([
+  e$1()
+], SlInput.prototype, "name", 2);
+__decorateClass([
+  e$1()
+], SlInput.prototype, "value", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlInput.prototype, "filled", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlInput.prototype, "pill", 2);
+__decorateClass([
+  e$1()
+], SlInput.prototype, "label", 2);
+__decorateClass([
+  e$1({ attribute: "help-text" })
+], SlInput.prototype, "helpText", 2);
+__decorateClass([
+  e$1({ type: Boolean })
+], SlInput.prototype, "clearable", 2);
+__decorateClass([
+  e$1({ attribute: "toggle-password", type: Boolean })
+], SlInput.prototype, "togglePassword", 2);
+__decorateClass([
+  e$1()
+], SlInput.prototype, "placeholder", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlInput.prototype, "disabled", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlInput.prototype, "readonly", 2);
+__decorateClass([
+  e$1({ type: Number })
+], SlInput.prototype, "minlength", 2);
+__decorateClass([
+  e$1({ type: Number })
+], SlInput.prototype, "maxlength", 2);
+__decorateClass([
+  e$1()
+], SlInput.prototype, "min", 2);
+__decorateClass([
+  e$1()
+], SlInput.prototype, "max", 2);
+__decorateClass([
+  e$1({ type: Number })
+], SlInput.prototype, "step", 2);
+__decorateClass([
+  e$1()
+], SlInput.prototype, "pattern", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlInput.prototype, "required", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlInput.prototype, "invalid", 2);
+__decorateClass([
+  e$1()
+], SlInput.prototype, "autocapitalize", 2);
+__decorateClass([
+  e$1()
+], SlInput.prototype, "autocorrect", 2);
+__decorateClass([
+  e$1()
+], SlInput.prototype, "autocomplete", 2);
+__decorateClass([
+  e$1({ type: Boolean })
+], SlInput.prototype, "autofocus", 2);
+__decorateClass([
+  e$1()
+], SlInput.prototype, "enterkeyhint", 2);
+__decorateClass([
+  e$1({ type: Boolean })
+], SlInput.prototype, "spellcheck", 2);
+__decorateClass([
+  e$1()
+], SlInput.prototype, "inputmode", 2);
+__decorateClass([
+  watch("disabled", { waitUntilFirstUpdate: true })
+], SlInput.prototype, "handleDisabledChange", 1);
+__decorateClass([
+  watch("value", { waitUntilFirstUpdate: true })
+], SlInput.prototype, "handleValueChange", 1);
+SlInput = __decorateClass([
+  n$1("sl-input")
+], SlInput);
+
+// src/components/textarea/textarea.styles.ts
+var textarea_styles_default = r$2`
+  ${component_styles_default}
+  ${form_control_styles_default}
+
+  :host {
+    display: block;
+  }
+
+  .textarea {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    font-family: var(--sl-input-font-family);
+    font-weight: var(--sl-input-font-weight);
+    line-height: var(--sl-line-height-normal);
+    letter-spacing: var(--sl-input-letter-spacing);
+    vertical-align: middle;
+    transition: var(--sl-transition-fast) color, var(--sl-transition-fast) border, var(--sl-transition-fast) box-shadow,
+      var(--sl-transition-fast) background-color;
+    cursor: text;
+  }
+
+  /* Standard textareas */
+  .textarea--standard {
+    background-color: var(--sl-input-background-color);
+    border: solid var(--sl-input-border-width) var(--sl-input-border-color);
+  }
+
+  .textarea--standard:hover:not(.textarea--disabled) {
+    background-color: var(--sl-input-background-color-hover);
+    border-color: var(--sl-input-border-color-hover);
+  }
+  .textarea--standard:hover:not(.textarea--disabled) .textarea__control {
+    color: var(--sl-input-color-hover);
+  }
+
+  .textarea--standard.textarea--focused:not(.textarea--disabled) {
+    background-color: var(--sl-input-background-color-focus);
+    border-color: var(--sl-input-border-color-focus);
+    color: var(--sl-input-color-focus);
+    box-shadow: 0 0 0 var(--sl-focus-ring-width) var(--sl-input-focus-ring-color);
+  }
+
+  .textarea--standard.textarea--focused:not(.textarea--disabled) .textarea__control {
+    color: var(--sl-input-color-focus);
+  }
+
+  .textarea--standard.textarea--disabled {
+    background-color: var(--sl-input-background-color-disabled);
+    border-color: var(--sl-input-border-color-disabled);
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .textarea--standard.textarea--disabled .textarea__control {
+    color: var(--sl-input-color-disabled);
+  }
+
+  .textarea--standard.textarea--disabled .textarea__control::placeholder {
+    color: var(--sl-input-placeholder-color-disabled);
+  }
+
+  /* Filled textareas */
+  .textarea--filled {
+    border: none;
+    background-color: var(--sl-input-filled-background-color);
+    color: var(--sl-input-color);
+  }
+
+  .textarea--filled:hover:not(.textarea--disabled) {
+    background-color: var(--sl-input-filled-background-color-hover);
+  }
+
+  .textarea--filled.textarea--focused:not(.textarea--disabled) {
+    background-color: var(--sl-input-filled-background-color-focus);
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+
+  .textarea--filled.textarea--disabled {
+    background-color: var(--sl-input-filled-background-color-disabled);
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .textarea__control {
+    flex: 1 1 auto;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: inherit;
+    line-height: 1.4;
+    color: var(--sl-input-color);
+    border: none;
+    background: none;
+    box-shadow: none;
+    cursor: inherit;
+    -webkit-appearance: none;
+  }
+
+  .textarea__control::-webkit-search-decoration,
+  .textarea__control::-webkit-search-cancel-button,
+  .textarea__control::-webkit-search-results-button,
+  .textarea__control::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+  }
+
+  .textarea__control::placeholder {
+    color: var(--sl-input-placeholder-color);
+    user-select: none;
+  }
+
+  .textarea__control:focus {
+    outline: none;
+  }
+
+  /*
+   * Size modifiers
+   */
+
+  .textarea--small {
+    border-radius: var(--sl-input-border-radius-small);
+    font-size: var(--sl-input-font-size-small);
+  }
+
+  .textarea--small .textarea__control {
+    padding: 0.5em var(--sl-input-spacing-small);
+  }
+
+  .textarea--medium {
+    border-radius: var(--sl-input-border-radius-medium);
+    font-size: var(--sl-input-font-size-medium);
+  }
+
+  .textarea--medium .textarea__control {
+    padding: 0.5em var(--sl-input-spacing-medium);
+  }
+
+  .textarea--large {
+    border-radius: var(--sl-input-border-radius-large);
+    font-size: var(--sl-input-font-size-large);
+  }
+
+  .textarea--large .textarea__control {
+    padding: 0.5em var(--sl-input-spacing-large);
+  }
+
+  /*
+   * Resize types
+   */
+
+  .textarea--resize-none .textarea__control {
+    resize: none;
+  }
+
+  .textarea--resize-vertical .textarea__control {
+    resize: vertical;
+  }
+
+  .textarea--resize-auto .textarea__control {
+    height: auto;
+    resize: none;
+  }
+`;
+
+// src/components/textarea/textarea.ts
+var SlTextarea = class extends s4 {
+  constructor() {
+    super(...arguments);
+    this.formSubmitController = new FormSubmitController(this);
+    this.hasSlotController = new HasSlotController(this, "help-text", "label");
+    this.hasFocus = false;
+    this.size = "medium";
+    this.value = "";
+    this.filled = false;
+    this.label = "";
+    this.helpText = "";
+    this.rows = 4;
+    this.resize = "vertical";
+    this.disabled = false;
+    this.readonly = false;
+    this.required = false;
+    this.invalid = false;
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.resizeObserver = new ResizeObserver(() => this.setTextareaHeight());
+    this.updateComplete.then(() => {
+      this.setTextareaHeight();
+      this.resizeObserver.observe(this.input);
+    });
+  }
+  firstUpdated() {
+    this.invalid = !this.input.checkValidity();
+  }
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.resizeObserver.unobserve(this.input);
+  }
+  focus(options) {
+    this.input.focus(options);
+  }
+  blur() {
+    this.input.blur();
+  }
+  select() {
+    this.input.select();
+  }
+  scrollPosition(position) {
+    if (position) {
+      if (typeof position.top === "number")
+        this.input.scrollTop = position.top;
+      if (typeof position.left === "number")
+        this.input.scrollLeft = position.left;
+      return;
+    }
+    return {
+      top: this.input.scrollTop,
+      left: this.input.scrollTop
+    };
+  }
+  setSelectionRange(selectionStart, selectionEnd, selectionDirection = "none") {
+    this.input.setSelectionRange(selectionStart, selectionEnd, selectionDirection);
+  }
+  setRangeText(replacement, start, end, selectMode = "preserve") {
+    this.input.setRangeText(replacement, start, end, selectMode);
+    if (this.value !== this.input.value) {
+      this.value = this.input.value;
+      emit(this, "sl-input");
+    }
+    if (this.value !== this.input.value) {
+      this.value = this.input.value;
+      this.setTextareaHeight();
+      emit(this, "sl-input");
+      emit(this, "sl-change");
+    }
+  }
+  reportValidity() {
+    return this.input.reportValidity();
+  }
+  setCustomValidity(message) {
+    this.input.setCustomValidity(message);
+    this.invalid = !this.input.checkValidity();
+  }
+  handleBlur() {
+    this.hasFocus = false;
+    emit(this, "sl-blur");
+  }
+  handleChange() {
+    this.value = this.input.value;
+    this.setTextareaHeight();
+    emit(this, "sl-change");
+  }
+  handleDisabledChange() {
+    this.input.disabled = this.disabled;
+    this.invalid = !this.input.checkValidity();
+  }
+  handleFocus() {
+    this.hasFocus = true;
+    emit(this, "sl-focus");
+  }
+  handleInput() {
+    this.value = this.input.value;
+    this.setTextareaHeight();
+    emit(this, "sl-input");
+  }
+  handleRowsChange() {
+    this.setTextareaHeight();
+  }
+  handleValueChange() {
+    this.invalid = !this.input.checkValidity();
+  }
+  setTextareaHeight() {
+    if (this.resize === "auto") {
+      this.input.style.height = "auto";
+      this.input.style.height = `${this.input.scrollHeight}px`;
+    } else {
+      this.input.style.height = void 0;
+    }
+  }
+  render() {
+    const hasLabelSlot = this.hasSlotController.test("label");
+    const hasHelpTextSlot = this.hasSlotController.test("help-text");
+    const hasLabel = this.label ? true : !!hasLabelSlot;
+    const hasHelpText = this.helpText ? true : !!hasHelpTextSlot;
+    return $`
+      <div
+        part="form-control"
+        class=${o$1({
+      "form-control": true,
+      "form-control--small": this.size === "small",
+      "form-control--medium": this.size === "medium",
+      "form-control--large": this.size === "large",
+      "form-control--has-label": hasLabel,
+      "form-control--has-help-text": hasHelpText
+    })}
+      >
+        <label
+          part="form-control-label"
+          class="form-control__label"
+          for="input"
+          aria-hidden=${hasLabel ? "false" : "true"}
+        >
+          <slot name="label">${this.label}</slot>
+        </label>
+
+        <div part="form-control-input" class="form-control-input">
+          <div
+            part="base"
+            class=${o$1({
+      textarea: true,
+      "textarea--small": this.size === "small",
+      "textarea--medium": this.size === "medium",
+      "textarea--large": this.size === "large",
+      "textarea--standard": !this.filled,
+      "textarea--filled": this.filled,
+      "textarea--disabled": this.disabled,
+      "textarea--focused": this.hasFocus,
+      "textarea--empty": !this.value,
+      "textarea--invalid": this.invalid,
+      "textarea--resize-none": this.resize === "none",
+      "textarea--resize-vertical": this.resize === "vertical",
+      "textarea--resize-auto": this.resize === "auto"
+    })}
+          >
+            <textarea
+              part="textarea"
+              id="input"
+              class="textarea__control"
+              name=${l$1(this.name)}
+              .value=${l(this.value)}
+              ?disabled=${this.disabled}
+              ?readonly=${this.readonly}
+              ?required=${this.required}
+              placeholder=${l$1(this.placeholder)}
+              rows=${l$1(this.rows)}
+              minlength=${l$1(this.minlength)}
+              maxlength=${l$1(this.maxlength)}
+              autocapitalize=${l$1(this.autocapitalize)}
+              autocorrect=${l$1(this.autocorrect)}
+              ?autofocus=${this.autofocus}
+              spellcheck=${l$1(this.spellcheck)}
+              enterkeyhint=${l$1(this.enterkeyhint)}
+              inputmode=${l$1(this.inputmode)}
+              aria-describedby="help-text"
+              @change=${this.handleChange}
+              @input=${this.handleInput}
+              @focus=${this.handleFocus}
+              @blur=${this.handleBlur}
+            ></textarea>
+          </div>
+        </div>
+
+        <div
+          part="form-control-help-text"
+          id="help-text"
+          class="form-control__help-text"
+          aria-hidden=${hasHelpText ? "false" : "true"}
+        >
+          <slot name="help-text">${this.helpText}</slot>
+        </div>
+      </div>
+    `;
+  }
+};
+SlTextarea.styles = textarea_styles_default;
+__decorateClass([
+  i2$1(".textarea__control")
+], SlTextarea.prototype, "input", 2);
+__decorateClass([
+  t$2()
+], SlTextarea.prototype, "hasFocus", 2);
+__decorateClass([
+  e$1({ reflect: true })
+], SlTextarea.prototype, "size", 2);
+__decorateClass([
+  e$1()
+], SlTextarea.prototype, "name", 2);
+__decorateClass([
+  e$1()
+], SlTextarea.prototype, "value", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlTextarea.prototype, "filled", 2);
+__decorateClass([
+  e$1()
+], SlTextarea.prototype, "label", 2);
+__decorateClass([
+  e$1({ attribute: "help-text" })
+], SlTextarea.prototype, "helpText", 2);
+__decorateClass([
+  e$1()
+], SlTextarea.prototype, "placeholder", 2);
+__decorateClass([
+  e$1({ type: Number })
+], SlTextarea.prototype, "rows", 2);
+__decorateClass([
+  e$1()
+], SlTextarea.prototype, "resize", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlTextarea.prototype, "disabled", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlTextarea.prototype, "readonly", 2);
+__decorateClass([
+  e$1({ type: Number })
+], SlTextarea.prototype, "minlength", 2);
+__decorateClass([
+  e$1({ type: Number })
+], SlTextarea.prototype, "maxlength", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlTextarea.prototype, "required", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlTextarea.prototype, "invalid", 2);
+__decorateClass([
+  e$1()
+], SlTextarea.prototype, "autocapitalize", 2);
+__decorateClass([
+  e$1()
+], SlTextarea.prototype, "autocorrect", 2);
+__decorateClass([
+  e$1()
+], SlTextarea.prototype, "autocomplete", 2);
+__decorateClass([
+  e$1({ type: Boolean })
+], SlTextarea.prototype, "autofocus", 2);
+__decorateClass([
+  e$1()
+], SlTextarea.prototype, "enterkeyhint", 2);
+__decorateClass([
+  e$1({ type: Boolean })
+], SlTextarea.prototype, "spellcheck", 2);
+__decorateClass([
+  e$1()
+], SlTextarea.prototype, "inputmode", 2);
+__decorateClass([
+  watch("disabled", { waitUntilFirstUpdate: true })
+], SlTextarea.prototype, "handleDisabledChange", 1);
+__decorateClass([
+  watch("rows", { waitUntilFirstUpdate: true })
+], SlTextarea.prototype, "handleRowsChange", 1);
+__decorateClass([
+  watch("value", { waitUntilFirstUpdate: true })
+], SlTextarea.prototype, "handleValueChange", 1);
+SlTextarea = __decorateClass([
+  n$1("sl-textarea")
+], SlTextarea);
+
+const veContactCss = ":host{z-index:2}#message{margin-top:24px}";
+
+setBasePath(location.port === '3333' ? '' : '/web-components/');
+const emailAddressRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+const Header$1 = class {
+  constructor(hostRef) {
+    registerInstance(this, hostRef);
+    this.show = false;
+  }
+  showChanged() {
+    console.log(`show=${this.show}`);
+    if (this.show)
+      this.showContactForm();
+    else
+      this.hideContactForm();
+  }
+  componentDidLoad() {
+    this.contactDialog = this.el.shadowRoot.querySelector('.contact-dialog');
+    this.from = this.el.shadowRoot.getElementById('from');
+    this.message = this.el.shadowRoot.getElementById('message');
+    this.emailAlert = this.el.shadowRoot.getElementById('bad-email-alert');
+    this.noMessageAlert = this.el.shadowRoot.getElementById('no-message-alert');
+    this.contactDialog.addEventListener('sl-hide', () => this.show = false);
+    if (this.show)
+      this.showContactForm();
+  }
+  hideContactForm() {
+    this.contactDialog.hide();
+    this.from.value = '';
+    this.message.value = '';
+    this.emailAlert.hide();
+    this.noMessageAlert.hide();
+  }
+  showContactForm() {
+    console.log('showContactForm');
+    this.contactDialog.show();
+  }
+  async sendmail() {
+    let emailIsValid = emailAddressRegex.test(this.from.value);
+    if (emailIsValid)
+      this.emailAlert.hide();
+    else
+      this.emailAlert.show();
+    let messageIsValid = this.message.value.trim().length > 0;
+    if (messageIsValid)
+      this.noMessageAlert.hide();
+    else
+      this.noMessageAlert.show();
+    if (emailIsValid && messageIsValid) {
+      let body = {
+        to: this.contact,
+        from: this.from.value,
+        subject: 'Contact Us',
+        message: this.message.value
+      };
+      this.hideContactForm();
+      let resp = await fetch('https://api.visual-essays.net/sendmail/', {
+        method: 'POST', body: JSON.stringify(body)
+      });
+      if (resp.ok)
+        console.log(await resp.json());
+    }
+  }
+  render() {
+    return [
+      h("sl-dialog", { label: "Contact Us", class: "contact-dialog" }, h("sl-input", { id: "from", autofocus: true, type: "email", label: "Email address" }), h("sl-alert", { id: "bad-email-alert", variant: "danger" }, h("sl-icon", { slot: "icon", name: "exclamation-octagon" }), h("strong", null, "Invalid email address"), h("br", null), "Please fix and resubmit"), h("sl-textarea", { id: "message", label: "Message" }), h("sl-alert", { id: "no-message-alert", variant: "danger" }, h("sl-icon", { slot: "icon", name: "exclamation-octagon" }), h("strong", null, "No message entered"), h("br", null)), h("sl-button", { id: "cancel", slot: "footer", onClick: this.hideContactForm.bind(this) }, "Cancel"), h("sl-button", { slot: "footer", variant: "primary", onClick: this.sendmail.bind(this) }, "Submit"))
+    ];
+  }
+  get el() { return getElement(this); }
+  static get watchers() { return {
+    "show": ["showChanged"]
+  }; }
+};
+Header$1.style = veContactCss;
+
+const veFooterCss = "*{box-sizing:border-box}:host{font-family:Roboto, sans-serif;z-index:100}.container{clear:both;display:flex;padding:3px 12px;align-items:center;gap:12px;width:100%;background-color:inherit;}.container a{text-decoration:none}.logo{height:20px}.contact{display:flex;align-items:center;gap:6px;cursor:pointer}.push{margin-left:auto}.contact-dialog::part(body){display:flex;flex-direction:column;padding:24px;gap:16px}";
+
+setBasePath(location.port === '3333' ? '' : '/web-components/');
+const Footer = class {
+  constructor(hostRef) {
+    registerInstance(this, hostRef);
+  }
+  componentWillLoad() {
+    if (this.sticky) {
+      this.el.style.position = 'fixed';
+      this.el.style.bottom = '0';
+      // this.el.style.left = '0'
+      this.el.style.width = `${this.el.parentElement.clientWidth}px`;
+    }
+  }
+  showContactForm() {
+    let contactDialog = this.el.querySelector('ve-contact');
+    contactDialog.show = !contactDialog.show;
+  }
+  render() {
+    return [
+      h("section", { class: "container" }, h("a", { href: "https://visual-essays.net", target: "_blank" }, h("img", { class: "logo", src: "https://visual-essays.github.io/content/static/images/favicon.svg", alt: "Logo" })), h("a", { href: "https://visual-essays.net", target: "_blank" }, "visual-essays.net"), h("div", { class: "contact push", onClick: this.showContactForm.bind(this) }, h("sl-tooltip", { content: "Contact us" }, h("sl-icon", { name: "envelope", label: "Contact us" })))),
+      h("ve-contact", { contact: this.contact })
+    ];
+  }
+  get el() { return getElement(this); }
+};
+Footer.style = veFooterCss;
+
+// src/components/dropdown/dropdown.styles.ts
+var dropdown_styles_default = r$2`
+  ${component_styles_default}
+
+  :host {
+    display: inline-block;
+  }
+
+  .dropdown {
+    position: relative;
+  }
+
+  .dropdown__trigger {
+    display: block;
+  }
+
+  .dropdown__positioner {
+    position: absolute;
+    z-index: var(--sl-z-index-dropdown);
+  }
+
+  .dropdown__panel {
+    font-family: var(--sl-font-sans);
+    font-size: var(--sl-font-size-medium);
+    font-weight: var(--sl-font-weight-normal);
+    color: var(--color);
+    box-shadow: var(--sl-shadow-large);
+    overflow: auto;
+    overscroll-behavior: none;
+    pointer-events: none;
+  }
+
+  .dropdown--open .dropdown__panel {
+    pointer-events: all;
+  }
+
+  .dropdown__positioner[data-placement^='top'] .dropdown__panel {
+    transform-origin: bottom;
+  }
+
+  .dropdown__positioner[data-placement^='bottom'] .dropdown__panel {
+    transform-origin: top;
+  }
+
+  .dropdown__positioner[data-placement^='left'] .dropdown__panel {
+    transform-origin: right;
+  }
+
+  .dropdown__positioner[data-placement^='right'] .dropdown__panel {
+    transform-origin: left;
+  }
+`;
+
+// src/components/dropdown/dropdown.ts
+var SlDropdown = class extends s4 {
+  constructor() {
+    super(...arguments);
+    this.localize = new LocalizeController2(this);
+    this.open = false;
+    this.placement = "bottom-start";
+    this.disabled = false;
+    this.stayOpenOnSelect = false;
+    this.distance = 0;
+    this.skidding = 0;
+    this.hoist = false;
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.handleMenuItemActivate = this.handleMenuItemActivate.bind(this);
+    this.handlePanelSelect = this.handlePanelSelect.bind(this);
+    this.handleDocumentKeyDown = this.handleDocumentKeyDown.bind(this);
+    this.handleDocumentMouseDown = this.handleDocumentMouseDown.bind(this);
+    if (!this.containingElement) {
+      this.containingElement = this;
+    }
+  }
+  async firstUpdated() {
+    this.panel.hidden = !this.open;
+    if (this.open) {
+      await this.updateComplete;
+      this.addOpenListeners();
+      this.startPositioner();
+    }
+  }
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.removeOpenListeners();
+    this.hide();
+    this.stopPositioner();
+  }
+  focusOnTrigger() {
+    const slot = this.trigger.querySelector("slot");
+    const trigger = slot.assignedElements({ flatten: true })[0];
+    if (typeof (trigger == null ? void 0 : trigger.focus) === "function") {
+      trigger.focus();
+    }
+  }
+  getMenu() {
+    const slot = this.panel.querySelector("slot");
+    return slot.assignedElements({ flatten: true }).find((el) => el.tagName.toLowerCase() === "sl-menu");
+  }
+  handleDocumentKeyDown(event) {
+    var _a;
+    if (event.key === "Escape") {
+      this.hide();
+      this.focusOnTrigger();
+      return;
+    }
+    if (event.key === "Tab") {
+      if (this.open && ((_a = document.activeElement) == null ? void 0 : _a.tagName.toLowerCase()) === "sl-menu-item") {
+        event.preventDefault();
+        this.hide();
+        this.focusOnTrigger();
+        return;
+      }
+      setTimeout(() => {
+        var _a2, _b, _c;
+        const activeElement = ((_a2 = this.containingElement) == null ? void 0 : _a2.getRootNode()) instanceof ShadowRoot ? (_c = (_b = document.activeElement) == null ? void 0 : _b.shadowRoot) == null ? void 0 : _c.activeElement : document.activeElement;
+        if (!this.containingElement || (activeElement == null ? void 0 : activeElement.closest(this.containingElement.tagName.toLowerCase())) !== this.containingElement) {
+          this.hide();
+        }
+      });
+    }
+  }
+  handleDocumentMouseDown(event) {
+    const path = event.composedPath();
+    if (this.containingElement && !path.includes(this.containingElement)) {
+      this.hide();
+    }
+  }
+  handleMenuItemActivate(event) {
+    const item = event.target;
+    scrollIntoView(item, this.panel);
+  }
+  handlePanelSelect(event) {
+    const target = event.target;
+    if (!this.stayOpenOnSelect && target.tagName.toLowerCase() === "sl-menu") {
+      this.hide();
+      this.focusOnTrigger();
+    }
+  }
+  handlePopoverOptionsChange() {
+    this.updatePositioner();
+  }
+  handleTriggerClick() {
+    if (this.open) {
+      this.hide();
+    } else {
+      this.show();
+    }
+  }
+  handleTriggerKeyDown(event) {
+    if (event.key === "Escape") {
+      this.focusOnTrigger();
+      this.hide();
+      return;
+    }
+    if ([" ", "Enter"].includes(event.key)) {
+      event.preventDefault();
+      this.handleTriggerClick();
+      return;
+    }
+    const menu = this.getMenu();
+    if (menu) {
+      const menuItems = menu.defaultSlot.assignedElements({ flatten: true });
+      const firstMenuItem = menuItems[0];
+      const lastMenuItem = menuItems[menuItems.length - 1];
+      if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+        event.preventDefault();
+        if (!this.open) {
+          this.show();
+        }
+        if (menuItems.length > 0) {
+          requestAnimationFrame(() => {
+            if (event.key === "ArrowDown" || event.key === "Home") {
+              menu.setCurrentItem(firstMenuItem);
+              firstMenuItem.focus();
+            }
+            if (event.key === "ArrowUp" || event.key === "End") {
+              menu.setCurrentItem(lastMenuItem);
+              lastMenuItem.focus();
+            }
+          });
+        }
+      }
+      const ignoredKeys = ["Tab", "Shift", "Meta", "Ctrl", "Alt"];
+      if (this.open && !ignoredKeys.includes(event.key)) {
+        menu.typeToSelect(event);
+      }
+    }
+  }
+  handleTriggerKeyUp(event) {
+    if (event.key === " ") {
+      event.preventDefault();
+    }
+  }
+  handleTriggerSlotChange() {
+    this.updateAccessibleTrigger();
+  }
+  updateAccessibleTrigger() {
+    const slot = this.trigger.querySelector("slot");
+    const assignedElements = slot.assignedElements({ flatten: true });
+    const accessibleTrigger = assignedElements.find((el) => getTabbableBoundary(el).start);
+    let target;
+    if (accessibleTrigger) {
+      switch (accessibleTrigger.tagName.toLowerCase()) {
+        case "sl-button":
+        case "sl-icon-button":
+          target = accessibleTrigger.button;
+          break;
+        default:
+          target = accessibleTrigger;
+      }
+      target.setAttribute("aria-haspopup", "true");
+      target.setAttribute("aria-expanded", this.open ? "true" : "false");
+    }
+  }
+  async show() {
+    if (this.open) {
+      return void 0;
+    }
+    this.open = true;
+    return waitForEvent(this, "sl-after-show");
+  }
+  async hide() {
+    if (!this.open) {
+      return void 0;
+    }
+    this.open = false;
+    return waitForEvent(this, "sl-after-hide");
+  }
+  reposition() {
+    this.updatePositioner();
+  }
+  addOpenListeners() {
+    this.panel.addEventListener("sl-activate", this.handleMenuItemActivate);
+    this.panel.addEventListener("sl-select", this.handlePanelSelect);
+    document.addEventListener("keydown", this.handleDocumentKeyDown);
+    document.addEventListener("mousedown", this.handleDocumentMouseDown);
+  }
+  removeOpenListeners() {
+    this.panel.removeEventListener("sl-activate", this.handleMenuItemActivate);
+    this.panel.removeEventListener("sl-select", this.handlePanelSelect);
+    document.removeEventListener("keydown", this.handleDocumentKeyDown);
+    document.removeEventListener("mousedown", this.handleDocumentMouseDown);
+  }
+  async handleOpenChange() {
+    if (this.disabled) {
+      this.open = false;
+      return;
+    }
+    this.updateAccessibleTrigger();
+    if (this.open) {
+      emit(this, "sl-show");
+      this.addOpenListeners();
+      await stopAnimations(this);
+      this.startPositioner();
+      this.panel.hidden = false;
+      const { keyframes, options } = getAnimation(this, "dropdown.show", { dir: this.localize.dir() });
+      await animateTo(this.panel, keyframes, options);
+      emit(this, "sl-after-show");
+    } else {
+      emit(this, "sl-hide");
+      this.removeOpenListeners();
+      await stopAnimations(this);
+      const { keyframes, options } = getAnimation(this, "dropdown.hide", { dir: this.localize.dir() });
+      await animateTo(this.panel, keyframes, options);
+      this.panel.hidden = true;
+      this.stopPositioner();
+      emit(this, "sl-after-hide");
+    }
+  }
+  startPositioner() {
+    this.stopPositioner();
+    this.updatePositioner();
+    this.positionerCleanup = N(this.trigger, this.positioner, this.updatePositioner.bind(this));
+  }
+  updatePositioner() {
+    if (!this.open || !this.trigger || !this.positioner) {
+      return;
+    }
+    z(this.trigger, this.positioner, {
+      placement: this.placement,
+      middleware: [
+        T({ mainAxis: this.distance, crossAxis: this.skidding }),
+        b$1(),
+        D(),
+        k({
+          apply: ({ availableWidth, availableHeight }) => {
+            Object.assign(this.panel.style, {
+              maxWidth: `${availableWidth}px`,
+              maxHeight: `${availableHeight}px`
+            });
+          }
+        })
+      ],
+      strategy: this.hoist ? "fixed" : "absolute"
+    }).then(({ x, y, placement }) => {
+      this.positioner.setAttribute("data-placement", placement);
+      Object.assign(this.positioner.style, {
+        position: this.hoist ? "fixed" : "absolute",
+        left: `${x}px`,
+        top: `${y}px`
+      });
+    });
+  }
+  stopPositioner() {
+    if (this.positionerCleanup) {
+      this.positionerCleanup();
+      this.positionerCleanup = void 0;
+      this.positioner.removeAttribute("data-placement");
+    }
+  }
+  render() {
+    return $`
+      <div
+        part="base"
+        id="dropdown"
+        class=${o$1({
+      dropdown: true,
+      "dropdown--open": this.open
+    })}
+      >
+        <span
+          part="trigger"
+          class="dropdown__trigger"
+          @click=${this.handleTriggerClick}
+          @keydown=${this.handleTriggerKeyDown}
+          @keyup=${this.handleTriggerKeyUp}
+        >
+          <slot name="trigger" @slotchange=${this.handleTriggerSlotChange}></slot>
+        </span>
+
+        <!-- Position the panel with a wrapper since the popover makes use of translate. This let's us add animations
+        on the panel without interfering with the position. -->
+        <div class="dropdown__positioner">
+          <div
+            part="panel"
+            class="dropdown__panel"
+            aria-hidden=${this.open ? "false" : "true"}
+            aria-labelledby="dropdown"
+          >
+            <slot></slot>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+};
+SlDropdown.styles = dropdown_styles_default;
+__decorateClass([
+  i2$1(".dropdown__trigger")
+], SlDropdown.prototype, "trigger", 2);
+__decorateClass([
+  i2$1(".dropdown__panel")
+], SlDropdown.prototype, "panel", 2);
+__decorateClass([
+  i2$1(".dropdown__positioner")
+], SlDropdown.prototype, "positioner", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlDropdown.prototype, "open", 2);
+__decorateClass([
+  e$1({ reflect: true })
+], SlDropdown.prototype, "placement", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlDropdown.prototype, "disabled", 2);
+__decorateClass([
+  e$1({ attribute: "stay-open-on-select", type: Boolean, reflect: true })
+], SlDropdown.prototype, "stayOpenOnSelect", 2);
+__decorateClass([
+  e$1({ attribute: false })
+], SlDropdown.prototype, "containingElement", 2);
+__decorateClass([
+  e$1({ type: Number })
+], SlDropdown.prototype, "distance", 2);
+__decorateClass([
+  e$1({ type: Number })
+], SlDropdown.prototype, "skidding", 2);
+__decorateClass([
+  e$1({ type: Boolean })
+], SlDropdown.prototype, "hoist", 2);
+__decorateClass([
+  watch("distance"),
+  watch("hoist"),
+  watch("placement"),
+  watch("skidding")
+], SlDropdown.prototype, "handlePopoverOptionsChange", 1);
+__decorateClass([
+  watch("open", { waitUntilFirstUpdate: true })
+], SlDropdown.prototype, "handleOpenChange", 1);
+SlDropdown = __decorateClass([
+  n$1("sl-dropdown")
+], SlDropdown);
+setDefaultAnimation("dropdown.show", {
+  keyframes: [
+    { opacity: 0, transform: "scale(0.9)" },
+    { opacity: 1, transform: "scale(1)" }
+  ],
+  options: { duration: 100, easing: "ease" }
+});
+setDefaultAnimation("dropdown.hide", {
+  keyframes: [
+    { opacity: 1, transform: "scale(1)" },
+    { opacity: 0, transform: "scale(0.9)" }
+  ],
+  options: { duration: 100, easing: "ease" }
+});
+
+// src/components/menu/menu.styles.ts
+var menu_styles_default = r$2`
+  ${component_styles_default}
+
+  :host {
+    display: block;
+  }
+
+  .menu {
+    background: var(--sl-panel-background-color);
+    border: solid var(--sl-panel-border-width) var(--sl-panel-border-color);
+    border-radius: var(--sl-border-radius-medium);
+    background: var(--sl-panel-background-color);
+    padding: var(--sl-spacing-x-small) 0;
+  }
+
+  ::slotted(sl-divider) {
+    --spacing: var(--sl-spacing-x-small);
+  }
+`;
+
+// src/components/menu/menu.ts
+var SlMenu = class extends s4 {
+  constructor() {
+    super(...arguments);
+    this.typeToSelectString = "";
+  }
+  firstUpdated() {
+    this.setAttribute("role", "menu");
+  }
+  getAllItems(options = { includeDisabled: true }) {
+    return [...this.defaultSlot.assignedElements({ flatten: true })].filter((el) => {
+      if (el.getAttribute("role") !== "menuitem") {
+        return false;
+      }
+      if (!options.includeDisabled && el.disabled) {
+        return false;
+      }
+      return true;
+    });
+  }
+  getCurrentItem() {
+    return this.getAllItems({ includeDisabled: false }).find((i2) => i2.getAttribute("tabindex") === "0");
+  }
+  setCurrentItem(item) {
+    const items = this.getAllItems({ includeDisabled: false });
+    const activeItem = item.disabled ? items[0] : item;
+    items.forEach((i2) => {
+      i2.setAttribute("tabindex", i2 === activeItem ? "0" : "-1");
+    });
+  }
+  typeToSelect(event) {
+    var _a;
+    const items = this.getAllItems({ includeDisabled: false });
+    clearTimeout(this.typeToSelectTimeout);
+    this.typeToSelectTimeout = window.setTimeout(() => this.typeToSelectString = "", 1e3);
+    if (event.key === "Backspace") {
+      if (event.metaKey || event.ctrlKey) {
+        this.typeToSelectString = "";
+      } else {
+        this.typeToSelectString = this.typeToSelectString.slice(0, -1);
+      }
+    } else {
+      this.typeToSelectString += event.key.toLowerCase();
+    }
+    if (!hasFocusVisible) {
+      items.forEach((item) => item.classList.remove("sl-focus-invisible"));
+    }
+    for (const item of items) {
+      const slot = (_a = item.shadowRoot) == null ? void 0 : _a.querySelector("slot:not([name])");
+      const label = getTextContent(slot).toLowerCase().trim();
+      if (label.startsWith(this.typeToSelectString)) {
+        this.setCurrentItem(item);
+        item.focus();
+        break;
+      }
+    }
+  }
+  handleClick(event) {
+    const target = event.target;
+    const item = target.closest("sl-menu-item");
+    if ((item == null ? void 0 : item.disabled) === false) {
+      emit(this, "sl-select", { detail: { item } });
+    }
+  }
+  handleKeyUp() {
+    if (!hasFocusVisible) {
+      const items = this.getAllItems();
+      items.forEach((item) => {
+        item.classList.remove("sl-focus-invisible");
+      });
+    }
+  }
+  handleKeyDown(event) {
+    if (event.key === "Enter") {
+      const item = this.getCurrentItem();
+      event.preventDefault();
+      item == null ? void 0 : item.click();
+    }
+    if (event.key === " ") {
+      event.preventDefault();
+    }
+    if (["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) {
+      const items = this.getAllItems({ includeDisabled: false });
+      const activeItem = this.getCurrentItem();
+      let index = activeItem ? items.indexOf(activeItem) : 0;
+      if (items.length > 0) {
+        event.preventDefault();
+        if (event.key === "ArrowDown") {
+          index++;
+        } else if (event.key === "ArrowUp") {
+          index--;
+        } else if (event.key === "Home") {
+          index = 0;
+        } else if (event.key === "End") {
+          index = items.length - 1;
+        }
+        if (index < 0) {
+          index = items.length - 1;
+        }
+        if (index > items.length - 1) {
+          index = 0;
+        }
+        this.setCurrentItem(items[index]);
+        items[index].focus();
+        return;
+      }
+    }
+    this.typeToSelect(event);
+  }
+  handleMouseDown(event) {
+    const target = event.target;
+    if (target.getAttribute("role") === "menuitem") {
+      this.setCurrentItem(target);
+      if (!hasFocusVisible) {
+        target.classList.add("sl-focus-invisible");
+      }
+    }
+  }
+  handleSlotChange() {
+    const items = this.getAllItems({ includeDisabled: false });
+    if (items.length > 0) {
+      this.setCurrentItem(items[0]);
+    }
+  }
+  render() {
+    return $`
+      <div
+        part="base"
+        class="menu"
+        @click=${this.handleClick}
+        @keydown=${this.handleKeyDown}
+        @keyup=${this.handleKeyUp}
+        @mousedown=${this.handleMouseDown}
+      >
+        <slot @slotchange=${this.handleSlotChange}></slot>
+      </div>
+    `;
+  }
+};
+SlMenu.styles = menu_styles_default;
+__decorateClass([
+  i2$1(".menu")
+], SlMenu.prototype, "menu", 2);
+__decorateClass([
+  i2$1("slot")
+], SlMenu.prototype, "defaultSlot", 2);
+SlMenu = __decorateClass([
+  n$1("sl-menu")
+], SlMenu);
+
+const veHeaderCss = ":host{font-family:Roboto, sans-serif;display:block;font-size:1rem;width:100%;background-repeat:no-repeat;background-size:cover;background-position:center;position:relative;margin:0;z-index:3;margin-top:-1rem;color:#444;max-height:220px}:host ul{display:none}:host(.sticky){position:sticky;position:-webkit-sticky;top:-114px}.title-panel{display:flex;flex-direction:column;justify-content:center;gap:4px;font-family:Roboto, sans-serif;position:absolute;height:90px;background:rgba(0, 0, 0, 0.3);border-radius:3px;box-shadow:rgba(0, 0, 0, 0.35) 0px 5px 15px;color:white;padding:.5rem 3.2rem .5rem .5rem;font-weight:bold;left:0;bottom:0;right:0}.title-buttons{display:flex;flex-direction:row;position:absolute;right:20px}#info-button::part(base){background-color:white}#info-button{margin-left:10px}#info-button:hover{box-shadow:0 0 10px rgb(146, 209, 248)}#ve-search-search-button::part(base){background-color:white}.title,.subtitle{line-height:3rem}.title-panel a{text-decoration:none}.title,.subtitle{color:white}.title{font-size:1.6rem;line-height:1.8rem;padding-top:0}.subtitle{font-size:1.4rem;line-height:1.4rem}.ve-header{position:relative;height:100%}nav{display:inline-block;position:absolute;top:20px;right:12px;z-index:1;-webkit-user-select:none;user-select:none}sl-button::part(base){background-color:rgba(0, 0, 0, 0.2)}nav sl-icon{color:white;font-size:24px;font-weight:bold;cursor:pointer;padding-top:7px}nav sl-menu-item sl-icon{color:inherit;padding:0 6px 0 0;font-size:20px}nav sl-menu-item:hover sl-icon{color:inherit}#info-icon{position:absolute;font-family:serif;z-index:1;bottom:12px;right:19px;width:22px;height:22px;border-radius:50%;background-color:rgba(0, 0, 0, 0.3);color:white;text-align:center;line-height:1.4em;letter-spacing:-1px;font-weight:bold;cursor:pointer;border:2px solid rgba(255, 255, 255, 0.5)}#info-icon:hover{color:black;background-color:rgba(255, 255, 255, 0.7)}#image-info-popup{position:absolute;display:none;width:75%;max-width:300px;height:auto;max-height:500px;background:#fff;right:72px;top:8px;padding:6px;border:1px solid #444;box-shadow:0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);border-radius:3px;overflow-y:scroll;z-index:10}:host #info-icon{visibility:hidden}:host(:hover) #info-icon{visibility:visible}@media (min-width: 481px){:host{max-height:300px}:host(.sticky){top:-158px}.title-panel{height:132px}.title-panel{height:120px;padding:1rem 5rem .5rem 2rem}nav{top:36px;right:24px}#info-icon{bottom:20px;right:31px}.title{font-size:2.5rem;line-height:2.6rem}.subtitle{font-size:2rem;line-height:2rem;min-height:1em}#menuToggle{top:28px}}";
+
+setBasePath(location.port === '3333' ? '' : '/web-components/');
+const navIcons = {
+  home: 'house-fill',
+  about: 'info-circle-fill',
+  contact: 'envelope-fill'
+};
+const Header = class {
+  constructor(hostRef) {
+    registerInstance(this, hostRef);
+    this.height = 300;
+    this.position = 'center'; // center, top, bottom
+    this.navItems = [];
+  }
+  _manifestChanged(newValue, oldValue) {
+    if (newValue !== oldValue)
+      this._imageInfo = imageInfo(this._manifest);
+  }
+  async _imageInfoChanged(imageInfo, priorValue) {
+    if (imageInfo !== priorValue) {
+      this._imgUrl = imageInfo.service
+        ? this._iiifUrl(imageInfo.service[0].id || imageInfo.service[0]['@id'], this.imageOptions)
+        : await imageDataUrl(imageInfo.id, this.imageOptions.region, { width: this.el.clientWidth, height: this.height });
+    }
+  }
+  async _imgUrlChanged(imgUrl) {
+    this.el.style.backgroundImage = `url('${imgUrl}')`;
+    this.el.style.backgroundPosition = this.position;
+  }
+  _iiifUrl(serviceUrl, options) {
+    //let size = `${this.el.clientWidth > 1000 ? 1000 : this.el.clientWidth},${this.height > 1000 ? 1000 : this.height}`
+    //let url = `${serviceUrl}/${options.region}/!${size}/${options.rotation}/${options.quality}.${options.format}`
+    let url = `${serviceUrl.replace(/\/info.json$/, '')}/${options.region}/${options.size}/${options.rotation}/${options.quality}.${options.format}`;
+    // console.log('_iiifUrl', url)
+    return url;
+  }
+  connectedCallback() {
+    if (this.label) {
+      let titleEl = document.querySelector('title');
+      if (!titleEl) {
+        titleEl = document.createElement('title');
+        titleEl.innerText = this.label;
+        document.head.appendChild(titleEl);
+      }
+    }
+    this.imageOptions = parseImageOptions(this.options);
+    this.navItems = Array.from(this.el.querySelectorAll('li')).map(navItem => navItem.firstChild.nodeName === 'A'
+      ? { label: navItem.firstChild.textContent, href: navItem.firstChild.href }
+      : { label: navItem.firstChild.textContent });
+    // console.log(this.navItems)
+    while (this.el.firstChild)
+      this.el.removeChild(this.el.firstChild);
+  }
+  componentDidLoad() {
+    this.el.style.height = `${this.height}px`;
+    if (this.sticky) {
+      this.el.classList.add('sticky');
+      document.querySelector('main').classList.add('sticky-header');
+    }
+    getManifest(this.background).then(manifest => this._manifest = manifest);
+  }
+  htmlToElem(html) {
+    return new DOMParser().parseFromString(html, 'text/html').children[0].children[1];
+  }
+  _showInfoPopup() {
+    let popup = this.el.shadowRoot.querySelector('#image-info-popup');
+    let images = encodeURIComponent(JSON.stringify([{ manifest: this._manifest }]));
+    popup.innerHTML = `<ve-manifest images="${images}" condensed></ve-manifest>`;
+    popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
+  }
+  menuItemSelected(item) {
+    console.log('menuItemSelected', item);
+    if (item.label.toLowerCase().indexOf('contact') === 0 && this.contact) {
+      let contactDialog = this.el.shadowRoot.querySelector('ve-contact');
+      contactDialog.show = !contactDialog.show;
+    }
+    else if (item.href) {
+      location.href = item.href;
+    }
+  }
+  navIcon(item) {
+    let iconName = '';
+    let menuLabel = item.label.toLowerCase();
+    Object.keys(navIcons).forEach(key => {
+      if (menuLabel.indexOf(key) >= 0)
+        iconName = navIcons[key];
+    });
+    return iconName;
+  }
+  render() {
+    return [
+      h("section", { class: "ve-header" }, h("div", { class: "title-panel" }, this.navItems.length > 0 &&
+        h("nav", null, h("sl-dropdown", null, h("sl-button", { id: "menu-toggle", slot: "trigger", variant: "default", size: "medium", circle: true }, h("sl-icon", { name: "three-dots-vertical", label: "Navigation Meno" })), h("sl-menu", null, this.navItems.map((item) => h("sl-menu-item", { onClick: this.menuItemSelected.bind(this, item) }, h("sl-icon", { slot: "prefix", name: this.navIcon(item), label: item.label }), item.label))))), h("a", { href: "/" }, h("div", { class: "title" }, this.label)), h("div", { class: "subtitle" }, this.subtitle), h("div", { id: "image-info-popup" }), h("div", { class: "title-buttons" }, h("ve-search", { cx: '0a5115e988de8e8a9', filters: '16c:16c,17c:17c,18c:18c,19c:19c,20c:20c,21c:21c,austen:Jane Austen,canterbury:Canterbury,churches:Churches,dickens:Dickens', icon: true, tooltip: "Click to search the site" }), h("sl-button", { id: "info-button", onClick: this._showInfoPopup.bind(this), title: "Image info" }, h("sl-icon", { name: "info" }))))),
+      h("ve-contact", { contact: this.contact })
+    ];
+  }
+  get el() { return getElement(this); }
+  static get watchers() { return {
+    "_manifest": ["_manifestChanged"],
+    "_imageInfo": ["_imageInfoChanged"],
+    "_imgUrl": ["_imgUrlChanged"]
+  }; }
+};
+Header.style = veHeaderCss;
+
+var openseadragonViewerinputhook = createCommonjsModule(function (module, exports) {
 /*! @openseadragon-imaging/openseadragon-viewerinputhook 2.2.1 ab9b394 (clean)  @license MIT */
-!function(e,r){module.exports=r(openseadragon.openseadragon);}(window,(function(e){return function(e){function r(n){if(o[n])return o[n].exports;var t=o[n]={i:n,l:!1,exports:{}};return e[n].call(t.exports,t,t.exports,r),t.l=!0,t.exports}var o={};return r.m=e,r.c=o,r.d=function(e,o,n){r.o(e,o)||Object.defineProperty(e,o,{enumerable:!0,get:n});},r.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0});},r.t=function(e,o){if(1&o&&(e=r(e)),8&o)return e;if(4&o&&"object"==typeof e&&e&&e.__esModule)return e;var n=Object.create(null);if(r.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:e}),2&o&&"string"!=typeof e)for(var t in e)r.d(n,t,function(r){return e[r]}.bind(null,t));return n},r.n=function(e){var o=e&&e.__esModule?function(){return e.default}:function(){return e};return r.d(o,"a",o),o},r.o=function(e,r){return Object.prototype.hasOwnProperty.call(e,r)},r.p="",r(r.s=1)}([function(r){r.exports=e;},function(e,r,o){o.r(r);var n=o(0),t=o.n(n);r.default=function(e,r){if(!e.version||1>e.version.major)throw new Error("OpenSeadragonViewerInputHook requires OpenSeadragon version 1.0.0+");return e.Viewer.prototype.addViewerInputHook=function(e){return (e=e||{}).viewer=this,new r.ViewerInputHook(e)},r.ViewerInputHook=function(e){var r,o;for((e=e||{}).hooks=e.hooks||[],this.viewer=e.viewer||null,this.viewerTrackers={},this.hooks=[],this.viewer&&(this.viewerTrackers.viewer=this.viewer.innerTracker,this.viewerTrackers.viewer_outer=this.viewer.outerTracker),r=0;r<e.hooks.length;r++){if("string"==typeof e.hooks[r].tracker){if(!this.viewer)throw new Error("A viewer must be specified.");if(void 0===(o=this.viewerTrackers[e.hooks[r].tracker]))throw new Error("Unknown tracker specified: "+e.hooks[r].tracker)}else o=e.hooks[r].tracker;this.hooks.push({tracker:o,handlerName:e.hooks[r].handler,origHandler:o[e.hooks[r].handler],hookHandler:e.hooks[r].hookHandler}),function(e,r,o,n){var t=r[o];r[o]=function(r){return e._callHandlers(n,t,r)};}(this,o,e.hooks[r].handler,e.hooks[r].hookHandler);}},r.ViewerInputHook.version={versionStr:"2.2.1",major:2,minor:2,revision:1},r.ViewerInputHook.prototype._callHandlers=function(e,r,o){var n=e(o);return r&&!o.stopHandlers&&(n=r(o)),!o.stopBubbling&&n},r.ViewerInputHook.prototype.destroy=function(){for(;0<this.hooks.length;){var e=this.hooks.pop();e.tracker[e.handlerName]=e.origHandler;}this.viewer&&(delete this.viewerTrackers.viewer,delete this.viewerTrackers.viewer_outer,this.viewer=null);},r.ViewerInputHook}(t.a||window.OpenSeadragon,window.OpenSeadragonImaging=window.OpenSeadragonImaging||{});}]).default}));
+!function(e,r){module.exports=r(openseadragon);}(window,(function(e){return function(e){function r(n){if(o[n])return o[n].exports;var t=o[n]={i:n,l:!1,exports:{}};return e[n].call(t.exports,t,t.exports,r),t.l=!0,t.exports}var o={};return r.m=e,r.c=o,r.d=function(e,o,n){r.o(e,o)||Object.defineProperty(e,o,{enumerable:!0,get:n});},r.r=function(e){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(e,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(e,"__esModule",{value:!0});},r.t=function(e,o){if(1&o&&(e=r(e)),8&o)return e;if(4&o&&"object"==typeof e&&e&&e.__esModule)return e;var n=Object.create(null);if(r.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:e}),2&o&&"string"!=typeof e)for(var t in e)r.d(n,t,function(r){return e[r]}.bind(null,t));return n},r.n=function(e){var o=e&&e.__esModule?function(){return e.default}:function(){return e};return r.d(o,"a",o),o},r.o=function(e,r){return Object.prototype.hasOwnProperty.call(e,r)},r.p="",r(r.s=1)}([function(r){r.exports=e;},function(e,r,o){o.r(r);var n=o(0),t=o.n(n);r.default=function(e,r){if(!e.version||1>e.version.major)throw new Error("OpenSeadragonViewerInputHook requires OpenSeadragon version 1.0.0+");return e.Viewer.prototype.addViewerInputHook=function(e){return (e=e||{}).viewer=this,new r.ViewerInputHook(e)},r.ViewerInputHook=function(e){var r,o;for((e=e||{}).hooks=e.hooks||[],this.viewer=e.viewer||null,this.viewerTrackers={},this.hooks=[],this.viewer&&(this.viewerTrackers.viewer=this.viewer.innerTracker,this.viewerTrackers.viewer_outer=this.viewer.outerTracker),r=0;r<e.hooks.length;r++){if("string"==typeof e.hooks[r].tracker){if(!this.viewer)throw new Error("A viewer must be specified.");if(void 0===(o=this.viewerTrackers[e.hooks[r].tracker]))throw new Error("Unknown tracker specified: "+e.hooks[r].tracker)}else o=e.hooks[r].tracker;this.hooks.push({tracker:o,handlerName:e.hooks[r].handler,origHandler:o[e.hooks[r].handler],hookHandler:e.hooks[r].hookHandler}),function(e,r,o,n){var t=r[o];r[o]=function(r){return e._callHandlers(n,t,r)};}(this,o,e.hooks[r].handler,e.hooks[r].hookHandler);}},r.ViewerInputHook.version={versionStr:"2.2.1",major:2,minor:2,revision:1},r.ViewerInputHook.prototype._callHandlers=function(e,r,o){var n=e(o);return r&&!o.stopHandlers&&(n=r(o)),!o.stopBubbling&&n},r.ViewerInputHook.prototype.destroy=function(){for(;0<this.hooks.length;){var e=this.hooks.pop();e.tracker[e.handlerName]=e.origHandler;}this.viewer&&(delete this.viewerTrackers.viewer,delete this.viewerTrackers.viewer_outer,this.viewer=null);},r.ViewerInputHook}(t.a||window.OpenSeadragon,window.OpenSeadragonImaging=window.OpenSeadragonImaging||{});}]).default}));
 //# sourceMappingURL=openseadragon-viewerinputhook.js.map
 });
 
-const OpenSeadragonViewerInputHook = /*@__PURE__*/openseadragon.getDefaultExportFromCjs(openseadragonViewerinputhook);
+const OpenSeadragonViewerInputHook = /*@__PURE__*/getDefaultExportFromCjs(openseadragonViewerinputhook);
 
 function e(e){this.message=e;}e.prototype=new Error,e.prototype.name="InvalidCharacterError";var r="undefined"!=typeof window&&window.atob&&window.atob.bind(window)||function(r){var t=String(r).replace(/=+$/,"");if(t.length%4==1)throw new e("'atob' failed: The string to be decoded is not correctly encoded.");for(var n,o,a=0,i=0,c="";o=t.charAt(i++);~o&&(n=a%4?64*n+o:o,a++%4)?c+=String.fromCharCode(255&n>>(-2*a&6)):0)o="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=".indexOf(o);return c};function t(e){var t=e.replace(/-/g,"+").replace(/_/g,"/");switch(t.length%4){case 0:break;case 2:t+="==";break;case 3:t+="=";break;default:throw "Illegal base64url string!"}try{return function(e){return decodeURIComponent(r(e).replace(/(.)/g,(function(e,r){var t=r.charCodeAt(0).toString(16).toUpperCase();return t.length<2&&(t="0"+t),"%"+t})))}(t)}catch(e){return r(t)}}function n(e){this.message=e;}function o(e,r){if("string"!=typeof e)throw new n("Invalid token specified");var o=!0===(r=r||{}).header?0:1;try{return JSON.parse(t(e.split(".")[o]))}catch(e){throw new n("Invalid token specified: "+e.message)}}n.prototype=new Error,n.prototype.name="InvalidTokenError";
 
@@ -42,15 +2272,15 @@ function e(e){this.message=e;}e.prototype=new Error,e.prototype.name="InvalidCha
       this.clipFactorY = 0;
     }
 
-    openseadragon.openseadragon.EventSource.call(this);
+    openseadragon.EventSource.call(this);
 
     var ops = args.osdOptions;
     ops.element = args.container;
-    this.viewer = openseadragon.openseadragon(ops);
+    this.viewer = openseadragon(ops);
 
     this.viewer.canvas.style.outline = 'none'; // so we don't see the browser's selection rectangle when we click
 
-    this.tracker = new openseadragon.openseadragon.MouseTracker({
+    this.tracker = new openseadragon.MouseTracker({
       element: this.viewer.canvas,
       moveHandler: function (event) {
         if (self.isMobile) {
@@ -69,7 +2299,7 @@ function e(e){this.message=e;}e.prototype=new Error,e.prototype.name="InvalidCha
           return;
         }
 
-        var viewerPos = new openseadragon.openseadragon.Point(self.viewer.container.clientWidth * self.clipFactorX,
+        var viewerPos = new openseadragon.Point(self.viewer.container.clientWidth * self.clipFactorX,
           self.viewer.container.clientHeight * self.clipFactorY);
 
         var threshold = 20;
@@ -139,7 +2369,7 @@ function e(e){this.message=e;}e.prototype=new Error,e.prototype.name="InvalidCha
   };
 
   // ----------
-  CurtainMode.prototype = openseadragon.openseadragon.extend({
+  CurtainMode.prototype = openseadragon.extend({
     // ----------
     destroy: function () {
       this.images.forEach(function (image) {
@@ -193,7 +2423,7 @@ function e(e){this.message=e;}e.prototype=new Error,e.prototype.name="InvalidCha
 
     // ----------
     updateClip: function () {
-      var viewerPos = new openseadragon.openseadragon.Point(this.viewer.container.clientWidth * this.clipFactorX,
+      var viewerPos = new openseadragon.Point(this.viewer.container.clientWidth * this.clipFactorX,
         this.viewer.container.clientHeight * this.clipFactorY);
 
       var viewportPos = this.viewer.viewport.pointFromPixel(viewerPos, true);
@@ -206,7 +2436,7 @@ function e(e){this.message=e;}e.prototype=new Error,e.prototype.name="InvalidCha
           imageSize = tiledImage.getContentSize();
           imagePos = tiledImage.viewportToImageCoordinates(viewportPos);
           var x = Math.min(imageSize.x, Math.max(0, imagePos.x));
-          clip = new openseadragon.openseadragon.Rect(x, 0, imageSize.x, imageSize.y);
+          clip = new openseadragon.Rect(x, 0, imageSize.x, imageSize.y);
           tiledImage.setClip(clip);
         }
       }
@@ -217,7 +2447,7 @@ function e(e){this.message=e;}e.prototype=new Error,e.prototype.name="InvalidCha
           imageSize = tiledImage.getContentSize();
           imagePos = tiledImage.viewportToImageCoordinates(viewportPos);
           var y = Math.min(imageSize.y, Math.max(0, imagePos.y));
-          clip = new openseadragon.openseadragon.Rect(0, y, imageSize.x, imageSize.y);
+          clip = new openseadragon.Rect(0, y, imageSize.x, imageSize.y);
           tiledImage.setClip(clip);
         }
       }
@@ -242,7 +2472,7 @@ function e(e){this.message=e;}e.prototype=new Error,e.prototype.name="InvalidCha
         return image.shown;
       });
     }
-  }, openseadragon.openseadragon.EventSource.prototype);
+  }, openseadragon.EventSource.prototype);
 
   // ----------
   var SyncMode = function (args) {
@@ -253,7 +2483,7 @@ function e(e){this.message=e;}e.prototype=new Error,e.prototype.name="InvalidCha
     this.startingPan = args.pan;
     this.leadingImage = null;
 
-    openseadragon.openseadragon.EventSource.call(this);
+    openseadragon.EventSource.call(this);
 
     this.innerContainer = document.createElement('div');
     this.innerContainer.style.display = 'flex';
@@ -274,7 +2504,7 @@ function e(e){this.message=e;}e.prototype=new Error,e.prototype.name="InvalidCha
       var ops = args.osdOptions;
       ops.element = image.sync.container;
       ops.tileSources = image.tileSource;
-      image.sync.viewer = openseadragon.openseadragon( ops );
+      image.sync.viewer = openseadragon( ops );
 
       image.sync.viewer.canvas.style.outline = 'none'; // so we don't see the browser's selection rectangle when we click
 
@@ -287,7 +2517,7 @@ function e(e){this.message=e;}e.prototype=new Error,e.prototype.name="InvalidCha
           image.sync.viewer.viewport.panTo(self.startingPan, true);
         } else {
           var bounds = image.sync.viewer.world.getHomeBounds();
-          var pan = new openseadragon.openseadragon.Point(bounds.x + (bounds.width / 2), bounds.y + (bounds.height / 2));
+          var pan = new openseadragon.Point(bounds.x + (bounds.width / 2), bounds.y + (bounds.height / 2));
           image.sync.viewer.viewport.panTo(pan, true);
         }
       });
@@ -331,7 +2561,7 @@ function e(e){this.message=e;}e.prototype=new Error,e.prototype.name="InvalidCha
   };
 
   // ----------
-  SyncMode.prototype = openseadragon.openseadragon.extend({
+  SyncMode.prototype = openseadragon.extend({
     // ----------
     destroy: function () {
       this.images.forEach(function (image) {
@@ -387,7 +2617,7 @@ function e(e){this.message=e;}e.prototype=new Error,e.prototype.name="InvalidCha
     updateImageShown: function (image) {
       image.sync.container.style.display = image.shown ? 'block' : 'none';
     }
-  }, openseadragon.openseadragon.EventSource.prototype);
+  }, openseadragon.EventSource.prototype);
 
   // ----------
   window.CurtainSyncViewer = function (args) {
@@ -398,7 +2628,7 @@ function e(e){this.message=e;}e.prototype=new Error,e.prototype.name="InvalidCha
     console.assert(args.images, '[CurtainSyncViewer] args.images is required');
     console.assert(args.images.length > 0, '[CurtainSyncViewer] args.images must have at least 1 image');
 
-    openseadragon.openseadragon.EventSource.call(this);
+    openseadragon.EventSource.call(this);
 
     this.container = args.container;
     this.viewportEventThrottle = args.viewportEventThrottle || 250;
@@ -428,7 +2658,7 @@ function e(e){this.message=e;}e.prototype=new Error,e.prototype.name="InvalidCha
   };
 
   // ----------
-  window.CurtainSyncViewer.prototype = openseadragon.openseadragon.extend({
+  window.CurtainSyncViewer.prototype = openseadragon.extend({
     // ----------
     getMode: function () {
       return this.modeKey;
@@ -454,7 +2684,7 @@ function e(e){this.message=e;}e.prototype=new Error,e.prototype.name="InvalidCha
         images: this.images,
         zoom: this.zoom,
         pan: this.pan,
-        osdOptions: openseadragon.openseadragon.extend({}, this.osdOptions)
+        osdOptions: openseadragon.extend({}, this.osdOptions)
       };
 
       if (key === 'curtain') {
@@ -511,7 +2741,7 @@ function e(e){this.message=e;}e.prototype=new Error,e.prototype.name="InvalidCha
       console.assert(typeof pan === 'object' && typeof pan.x === 'number' && typeof pan.y === 'number',
         '[CurtainSyncViewer.setPan] pan must be an object with an x and a y');
 
-      this.mode.setPan(new openseadragon.openseadragon.Point(pan.x, pan.y));
+      this.mode.setPan(new openseadragon.Point(pan.x, pan.y));
       this.handleViewportChange();
     },
 
@@ -573,7 +2803,7 @@ function e(e){this.message=e;}e.prototype=new Error,e.prototype.name="InvalidCha
       this.zoom = zoom;
       this.pan = pan;
     }
-  }, openseadragon.openseadragon.EventSource.prototype);
+  }, openseadragon.EventSource.prototype);
 
 })();
 
@@ -611,7 +2841,7 @@ var reIsOctal = /^0o[0-7]+$/i;
 var freeParseInt = parseInt;
 
 /** Detect free variable `global` from Node.js. */
-var freeGlobal = typeof openseadragon.commonjsGlobal == 'object' && openseadragon.commonjsGlobal && openseadragon.commonjsGlobal.Object === Object && openseadragon.commonjsGlobal;
+var freeGlobal = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
 
 /** Detect free variable `self`. */
 var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
@@ -955,11 +3185,11 @@ function toNumber(value) {
 
 var lodash_debounce = debounce;
 
-var annotoriousToolbar_min = openseadragon.createCommonjsModule(function (module, exports) {
+var annotoriousToolbar_min = createCommonjsModule(function (module, exports) {
 !function(n,e){module.exports=e();}(window,(function(){return function(n){var e={};function t(r){if(e[r])return e[r].exports;var c=e[r]={i:r,l:!1,exports:{}};return n[r].call(c.exports,c,c.exports,t),c.l=!0,c.exports}return t.m=n,t.c=e,t.d=function(n,e,r){t.o(n,e)||Object.defineProperty(n,e,{enumerable:!0,get:r});},t.r=function(n){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(n,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(n,"__esModule",{value:!0});},t.t=function(n,e){if(1&e&&(n=t(n)),8&e)return n;if(4&e&&"object"==typeof n&&n&&n.__esModule)return n;var r=Object.create(null);if(t.r(r),Object.defineProperty(r,"default",{enumerable:!0,value:n}),2&e&&"string"!=typeof n)for(var c in n)t.d(r,c,function(e){return n[e]}.bind(null,c));return r},t.n=function(n){var e=n&&n.__esModule?function(){return n.default}:function(){return n};return t.d(e,"a",e),e},t.o=function(n,e){return Object.prototype.hasOwnProperty.call(n,e)},t.p="",t(t.s=3)}([function(n,e,t){(e=t(2)(!1)).push([n.i,".a9s-toolbar-btn {\n  margin:4px 4px 4px 0;\n  outline:0;\n  border:none;\n  cursor:pointer;\n  background-color:transparent;\n  border-radius:4px;\n  padding:8px;\n  width:45px;\n  height:45px;\n}\n\n.a9s-toolbar-btn:hover {\n  background-color:rgba(0,0,0,0.05);\n}\n\n.a9s-toolbar-btn-inner {\n  display:flex;\n}\n\n.a9s-toolbar-btn svg {\n  overflow:visible;\n  width:100%;\n  height:100%;\n}\n\n.a9s-toolbar-btn svg * {\n  stroke-width:5px;\n  fill:none;\n  stroke:rgba(0,0,0,0.5);\n}\n\n.a9s-toolbar-btn g.handles circle {\n  stroke-width:4px;\n  fill:#fff;\n  stroke:#000;\n}\n\n.a9s-toolbar-btn.active {\n  background-color:rgba(0,0,0,0.3);\n}\n\n.a9s-toolbar-btn.active svg * {\n  stroke:rgba(255,255,255,0.6);\n}\n\n.a9s-toolbar-btn.active g.handles circle {\n  stroke:#fff;\n  fill:rgba(0,0,0,0.2);\n}\n",""]),n.exports=e;},function(n,e,t){var r,c=function(){return void 0===r&&(r=Boolean(window&&document&&document.all&&!window.atob)),r},o=function(){var n={};return function(e){if(void 0===n[e]){var t=document.querySelector(e);if(window.HTMLIFrameElement&&t instanceof window.HTMLIFrameElement)try{t=t.contentDocument.head;}catch(n){t=null;}n[e]=t;}return n[e]}}(),i=[];function a(n){for(var e=-1,t=0;t<i.length;t++)if(i[t].identifier===n){e=t;break}return e}function l(n,e){for(var t={},r=[],c=0;c<n.length;c++){var o=n[c],l=e.base?o[0]+e.base:o[0],s=t[l]||0,u="".concat(l," ").concat(s);t[l]=s+1;var f=a(u),d={css:o[1],media:o[2],sourceMap:o[3]};-1!==f?(i[f].references++,i[f].updater(d)):i.push({identifier:u,updater:b(d,e),references:1}),r.push(u);}return r}function s(n){var e=document.createElement("style"),r=n.attributes||{};if(void 0===r.nonce){var c=t.nc;c&&(r.nonce=c);}if(Object.keys(r).forEach((function(n){e.setAttribute(n,r[n]);})),"function"==typeof n.insert)n.insert(e);else {var i=o(n.insert||"head");if(!i)throw new Error("Couldn't find a style target. This probably means that the value for the 'insert' parameter is invalid.");i.appendChild(e);}return e}var u,f=(u=[],function(n,e){return u[n]=e,u.filter(Boolean).join("\n")});function d(n,e,t,r){var c=t?"":r.media?"@media ".concat(r.media," {").concat(r.css,"}"):r.css;if(n.styleSheet)n.styleSheet.cssText=f(e,c);else {var o=document.createTextNode(c),i=n.childNodes;i[e]&&n.removeChild(i[e]),i.length?n.insertBefore(o,i[e]):n.appendChild(o);}}function p(n,e,t){var r=t.css,c=t.media,o=t.sourceMap;if(c?n.setAttribute("media",c):n.removeAttribute("media"),o&&"undefined"!=typeof btoa&&(r+="\n/*# sourceMappingURL=data:application/json;base64,".concat(btoa(unescape(encodeURIComponent(JSON.stringify(o))))," */")),n.styleSheet)n.styleSheet.cssText=r;else {for(;n.firstChild;)n.removeChild(n.firstChild);n.appendChild(document.createTextNode(r));}}var g=null,v=0;function b(n,e){var t,r,c;if(e.singleton){var o=v++;t=g||(g=s(e)),r=d.bind(null,t,o,!1),c=d.bind(null,t,o,!0);}else t=s(e),r=p.bind(null,t,e),c=function(){!function(n){if(null===n.parentNode)return !1;n.parentNode.removeChild(n);}(t);};return r(n),function(e){if(e){if(e.css===n.css&&e.media===n.media&&e.sourceMap===n.sourceMap)return;r(n=e);}else c();}}n.exports=function(n,e){(e=e||{}).singleton||"boolean"==typeof e.singleton||(e.singleton=c());var t=l(n=n||[],e);return function(n){if(n=n||[],"[object Array]"===Object.prototype.toString.call(n)){for(var r=0;r<t.length;r++){var c=a(t[r]);i[c].references--;}for(var o=l(n,e),s=0;s<t.length;s++){var u=a(t[s]);0===i[u].references&&(i[u].updater(),i.splice(u,1));}t=o;}}};},function(n,e,t){n.exports=function(n){var e=[];return e.toString=function(){return this.map((function(e){var t=function(n,e){var t=n[1]||"",r=n[3];if(!r)return t;if(e&&"function"==typeof btoa){var c=(i=r,a=btoa(unescape(encodeURIComponent(JSON.stringify(i)))),l="sourceMappingURL=data:application/json;charset=utf-8;base64,".concat(a),"/*# ".concat(l," */")),o=r.sources.map((function(n){return "/*# sourceURL=".concat(r.sourceRoot||"").concat(n," */")}));return [t].concat(o).concat([c]).join("\n")}var i,a,l;return [t].join("\n")}(e,n);return e[2]?"@media ".concat(e[2]," {").concat(t,"}"):t})).join("")},e.i=function(n,t,r){"string"==typeof n&&(n=[[null,n,""]]);var c={};if(r)for(var o=0;o<this.length;o++){var i=this[o][0];null!=i&&(c[i]=!0);}for(var a=0;a<n.length;a++){var l=[].concat(n[a]);r&&c[l[0]]||(t&&(l[2]?l[2]="".concat(t," and ").concat(l[2]):l[2]=t),e.push(l));}},e};},function(n,e,t){t.r(e);var r,c=t(1),o=t.n(c),i=t(0),a=t.n(i),l={insert:"head",singleton:!1},s=(o()(a.a,l),{rect:(r=document.createElementNS("http://www.w3.org/2000/svg","svg"),r.setAttribute("viewBox","0 0 70 50"),r.innerHTML='\n    <g>\n      <rect x="12" y="10" width="46" height="30" />\n      <g class="handles">\n        <circle cx="12"  cy="10"  r="5" />\n        <circle cx="58" cy="10"  r="5" />\n        <circle cx="12"  cy="40" r="5" />\n        <circle cx="58" cy="40" r="5" />\n      </g>\n    </g>\n  ',r),polygon:function(){var n=document.createElementNS("http://www.w3.org/2000/svg","svg");return n.setAttribute("viewBox","0 0 70 50"),n.innerHTML='\n    <g>\n      <path d=\'M 5,14 60,5 55,45 18,38 Z\' />\n      <g class="handles">\n        <circle cx="5"  cy="14"  r="5" />\n        <circle cx="60" cy="5"  r="5" />\n        <circle cx="55"  cy="45" r="5" />\n        <circle cx="18" cy="38" r="5" />\n      </g>\n    </g>\n  ',n}(),circle:function(){var n=document.createElementNS("http://www.w3.org/2000/svg","svg");return n.setAttribute("viewBox","0 0 70 50"),n.innerHTML='\n    <g>\n      <circle cx="35" cy="25" r="23" />\n      <g class="handles">\n        <circle cx="35" cy="2"  r="5" />\n        <circle cx="12" cy="25" r="5" />\n        <circle cx="58" cy="25" r="5" />\n        <circle cx="35" cy="48" r="5" />\n      </g>\n    </g>\n  ',n}(),ellipse:function(){var n=document.createElementNS("http://www.w3.org/2000/svg","svg");return n.setAttribute("viewBox","0 0 70 50"),n.innerHTML='\n    <g>\n      <ellipse cx="35" cy="25" rx="30" ry="19" />\n      <g class="handles">\n        <circle cx="35" cy="6"  r="5" />\n        <circle cx="5" cy="25" r="5" />\n        <circle cx="65" cy="25" r="5" />\n        <circle cx="35" cy="44" r="5" />\n      </g>\n    </g>\n  ',n}(),freehand:function(){var n=document.createElementNS("http://www.w3.org/2000/svg","svg");return n.setAttribute("viewBox","0 0 70 50"),n.innerHTML='\n    <g>\n      <path d="m 34.427966,2.7542372 c 0,0 -22.245763,20.7627118 -16.737288,27.7542378 5.508475,6.991525 27.648305,-15.36017 34.639831,-9.11017 6.991525,6.25 -11.440678,13.665255 -13.983051,25.423729" />\n      <g class="handles">\n        <circle cx="34.427966" cy="2.7542372"  r="5" />\n        <circle cx="38.347458" cy="46.822033" r="5" />\n      </g>\n    </g>\n  ',n}(),point:function(){var n=document.createElementNS("http://www.w3.org/2000/svg","svg");return n.setAttribute("viewBox","0 0 70 50"),n.innerHTML='\n    <g>\n      <circle cx="36" cy="24" r="11" />\n      <g class="handles"><circle cx="36" cy="24" r="4" /></g>\n      <line x1="36" y1="3" x2="36" y2="13" />\n      <line x1="36" y1="35" x2="36" y2="45" />\n      <line x1="15" y1="24" x2="25" y2="24" />\n      <line x1="47" y1="24" x2="57" y2="24" />\n    </g>\n  ',n}(),"annotorious-tilted-box":function(){var n=document.createElementNS("http://www.w3.org/2000/svg","svg");return n.setAttribute("viewBox","0 0 70 50"),n.innerHTML='\n    <g>\n      <path d="M 45.14,2.37 60.67,20.76 25.33,50.32 9.9,31.94 Z"/>\n      <g class="handles">\n        <circle cx="45.14" cy="2.37"  r="5" />\n        <circle cx="60.67" cy="20.76"  r="5" />\n        <circle cx="25.33" cy="50.32" r="5" />\n        <circle cx="9.9"   cy="31.94" r="5" />\n      </g>\n    </g>\n  ',n}()});e.default=function(n,e){var t=!!n.fitBounds,r=document.createElement("div");r.className="a9s-toolbar";var c=function(){var n,e,t,c=r.querySelector(".a9s-toolbar-btn.active");c&&(e="active",t=(n=c).getAttribute("class").split(" ").filter((function(n){return n!==e})),n.setAttribute("class",t.join(" ")));},o=function(n){var e,t,r;c(),e=n,t="active",(r=new Set(e.getAttribute("class").split(" "))).add(t),e.setAttribute("class",Array.from(r).join(" "));};n.listDrawingTools().forEach((function(e,c){!function(e,c){var i=s[e];if(i){var a=document.createElement("button");a.className=c?"a9s-toolbar-btn ".concat(e," active"):"a9s-toolbar-btn ".concat(e);var l=document.createElement("span");l.className="a9s-toolbar-btn-inner",l.appendChild(i),a.addEventListener("click",(function(){o(a),n.setDrawingTool(e),t&&n.setDrawingEnabled(!0);})),a.appendChild(l),r.appendChild(a);}}(e,!t&&0===c);})),t&&n.on("createSelection",c),e.appendChild(r);};}]).default}));
 });
 
-const Toolbar = /*@__PURE__*/openseadragon.getDefaultExportFromCjs(annotoriousToolbar_min);
+const Toolbar = /*@__PURE__*/getDefaultExportFromCjs(annotoriousToolbar_min);
 
 // const annotationsEndpoint = location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://api.visual-essays.net'
 const annotationsEndpoint = 'https://api.visual-essays.net';
@@ -967,7 +3197,7 @@ const annotationsEndpoint = 'https://api.visual-essays.net';
 class Annotator {
 
   constructor(viewer, toolbar, authToken) {
-    this._annotorious = openseadragonAnnotorious_min.openseadragonAnnotorious_min(viewer, {readOnly: !authToken});
+    this._annotorious = openseadragonAnnotorious_min(viewer, {readOnly: !authToken});
     this._token = authToken;
 
     //if (this._token) {
@@ -1024,7 +3254,7 @@ class Annotator {
   }
 
   async _createAnnotation(anno) {
-    anno.id = utils.sha256(anno.id).slice(0,8);
+    anno.id = sha256(anno.id).slice(0,8);
     anno.target.id = this.sourceHash;
     // console.log(`createAnnotation: target=${anno.target.id} creator=${anno.creator}`, anno)
     let resp = await fetch(`${annotationsEndpoint}/annotation/`, {
@@ -1073,7 +3303,7 @@ class Annotator {
 
 }
 
-var lodash = openseadragon.createCommonjsModule(function (module, exports) {
+var lodash = createCommonjsModule(function (module, exports) {
 (function() {
 
   /** Used as a safe reference for `undefined` in pre-ES5 environments. */
@@ -1495,7 +3725,7 @@ var lodash = openseadragon.createCommonjsModule(function (module, exports) {
       freeParseInt = parseInt;
 
   /** Detect free variable `global` from Node.js. */
-  var freeGlobal = typeof openseadragon.commonjsGlobal == 'object' && openseadragon.commonjsGlobal && openseadragon.commonjsGlobal.Object === Object && openseadragon.commonjsGlobal;
+  var freeGlobal = typeof commonjsGlobal == 'object' && commonjsGlobal && commonjsGlobal.Object === Object && commonjsGlobal;
 
   /** Detect free variable `self`. */
   var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
@@ -18260,14 +20490,847 @@ var lodash = openseadragon.createCommonjsModule(function (module, exports) {
     // Export to the global object.
     root._ = _;
   }
-}.call(openseadragon.commonjsGlobal));
+}.call(commonjsGlobal));
 });
+
+// src/components/badge/badge.styles.ts
+var badge_styles_default = r$2`
+  ${component_styles_default}
+
+  :host {
+    display: inline-flex;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--sl-font-size-x-small);
+    font-weight: var(--sl-font-weight-semibold);
+    letter-spacing: var(--sl-letter-spacing-normal);
+    line-height: 1;
+    border-radius: var(--sl-border-radius-small);
+    border: solid 1px var(--sl-color-neutral-0);
+    white-space: nowrap;
+    padding: 3px 6px;
+    user-select: none;
+    cursor: inherit;
+  }
+
+  /* Variant modifiers */
+  .badge--primary {
+    background-color: var(--sl-color-primary-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .badge--success {
+    background-color: var(--sl-color-success-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .badge--neutral {
+    background-color: var(--sl-color-neutral-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .badge--warning {
+    background-color: var(--sl-color-warning-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .badge--danger {
+    background-color: var(--sl-color-danger-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  /* Pill modifier */
+  .badge--pill {
+    border-radius: var(--sl-border-radius-pill);
+  }
+
+  /* Pulse modifier */
+  .badge--pulse {
+    animation: pulse 1.5s infinite;
+  }
+
+  .badge--pulse.badge--primary {
+    --pulse-color: var(--sl-color-primary-600);
+  }
+
+  .badge--pulse.badge--success {
+    --pulse-color: var(--sl-color-success-600);
+  }
+
+  .badge--pulse.badge--neutral {
+    --pulse-color: var(--sl-color-neutral-600);
+  }
+
+  .badge--pulse.badge--warning {
+    --pulse-color: var(--sl-color-warning-600);
+  }
+
+  .badge--pulse.badge--danger {
+    --pulse-color: var(--sl-color-danger-600);
+  }
+
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 0 0 var(--pulse-color);
+    }
+    70% {
+      box-shadow: 0 0 0 0.5rem transparent;
+    }
+    100% {
+      box-shadow: 0 0 0 0 transparent;
+    }
+  }
+`;
+
+// src/components/badge/badge.ts
+var SlBadge = class extends s4 {
+  constructor() {
+    super(...arguments);
+    this.variant = "primary";
+    this.pill = false;
+    this.pulse = false;
+  }
+  render() {
+    return $`
+      <span
+        part="base"
+        class=${o$1({
+      badge: true,
+      "badge--primary": this.variant === "primary",
+      "badge--success": this.variant === "success",
+      "badge--neutral": this.variant === "neutral",
+      "badge--warning": this.variant === "warning",
+      "badge--danger": this.variant === "danger",
+      "badge--pill": this.pill,
+      "badge--pulse": this.pulse
+    })}
+        role="status"
+      >
+        <slot></slot>
+      </span>
+    `;
+  }
+};
+SlBadge.styles = badge_styles_default;
+__decorateClass([
+  e$1({ reflect: true })
+], SlBadge.prototype, "variant", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlBadge.prototype, "pill", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlBadge.prototype, "pulse", 2);
+SlBadge = __decorateClass([
+  n$1("sl-badge")
+], SlBadge);
+
+// src/components/drawer/drawer.styles.ts
+var drawer_styles_default = r$2`
+  ${component_styles_default}
+
+  :host {
+    --size: 25rem;
+    --header-spacing: var(--sl-spacing-large);
+    --body-spacing: var(--sl-spacing-large);
+    --footer-spacing: var(--sl-spacing-large);
+
+    display: contents;
+  }
+
+  .drawer {
+    top: 0;
+    inset-inline-start: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .drawer--contained {
+    position: absolute;
+    z-index: initial;
+  }
+
+  .drawer--fixed {
+    position: fixed;
+    z-index: var(--sl-z-index-drawer);
+  }
+
+  .drawer__panel {
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+    max-width: 100%;
+    max-height: 100%;
+    background-color: var(--sl-panel-background-color);
+    box-shadow: var(--sl-shadow-x-large);
+    transition: var(--sl-transition-medium) transform;
+    overflow: auto;
+    pointer-events: all;
+  }
+
+  .drawer__panel:focus {
+    outline: none;
+  }
+
+  .drawer--top .drawer__panel {
+    top: 0;
+    inset-inline-end: auto;
+    bottom: auto;
+    inset-inline-start: 0;
+    width: 100%;
+    height: var(--size);
+  }
+
+  .drawer--end .drawer__panel {
+    top: 0;
+    inset-inline-end: 0;
+    bottom: auto;
+    inset-inline-start: auto;
+    width: var(--size);
+    height: 100%;
+  }
+
+  .drawer--bottom .drawer__panel {
+    top: auto;
+    inset-inline-end: auto;
+    bottom: 0;
+    inset-inline-start: 0;
+    width: 100%;
+    height: var(--size);
+  }
+
+  .drawer--start .drawer__panel {
+    top: 0;
+    inset-inline-end: auto;
+    bottom: auto;
+    inset-inline-start: 0;
+    width: var(--size);
+    height: 100%;
+  }
+
+  .drawer__header {
+    display: flex;
+  }
+
+  .drawer__title {
+    flex: 1 1 auto;
+    font: inherit;
+    font-size: var(--sl-font-size-large);
+    line-height: var(--sl-line-height-dense);
+    padding: var(--header-spacing);
+    margin: 0;
+  }
+
+  .drawer__close {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    font-size: var(--sl-font-size-x-large);
+    padding: 0 var(--header-spacing);
+  }
+
+  .drawer__body {
+    flex: 1 1 auto;
+    padding: var(--body-spacing);
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .drawer__footer {
+    text-align: right;
+    padding: var(--footer-spacing);
+  }
+
+  .drawer__footer ::slotted(sl-button:not(:last-of-type)) {
+    margin-inline-end: var(--sl-spacing-x-small);
+  }
+
+  .drawer:not(.drawer--has-footer) .drawer__footer {
+    display: none;
+  }
+
+  .drawer__overlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background-color: var(--sl-overlay-background-color);
+    pointer-events: all;
+  }
+
+  .drawer--contained .drawer__overlay {
+    position: absolute;
+  }
+`;
+
+// src/internal/string.ts
+function uppercaseFirstLetter(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+// src/components/drawer/drawer.ts
+var SlDrawer = class extends s4 {
+  constructor() {
+    super(...arguments);
+    this.hasSlotController = new HasSlotController(this, "footer");
+    this.localize = new LocalizeController2(this);
+    this.open = false;
+    this.label = "";
+    this.placement = "end";
+    this.contained = false;
+    this.noHeader = false;
+  }
+  connectedCallback() {
+    super.connectedCallback();
+    this.modal = new Modal(this);
+  }
+  firstUpdated() {
+    this.drawer.hidden = !this.open;
+    if (this.open && !this.contained) {
+      this.modal.activate();
+      lockBodyScrolling(this);
+    }
+  }
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    unlockBodyScrolling(this);
+  }
+  async show() {
+    if (this.open) {
+      return void 0;
+    }
+    this.open = true;
+    return waitForEvent(this, "sl-after-show");
+  }
+  async hide() {
+    if (!this.open) {
+      return void 0;
+    }
+    this.open = false;
+    return waitForEvent(this, "sl-after-hide");
+  }
+  requestClose(source) {
+    const slRequestClose = emit(this, "sl-request-close", {
+      cancelable: true,
+      detail: { source }
+    });
+    if (slRequestClose.defaultPrevented) {
+      const animation = getAnimation(this, "drawer.denyClose", { dir: this.localize.dir() });
+      animateTo(this.panel, animation.keyframes, animation.options);
+      return;
+    }
+    this.hide();
+  }
+  handleKeyDown(event) {
+    if (event.key === "Escape") {
+      event.stopPropagation();
+      this.requestClose("keyboard");
+    }
+  }
+  async handleOpenChange() {
+    if (this.open) {
+      emit(this, "sl-show");
+      this.originalTrigger = document.activeElement;
+      if (!this.contained) {
+        this.modal.activate();
+        lockBodyScrolling(this);
+      }
+      const autoFocusTarget = this.querySelector("[autofocus]");
+      if (autoFocusTarget) {
+        autoFocusTarget.removeAttribute("autofocus");
+      }
+      await Promise.all([stopAnimations(this.drawer), stopAnimations(this.overlay)]);
+      this.drawer.hidden = false;
+      requestAnimationFrame(() => {
+        const slInitialFocus = emit(this, "sl-initial-focus", { cancelable: true });
+        if (!slInitialFocus.defaultPrevented) {
+          if (autoFocusTarget) {
+            autoFocusTarget.focus({ preventScroll: true });
+          } else {
+            this.panel.focus({ preventScroll: true });
+          }
+        }
+        if (autoFocusTarget) {
+          autoFocusTarget.setAttribute("autofocus", "");
+        }
+      });
+      const panelAnimation = getAnimation(this, `drawer.show${uppercaseFirstLetter(this.placement)}`, {
+        dir: this.localize.dir()
+      });
+      const overlayAnimation = getAnimation(this, "drawer.overlay.show", { dir: this.localize.dir() });
+      await Promise.all([
+        animateTo(this.panel, panelAnimation.keyframes, panelAnimation.options),
+        animateTo(this.overlay, overlayAnimation.keyframes, overlayAnimation.options)
+      ]);
+      emit(this, "sl-after-show");
+    } else {
+      emit(this, "sl-hide");
+      this.modal.deactivate();
+      unlockBodyScrolling(this);
+      await Promise.all([stopAnimations(this.drawer), stopAnimations(this.overlay)]);
+      const panelAnimation = getAnimation(this, `drawer.hide${uppercaseFirstLetter(this.placement)}`, {
+        dir: this.localize.dir()
+      });
+      const overlayAnimation = getAnimation(this, "drawer.overlay.hide", { dir: this.localize.dir() });
+      await Promise.all([
+        animateTo(this.panel, panelAnimation.keyframes, panelAnimation.options),
+        animateTo(this.overlay, overlayAnimation.keyframes, overlayAnimation.options)
+      ]);
+      this.drawer.hidden = true;
+      const trigger = this.originalTrigger;
+      if (typeof (trigger == null ? void 0 : trigger.focus) === "function") {
+        setTimeout(() => trigger.focus());
+      }
+      emit(this, "sl-after-hide");
+    }
+  }
+  render() {
+    return $`
+      <div
+        part="base"
+        class=${o$1({
+      drawer: true,
+      "drawer--open": this.open,
+      "drawer--top": this.placement === "top",
+      "drawer--end": this.placement === "end",
+      "drawer--bottom": this.placement === "bottom",
+      "drawer--start": this.placement === "start",
+      "drawer--contained": this.contained,
+      "drawer--fixed": !this.contained,
+      "drawer--rtl": this.localize.dir() === "rtl",
+      "drawer--has-footer": this.hasSlotController.test("footer")
+    })}
+        @keydown=${this.handleKeyDown}
+      >
+        <div part="overlay" class="drawer__overlay" @click=${() => this.requestClose("overlay")} tabindex="-1"></div>
+
+        <div
+          part="panel"
+          class="drawer__panel"
+          role="dialog"
+          aria-modal="true"
+          aria-hidden=${this.open ? "false" : "true"}
+          aria-label=${l$1(this.noHeader ? this.label : void 0)}
+          aria-labelledby=${l$1(!this.noHeader ? "title" : void 0)}
+          tabindex="0"
+        >
+          ${!this.noHeader ? $`
+                <header part="header" class="drawer__header">
+                  <h2 part="title" class="drawer__title" id="title">
+                    <!-- If there's no label, use an invisible character to prevent the header from collapsing -->
+                    <slot name="label"> ${this.label.length > 0 ? this.label : String.fromCharCode(65279)} </slot>
+                  </h2>
+                  <sl-icon-button
+                    part="close-button"
+                    exportparts="base:close-button__base"
+                    class="drawer__close"
+                    name="x"
+                    label=${this.localize.term("close")}
+                    library="system"
+                    @click=${() => this.requestClose("close-button")}
+                  ></sl-icon-button>
+                </header>
+              ` : ""}
+
+          <div part="body" class="drawer__body">
+            <slot></slot>
+          </div>
+
+          <footer part="footer" class="drawer__footer">
+            <slot name="footer"></slot>
+          </footer>
+        </div>
+      </div>
+    `;
+  }
+};
+SlDrawer.styles = drawer_styles_default;
+__decorateClass([
+  i2$1(".drawer")
+], SlDrawer.prototype, "drawer", 2);
+__decorateClass([
+  i2$1(".drawer__panel")
+], SlDrawer.prototype, "panel", 2);
+__decorateClass([
+  i2$1(".drawer__overlay")
+], SlDrawer.prototype, "overlay", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlDrawer.prototype, "open", 2);
+__decorateClass([
+  e$1({ reflect: true })
+], SlDrawer.prototype, "label", 2);
+__decorateClass([
+  e$1({ reflect: true })
+], SlDrawer.prototype, "placement", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlDrawer.prototype, "contained", 2);
+__decorateClass([
+  e$1({ attribute: "no-header", type: Boolean, reflect: true })
+], SlDrawer.prototype, "noHeader", 2);
+__decorateClass([
+  watch("open", { waitUntilFirstUpdate: true })
+], SlDrawer.prototype, "handleOpenChange", 1);
+SlDrawer = __decorateClass([
+  n$1("sl-drawer")
+], SlDrawer);
+setDefaultAnimation("drawer.showTop", {
+  keyframes: [
+    { opacity: 0, transform: "translateY(-100%)" },
+    { opacity: 1, transform: "translateY(0)" }
+  ],
+  options: { duration: 250, easing: "ease" }
+});
+setDefaultAnimation("drawer.hideTop", {
+  keyframes: [
+    { opacity: 1, transform: "translateY(0)" },
+    { opacity: 0, transform: "translateY(-100%)" }
+  ],
+  options: { duration: 250, easing: "ease" }
+});
+setDefaultAnimation("drawer.showEnd", {
+  keyframes: [
+    { opacity: 0, transform: "translateX(100%)" },
+    { opacity: 1, transform: "translateX(0)" }
+  ],
+  rtlKeyframes: [
+    { opacity: 0, transform: "translateX(-100%)" },
+    { opacity: 1, transform: "translateX(0)" }
+  ],
+  options: { duration: 250, easing: "ease" }
+});
+setDefaultAnimation("drawer.hideEnd", {
+  keyframes: [
+    { opacity: 1, transform: "translateX(0)" },
+    { opacity: 0, transform: "translateX(100%)" }
+  ],
+  rtlKeyframes: [
+    { opacity: 1, transform: "translateX(0)" },
+    { opacity: 0, transform: "translateX(-100%)" }
+  ],
+  options: { duration: 250, easing: "ease" }
+});
+setDefaultAnimation("drawer.showBottom", {
+  keyframes: [
+    { opacity: 0, transform: "translateY(100%)" },
+    { opacity: 1, transform: "translateY(0)" }
+  ],
+  options: { duration: 250, easing: "ease" }
+});
+setDefaultAnimation("drawer.hideBottom", {
+  keyframes: [
+    { opacity: 1, transform: "translateY(0)" },
+    { opacity: 0, transform: "translateY(100%)" }
+  ],
+  options: { duration: 250, easing: "ease" }
+});
+setDefaultAnimation("drawer.showStart", {
+  keyframes: [
+    { opacity: 0, transform: "translateX(-100%)" },
+    { opacity: 1, transform: "translateX(0)" }
+  ],
+  rtlKeyframes: [
+    { opacity: 0, transform: "translateX(100%)" },
+    { opacity: 1, transform: "translateX(0)" }
+  ],
+  options: { duration: 250, easing: "ease" }
+});
+setDefaultAnimation("drawer.hideStart", {
+  keyframes: [
+    { opacity: 1, transform: "translateX(0)" },
+    { opacity: 0, transform: "translateX(-100%)" }
+  ],
+  rtlKeyframes: [
+    { opacity: 1, transform: "translateX(0)" },
+    { opacity: 0, transform: "translateX(100%)" }
+  ],
+  options: { duration: 250, easing: "ease" }
+});
+setDefaultAnimation("drawer.denyClose", {
+  keyframes: [{ transform: "scale(1)" }, { transform: "scale(1.01)" }, { transform: "scale(1)" }],
+  options: { duration: 250 }
+});
+setDefaultAnimation("drawer.overlay.show", {
+  keyframes: [{ opacity: 0 }, { opacity: 1 }],
+  options: { duration: 250 }
+});
+setDefaultAnimation("drawer.overlay.hide", {
+  keyframes: [{ opacity: 1 }, { opacity: 0 }],
+  options: { duration: 250 }
+});
+
+// src/components/image-comparer/image-comparer.styles.ts
+var image_comparer_styles_default = r$2`
+  ${component_styles_default}
+
+  :host {
+    --divider-width: 2px;
+    --handle-size: 2.5rem;
+
+    display: inline-block;
+    position: relative;
+  }
+
+  .image-comparer {
+    max-width: 100%;
+    max-height: 100%;
+    overflow: hidden;
+  }
+
+  .image-comparer__before,
+  .image-comparer__after {
+    pointer-events: none;
+  }
+
+  .image-comparer__before ::slotted(img),
+  .image-comparer__after ::slotted(img),
+  .image-comparer__before ::slotted(svg),
+  .image-comparer__after ::slotted(svg) {
+    display: block;
+    max-width: 100% !important;
+    height: auto;
+  }
+
+  .image-comparer__after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+  }
+
+  .image-comparer__divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 0;
+    width: var(--divider-width);
+    height: 100%;
+    background-color: var(--sl-color-neutral-0);
+    transform: translateX(calc(var(--divider-width) / -2));
+    cursor: ew-resize;
+  }
+
+  .image-comparer__handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: calc(50% - (var(--handle-size) / 2));
+    width: var(--handle-size);
+    height: var(--handle-size);
+    background-color: var(--sl-color-neutral-0);
+    border-radius: var(--sl-border-radius-circle);
+    font-size: calc(var(--handle-size) * 0.5);
+    color: var(--sl-color-neutral-600);
+    cursor: inherit;
+    z-index: 10;
+  }
+
+  .image-comparer__handle${focusVisibleSelector} {
+    outline: var(--sl-focus-ring);
+    outline-offset: var(--sl-focus-ring-offset);
+  }
+`;
+
+// src/internal/drag.ts
+function drag(container, options) {
+  function move(pointerEvent) {
+    const dims = container.getBoundingClientRect();
+    const defaultView = container.ownerDocument.defaultView;
+    const offsetX = dims.left + defaultView.pageXOffset;
+    const offsetY = dims.top + defaultView.pageYOffset;
+    const x = pointerEvent.pageX - offsetX;
+    const y = pointerEvent.pageY - offsetY;
+    if (options == null ? void 0 : options.onMove) {
+      options.onMove(x, y);
+    }
+  }
+  function stop() {
+    document.removeEventListener("pointermove", move);
+    document.removeEventListener("pointerup", stop);
+    if (options == null ? void 0 : options.onStop) {
+      options.onStop();
+    }
+  }
+  document.addEventListener("pointermove", move, { passive: true });
+  document.addEventListener("pointerup", stop);
+  if (options == null ? void 0 : options.initialEvent) {
+    move(options.initialEvent);
+  }
+}
+
+// src/internal/math.ts
+function clamp(value, min, max) {
+  if (value < min) {
+    return min;
+  }
+  if (value > max) {
+    return max;
+  }
+  return value;
+}
+
+// node_modules/lit-html/directives/style-map.js
+var i2 = e$2(class extends i {
+  constructor(t2) {
+    var e2;
+    if (super(t2), t2.type !== t$1.ATTRIBUTE || t2.name !== "style" || ((e2 = t2.strings) === null || e2 === void 0 ? void 0 : e2.length) > 2)
+      throw Error("The `styleMap` directive must be used in the `style` attribute and must be the only part in the attribute.");
+  }
+  render(t2) {
+    return Object.keys(t2).reduce((e2, r) => {
+      const s = t2[r];
+      return s == null ? e2 : e2 + `${r = r.replace(/(?:^(webkit|moz|ms|o)|)(?=[A-Z])/g, "-$&").toLowerCase()}:${s};`;
+    }, "");
+  }
+  update(e2, [r]) {
+    const { style: s } = e2.element;
+    if (this.ct === void 0) {
+      this.ct = /* @__PURE__ */ new Set();
+      for (const t2 in r)
+        this.ct.add(t2);
+      return this.render(r);
+    }
+    this.ct.forEach((t2) => {
+      r[t2] == null && (this.ct.delete(t2), t2.includes("-") ? s.removeProperty(t2) : s[t2] = "");
+    });
+    for (const t2 in r) {
+      const e3 = r[t2];
+      e3 != null && (this.ct.add(t2), t2.includes("-") ? s.setProperty(t2, e3) : s[t2] = e3);
+    }
+    return b;
+  }
+});
+/**
+ * @license
+ * Copyright 2018 Google LLC
+ * SPDX-License-Identifier: BSD-3-Clause
+ */
+
+// src/components/image-comparer/image-comparer.ts
+var SlImageComparer = class extends s4 {
+  constructor() {
+    super(...arguments);
+    this.position = 50;
+  }
+  handleDrag(event) {
+    const { width } = this.base.getBoundingClientRect();
+    event.preventDefault();
+    drag(this.base, {
+      onMove: (x) => {
+        this.position = parseFloat(clamp(x / width * 100, 0, 100).toFixed(2));
+      },
+      initialEvent: event
+    });
+  }
+  handleKeyDown(event) {
+    if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
+      const incr = event.shiftKey ? 10 : 1;
+      let newPosition = this.position;
+      event.preventDefault();
+      if (event.key === "ArrowLeft") {
+        newPosition -= incr;
+      }
+      if (event.key === "ArrowRight") {
+        newPosition += incr;
+      }
+      if (event.key === "Home") {
+        newPosition = 0;
+      }
+      if (event.key === "End") {
+        newPosition = 100;
+      }
+      newPosition = clamp(newPosition, 0, 100);
+      this.position = newPosition;
+    }
+  }
+  handlePositionChange() {
+    emit(this, "sl-change");
+  }
+  render() {
+    return $`
+      <div part="base" id="image-comparer" class="image-comparer" @keydown=${this.handleKeyDown}>
+        <div class="image-comparer__image">
+          <div part="before" class="image-comparer__before">
+            <slot name="before"></slot>
+          </div>
+
+          <div
+            part="after"
+            class="image-comparer__after"
+            style=${i2({ clipPath: `inset(0 ${100 - this.position}% 0 0)` })}
+          >
+            <slot name="after"></slot>
+          </div>
+        </div>
+
+        <div
+          part="divider"
+          class="image-comparer__divider"
+          style=${i2({ left: `${this.position}%` })}
+          @mousedown=${this.handleDrag}
+          @touchstart=${this.handleDrag}
+        >
+          <div
+            part="handle"
+            class="image-comparer__handle"
+            role="scrollbar"
+            aria-valuenow=${this.position}
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-controls="image-comparer"
+            tabindex="0"
+          >
+            <slot name="handle-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <g fill="currentColor" fill-rule="nonzero">
+                  <path
+                    d="m21.14 12.55-5.482 4.796c-.646.566-1.658.106-1.658-.753V7a1 1 0 0 1 1.659-.753l5.48 4.796a1 1 0 0 1 0 1.506h.001ZM2.341 12.55l5.482 4.796c.646.566 1.658.106 1.658-.753V7a1 1 0 0 0-1.659-.753l-5.48 4.796a1 1 0 0 0 0 1.506h-.001Z"
+                  />
+                </g>
+              </svg>
+            </slot>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+};
+SlImageComparer.styles = image_comparer_styles_default;
+__decorateClass([
+  i2$1(".image-comparer")
+], SlImageComparer.prototype, "base", 2);
+__decorateClass([
+  i2$1(".image-comparer__handle")
+], SlImageComparer.prototype, "handle", 2);
+__decorateClass([
+  e$1({ type: Number, reflect: true })
+], SlImageComparer.prototype, "position", 2);
+__decorateClass([
+  watch("position", { waitUntilFirstUpdate: true })
+], SlImageComparer.prototype, "handlePositionChange", 1);
+SlImageComparer = __decorateClass([
+  n$1("sl-image-comparer")
+], SlImageComparer);
 
 const veImageCss = ":host{position:relative}.osd-wrapper{position:relative}#instructions{font-family:Roboto,sans-serif;pointer-events:none;position:absolute;z-index:3;left:0;right:0;top:0;bottom:0;background-color:rgba(0, 0, 0, 0.4);font-size:16px;color:white;display:flex;justify-content:center;align-items:center}.hidden{visibility:hidden}.visible{visibility:visible}sl-image-comparer{display:unset}sl-image-comparer img{width:100%}:host,ve-image{box-sizing:border-box;max-width:100%;display:flex;flex-direction:column;}*{box-sizing:border-box}ve-image-toolbar{position:absolute;top:10px;right:10px;transition:all 1s ease-out}:host(:hover) ve-image-toolbar{visibility:visible;opacity:1;transition:all 0.3s ease-in}#menu-icon,#annotations-icon{position:relative;cursor:pointer}.drawer-contained::part(panel){z-index:3;padding:3px;background-color:white;border-top:1px solid #ccc;border-left:1px solid #ccc;box-shadow:5px 0 10px -5px rgba(115,115,115,0.75)}.drawer-contained::part(overlay){background:none}.drawer-contained::part(body){padding:0}.drawer-contained::part(title){padding:0}.drawer-contained::part(close-button){padding:0}#menu-icon::part(base),#annotations-icon::part(base){color:white;font-size:1.2rem;padding:3px}h3{margin:12px 0 9px 0}#caption div.button-icon-with-badge{display:inline-block;position:relative;width:50px}.button-icon-with-badge sl-badge{position:absolute;left:40%;top:0;cursor:pointer}.button-icon-with-badge sl-badge::part(base){font-size:.6rem;background-color:yellow;color:black;font-weight:bold;padding:4px 5px 1px 5px;border:unset}.anno{font-family:Roboto,sans-serif;color:#0000EE;cursor:pointer;padding:4px;margin-bottom:6px;border:0.5px solid #ccc;font-size:0.8em}.anno-link{color:#0000EE}.anno-copy::part(base){padding:0 4px 0 0}.anno-link:hover{text-decoration:underline}#osd{width:100%;height:100%;z-index:3}.a9s-toolbar,.a9s-annotationlayer{display:none}.viewport-coords{position:absolute;font-family:sans-serif;bottom:0;right:0;width:130px;height:32px;padding:3px 6px;font-size:0.8rem;background-color:rgba(255, 255, 255, 0.5);color:black;z-index:2;opacity:0;text-align:right}.viewport-coords:hover{visibility:visible;opacity:1;transition:all 0.3s ease-in;cursor:copy}:host #info-icon{visibility:hidden}:host(:hover) #info-icon{visibility:visible}#info-icon{position:absolute;top:10px;right:10px;width:22px;height:22px;border:2px solid rgba(255, 255, 255, 0.8);border-radius:50%;background-color:white}#info-icon svg{fill:rgba(0, 0, 0, 0.6)}#info-icon:hover{cursor:pointer}#info-icon:hover svg{fill:black}.annotations-heading{display:flex;align-items:center;gap:9px;font-weight:bold;padding:4px}.annotations-heading sl-icon{color:#444;font-size:20px}.annotations-heading sl-icon:hover{color:black}.annotations-heading sl-icon::part(base){cursor:pointer}#image-info-popup{position:absolute;display:none;width:75%;max-width:300px;height:auto;max-height:500px;background:#fff;right:50px;top:10px;padding:6px;border:1px solid #444;box-shadow:0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);border-radius:3px;overflow-y:scroll}#caption{display:flex;align-items:center;font-family:sans-serif;width:100%;background:rgba(0, 0, 0, 0.7);color:white;padding:4px 6px;bottom:0;height:32px}#caption div{width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:1rem}.a9s-toolbar-btn{margin:4px 4px 4px 0;outline:0;border:none;cursor:pointer;background-color:transparent;border-radius:4px;padding:8px;width:45px;height:45px}.a9s-toolbar-btn:hover{background-color:rgba(0,0,0,0.05)}.a9s-toolbar-btn-inner{display:flex}.a9s-toolbar-btn svg{overflow:visible;width:100%;height:100%}.a9s-toolbar-btn svg *{stroke-width:5px;fill:none;stroke:rgba(0,0,0,0.5)}.a9s-toolbar-btn g.handles circle{stroke-width:4px;fill:#fff;stroke:#000}.a9s-toolbar-btn.active{background-color:rgba(0,0,0,0.3)}.a9s-toolbar-btn.active svg *{stroke:rgba(255,255,255,0.6)}.a9s-toolbar-btn.active g.handles circle{stroke:#fff;fill:rgba(0,0,0,0.2)}svg.a9s-annotationlayer .a9s-selection .a9s-inner,svg.a9s-annotationlayer .a9s-annotation .a9s-inner{stroke-width:3;stroke:rgba(255,255,0,1.0);}svg.a9s-annotationlayer .a9s-selection-mask{fill:rgba(0, 0, 0, 0.3)}.r6o-editor{top:0;left:0;margin-left:-19px}.a9s-annotationlayer{position:absolute;top:0;left:0;width:100%;height:100%;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;-o-user-select:none;user-select:none}.a9s-annotationlayer.no-cursor,.a9s-annotationlayer.no-cursor *{cursor:none!important}.a9s-crosshair line{stroke-width:1px;stroke:#00000080;pointer-events:none;vector-effect:non-scaling-stroke;shape-rendering:crispEdges}.a9s-selection-mask{stroke:none;fill:transparent;pointer-events:none}.a9s-annotation rect,.a9s-annotation circle,.a9s-annotation ellipse,.a9s-annotation path,.a9s-annotation polygon,.a9s-selection rect,.a9s-selection circle,.a9s-selection ellipse,.a9s-selection path,.a9s-selection polygon{fill:transparent;cursor:pointer;vector-effect:non-scaling-stroke}.a9s-annotation .a9s-inner,.a9s-selection .a9s-inner{stroke:#fff;stroke-width:1px;fill:transparent}.a9s-annotation .a9s-inner:hover,.a9s-selection .a9s-inner:hover{stroke:#fff000}.a9s-annotation .a9s-outer,.a9s-selection .a9s-outer{stroke:#000000b3;stroke-width:3px;fill:none}.a9s-annotation .a9s-formatter-el,.a9s-selection .a9s-formatter-el{overflow:visible}.a9s-annotation.a9s-point .a9s-inner{display:none}.a9s-annotation.a9s-point .a9s-outer{stroke:#5a5a5a;stroke-width:1.5px;fill:#ffffff80}.a9s-annotation.a9s-point .a9s-outer:hover{fill:#fff000}.a9s-annotation.selected .a9s-inner,.a9s-selection .a9s-inner{stroke:#fff000}.a9s-annotation.editable .a9s-inner{stroke:#fff000;cursor:move!important}.a9s-annotation.editable .a9s-inner:hover{fill:#fff0001a}.a9s-handle{cursor:move}.a9s-handle .a9s-handle-inner{stroke:#fff000;fill:#000}.a9s-handle .a9s-handle-outer{stroke:#000;fill:#fff}.a9s-handle:hover .a9s-handle-inner{fill:#fff000}.r6o-btn{background-color:#4483c4;border:1px solid #4483c4;box-sizing:border-box;color:#fff;cursor:pointer;display:inline-block;font-size:14px;margin:0;outline:none;text-decoration:none;white-space:nowrap;padding:6px 18px;min-width:70px;vertical-align:middle;-webkit-border-radius:2px;-khtml-border-radius:2px;-moz-border-radius:2px;border-radius:2px}.r6o-btn *{vertical-align:middle;cursor:pointer}.r6o-btn .r6o-icon{margin-right:4px}.r6o-btn:disabled{border-color:#a3c2e2!important;background-color:#a3c2e2!important}.r6o-btn:hover{background-color:#4f92d7;border-color:#4f92d7}.r6o-btn.outline{border:1px solid #4483c4;color:#4483c4;background-color:transparent;text-shadow:none}.r6o-autocomplete{display:inline;position:relative}.r6o-autocomplete div[role=combobox]{display:inline}.r6o-autocomplete input{outline:none;border:none;width:80px;height:100%;line-height:14px;white-space:pre;box-sizing:border-box;background-color:transparent;font-size:14px;color:#3f3f3f}.r6o-autocomplete ul{position:absolute;margin:0;padding:0;list-style-type:none;background-color:#fff;border-radius:3px;border:1px solid #d6d7d9;box-sizing:border-box;box-shadow:0 0 20px #00000040}.r6o-autocomplete ul:empty{display:none}.r6o-autocomplete li{box-sizing:border-box;padding:2px 12px;width:100%;cursor:pointer}.r6o-editable-text{max-height:120px;overflow:auto;outline:none;min-height:2em;font-size:14px;font-family:Lato,sans-serif}.r6o-editable-text:empty:not(:focus):before{content:attr(data-placeholder);color:#c2c2c2}.r6o-widget.comment{font-size:14px;min-height:3em;background-color:#fff;position:relative}.r6o-widget.comment .r6o-editable-text,.r6o-widget.comment .r6o-readonly-comment{padding:10px;width:100%;box-sizing:border-box;outline:none;border:none;background-color:transparent;resize:none}.r6o-widget.comment .r6o-readonly-comment{white-space:pre-line}.r6o-widget.comment .r6o-editable-text::-webkit-input-placeholder{color:#c2c2c2}.r6o-widget.comment .r6o-editable-text::-moz-placeholder{color:#c2c2c2}.r6o-widget.comment .r6o-editable-text:-moz-placeholder{color:#c2c2c2}.r6o-widget.comment .r6o-editable-text:-ms-input-placeholder{color:#c2c2c2}.r6o-widget.comment .r6o-lastmodified{border:1px solid #e5e5e5;display:inline-block;border-radius:2px;margin:0 10px 8px;padding:4px 5px;line-height:100%;font-size:12px}.r6o-widget.comment .r6o-lastmodified .r6o-lastmodified-at{color:#757575;padding-left:3px}.r6o-widget.comment .r6o-arrow-down{position:absolute;height:20px;width:20px;top:9px;right:9px;line-height:22px;background-color:#fff;text-align:center;-webkit-font-smoothing:antialiased;border:1px solid #e5e5e5;cursor:pointer;-webkit-border-radius:1px;-khtml-border-radius:1px;-moz-border-radius:1px;border-radius:1px}.r6o-widget.comment .r6o-arrow-down.r6o-menu-open{border-color:#4483c4}.r6o-widget.comment .r6o-comment-dropdown-menu{position:absolute;top:32px;right:8px;background-color:#fff;border:1px solid #e5e5e5;list-style-type:none;margin:0;padding:5px 0;z-index:9999;-webkit-box-shadow:0 2px 4px rgba(0,0,0,.2);-moz-box-shadow:0 2px 4px rgba(0,0,0,.2);box-shadow:0 2px 4px #0003}.r6o-widget.comment .r6o-comment-dropdown-menu li{padding:0 15px;cursor:pointer}.r6o-widget.comment .r6o-comment-dropdown-menu li:hover{background-color:#ecf0f1}.r6o-widget.comment .r6o-purposedropdown{position:relative;z-index:2}.r6o-widget.comment.editable{background-color:#ecf0f1}.r6o-widget.r6o-tag:empty{display:none}@media all and (-ms-high-contrast: none),(-ms-high-contrast: active){.r6o-widget.tag .r6o-taglist li{height:27px}.r6o-widget.tag .r6o-taglist li .r6o-delete-wrapper .r6o-delete{position:relative;top:-4px}}.r6o-widget.r6o-tag{background-color:#ecf0f1;border-bottom:1px solid #e5e5e5;padding:1px 3px;display:flex}.r6o-widget.r6o-tag ul{margin:0;padding:0;list-style-type:none;z-index:1}.r6o-widget.r6o-tag ul.r6o-taglist{flex:0;white-space:nowrap}.r6o-widget.r6o-tag ul.r6o-taglist li{display:inline-block;margin:1px 1px 1px 0;padding:0;vertical-align:middle;overflow:hidden;font-size:12px;background-color:#fff;border:1px solid #d6d7d9;cursor:pointer;position:relative;line-height:180%;-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;-webkit-border-radius:2px;-khtml-border-radius:2px;-moz-border-radius:2px;border-radius:2px;-webkit-box-shadow:0 0 4px rgba(0,0,0,.1);-moz-box-shadow:0 0 4px rgba(0,0,0,.1);box-shadow:0 0 4px #0000001a}.r6o-widget.r6o-tag ul.r6o-taglist li .r6o-label{padding:2px 8px;display:inline-block}.r6o-widget.r6o-tag ul.r6o-taglist li .r6o-delete-wrapper{display:inline-block;padding:2px 0;color:#fff;width:0;height:100%;background-color:#4483c4;-webkit-border-top-right-radius:2px;-webkit-border-bottom-right-radius:2px;-khtml-border-radius-topright:2px;-khtml-border-radius-bottomright:2px;-moz-border-radius-topright:2px;-moz-border-radius-bottomright:2px;border-top-right-radius:2px;border-bottom-right-radius:2px}.r6o-widget.r6o-tag ul.r6o-taglist li .r6o-delete-wrapper .r6o-delete{padding:2px 6px}.r6o-widget.r6o-tag ul.r6o-taglist li .r6o-delete-wrapper svg{vertical-align:text-top}.r6o-widget.r6o-tag ul.r6o-taglist li .r6o-delete-enter-active{width:24px;transition:width .2s}.r6o-widget.r6o-tag ul.r6o-taglist li .r6o-delete-enter-done,.r6o-widget.r6o-tag ul.r6o-taglist li .r6o-delete-exit{width:24px}.r6o-widget.r6o-tag ul.r6o-taglist li .r6o-delete-exit-active{width:0;transition:width .2s}.r6o-widget.r6o-tag .r6o-autocomplete{flex:1;position:relative}.r6o-widget.r6o-tag .r6o-autocomplete li{font-size:14px}.r6o-widget.r6o-tag input{width:100%;padding:0 3px;min-width:80px;outline:none;border:none;line-height:170%;background-color:transparent;color:#3f3f3f}.r6o-widget.r6o-tag input::-webkit-input-placeholder{color:#c2c2c2}.r6o-widget.r6o-tag input::-moz-placeholder{color:#c2c2c2}.r6o-widget.r6o-tag input:-moz-placeholder{color:#c2c2c2}.r6o-widget.r6o-tag input:-ms-input-placeholder{color:#c2c2c2}.r6o-editor{position:absolute;z-index:99999;width:400px;color:#3f3f3f;opacity:0;font-family:Lato,sans-serif;font-size:17px;line-height:27px;-webkit-transition:opacity .2s ease-in;-moz-transition:opacity .2s ease-in;transition:opacity .2s ease-in}.r6o-editor .r6o-arrow{position:absolute;overflow:hidden;top:-12px;left:12px;width:28px;height:12px;display:none}.r6o-editor .r6o-arrow:after{content:\"\";position:absolute;top:5px;left:5px;width:18px;height:18px;background-color:#fff;-webkit-backface-visibility:hidden;-webkit-transform:rotate(45deg);-moz-transform:rotate(45deg);-ms-transform:rotate(45deg);-o-transform:rotate(45deg);transform:rotate(45deg)}.r6o-editor .r6o-editor-inner{background-color:#fff;-webkit-border-radius:2px;-khtml-border-radius:2px;-moz-border-radius:2px;border-radius:2px;-webkit-box-shadow:2px 2px 42px rgba(0,0,0,.4);-moz-box-shadow:2px 2px 42px rgba(0,0,0,.4);box-shadow:2px 2px 42px #0006}.r6o-editor .r6o-editor-inner .r6o-widget:first-child{-webkit-border-top-left-radius:2px;-webkit-border-top-right-radius:2px;-khtml-border-radius-topleft:2px;-khtml-border-radius-topright:2px;-moz-border-radius-topleft:2px;-moz-border-radius-topright:2px;border-top-left-radius:2px;border-top-right-radius:2px}.r6o-editor .r6o-editor-inner .r6o-widget{border-bottom:1px solid #e5e5e5}.r6o-editor .r6o-footer{position:relative;text-align:right;padding:8px 0}.r6o-editor .r6o-footer .r6o-btn{margin-right:8px}.r6o-editor .r6o-footer .r6o-btn.delete-annotation{position:absolute;top:7px;left:7px;background-color:transparent;border:none;color:#4483c4;width:32px;height:32px;min-width:0;border-radius:100%;padding:0;display:flex;justify-content:center;align-items:center;-webkit-transition:all .1s ease-in;-moz-transition:all .1s ease-in;-o-transition:all .1s ease-in;transition:all .1s ease-in}.r6o-editor .r6o-footer .r6o-btn.delete-annotation:hover{color:#fff;background-color:#ef352c}@media (max-width: 640px){.r6o-editor{width:260px}}.r6o-editor.r6o-arrow-top .r6o-arrow{display:block}.r6o-editor.r6o-arrow-right{margin-left:8px}.r6o-editor.r6o-arrow-right .r6o-arrow{left:auto;right:12px}.r6o-editor.r6o-arrow-bottom .r6o-arrow{display:block;top:auto;bottom:-12px}.r6o-editor.r6o-arrow-bottom .r6o-arrow:after{top:-11px;box-shadow:none}.r6o-editor.pushed .r6o-arrow,.r6o-editor.dragged .r6o-arrow{display:none}.r6o-editor .r6o-draggable{cursor:move}.r6o-purposedropdown{width:150px;display:inline-block}.r6o-noselect{-webkit-touch-callout:none;-webkit-user-select:none;-khtml-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.a9s-annotation.hover .a9s-inner{stroke:#fff000}.a9s-annotation:not(.hover):hover .a9s-inner{stroke:#fff}";
 
+setBasePath(location.port === '3333' ? '' : '/web-components/');
 const ImageViewer = class {
   constructor(hostRef) {
-    index.registerInstance(this, hostRef);
+    registerInstance(this, hostRef);
     this.user = null;
     this.authToken = null;
     this.shoelace = false;
@@ -18317,7 +21380,7 @@ const ImageViewer = class {
     this._selectedIdx = 0;
     this._current = this._images.length > 0 ? this._images[0] : null;
     if (this._current) {
-      this._setHostDimensions(utils.imageInfo(this._current.manifest));
+      this._setHostDimensions(imageInfo(this._current.manifest));
       if (this._viewer) {
         if (!this.compare)
           this._viewer.open(await this._loadTileSources());
@@ -18347,14 +21410,14 @@ const ImageViewer = class {
     let locationPath = this.editorIsParent()
       ? location.hash.length > 1 ? location.hash.slice(1).split('/').filter(pe => pe).join('/') : ''
       : location.pathname.split('/').filter(pe => pe).join('/');
-    let sourceHash = utils.sha256(utils.imageInfo(manifest).id).slice(0, 8);
+    let sourceHash = sha256(imageInfo(manifest).id).slice(0, 8);
     // console.log(`annoTarget: annoBase=${this.annoBase} sourceHash=${sourceHash} locationPath=${locationPath} user=${this.user} authToken=${this.authToken}`)
     return this.annoBase
       ? `${this.annoBase}/${sourceHash}`
       : this.authToken
         ? this.editorIsParent()
           ? [...[locationPath.split('/')[0]], ...[sourceHash]].join('/')
-          : [...[utils.sha256(o(this.authToken).email.toLowerCase()).slice(0, 8)], ...[sourceHash]].join('/')
+          : [...[sha256(o(this.authToken).email.toLowerCase()).slice(0, 8)], ...[sourceHash]].join('/')
         : this.user
           ? locationPath ? `${this.user}/${locationPath}/${sourceHash}` : `${this.user}/${sourceHash}`
           : locationPath ? `${locationPath}/${sourceHash}` : sourceHash;
@@ -18379,21 +21442,21 @@ const ImageViewer = class {
     this.showAnnotations(this._showAnnotations);
   }
   setRegion(region, immediately = false) {
-    this._viewer.viewport.fitBounds(utils.parseRegionString(region, this._viewer), immediately);
+    this._viewer.viewport.fitBounds(parseRegionString(region, this._viewer), immediately);
   }
   parseImageStr(str) {
     let params = str.split(/\s/);
     let parsed = { manifest: params[0] };
     params.slice(1).forEach(param => {
-      if (utils.isNum(param))
+      if (isNum(param))
         parsed.seq = lodash.parseInt(param);
       else if (param.indexOf(',') > 0)
-        parsed.options = utils.parseImageOptions(param);
+        parsed.options = parseImageOptions(param);
       else if (param === 'cover' || param === 'contain')
         parsed.fit = param;
     });
     if (!parsed.options)
-      parsed.options = utils.parseImageOptions('');
+      parsed.options = parseImageOptions('');
     return parsed;
   }
   async zoomto(arg) {
@@ -18430,7 +21493,7 @@ const ImageViewer = class {
   buildImagesList() {
     let images = [];
     if (this.src) {
-      let img = { manifest: this.src, options: utils.parseImageOptions(this.options) };
+      let img = { manifest: this.src, options: parseImageOptions(this.options) };
       if (this.fit)
         img.fit = this.fit;
       images.push(img);
@@ -18439,8 +21502,8 @@ const ImageViewer = class {
       .forEach(li => images.push(this.parseImageStr(li.innerHTML)));
     // If no manifest defined in src attribute or images list, use most recent entity QID, if available 
     if (images.length === 0 && this._entities.length > 0)
-      images.push({ manifest: `wd:${this._entities[0]}`, options: utils.parseImageOptions('') });
-    utils.loadManifests(images.map(item => item.manifest))
+      images.push({ manifest: `wd:${this._entities[0]}`, options: parseImageOptions('') });
+    loadManifests(images.map(item => item.manifest))
       .then(manifests => {
       manifests.forEach((manifest, idx) => {
         images[idx].manifest = manifest;
@@ -18623,14 +21686,14 @@ const ImageViewer = class {
         let [x, y, width, height] = options.region.replace(/pct:/, '').split(',').map(s => s !== '' ? parseFloat(s) : undefined);
         const region = { x, y, w: width, h: height };
         const dest = { width: el.clientWidth, height: el.clientHeight };
-        let url = await utils.imageDataUrl(imgUrl, region, dest);
+        let url = await imageDataUrl(imgUrl, region, dest);
         return { url, type: 'image', buildPyramid: true };
       }
     }
   }
   async _loadTileSources() {
     let imgUrls = this._images.map(item => {
-      let _imageInfo = utils.imageInfo(item.manifest, item.seq);
+      let _imageInfo = imageInfo(item.manifest, item.seq);
       return _imageInfo.service
         ? `${(_imageInfo.service[0].id || _imageInfo.service[0]['@id']).replace(/\/info\.json$/, '')}/info.json`
         : _imageInfo.id;
@@ -18790,7 +21853,7 @@ const ImageViewer = class {
     };
     // console.log(`homeFillsViewer=${osdConfig.homeFillsViewer}`)
     // this._viewer = OpenSeadragon(osdOptions);
-    this._viewer = openseadragon.openseadragon(osdOptions);
+    this._viewer = openseadragon(osdOptions);
     if (location.hostname.indexOf('iiif') < 0)
       this.configureScrollBehavior();
     this._annotator = new Annotator(this._viewer, this.el.shadowRoot.querySelector('#toolbar'), this.authToken);
@@ -18809,7 +21872,7 @@ const ImageViewer = class {
     this._viewer.addHandler('open-failed', (e) => {
       // If info.json tile source failed, try loading source image as pyramid
       if (e.message === 'Unable to load TileSource' && e.source.indexOf('/info.json') > 0) {
-        let imageData = utils.imageInfo(this._current.manifest, this._current.seq);
+        let imageData = imageInfo(this._current.manifest, this._current.seq);
         console.log(`Error: Unable to load IIIF TileSource, retrying with source image - ${decodeURIComponent(imageData.id)}`);
         this._viewer.open({ url: imageData.id, type: 'image', buildPyramid: true });
       }
@@ -18822,7 +21885,7 @@ const ImageViewer = class {
         this.setRegion(this._current.options.region, immediately);
       }
       else {
-        let imageData = utils.imageInfo(this._current.manifest);
+        let imageData = imageInfo(this._current.manifest);
         let osdElem = this.el.shadowRoot.getElementById('osd');
         const scaleX = osdElem.clientHeight / imageData.height;
         const scaleY = osdElem.clientWidth / imageData.width;
@@ -18864,7 +21927,7 @@ const ImageViewer = class {
   }
   openAnnotator() {
     let width, height;
-    let imgInfo = utils.imageInfo(this._current.manifest);
+    let imgInfo = imageInfo(this._current.manifest);
     let ratio = imgInfo.width / imgInfo.height;
     let depictsPanelWidth = 300;
     if (ratio < 0) {
@@ -18893,25 +21956,25 @@ const ImageViewer = class {
   }
   render() {
     return this._images.length > 0
-      ? [index.h("div", { id: "toolbar" }), index.h("div", { id: "wrapper" }, index.h("div", { class: "osd-wrapper" }, this.compare && this.shoelace
-          ? index.h("sl-image-comparer", { position: "0" }, this._tileSources.map((ts, idx) => index.h("img", { slot: idx === 0 ? 'before' : 'after', src: ts.url, alt: this._value(this._images[idx].manifest.label).toString() })))
-          : index.h("div", { id: "osd" }), index.h("div", { id: "instructions", class: "hidden" }, "use ctrl + scroll or 2 fingers to zoom image."), index.h("sl-drawer", { label: "", contained: true, class: "drawer-contained", placement: "start", style: { '--size': '40%' } }, index.h("ve-manifest", { images: this.serializedManifests(), condensed: true }), index.h("div", { class: "annotations-heading" }, this.editorIsParent() || this._annotations.length > 0
-          ? index.h("span", null, "Annotations")
+      ? [h("div", { id: "toolbar" }), h("div", { id: "wrapper" }, h("div", { class: "osd-wrapper" }, this.compare && this.shoelace
+          ? h("sl-image-comparer", { position: "0" }, this._tileSources.map((ts, idx) => h("img", { slot: idx === 0 ? 'before' : 'after', src: ts.url, alt: this._value(this._images[idx].manifest.label).toString() })))
+          : h("div", { id: "osd" }), h("div", { id: "instructions", class: "hidden" }, "use ctrl + scroll or 2 fingers to zoom image."), h("sl-drawer", { label: "", contained: true, class: "drawer-contained", placement: "start", style: { '--size': '40%' } }, h("ve-manifest", { images: this.serializedManifests(), condensed: true }), h("div", { class: "annotations-heading" }, this.editorIsParent() || this._annotations.length > 0
+          ? h("span", null, "Annotations")
           : null, this.editorIsParent()
-          ? index.h("sl-tooltip", { content: "Annotate image" }, index.h("div", { class: "annotator-link", onClick: this.openAnnotator.bind(this) }, index.h("sl-icon", { name: "pencil-square" })))
+          ? h("sl-tooltip", { content: "Annotate image" }, h("div", { class: "annotator-link", onClick: this.openAnnotator.bind(this) }, h("sl-icon", { name: "pencil-square" })))
           : null), this._annotations.length > 0
-          ? index.h("div", null, this._annotations.map((anno) => index.h("div", { class: "anno" }, index.h("sl-tooltip", { content: "Copy annotation ID" }, index.h("sl-icon-button", { class: "anno-copy", onClick: this._copyTextToClipboard.bind(this, anno.id.split('/').pop()), name: "clipboard", label: "Copy annotation ID" })), index.h("span", { class: "anno-link", onClick: this.setRegion.bind(this, anno.target.selector.value.split('=').pop(), false) }, anno.body[0].value))))
-          : null)), !this.compare && index.h("span", { id: "coords", class: "viewport-coords", onClick: this._copyTextToClipboard.bind(this, this._viewportBounds) }, this._viewportBounds), index.h("div", { id: "caption" }, index.h("sl-tooltip", { content: `${this._infoPanelIsOpen ? 'Close' : 'Open'} image info panel`, disabled: this.isTouchEnabled() }, index.h("sl-icon-button", { onClick: this.toggleMenu.bind(this), id: "menu-icon", name: "three-dots-vertical", label: "Open image info panel" })), !this.compare && this._annotations.length > 0
-          ? index.h("sl-tooltip", { content: `${this._showAnnotations ? 'Hide' : 'Show'} annotations`, disabled: this.isTouchEnabled() }, index.h("div", { class: "button-icon-with-badge", onClick: this.toggleAnnotations.bind(this) }, index.h("sl-icon-button", { id: "annotations-icon", name: "chat-square-text", label: "Show annotations" }), index.h("sl-badge", { variant: "danger", pill: true }, this._annotations.length)))
-          : null, index.h("div", null, this.compare
+          ? h("div", null, this._annotations.map((anno) => h("div", { class: "anno" }, h("sl-tooltip", { content: "Copy annotation ID" }, h("sl-icon-button", { class: "anno-copy", onClick: this._copyTextToClipboard.bind(this, anno.id.split('/').pop()), name: "clipboard", label: "Copy annotation ID" })), h("span", { class: "anno-link", onClick: this.setRegion.bind(this, anno.target.selector.value.split('=').pop(), false) }, anno.body[0].value))))
+          : null)), !this.compare && h("span", { id: "coords", class: "viewport-coords", onClick: this._copyTextToClipboard.bind(this, this._viewportBounds) }, this._viewportBounds), h("div", { id: "caption" }, h("sl-tooltip", { content: `${this._infoPanelIsOpen ? 'Close' : 'Open'} image info panel`, disabled: this.isTouchEnabled() }, h("sl-icon-button", { onClick: this.toggleMenu.bind(this), id: "menu-icon", name: "three-dots-vertical", label: "Open image info panel" })), !this.compare && this._annotations.length > 0
+          ? h("sl-tooltip", { content: `${this._showAnnotations ? 'Hide' : 'Show'} annotations`, disabled: this.isTouchEnabled() }, h("div", { class: "button-icon-with-badge", onClick: this.toggleAnnotations.bind(this) }, h("sl-icon-button", { id: "annotations-icon", name: "chat-square-text", label: "Show annotations" }), h("sl-badge", { variant: "danger", pill: true }, this._annotations.length)))
+          : null, h("div", null, this.compare
           ? 'Compare viewer: move cursor over image to change view'
-          : this.alt)), index.h("div", { id: "image-info-popup" }))]
+          : this.alt)), h("div", { id: "image-info-popup" }))]
       : [
-        index.h("div", { id: "toolbar" }),
-        index.h("div", { id: "wrapper" }, index.h("div", { class: "osd-wrapper" }, index.h("div", { id: "osd" }), index.h("div", { id: "instructions", class: "hidden" }, "use ctrl + scroll or 2 fingers to zoom image.")))
+        h("div", { id: "toolbar" }),
+        h("div", { id: "wrapper" }, h("div", { class: "osd-wrapper" }, h("div", { id: "osd" }), h("div", { id: "instructions", class: "hidden" }, "use ctrl + scroll or 2 fingers to zoom image.")))
       ];
   }
-  get el() { return index.getElement(this); }
+  get el() { return getElement(this); }
   static get watchers() { return {
     "src": ["srcChanged"],
     "compare": ["compareModeChanged"],
@@ -18927,4 +21990,665 @@ const ImageViewer = class {
 };
 ImageViewer.style = veImageCss;
 
-exports.ve_image = ImageViewer;
+const veManifestCss = ".manifest{font-family:Roboto, sans-serif;padding:6px;z-index:100}.manifest.condensed{border:1px solid #ccc;font-size:0.9rem;color:#444}.manifest.condensed:not(:first-of-type){margin-top:1.5em}.manifest.condensed .thumbnail{max-height:60px;max-width:60px;position:relative;float:left;margin:0 9px 6px 0}.manifest>div{margin-bottom:12px}.lbl,.lbl a,.summary{font-weight:bold;line-height:1.2em;color:#444}.summary,.rights{clear:both}.summary .value{line-height:1.1em}ul{list-style:none;margin:0}.label,.value{display:inline-flex}.value{display:inline;line-height:1.2rem;overflow-wrap:break-word;word-wrap:break-word;-ms-word-break:break-all;word-break:break-all;word-break:break-word;-ms-hyphens:auto;-moz-hyphens:auto;-webkit-hyphens:auto;hyphens:auto;color:#444}.manifest>div .label{font-weight:bold;min-width:80px;margin-right:6px}.label::after{content:\":\"}.logo{padding-right:6px}.manifest-id,.manifest-label,.summary,.provider,.rights,.service,.imageData div,.thumbnail{display:flex;align-items:center}.metadata>ul,.requiredStatement ul{padding-left:24px}.metadata ul li,.requiredStatement ul li{display:flex}.metadata ul ul{padding-left:0}a:link,a:visited{color:#0000EE}";
+
+const ManifestViewer = class {
+  constructor(hostRef) {
+    registerInstance(this, hostRef);
+    this.condensed = false;
+    this._images = [];
+  }
+  srcChanged(src) {
+    if (src)
+      getManifest(this.src).then(manifest => this._images = [{ manifest }]);
+  }
+  imagesChanged() {
+    this._images = JSON.parse(decodeURIComponent(this.images));
+  }
+  parseManifest(imageRec) {
+    let manifest = imageRec.manifest;
+    // console.log(manifest)
+    let parsed = {};
+    parsed.id = this._value(manifest.id);
+    parsed.label = this._value(manifest.label);
+    if (manifest.summary)
+      parsed.summary = this._value(manifest.summary);
+    if (manifest.rights)
+      parsed.rights = manifest.rights;
+    if (manifest.thumbnail)
+      parsed.thumbnail = manifest.thumbnail[0].id;
+    if (manifest.metadata) {
+      parsed.metadata = manifest.metadata.map(item => ({ label: this._value(item.label)[0], value: this._value(item.value) }));
+      let sourceUrl = parsed.metadata.find(item => item.label == 'source_url');
+      parsed.sourceUrl = sourceUrl ? sourceUrl.value[0] : null;
+      let depicts = parsed.metadata.find(md => md.label === 'depicts');
+      if (depicts)
+        parsed.depicts = depicts.value;
+    }
+    if (manifest.provider) {
+      parsed.provider = manifest.provider.map(provider => {
+        let entry = { label: this._value(provider.label), href: provider.id };
+        if (provider.logo)
+          entry.logo = { src: provider.logo[0].id };
+        return entry;
+      });
+    }
+    if (manifest.logo) {
+      parsed.logo = manifest.logo.map(item => {
+        let logoObj = { src: typeof item === 'object' ? item.id || item['@id'] : item };
+        if (typeof item === 'object') {
+          if (item.width)
+            logoObj.width = item.width;
+          if (item.height)
+            logoObj.height = item.height;
+        }
+        return logoObj;
+      });
+    }
+    parsed.imageData = imageInfo(manifest);
+    parsed.service = parsed.imageData.service && `${(parsed.imageData.service[0].id || parsed.imageData.service[0]['@id'])
+      .replace(/\/info\.json$/, '')}/info.json`;
+    if (manifest.requiredStatement) {
+      let rs = manifest.requiredStatement;
+      parsed.requiredStatement = { label: this._value(rs.label), value: this._value(rs.value) };
+    }
+    if (manifest.homepage) {
+      parsed.homepage = { label: manifest.homepage.label ? this._value(manifest.homepage.label) : manifest.homepage.id, href: manifest.homepage.id };
+    }
+    if (manifest.seeAlso) {
+      parsed.seeAlso = manifest.seeAlso.map(seeAlso => ({ label: seeAlso.label ? this._value(seeAlso.label) : seeAlso.id, href: seeAlso.id }));
+    }
+    // console.log(parsed)
+    return parsed;
+  }
+  componentWillLoad() {
+    if (this.images) {
+      this._images = JSON.parse(decodeURIComponent(this.images));
+    }
+    else if (this.src) {
+      getManifest(this.src).then(manifest => this._images = [{ manifest }]);
+    }
+  }
+  _value(langObj, language = 'en') {
+    return typeof langObj === 'object' && !Array.isArray(langObj)
+      ? langObj[language] || langObj.none || langObj[Object.keys(langObj).sort()[0]]
+      : langObj;
+  }
+  onManifestIconDrag(dragEvent) {
+    var _a;
+    let manifestUrl = dragEvent.target.parentElement.href;
+    (_a = dragEvent.dataTransfer) === null || _a === void 0 ? void 0 : _a.setData('text/uri-list', `${manifestUrl}?manifest=${manifestUrl}`);
+  }
+  licenseBadge(parsedManifest) {
+    let config = {
+      cc: {
+        badgeWidth: 88,
+        badgeHeight: 31,
+        badgeTemplate: 'https://licensebuttons.net/l/${this.rightsCode}${this.rightsCode === "publicdomain" ? "" : "/"+this.version}/${this.badgeWidth}x${this.badgeHeight}.png'
+      },
+      rs: {
+        badgeTemplate: 'https://rightsstatements.org/files/buttons/${this.rightsCode}.white.svg',
+        backgroundColor: '318ac7'
+      }
+    };
+    const fillTemplate = function (templateString, templateVars) {
+      return new Function("return `" + templateString + "`;").call(templateVars);
+    };
+    let rights = parsedManifest.rights;
+    let badgeHtml;
+    let [rightsType, _, rightsCode, version] = rights.split('/').slice(2);
+    if (rightsType === 'creativecommons.org') {
+      rightsCode = rightsCode === 'zero' ? 'publicdomain' : rightsCode;
+      badgeHtml = `<img src="${fillTemplate(config.cc.badgeTemplate, Object.assign(Object.assign({}, config.cc), { rightsCode, version }))}"/>`;
+    }
+    else if (rightsType === 'rightsstatements.org') {
+      badgeHtml = `<div style="display:inline-block;height:25px;padding:3px;background-color:#${config.rs.backgroundColor};"><img style="height:100%;" src="${fillTemplate(config.rs.badgeTemplate, Object.assign(Object.assign({}, config.rs), { rightsCode }))}"/></div>`;
+    }
+    return badgeHtml;
+  }
+  render_condensed() {
+    return this._images.map(item => this.parseManifest(item)).map(parsed => h("div", { class: "manifest condensed" }, parsed.thumbnail ? h("img", { class: "thumbnail", src: parsed.thumbnail }) : null, h("div", { class: "lbl", style: { marginBottom: '12px;' } }, parsed.sourceUrl
+      ? h("a", { href: parsed.sourceUrl, innerHTML: parsed.label })
+      : parsed.label), parsed.summary
+      ? h("div", { class: "summary" }, h("span", { class: "value" }, parsed.summary))
+      : null, parsed.requiredStatement
+      ? h("div", null, h("span", { class: "value", innerHTML: parsed.requiredStatement.value }))
+      : null, parsed.rights
+      ? h("div", { class: "rights" }, h("a", { class: "value", href: parsed.rights, innerHTML: this.licenseBadge(parsed) }))
+      : null, parsed.provider
+      ? h("div", { class: "provider" }, parsed.provider.length == 1
+        ? h("div", { style: { display: 'flex', alignItems: 'center' } }, parsed.provider[0].logo
+          ? h("img", { class: "logo", src: parsed.provider[0].logo.src, height: 20 })
+          : null, h("a", { class: "value", href: parsed.provider[0].href, innerHTML: parsed.provider[0].label }))
+        : h("ul", null, parsed.provider.map((provider) => h("li", null, provider.logo
+          ? h("img", { class: "logo", src: provider.logo.src, height: 20 })
+          : null, h("a", { class: "value", href: provider.href, innerHTML: provider.label })))))
+      : null, parsed.imageData.width
+      ? h("div", null, h("span", { class: "label" }, "Dimensions"), " ", h("span", { innerHTML: parsed.imageData.width.toLocaleString() }), " x ", h("span", { innerHTML: parsed.imageData.height.toLocaleString() }))
+      : null, parsed.depicts
+      ? h("div", null, h("span", { class: "label" }, "Depicts"), h("ul", null, parsed.depicts.map(depicts => h("li", { innerHTML: depicts }))))
+      : null, h("a", { draggable: true, onDragStart: this.onManifestIconDrag.bind(this), href: parsed.id }, h("img", { src: "https://avatars.githubusercontent.com/u/5812589?v=3&s=24", alt: "IIIF Manifest" }))));
+  }
+  render_full() {
+    return this._images.map(item => this.parseManifest(item)).map(parsed => h("div", { class: "manifest" }, h("div", { class: "manifest-id" }, h("span", { class: "label" }, "id"), h("a", { class: "value", href: parsed.id, innerHTML: parsed.id })), h("div", { class: "manifest-label" }, h("span", { class: "label" }, "label"), h("span", { class: "value" }, parsed.label)), parsed.summary
+      ? h("div", { class: "summary" }, h("span", { class: "label" }, "summary"), h("span", { class: "value" }, parsed.summary))
+      : null, parsed.metadata
+      ? h("div", { class: "metadata" }, h("span", { class: "label" }, "metadata"), h("ul", null, parsed.metadata.map((item) => h("li", null, h("span", { class: "label" }, item.label), item.value.length == 1
+        ? h("span", { class: "value", innerHTML: item.value[0] })
+        : h("ul", null, item.value.map((value) => h("li", { class: "value", innerHTML: value })))))))
+      : null, parsed.navDate
+      ? h("div", { class: "navDate" }, h("span", { class: "label" }, "navDate"), h("span", { class: "value" }, parsed.navDate))
+      : null, parsed.provider
+      ? h("div", { class: "provider" }, h("span", { class: "label" }, "provider"), parsed.provider.length == 1
+        ? h("div", { style: { display: 'flex', alignItems: 'center' } }, parsed.provider[0].logo
+          ? h("img", { class: "logo", src: parsed.provider[0].logo.src, height: 20 })
+          : null, h("a", { class: "value", href: parsed.provider[0].href, innerHTML: parsed.provider[0].label }))
+        : h("ul", null, parsed.provider.map((provider) => h("li", null, provider.logo
+          ? h("img", { class: "logo", src: provider.logo.src, height: 20 })
+          : null, h("a", { class: "value", href: provider.href, innerHTML: provider.label })))))
+      : null, parsed.homepage
+      ? h("div", { class: "homepage" }, h("span", { class: "label" }, "homepage"), h("a", { class: "value", href: parsed.homepage.href, innerHTML: parsed.homepage.label }))
+      : null, parsed.seeAlso
+      ? h("div", { class: "seeAlso" }, h("span", { class: "label" }, "seeAlso"), h("a", { class: "value", href: parsed.seeAlso[0].href, innerHTML: parsed.seeAlso[0].label }))
+      : null, parsed.logo
+      ? h("div", { class: "logo" }, h("span", { class: "label" }, "logo"), h("a", { class: "value", href: parsed.logo[0].src, innerHTML: parsed.logo[0].src }))
+      : null, parsed.rights
+      ? h("div", { class: "rights" }, h("span", { class: "label" }, "rights"), h("a", { class: "value", href: parsed.rights, innerHTML: parsed.rights }))
+      : null, parsed.requiredStatement
+      ? h("div", { class: "requiredStatement" }, h("span", { class: "label" }, "requiredStatement"), h("ul", null, h("li", null, parsed.requiredStatement.label && parsed.requiredStatement.label[0]
+        ? h("span", { class: "label", innerHTML: parsed.requiredStatement.label })
+        : null, h("span", { class: "value", innerHTML: parsed.requiredStatement.value }))))
+      : null, h("div", { class: "imageData" }, h("div", null, h("span", { class: "label" }, "image"), h("a", { class: "value", href: parsed.imageData.id, innerHTML: parsed.imageData.id })), h("div", null, h("span", { class: "label" }, "format"), h("span", { class: "value", innerHTML: parsed.imageData.format })), h("div", null, h("span", { class: "label" }, "width"), h("span", { class: "value", innerHTML: parsed.imageData.width })), h("div", null, h("span", { class: "label" }, "height"), h("span", { class: "value", innerHTML: parsed.imageData.height }))), ",", parsed.thumbnail
+      ? h("div", { class: "thumbnail" }, h("span", { class: "label" }, "thumbnail"), h("a", { class: "value", href: parsed.thumbnail, innerHTML: parsed.thumbnail }))
+      : null, parsed.service
+      ? h("div", { class: "service" }, h("span", { class: "label" }, "service"), h("a", { class: "value", href: parsed.service, innerHTML: parsed.service }))
+      : null));
+  }
+  render() {
+    return this._images
+      ? this.condensed ? this.render_condensed() : this.render_full()
+      : null;
+  }
+  get el() { return getElement(this); }
+  static get watchers() { return {
+    "src": ["srcChanged"],
+    "images": ["imagesChanged"]
+  }; }
+};
+ManifestViewer.style = veManifestCss;
+
+// src/components/button-group/button-group.styles.ts
+var button_group_styles_default = r$2`
+  ${component_styles_default}
+
+  :host {
+    display: inline-block;
+  }
+
+  .button-group {
+    display: flex;
+    flex-wrap: nowrap;
+  }
+`;
+
+// src/components/button-group/button-group.ts
+var BUTTON_CHILDREN = ["sl-button", "sl-radio-button"];
+var SlButtonGroup = class extends s4 {
+  constructor() {
+    super(...arguments);
+    this.label = "";
+  }
+  handleFocus(event) {
+    const button = findButton(event.target);
+    button == null ? void 0 : button.classList.add("sl-button-group__button--focus");
+  }
+  handleBlur(event) {
+    const button = findButton(event.target);
+    button == null ? void 0 : button.classList.remove("sl-button-group__button--focus");
+  }
+  handleMouseOver(event) {
+    const button = findButton(event.target);
+    button == null ? void 0 : button.classList.add("sl-button-group__button--hover");
+  }
+  handleMouseOut(event) {
+    const button = findButton(event.target);
+    button == null ? void 0 : button.classList.remove("sl-button-group__button--hover");
+  }
+  handleSlotChange() {
+    const slottedElements = [...this.defaultSlot.assignedElements({ flatten: true })];
+    slottedElements.forEach((el) => {
+      const index = slottedElements.indexOf(el);
+      const button = findButton(el);
+      if (button !== null) {
+        button.classList.add("sl-button-group__button");
+        button.classList.toggle("sl-button-group__button--first", index === 0);
+        button.classList.toggle("sl-button-group__button--inner", index > 0 && index < slottedElements.length - 1);
+        button.classList.toggle("sl-button-group__button--last", index === slottedElements.length - 1);
+      }
+    });
+  }
+  render() {
+    return $`
+      <div
+        part="base"
+        class="button-group"
+        role="group"
+        aria-label=${this.label}
+        @focusout=${this.handleBlur}
+        @focusin=${this.handleFocus}
+        @mouseover=${this.handleMouseOver}
+        @mouseout=${this.handleMouseOut}
+      >
+        <slot @slotchange=${this.handleSlotChange}></slot>
+      </div>
+    `;
+  }
+};
+SlButtonGroup.styles = button_group_styles_default;
+__decorateClass([
+  i2$1("slot")
+], SlButtonGroup.prototype, "defaultSlot", 2);
+__decorateClass([
+  e$1()
+], SlButtonGroup.prototype, "label", 2);
+SlButtonGroup = __decorateClass([
+  n$1("sl-button-group")
+], SlButtonGroup);
+function findButton(el) {
+  return BUTTON_CHILDREN.includes(el.tagName.toLowerCase()) ? el : el.querySelector(BUTTON_CHILDREN.join(","));
+}
+
+// src/components/menu-item/menu-item.styles.ts
+var menu_item_styles_default = r$2`
+  ${component_styles_default}
+
+  :host {
+    display: block;
+  }
+
+  .menu-item {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    font-family: var(--sl-font-sans);
+    font-size: var(--sl-font-size-medium);
+    font-weight: var(--sl-font-weight-normal);
+    line-height: var(--sl-line-height-normal);
+    letter-spacing: var(--sl-letter-spacing-normal);
+    color: var(--sl-color-neutral-700);
+    padding: var(--sl-spacing-2x-small) var(--sl-spacing-2x-small);
+    transition: var(--sl-transition-fast) fill;
+    user-select: none;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+
+  .menu-item.menu-item--disabled {
+    outline: none;
+    color: var(--sl-color-neutral-400);
+    cursor: not-allowed;
+  }
+
+  .menu-item .menu-item__label {
+    flex: 1 1 auto;
+  }
+
+  .menu-item .menu-item__prefix {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+  }
+
+  .menu-item .menu-item__prefix ::slotted(*) {
+    margin-inline-end: var(--sl-spacing-x-small);
+  }
+
+  .menu-item .menu-item__suffix {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+  }
+
+  .menu-item .menu-item__suffix ::slotted(*) {
+    margin-inline-start: var(--sl-spacing-x-small);
+  }
+
+  :host(:focus) {
+    outline: none;
+  }
+
+  :host(:hover:not([aria-disabled='true'])) .menu-item,
+  :host(${focusVisibleSelector}:not(.sl-focus-invisible):not([aria-disabled='true'])) .menu-item {
+    outline: none;
+    background-color: var(--sl-color-primary-600);
+    color: var(--sl-color-neutral-0);
+  }
+
+  .menu-item .menu-item__check,
+  .menu-item .menu-item__chevron {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.5em;
+    visibility: hidden;
+  }
+
+  .menu-item--checked .menu-item__check,
+  .menu-item--has-submenu .menu-item__chevron {
+    visibility: visible;
+  }
+`;
+
+// src/components/menu-item/menu-item.ts
+var SlMenuItem = class extends s4 {
+  constructor() {
+    super(...arguments);
+    this.checked = false;
+    this.value = "";
+    this.disabled = false;
+  }
+  firstUpdated() {
+    this.setAttribute("role", "menuitem");
+  }
+  getTextLabel() {
+    return getTextContent(this.defaultSlot);
+  }
+  handleCheckedChange() {
+    this.setAttribute("aria-checked", this.checked ? "true" : "false");
+  }
+  handleDisabledChange() {
+    this.setAttribute("aria-disabled", this.disabled ? "true" : "false");
+  }
+  handleDefaultSlotChange() {
+    const textLabel = this.getTextLabel();
+    if (typeof this.cachedTextLabel === "undefined") {
+      this.cachedTextLabel = textLabel;
+      return;
+    }
+    if (textLabel !== this.cachedTextLabel) {
+      this.cachedTextLabel = textLabel;
+      emit(this, "sl-label-change");
+    }
+  }
+  render() {
+    return $`
+      <div
+        part="base"
+        class=${o$1({
+      "menu-item": true,
+      "menu-item--checked": this.checked,
+      "menu-item--disabled": this.disabled,
+      "menu-item--has-submenu": false
+    })}
+      >
+        <span class="menu-item__check">
+          <sl-icon name="check-lg" library="system" aria-hidden="true"></sl-icon>
+        </span>
+
+        <span part="prefix" class="menu-item__prefix">
+          <slot name="prefix"></slot>
+        </span>
+
+        <span part="label" class="menu-item__label">
+          <slot @slotchange=${this.handleDefaultSlotChange}></slot>
+        </span>
+
+        <span part="suffix" class="menu-item__suffix">
+          <slot name="suffix"></slot>
+        </span>
+
+        <span class="menu-item__chevron">
+          <sl-icon name="chevron-right" library="system" aria-hidden="true"></sl-icon>
+        </span>
+      </div>
+    `;
+  }
+};
+SlMenuItem.styles = menu_item_styles_default;
+__decorateClass([
+  i2$1("slot:not([name])")
+], SlMenuItem.prototype, "defaultSlot", 2);
+__decorateClass([
+  i2$1(".menu-item")
+], SlMenuItem.prototype, "menuItem", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlMenuItem.prototype, "checked", 2);
+__decorateClass([
+  e$1()
+], SlMenuItem.prototype, "value", 2);
+__decorateClass([
+  e$1({ type: Boolean, reflect: true })
+], SlMenuItem.prototype, "disabled", 2);
+__decorateClass([
+  watch("checked")
+], SlMenuItem.prototype, "handleCheckedChange", 1);
+__decorateClass([
+  watch("disabled")
+], SlMenuItem.prototype, "handleDisabledChange", 1);
+SlMenuItem = __decorateClass([
+  n$1("sl-menu-item")
+], SlMenuItem);
+
+const veSearchCss = "#ve-search-input-container{outline:none;border:1px rgb(212, 212, 216) solid;background:white;border-left:none;border-right:none;border-radius:0px}#ve-search-input{outline:none;border:none;margin-top:5%;padding-left:10px}#ve-search-bar-show-button::part(base),#ve-search-search-button::part(base),#ve-search-filter-dropdown>sl-button::part(base){background-color:white}#ve-search-bar{width:max-content}#ve-search-bar:hover{box-shadow:0 0 10px rgb(146, 209, 248)}#ve-search-hide-output{background:none;border:none;display:none;padding-right:10px;cursor:pointer}#ve-search-dropdown{width:70%;display:none;border:1px rgb(212, 212, 216) solid;background-color:white;border-radius:3px;padding:7px;margin-top:0;position:absolute;z-index:2}#ve-search-output{margin-left:10px}#ve-search-output>*{font-family:Roboto, sans-serif}#ve-search-output-title{margin-bottom:0}#ve-search-output-title>a{text-decoration:none;color:rgb(147 179 243)}#ve-search-output-link{font-style:italic;font-size:0.8em;color:rgb(60, 131, 40);margin-top:0%}#ve-search-output-title>a:visited{color:rgb(188 140 242)}#ve-search-end-of-output{height:1px;width:99%;background-color:rgb(212, 212, 216);border:none}#ve-search-show-more{border:none;background:none;margin-left:9px;cursor:pointer}";
+
+setBasePath(location.port === '3333' ? '' : '/web-components/');
+const VeSearch = class {
+  constructor(hostRef) {
+    registerInstance(this, hostRef);
+    this.filters = "";
+    this.icon = false;
+    this.tooltip = "";
+    this.API = "AIzaSyCEoD17BDJpQxSeNpm-_vy9bJ-dHweFwEs"; // Needs to be changed to one linked to Kent Maps
+    this.DOMAIN = "https://kent-maps.online/";
+    this.SEARCH_QUOTA_EXCEEDED_MESSAGE = "Total site search quota exceeded for the day";
+    this.NO_RESULTS_MESSAGE = "No results";
+    this.RESULTS_PER_PAGE = 10;
+    this.items = [];
+    this.error = "";
+    this.search = false;
+    this.previousStart = 0;
+    this.activeFilter = "all";
+    // Dictionary object with key as path to folder mapped to value to be displayed
+    this.filtersObject = new Object();
+  }
+  // @ClickOutside()
+  // hideOutputOnOutsideClick() {
+  //     console.log("hideOutputOnOutsideClick()");
+  //     this.hideOutput();
+  // }
+  // Reads filters given in the <ve-search> tag and stores them in filtersObjects
+  fillFilters() {
+    this.filtersObject["all"] = "All";
+    // In the format ["tagValue:displayValue", ... , "tagValue:displayValue"]
+    var splitFilters = this.filters.split(",");
+    for (var i = 0; i < splitFilters.length; i++) {
+      // In the format ["tagValue", "displayValue"]
+      var splitFilter = splitFilters[i].split(":");
+      splitFilter[0] = splitFilter[0].replace(" ", "");
+      this.filtersObject[splitFilter[0]] = splitFilter[1];
+    }
+  }
+  // Loads JSON file of Google site search
+  // start is search result to start on
+  doSearch(start) {
+    var query = this.el.shadowRoot.getElementById("ve-search-input").value;
+    query = query.replace(" ", "+");
+    this.error = "";
+    this.search = true;
+    if ((this.items == null) || (start == 0)) {
+      this.items = [];
+    }
+    let url = `https://www.googleapis.com/customsearch/v1?key=${this.API}&cx=${this.cx}&q=${query}&start=${start}`;
+    // let url = `http://localhost:3333/v1.json`; // Pre-created JSON to test with after daily searches reached
+    fetch(url)
+      .then(res => res.json())
+      .then(res => {
+      this.items = this.items.concat(this.applyFilters(res["items"]));
+      // If there is no more results after these
+      if (res["queries"]["nextPage"] == null) {
+        this.el.shadowRoot.getElementById("ve-search-end-of-output").style.display = "none";
+        this.el.shadowRoot.getElementById("ve-search-show-more").style.display = "none";
+      }
+      else {
+        this.el.shadowRoot.getElementById("ve-search-end-of-output").style.display = "block";
+        this.el.shadowRoot.getElementById("ve-search-show-more").style.display = "block";
+      }
+    })
+      .catch(_ => {
+      this.error = "searchQuotaExceeded";
+    })
+      .catch(error => {
+      console.log(error);
+    });
+    this.previousStart = start;
+    // Shows results and results hide button
+    this.el.shadowRoot.getElementById("ve-search-hide-output").style.display = "inline-block";
+    this.el.shadowRoot.getElementById("ve-search-dropdown").style.display = "block";
+  }
+  // Detects the enter key in the input field to begin search
+  searchInputKeyPress(event) {
+    if (event.key === "Enter") {
+      this.doSearch(0);
+    }
+  }
+  // Apply the selected filters to the search results (items)
+  applyFilters(items) {
+    var filteredItems = [];
+    if (this.activeFilter == "all") {
+      return items;
+    }
+    else {
+      for (let i = 0; i < items.length; i++) {
+        var item = items[i];
+        var link = item["link"].replace(this.DOMAIN, "");
+        if (link.startsWith(this.activeFilter)) {
+          filteredItems.push(item);
+        }
+        // Code for when tags used for filtering rather than file path (not tested)
+        // var metaTags = item["pagemap"]["metatags"];
+        // for (let j = 0; j < metaTags.length; j++) {
+        //     var metaTag = metaTags[i];
+        //     if (metaTag == this.activeFilter) {
+        //         filteredItems.push(item);
+        //     }
+        // }
+      }
+      return filteredItems;
+    }
+  }
+  // Hide search output if currently shown and visa-versa
+  // Activated when user presses the hide button
+  invertOutput() {
+    var outputDisplay = this.el.shadowRoot.getElementById("ve-search-dropdown").style.display;
+    if (outputDisplay == "block") {
+      this.hideOutput();
+    }
+    else {
+      this.showOutput();
+    }
+  }
+  hideOutput() {
+    this.el.shadowRoot.getElementById("ve-search-hide-output").innerText = "▼";
+    this.el.shadowRoot.getElementById("ve-search-dropdown").style.display = "none";
+  }
+  showOutput() {
+    this.el.shadowRoot.getElementById("ve-search-hide-output").innerText = "▲";
+    this.el.shadowRoot.getElementById("ve-search-dropdown").style.display = "block";
+  }
+  updateFilter(filter) {
+    this.activeFilter = filter;
+    this.el.shadowRoot.getElementById("ve-search-filter-item-" + filter).setAttribute("checked", "true");
+  }
+  // Used when <ve-search> initially an icon
+  showSearchBar() {
+    this.el.shadowRoot.getElementById("ve-search-bar").style.display = "block";
+    this.el.shadowRoot.getElementById("ve-search-bar-show-button").style.display = "none";
+  }
+  // Displays essay filter options
+  displayFilters() {
+    var outputText = [];
+    if (this.filters.length > 0) {
+      var key;
+      for (key in this.filtersObject) {
+        outputText = outputText.concat([
+          h("sl-menu-item", { id: "ve-search-filter-item-" + key, value: key, onClick: this.updateFilter.bind(this, key) }, this.filtersObject[key])
+        ]);
+      }
+    }
+    // If there are no filters hide the filter dropdown
+    else {
+      var noFiltersCSS = `
+            #ve-search-input-container {
+                border-left: 1px rgb(212, 212, 216) solid;
+                border-top-left-radius: 3px;
+                border-bottom-left-radius: 3px;
+            }
+            #ve-search-filter-dropdown {
+                display: none;
+            }`;
+      var outputText = [h("style", { type: "text/css", innerHTML: noFiltersCSS })];
+    }
+    return outputText;
+  }
+  // Displays search results
+  displayOutput() {
+    var outputText = "";
+    // Only display items if a search has been performed
+    if (this.search) {
+      if (this.items.length == 0) {
+        outputText = `<p>${this.NO_RESULTS_MESSAGE}</p>`;
+      }
+      else if (this.error == "searchQuotaExceeded") {
+        outputText = `<p>${this.SEARCH_QUOTA_EXCEEDED_MESSAGE}</p>`;
+      }
+      else {
+        // Display items
+        for (let i = 0; i < this.items.length; i++) {
+          var item = this.items[i];
+          outputText += `<p id = 've-search-output-title'><a href = '${item["link"]}'>"${item["title"]}</a></p>`;
+          outputText += `<p id = 've-search-output-link'>${item["link"]}"</p>`;
+        }
+      }
+    }
+    return outputText;
+  }
+  // Adds tooltip to search icon if tool tip enabled
+  displayTooltip() {
+    var hideSearchBar = `
+            #ve-search-bar {
+                display: none;
+            }`;
+    var searchBarStyleSheet = [h("style", { type: "text/css", id: "search-bar-style", innerHTML: hideSearchBar })];
+    var searchBarShowButton = [
+      h("sl-button", { id: "ve-search-bar-show-button", onclick: () => this.showSearchBar() }, h("sl-icon", { name: "search", label: "Search" }))
+    ];
+    // Tooltip given
+    if (this.tooltip.length > 0) {
+      return [
+        h("sl-tooltip", { content: this.tooltip }, searchBarStyleSheet, searchBarShowButton)
+      ];
+    }
+    // No tooltip
+    else {
+      return [
+        h("sl-tooltip", { content: this.tooltip, disabled: true }, searchBarStyleSheet, searchBarShowButton)
+      ];
+    }
+  }
+  render() {
+    var outputText = [];
+    this.fillFilters();
+    outputText = outputText.concat([
+      h("div", { id: "search-container" }, h("sl-button-group", { id: "ve-search-bar" }, h("sl-dropdown", { id: "ve-search-filter-dropdown" }, h("sl-button", { id: "ve-search-active-filter", slot: "trigger", caret: true }, this.filtersObject[this.activeFilter]), h("sl-menu", { id: "ve-search-filter-menu" }, this.displayFilters())), h("div", { id: "ve-search-input-container" }, h("input", { id: "ve-search-input", type: "text", placeholder: "Search the site...", onKeyPress: this.searchInputKeyPress.bind(this) }), h("button", { id: "ve-search-hide-output", onClick: this.invertOutput.bind(this) }, "\u25B2")), h("sl-button", { id: "ve-search-search-button", onclick: this.doSearch.bind(this, 0) }, h("sl-icon", { name: "search", label: "Search" }))), h("div", { id: "ve-search-dropdown" }, h("div", { id: "ve-search-output", innerHTML: this.displayOutput() }), h("hr", { id: "ve-search-end-of-output" }), h("button", { id: "ve-search-show-more", onClick: this.doSearch.bind(this, this.previousStart + this.RESULTS_PER_PAGE) }, "Show more...")))
+    ]);
+    if (this.icon) {
+      outputText = outputText.concat([h("div", null, this.displayTooltip())]);
+    }
+    return outputText;
+  }
+  get el() { return getElement(this); }
+};
+VeSearch.style = veSearchCss;
+
+export { Header$1 as ve_contact, Footer as ve_footer, Header as ve_header, ImageViewer as ve_image, ManifestViewer as ve_manifest, VeSearch as ve_search };
