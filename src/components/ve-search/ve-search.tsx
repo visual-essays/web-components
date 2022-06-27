@@ -61,7 +61,7 @@
     // start is search result to start on
     doSearch(start) {
 
-        var query = (document.getElementById("ve-search-input") as HTMLInputElement).value;
+        var query = (this.el.shadowRoot.getElementById("ve-search-input") as HTMLInputElement).value;
         query = query.replace(" ", "+");
 
         this.error = "";
@@ -81,12 +81,12 @@
 
             // If there is no more results after these
             if (res["queries"]["nextPage"] == null) {
-                document.getElementById("ve-search-end-of-output").style.display = "none";
-                document.getElementById("ve-search-show-more").style.display = "none";
+                this.el.shadowRoot.getElementById("ve-search-end-of-output").style.display = "none";
+                this.el.shadowRoot.getElementById("ve-search-show-more").style.display = "none";
             }
             else {
-                document.getElementById("ve-search-end-of-output").style.display = "block";
-                document.getElementById("ve-search-show-more").style.display = "block";
+                this.el.shadowRoot.getElementById("ve-search-end-of-output").style.display = "block";
+                this.el.shadowRoot.getElementById("ve-search-show-more").style.display = "block";
             }
         })
         .catch(_ => {
@@ -99,8 +99,8 @@
         this.previousStart = start;
 
         // Shows results and results hide button
-        document.getElementById("ve-search-hide-output").style.display = "inline-block";
-        document.getElementById("ve-search-dropdown").style.display = "block";
+        this.el.shadowRoot.getElementById("ve-search-hide-output").style.display = "inline-block";
+        this.el.shadowRoot.getElementById("ve-search-dropdown").style.display = "block";
     }
 
     // Detects the enter key in the input field to begin search
@@ -153,7 +153,7 @@
     // Hide search output if currently shown and visa-versa
     // Activated when user presses the hide button
     invertOutput() {
-        var outputDisplay = document.getElementById("ve-search-dropdown").style.display;
+        var outputDisplay = this.el.shadowRoot.getElementById("ve-search-dropdown").style.display;
 
         if (outputDisplay == "block") {
             this.hideOutput();
@@ -164,24 +164,25 @@
     }
     
     hideOutput() {
-        document.getElementById("ve-search-hide-output").innerText = "▼";
-        document.getElementById("ve-search-dropdown").style.display = "none";
+        this.el.shadowRoot.getElementById("ve-search-hide-output").innerText = "▼";
+        this.el.shadowRoot.getElementById("ve-search-dropdown").style.display = "none";
     }
 
     showOutput() {
-        document.getElementById("ve-search-hide-output").innerText = "▲";
-        document.getElementById("ve-search-dropdown").style.display = "block";
+        this.el.shadowRoot.getElementById("ve-search-hide-output").innerText = "▲";
+        this.el.shadowRoot.getElementById("ve-search-dropdown").style.display = "block";
     }
 
     updateFilter(filter) {
+        console.log('updateFilter', filter)
         this.activeFilter = filter;
-        document.getElementById("ve-search-filter-item-" + filter).setAttribute("checked", "true");
+        this.el.shadowRoot.getElementById("ve-search-filter-item-" + filter).setAttribute("checked", "true");
     }
 
     // Used when <ve-search> initially an icon
     showSearchBar() {
-        document.getElementById("ve-search-bar").style.display = "block";
-        document.getElementById("ve-search-bar-show-button").style.display = "none";
+        this.el.shadowRoot.getElementById("ve-search-bar").style.display = "block";
+        this.el.shadowRoot.getElementById("ve-search-bar-show-button").style.display = "none";
     }
 
     // Displays essay filter options
@@ -195,7 +196,7 @@
             
             for (key in this.filtersObject) {
                 outputText = outputText.concat([
-                    <sl-menu-item id = {"ve-search-filter-item-" + key} value = {key} onClick = {() => this.updateFilter(key)}>{this.filtersObject[key]}</sl-menu-item>
+                    <sl-menu-item id = {"ve-search-filter-item-" + key} value = {key} onClick = {this.updateFilter.bind(this, key)}>{this.filtersObject[key]}</sl-menu-item>
                 ]);
             }
         }
