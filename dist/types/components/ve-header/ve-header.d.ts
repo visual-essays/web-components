@@ -1,3 +1,7 @@
+import '@shoelace-style/shoelace/dist/components/button/button.js';
+import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js';
+import '@shoelace-style/shoelace/dist/components/icon/icon.js';
+import '@shoelace-style/shoelace/dist/components/menu/menu.js';
 export declare class Header {
   el: HTMLElement;
   label: string;

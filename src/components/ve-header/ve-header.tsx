@@ -1,6 +1,14 @@
 import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
 import { parseImageOptions, imageInfo, getManifest, imageDataUrl } from '../../utils'
 
+import '@shoelace-style/shoelace/dist/components/button/button.js'
+import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
+import '@shoelace-style/shoelace/dist/components/icon/icon.js'
+import '@shoelace-style/shoelace/dist/components/menu/menu.js'
+
+// import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
+// setBasePath('https://visual-essays.github.io/web-components/www')
+
 const navIcons = {
   home: 'house-fill',
   about: 'info-circle-fill',

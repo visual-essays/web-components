@@ -1,4 +1,12 @@
 import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
+import '@shoelace-style/shoelace/dist/components/alert/alert.js';
+import '@shoelace-style/shoelace/dist/components/button/button.js';
+import '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
+import '@shoelace-style/shoelace/dist/components/icon/icon.js';
+import '@shoelace-style/shoelace/dist/components/input/input.js';
+import '@shoelace-style/shoelace/dist/components/textarea/textarea.js';
+// import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
+// setBasePath('https://visual-essays.github.io/web-components/www')
 const emailAddressRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 export class Header {
   constructor() {
@@ -79,10 +87,10 @@ export class Header {
   static get is() { return "ve-contact"; }
   static get encapsulation() { return "shadow"; }
   static get originalStyleUrls() { return {
-    "$": ["ve-contact.css"]
+    "$": ["ve-contact.css", "../global/global.css"]
   }; }
   static get styleUrls() { return {
-    "$": ["ve-contact.css"]
+    "$": ["ve-contact.css", "../global/global.css"]
   }; }
   static get properties() { return {
     "contact": {

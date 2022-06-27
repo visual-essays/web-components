@@ -4,6 +4,7 @@ import { inlineSvg } from 'stencil-inline-svg';
 
 export const config: Config = {
   namespace: 'visual-essays',
+  globalStyle: 'src/global/global.css',
   outputTargets: [
     {
       type: 'dist',

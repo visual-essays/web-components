@@ -1,0 +1,48 @@
+* {box-sizing: border-box;}
+
+:host {
+  font-family: Roboto, sans-serif;
+  z-index: 100;
+}
+
+.container {
+  clear: both;
+  display: flex;
+  padding: 3px 12px;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  background-color: inherit;
+  /* background-color: #eee; */
+  /*
+  margin-left: -1rem;
+  margin-bottom: -1rem;
+  width: calc(100% + 2rem);
+  */
+}
+
+.container a {
+  text-decoration: none;
+}
+
+.logo {
+  height:20px;
+}
+
+.contact {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.push {
+  margin-left:auto;
+}
+
+.contact-dialog::part(body) {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  gap: 16px;
+}

@@ -1,0 +1,7 @@
+:host {
+  z-index: 2;
+}
+
+#message {
+  margin-top: 24px;
+}
