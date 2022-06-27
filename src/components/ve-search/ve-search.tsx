@@ -105,7 +105,6 @@
 
     // Detects the enter key in the input field to begin search
     searchInputKeyPress(event) {
-
         if (event.key === "Enter") {
             this.doSearch(0)
         }
@@ -174,7 +173,6 @@
     }
 
     updateFilter(filter) {
-        console.log('updateFilter', filter)
         this.activeFilter = filter;
         this.el.shadowRoot.getElementById("ve-search-filter-item-" + filter).setAttribute("checked", "true");
     }
@@ -304,13 +302,13 @@
                     
                     <div id = "ve-search-input-container">
 
-                        <input id = "ve-search-input" type = "text" placeholder = "Search the site..." onKeyPress = {() => this.searchInputKeyPress(event)}/>
+                        <input id = "ve-search-input" type = "text" placeholder = "Search the site..." onKeyPress = {this.searchInputKeyPress.bind(this)}/>
                         
-                        <button id = "ve-search-hide-output" onClick = {() => this.invertOutput()}>▲</button>
+                        <button id = "ve-search-hide-output" onClick = {this.invertOutput.bind(this)}>▲</button>
 
                     </div>
 
-                    <sl-button id = "ve-search-search-button" onclick = {() => this.doSearch(0)}>
+                    <sl-button id = "ve-search-search-button" onclick = {this.doSearch.bind(this, 0)}>
                         <sl-icon name = "search" label = "Search"></sl-icon>
                     </sl-button>
 
@@ -319,7 +317,7 @@
                 <div id = "ve-search-dropdown">
                     <div id = "ve-search-output" innerHTML = {this.displayOutput()}></div>
                     <hr id = "ve-search-end-of-output"/>
-                    <button id = "ve-search-show-more" onClick = {() => this.doSearch(this.previousStart + this.RESULTS_PER_PAGE)}>Show more...</button>
+                    <button id = "ve-search-show-more" onClick = {this.doSearch.bind(this, this.previousStart + this.RESULTS_PER_PAGE)}>Show more...</button>
                 </div>
             </div>
         ])
