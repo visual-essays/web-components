@@ -1,6 +1,13 @@
 import { Component, Element, Prop, State, h } from '@stencil/core';
 import { getManifest, label, thumbnail } from '../../utils'
 
+import '@shoelace-style/shoelace/dist/components/card/card.js'
+import '@shoelace-style/shoelace/dist/components/icon/icon.js'
+import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
+
+// setBasePath('/path/to/shoelace/dist')
+setBasePath('https://visual-essays.github.io/web-components/www')
+
 @Component({
   tag: 've-card',
   styleUrl: 've-card.css',
@@ -26,6 +33,7 @@ export class Card {
       <sl-card class="card-overview">
         <img slot="image" src={thumbnail(this._manifest)} alt={label(this._manifest)}/>
         <div class="label" innerHTML={this.label}></div>
+        <sl-icon name="envelope"></sl-icon>
         {this.description && <div class="description" innerHTML={this.description}></div>}
       </sl-card>
     ]

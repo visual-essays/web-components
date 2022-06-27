@@ -1,0 +1,28 @@
+import OpenSeadragon from 'openseadragon';
+export declare function sha256(str: string): string;
+export declare function md5(str: string): any;
+export declare function getManifest(manifestId: string, refresh?: boolean): Promise<any>;
+export declare function prezi2to3(manifest: any): Promise<any>;
+export declare function findItem(toMatch: object, current: object, seq?: number): any;
+export declare function imageInfo(manifest: any, seq?: number): any;
+export declare function loadManifests(manifestUrls: string[], refresh?: boolean): Promise<any[]>;
+export declare function imgUrlFromManifest(manifestUrl: string, forceImage?: boolean): Promise<any>;
+export declare function imageDataUrl(url: string, region: any, dest: any): Promise<string>;
+export declare function isNum(s: string): boolean;
+export declare function parseImageOptions(str: string): {
+  region: string;
+  size: string;
+  rotation: string;
+  quality: string;
+  format: string;
+};
+export declare function parseRegionString(region: string, viewer: OpenSeadragon.Viewer): OpenSeadragon.Rect;
+export declare function getEntityData(qids?: string[], language?: string): Promise<{}>;
+export declare function getDepictedEntities(hash: string): Promise<any[]>;
+export declare function isMobile(): boolean;
+export declare function mwImage(mwImg: any, width: any): string;
+export declare function label(manifest: any, language?: string): any;
+export declare function summary(manifest: any, language?: string): any;
+export declare function source(manifest: any): string;
+export declare function sourceId(manifest: any): string;
+export declare function thumbnail(manifest: any): any;

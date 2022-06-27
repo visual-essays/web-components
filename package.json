@@ -24,6 +24,7 @@
     "@openseadragon-imaging/openseadragon-viewerinputhook": "^2.2.1",
     "@recogito/annotorious-openseadragon": "2.6.0",
     "@recogito/annotorious-toolbar": "^1.1.0",
+    "@shoelace-style/shoelace": "^2.0.0-beta.76",
     "@stencil/core": "^2.15.1",
     "js-md5": "^0.7.3",
     "js-sha256": "^0.9.0",

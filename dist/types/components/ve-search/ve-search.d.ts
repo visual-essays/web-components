@@ -1,0 +1,32 @@
+export declare class VeSearch {
+  cx: string;
+  filters: string;
+  icon: boolean;
+  tooltip: string;
+  API: string;
+  DOMAIN: string;
+  SEARCH_QUOTA_EXCEEDED_MESSAGE: string;
+  NO_RESULTS_MESSAGE: string;
+  RESULTS_PER_PAGE: number;
+  el: HTMLElement;
+  query: string;
+  items: any[];
+  error: string;
+  search: boolean;
+  previousStart: number;
+  activeFilter: string;
+  filtersObject: Object;
+  fillFilters(): void;
+  doSearch(start: any): void;
+  searchInputKeyPress(event: any): void;
+  applyFilters(items: any): any;
+  invertOutput(): void;
+  hideOutput(): void;
+  showOutput(): void;
+  updateFilter(filter: any): void;
+  showSearchBar(): void;
+  displayFilters(): any[];
+  displayOutput(): string;
+  displayTooltip(): any[];
+  render(): any[];
+}
