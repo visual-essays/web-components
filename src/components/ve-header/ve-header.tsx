@@ -6,8 +6,9 @@ import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
 import '@shoelace-style/shoelace/dist/components/icon/icon.js'
 import '@shoelace-style/shoelace/dist/components/menu/menu.js'
 
-// import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
+import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
 // setBasePath('https://visual-essays.github.io/web-components/www')
+setBasePath('/web-components')
 
 const navIcons = {
   home: 'house-fill',
