@@ -2,6 +2,7 @@ import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js';
 import '@shoelace-style/shoelace/dist/components/icon/icon.js';
 import '@shoelace-style/shoelace/dist/components/menu/menu.js';
+import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js';
 export declare class Header {
   el: HTMLElement;
   label: string;
@@ -12,6 +13,8 @@ export declare class Header {
   sticky: boolean;
   position: string;
   contact: string;
+  searchDomain: string;
+  searchFilters: string;
   imageOptions: any;
   navItems: any;
   _manifest: any;
@@ -25,6 +28,7 @@ export declare class Header {
   componentDidLoad(): void;
   htmlToElem(html: string): Element;
   _showInfoPopup(): void;
+  _toggleSearchBox(): void;
   menuItemSelected(item: any): void;
   navIcon(item: any): string;
   render(): any[];

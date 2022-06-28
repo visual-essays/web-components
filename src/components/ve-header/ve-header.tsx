@@ -5,9 +5,10 @@ import '@shoelace-style/shoelace/dist/components/button/button.js'
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
 import '@shoelace-style/shoelace/dist/components/icon/icon.js'
 import '@shoelace-style/shoelace/dist/components/menu/menu.js'
+import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js'
 
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
-setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/dist/collection')
+setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/src')
 
 const navIcons = {
   home: 'house-fill',
@@ -32,6 +33,9 @@ export class Header {
   @Prop() sticky: boolean
   @Prop() position: string = 'center' // center, top, bottom
   @Prop() contact: string // Email address for Contact Us
+  
+  @Prop() searchDomain: string // Domain for site search
+  @Prop() searchFilters: string
 
   @State() imageOptions: any
   @State() navItems: any = []
@@ -107,6 +111,11 @@ export class Header {
     popup.style.display = popup.style.display === 'block' ? 'none' : 'block'
   }
 
+  _toggleSearchBox() {
+    let searchBox = this.el.shadowRoot.querySelector('ve-search')
+    searchBox.style.visibility = searchBox.style.visibility === 'visible' ? 'hidden' : 'visible'
+  }
+
   menuItemSelected(item: any) {
     console.log('menuItemSelected', item)
     if (item.label.toLowerCase().indexOf('contact') === 0 && this.contact) {
@@ -131,12 +140,21 @@ export class Header {
 
       <section class="ve-header">
         <div class="title-panel">
-          {/* <span id="info-icon" onClick={this._showInfoPopup.bind(this)} title="Image info">i</span> */}
+          <sl-icon id="info-icon" name="info-circle-fill" onClick={this._showInfoPopup.bind(this)} title="Image info"></sl-icon>
+          { this.searchDomain
+            ? <div id="search-box">
+                <ve-search filters={this.searchFilters} icon ></ve-search>
+                <sl-tooltip content="Click to search the site">
+                  <sl-icon id="search-icon" name="search" onClick={this._toggleSearchBox.bind(this)}></sl-icon>
+                </sl-tooltip>
+              </div>
+            : null
+          }
           { this.navItems.length > 0 && 
             <nav>
               <sl-dropdown>
                 <sl-button id="menu-toggle" slot="trigger" variant="default" size="medium" circle>
-                  <sl-icon name="three-dots-vertical" label="Navigation Meno"></sl-icon>
+                  <sl-icon name="three-dots-vertical" label="Navigation Menu"></sl-icon>
                 </sl-button>
                 <sl-menu>
                   { this.navItems.map((item:any) => 
@@ -153,12 +171,6 @@ export class Header {
           <a href="/"><div class="title">{this.label}</div></a>
           <div class="subtitle">{this.subtitle}</div>
           <div id="image-info-popup"></div>
-          <div class = "title-buttons">
-            <ve-search cx = '0a5115e988de8e8a9' filters = '16c:16c,17c:17c,18c:18c,19c:19c,20c:20c,21c:21c,austen:Jane Austen,canterbury:Canterbury,churches:Churches,dickens:Dickens' icon tooltip = "Click to search the site"></ve-search>
-            <sl-button id = "info-button" onClick={this._showInfoPopup.bind(this)} title = "Image info">
-              <sl-icon name = "info"></sl-icon>
-            </sl-button>
-          </div>
         </div>
       </section>,
 

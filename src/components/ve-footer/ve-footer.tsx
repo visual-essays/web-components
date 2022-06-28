@@ -4,7 +4,7 @@ import '@shoelace-style/shoelace/dist/components/icon/icon.js'
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js'
 
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
-setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/dist/collection')
+setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/src')
 
 @Component({
   tag: 've-footer',

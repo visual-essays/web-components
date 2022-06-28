@@ -112,7 +112,7 @@ SlCard = chunk_GP3HCHHG.__decorateClass([
 
 const veCardCss = ":host{font-family:Roboto, sans-serif}.card-overview{max-width:200px}.label{font-size:1em;line-height:1.1em;font-weight:bold;padding-bottom:12px}.description{font-size:.8em;line-height:1.1em}";
 
-chunk_GP3HCHHG.setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/dist/collection');
+chunk_GP3HCHHG.setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/src');
 const Card = class {
   constructor(hostRef) {
     index.registerInstance(this, hostRef);

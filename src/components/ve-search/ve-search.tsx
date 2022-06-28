@@ -10,7 +10,7 @@ import '@shoelace-style/shoelace/dist/components/menu/menu.js'
 import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
 
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
-setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/dist/collection')
+setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/src')
 
  @Component({
     tag: "ve-search",
@@ -82,12 +82,16 @@ setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web
             this.items = [];
         }
 
-        let url = `https://www.googleapis.com/customsearch/v1?key=${this.API}&cx=${this.cx}&q=${query}&start=${start}`;
+        let domain = 'dev.kent-maps.online'
+
+        // let url = `https://www.googleapis.com/customsearch/v1?key=${this.API}&cx=${this.cx}&q=${query}&start=${start}`;
         // let url = `http://localhost:3333/v1.json`; // Pre-created JSON to test with after daily searches reached
+        let url = `https://${domain}/search?q=${query}&start=${start}`;
 
         fetch(url)
         .then(res => res.json())
         .then(res => {
+            console.log(res)
             this.items = this.items.concat(this.applyFilters(res["items"]));
 
             // If there is no more results after these

@@ -7,16 +7,18 @@
 
 ## Properties
 
-| Property     | Attribute    | Description | Type      | Default     |
-| ------------ | ------------ | ----------- | --------- | ----------- |
-| `background` | `background` |             | `string`  | `undefined` |
-| `contact`    | `contact`    |             | `string`  | `undefined` |
-| `height`     | `height`     |             | `number`  | `300`       |
-| `label`      | `label`      |             | `string`  | `undefined` |
-| `options`    | `options`    |             | `string`  | `undefined` |
-| `position`   | `position`   |             | `string`  | `'center'`  |
-| `sticky`     | `sticky`     |             | `boolean` | `undefined` |
-| `subtitle`   | `subtitle`   |             | `string`  | `undefined` |
+| Property        | Attribute        | Description | Type      | Default     |
+| --------------- | ---------------- | ----------- | --------- | ----------- |
+| `background`    | `background`     |             | `string`  | `undefined` |
+| `contact`       | `contact`        |             | `string`  | `undefined` |
+| `height`        | `height`         |             | `number`  | `300`       |
+| `label`         | `label`          |             | `string`  | `undefined` |
+| `options`       | `options`        |             | `string`  | `undefined` |
+| `position`      | `position`       |             | `string`  | `'center'`  |
+| `searchDomain`  | `search-domain`  |             | `string`  | `undefined` |
+| `searchFilters` | `search-filters` |             | `string`  | `undefined` |
+| `sticky`        | `sticky`         |             | `boolean` | `undefined` |
+| `subtitle`      | `subtitle`       |             | `string`  | `undefined` |
 
 
 ## Dependencies

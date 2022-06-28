@@ -840,7 +840,7 @@ SlMenuItem = __decorateClass([
 
 const veSearchCss = "#ve-search-input-container{outline:none;border:1px rgb(212, 212, 216) solid;background:white;border-left:none;border-right:none;border-radius:0px}#ve-search-input{outline:none;border:none;margin-top:5%;padding-left:10px}#ve-search-bar-show-button::part(base),#ve-search-search-button::part(base),#ve-search-filter-dropdown>sl-button::part(base){background-color:white}#ve-search-bar{width:max-content}#ve-search-bar:hover{box-shadow:0 0 10px rgb(146, 209, 248)}#ve-search-hide-output{background:none;border:none;display:none;padding-right:10px;cursor:pointer}#ve-search-dropdown{width:70%;display:none;border:1px rgb(212, 212, 216) solid;background-color:white;border-radius:3px;padding:7px;margin-top:0;position:absolute;z-index:2}#ve-search-output{margin-left:10px}#ve-search-output>*{font-family:Roboto, sans-serif}#ve-search-output-title{margin-bottom:0}#ve-search-output-title>a{text-decoration:none;color:rgb(147 179 243)}#ve-search-output-link{font-style:italic;font-size:0.8em;color:rgb(60, 131, 40);margin-top:0%}#ve-search-output-title>a:visited{color:rgb(188 140 242)}#ve-search-end-of-output{height:1px;width:99%;background-color:rgb(212, 212, 216);border:none}#ve-search-show-more{border:none;background:none;margin-left:9px;cursor:pointer}";
 
-setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/dist/collection');
+setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/src');
 const VeSearch = /*@__PURE__*/ proxyCustomElement(class extends HTMLElement {
   constructor() {
     super();
@@ -889,11 +889,14 @@ const VeSearch = /*@__PURE__*/ proxyCustomElement(class extends HTMLElement {
     if ((this.items == null) || (start == 0)) {
       this.items = [];
     }
-    let url = `https://www.googleapis.com/customsearch/v1?key=${this.API}&cx=${this.cx}&q=${query}&start=${start}`;
+    let domain = 'dev.kent-maps.online';
+    // let url = `https://www.googleapis.com/customsearch/v1?key=${this.API}&cx=${this.cx}&q=${query}&start=${start}`;
     // let url = `http://localhost:3333/v1.json`; // Pre-created JSON to test with after daily searches reached
+    let url = `https://${domain}/search?q=${query}&start=${start}`;
     fetch(url)
       .then(res => res.json())
       .then(res => {
+      console.log(res);
       this.items = this.items.concat(this.applyFilters(res["items"]));
       // If there is no more results after these
       if (res["queries"]["nextPage"] == null) {

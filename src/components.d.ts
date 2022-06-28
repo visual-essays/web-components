@@ -49,6 +49,8 @@ export namespace Components {
         "label": string;
         "options": string;
         "position": string;
+        "searchDomain": string;
+        "searchFilters": string;
         "sticky": boolean;
         "subtitle": string;
     }
@@ -251,6 +253,8 @@ declare namespace LocalJSX {
         "label"?: string;
         "options"?: string;
         "position"?: string;
+        "searchDomain"?: string;
+        "searchFilters"?: string;
         "sticky"?: boolean;
         "subtitle"?: string;
     }

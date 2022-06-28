@@ -4,8 +4,9 @@ import '@shoelace-style/shoelace/dist/components/button/button.js';
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js';
 import '@shoelace-style/shoelace/dist/components/icon/icon.js';
 import '@shoelace-style/shoelace/dist/components/menu/menu.js';
+import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js';
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
-setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/dist/collection');
+setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/src');
 const navIcons = {
   home: 'house-fill',
   about: 'info-circle-fill',
@@ -73,6 +74,10 @@ export class Header {
     popup.innerHTML = `<ve-manifest images="${images}" condensed></ve-manifest>`;
     popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
   }
+  _toggleSearchBox() {
+    let searchBox = this.el.shadowRoot.querySelector('ve-search');
+    searchBox.style.visibility = searchBox.style.visibility === 'visible' ? 'hidden' : 'visible';
+  }
   menuItemSelected(item) {
     console.log('menuItemSelected', item);
     if (item.label.toLowerCase().indexOf('contact') === 0 && this.contact) {
@@ -96,22 +101,25 @@ export class Header {
     return [
       h("section", { class: "ve-header" },
         h("div", { class: "title-panel" },
+          h("sl-icon", { id: "info-icon", name: "info-circle-fill", onClick: this._showInfoPopup.bind(this), title: "Image info" }),
+          this.searchDomain
+            ? h("div", { id: "search-box" },
+              h("ve-search", { filters: this.searchFilters, icon: true }),
+              h("sl-tooltip", { content: "Click to search the site" },
+                h("sl-icon", { id: "search-icon", name: "search", onClick: this._toggleSearchBox.bind(this) })))
+            : null,
           this.navItems.length > 0 &&
             h("nav", null,
               h("sl-dropdown", null,
                 h("sl-button", { id: "menu-toggle", slot: "trigger", variant: "default", size: "medium", circle: true },
-                  h("sl-icon", { name: "three-dots-vertical", label: "Navigation Meno" })),
+                  h("sl-icon", { name: "three-dots-vertical", label: "Navigation Menu" })),
                 h("sl-menu", null, this.navItems.map((item) => h("sl-menu-item", { onClick: this.menuItemSelected.bind(this, item) },
                   h("sl-icon", { slot: "prefix", name: this.navIcon(item), label: item.label }),
                   item.label))))),
           h("a", { href: "/" },
             h("div", { class: "title" }, this.label)),
           h("div", { class: "subtitle" }, this.subtitle),
-          h("div", { id: "image-info-popup" }),
-          h("div", { class: "title-buttons" },
-            h("ve-search", { cx: '0a5115e988de8e8a9', filters: '16c:16c,17c:17c,18c:18c,19c:19c,20c:20c,21c:21c,austen:Jane Austen,canterbury:Canterbury,churches:Churches,dickens:Dickens', icon: true, tooltip: "Click to search the site" }),
-            h("sl-button", { id: "info-button", onClick: this._showInfoPopup.bind(this), title: "Image info" },
-              h("sl-icon", { name: "info" }))))),
+          h("div", { id: "image-info-popup" }))),
       h("ve-contact", { contact: this.contact })
     ];
   }
@@ -260,6 +268,40 @@ export class Header {
         "text": ""
       },
       "attribute": "contact",
+      "reflect": false
+    },
+    "searchDomain": {
+      "type": "string",
+      "mutable": false,
+      "complexType": {
+        "original": "string",
+        "resolved": "string",
+        "references": {}
+      },
+      "required": false,
+      "optional": false,
+      "docs": {
+        "tags": [],
+        "text": ""
+      },
+      "attribute": "search-domain",
+      "reflect": false
+    },
+    "searchFilters": {
+      "type": "string",
+      "mutable": false,
+      "complexType": {
+        "original": "string",
+        "resolved": "string",
+        "references": {}
+      },
+      "required": false,
+      "optional": false,
+      "docs": {
+        "tags": [],
+        "text": ""
+      },
+      "attribute": "search-filters",
       "reflect": false
     }
   }; }
