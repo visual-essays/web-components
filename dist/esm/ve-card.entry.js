@@ -108,7 +108,7 @@ SlCard = __decorateClass([
 
 const veCardCss = ":host{font-family:Roboto, sans-serif}.card-overview{max-width:200px}.label{font-size:1em;line-height:1.1em;font-weight:bold;padding-bottom:12px}.description{font-size:.8em;line-height:1.1em}";
 
-setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/src');
+setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/dist/collection');
 const Card = class {
   constructor(hostRef) {
     registerInstance(this, hostRef);

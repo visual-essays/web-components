@@ -15,7 +15,7 @@ import '@shoelace-style/shoelace/dist/components/icon/icon.js';
 import '@shoelace-style/shoelace/dist/components/image-comparer/image-comparer.js';
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js';
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
-setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/src');
+setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/dist/collection');
 export class ImageViewer {
   constructor() {
     this.user = null;

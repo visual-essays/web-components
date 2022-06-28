@@ -5,7 +5,7 @@ import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js';
 import '@shoelace-style/shoelace/dist/components/icon/icon.js';
 import '@shoelace-style/shoelace/dist/components/menu/menu.js';
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
-setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/src');
+setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/dist/collection');
 const navIcons = {
   home: 'house-fill',
   about: 'info-circle-fill',

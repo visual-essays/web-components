@@ -6,7 +6,7 @@ import { d as defineCustomElement$2 } from './ve-contact2.js';
 
 const veFooterCss = "*{box-sizing:border-box}:host{font-family:Roboto, sans-serif;z-index:100}.container{clear:both;display:flex;padding:3px 12px;align-items:center;gap:12px;width:100%;background-color:inherit;}.container a{text-decoration:none}.logo{height:20px}.contact{display:flex;align-items:center;gap:6px;cursor:pointer}.push{margin-left:auto}.contact-dialog::part(body){display:flex;flex-direction:column;padding:24px;gap:16px}";
 
-setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/src');
+setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/dist/collection');
 const Footer = /*@__PURE__*/ proxyCustomElement(class extends HTMLElement {
   constructor() {
     super();
