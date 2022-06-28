@@ -165,10 +165,10 @@ nav sl-menu-item:hover sl-icon {
   bottom: 68px;
   right: 80px;
 }
-ve-search {
+/* ve-search {
   padding-right: 36px;
   visibility: hidden;
-}
+} */
 #search-icon {
   position: absolute;
   right: 0;

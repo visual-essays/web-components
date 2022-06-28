@@ -21,11 +21,11 @@ export declare class VeSearch {
   el: HTMLElement;
   query: string;
   items: any[];
-  numResults: number;
   error: string;
   search: boolean;
   previousStart: number;
   activeFilter: string;
+  showSearchBarWidth: number;
   filtersObject: Object;
   handleClick(ev: any): void;
   fillFilters(): void;

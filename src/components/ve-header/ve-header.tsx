@@ -36,6 +36,7 @@ export class Header {
   
   @Prop() searchDomain: string // Domain for site search
   @Prop() searchFilters: string
+  @Prop() searchCx: string
 
   @State() imageOptions: any
   @State() navItems: any = []
@@ -143,10 +144,8 @@ export class Header {
           <sl-icon id="info-icon" name="info-circle-fill" onClick={this._showInfoPopup.bind(this)} title="Image info"></sl-icon>
           { this.searchDomain
             ? <div id="search-box">
-                <ve-search filters={this.searchFilters} icon animationLength = "2"></ve-search>
-                <sl-tooltip content="Click to search the site">
-                  <sl-icon id="search-icon" name="search" onClick={this._toggleSearchBox.bind(this)}></sl-icon>
-                </sl-tooltip>
+                <ve-search filters={this.searchFilters} cx={this.searchCx} tooltip="Click to search the site" animationLength="1" icon></ve-search>
+                  {/* <sl-icon id="search-icon" name="search" onClick={this._toggleSearchBox.bind(this)}></sl-icon> */}
               </div>
             : null
           }

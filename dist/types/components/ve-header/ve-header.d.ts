@@ -15,6 +15,7 @@ export declare class Header {
   contact: string;
   searchDomain: string;
   searchFilters: string;
+  searchCx: string;
   imageOptions: any;
   navItems: any;
   _manifest: any;

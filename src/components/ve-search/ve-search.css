@@ -7,6 +7,10 @@
     border-radius: 0px;
 }
 
+#ve-search-output-error {
+    color: black;
+}
+
 #ve-search-input {
     outline: none;
     border: none;
@@ -14,7 +18,7 @@
     padding-left: 10px;
 }
 
-#ve-search-bar-show-button::part(base), #ve-search-search-button::part(base), #ve-search-filter-dropdown > sl-button::part(base) {
+#ve-search-search-button::part(base), #ve-search-filter-dropdown > sl-button::part(base) {
     background-color: white;
 }
 
@@ -35,7 +39,7 @@
 }
 
 #ve-search-dropdown {
-    width: 70%;
+    width: 95%;
     display: none;
     border: 1px rgb(212, 212, 216) solid;
     background-color: white;
@@ -44,6 +48,8 @@
     margin-top: 0;
     position: absolute;
     z-index: 2;
+    overflow: scroll;
+    max-height: 300px;
 }
 
 #ve-search-output {

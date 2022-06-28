@@ -262,7 +262,7 @@ SlMenuItem = __decorateClass([
   n("sl-menu-item")
 ], SlMenuItem);
 
-const veSearchCss = "#ve-search-input-container{outline:none;border:1px rgb(212, 212, 216) solid;background:white;border-left:none;border-right:none;border-radius:0px}#ve-search-input{outline:none;border:none;margin-top:5%;padding-left:10px}#ve-search-bar-show-button::part(base),#ve-search-search-button::part(base),#ve-search-filter-dropdown>sl-button::part(base){background-color:white}#ve-search-bar{width:max-content}#ve-search-bar:hover{box-shadow:0 0 10px rgb(146, 209, 248)}#ve-search-hide-output{background:none;border:none;display:none;padding-right:10px;cursor:pointer}#ve-search-dropdown{width:70%;display:none;border:1px rgb(212, 212, 216) solid;background-color:white;border-radius:3px;padding:7px;margin-top:0;position:absolute;z-index:2}#ve-search-output{margin-left:10px}#ve-search-output>*{font-family:Roboto, sans-serif}#ve-search-output-title{margin-bottom:0}#ve-search-output-title>a{text-decoration:none;color:rgb(147 179 243)}#ve-search-output-link{font-style:italic;font-size:0.8em;color:rgb(60, 131, 40);margin-top:0%}#ve-search-output-title>a:visited{color:rgb(188 140 242)}#ve-search-end-of-output{height:1px;width:99%;background-color:rgb(212, 212, 216);border:none}#ve-search-show-more{border:none;background:none;margin-left:9px;cursor:pointer}";
+const veSearchCss = "#ve-search-input-container{outline:none;border:1px rgb(212, 212, 216) solid;background:white;border-left:none;border-right:none;border-radius:0px}#ve-search-output-error{color:black}#ve-search-input{outline:none;border:none;margin-top:5%;padding-left:10px}#ve-search-search-button::part(base),#ve-search-filter-dropdown>sl-button::part(base){background-color:white}#ve-search-bar{width:max-content}#ve-search-bar:hover{box-shadow:0 0 10px rgb(146, 209, 248)}#ve-search-hide-output{background:none;border:none;display:none;padding-right:10px;cursor:pointer}#ve-search-dropdown{width:95%;display:none;border:1px rgb(212, 212, 216) solid;background-color:white;border-radius:3px;padding:7px;margin-top:0;position:absolute;z-index:2;overflow:scroll;max-height:300px}#ve-search-output{margin-left:10px}#ve-search-output>*{font-family:Roboto, sans-serif}#ve-search-output-title{margin-bottom:0}#ve-search-output-title>a{text-decoration:none;color:rgb(147 179 243)}#ve-search-output-link{font-style:italic;font-size:0.8em;color:rgb(60, 131, 40);margin-top:0%}#ve-search-output-title>a:visited{color:rgb(188 140 242)}#ve-search-end-of-output{height:1px;width:99%;background-color:rgb(212, 212, 216);border:none}#ve-search-show-more{border:none;background:none;margin-left:9px;cursor:pointer}";
 
 const VeSearch = class {
   constructor(hostRef) {
@@ -282,7 +282,6 @@ const VeSearch = class {
     this.RESULTS_PER_PAGE = 10;
     this.TAG_NAME = "ve-search";
     this.items = [];
-    this.numResults = 0;
     this.error = "";
     this.search = false;
     this.previousStart = 0;
@@ -326,14 +325,12 @@ const VeSearch = class {
       this.search = true;
       if ((this.items == null) || (start == 0)) {
         this.items = [];
-        this.numResults = 0;
       }
       let url = `https://www.googleapis.com/customsearch/v1?key=${this.API}&cx=${this.cx}&q=${query}&start=${start}`;
       // let url = `http://localhost:3333/v1.json`; // Pre-created JSON to test with after daily searches reached
       fetch(url)
         .then(res => res.json())
         .then(res => {
-        this.numResults = res["queries"]["request"]["0"]["count"];
         this.items = this.items.concat(this.applyFilters(res["items"]));
         // If there is no more results after these
         if (res["queries"]["nextPage"] == null) {
@@ -416,6 +413,7 @@ const VeSearch = class {
   // Used when <ve-search> initially an icon
   showSearchBar() {
     this.tooltip = "";
+    this.showSearchBarWidth = this.el.shadowRoot.getElementById("ve-search-bar-show-button").clientWidth;
     this.el.shadowRoot.getElementById("ve-search-bar").style.display = "block";
     this.el.shadowRoot.getElementById("ve-search-bar-show-button").style.display = "none";
     this.horizontalReveal("ve-search-container");
@@ -440,7 +438,7 @@ const VeSearch = class {
                 }
                 1% {
                     display: block;
-                    width: 0px;
+                    width: ${this.showSearchBarWidth}px;
                     overflow: hidden;
                 }
                 99% {
@@ -483,10 +481,7 @@ const VeSearch = class {
     var outputText = "";
     // Only display items if a search has been performed
     if (this.search) {
-      if (this.numResults == 0) {
-        outputText = `<p id = 've-search-output-error'>${this.NO_RESULTS_MESSAGE}</p>`;
-      }
-      else if (this.error == "searchQuotaExceeded") {
+      if (this.error == "searchQuotaExceeded") {
         outputText = `<p id = 've-search-output-error'>${this.SEARCH_QUOTA_EXCEEDED_MESSAGE}</p>`;
       }
       else {
@@ -498,7 +493,9 @@ const VeSearch = class {
             outputText += `<p id = 've-search-output-link'>${item["link"]}"</p>`;
           }
         }
-        catch (TypeError) { }
+        catch (TypeError) {
+          outputText = `<p id = 've-search-output-error'>${this.NO_RESULTS_MESSAGE}</p>`;
+        }
       }
       try {
         // Shows results and results hide button
@@ -517,7 +514,7 @@ const VeSearch = class {
             }`;
     var searchBarStyleSheet = [h("style", { type: "text/css", id: "search-bar-style", innerHTML: hideSearchBar })];
     var searchBarShowButton = [
-      h("sl-button", { id: "ve-search-bar-show-button", onclick: () => this.showSearchBar() }, h("sl-icon", { name: "search", label: "Search" }))
+      h("sl-button", { id: "ve-search-bar-show-button", onclick: () => this.showSearchBar(), circle: true }, h("sl-icon", { name: "search", label: "Search" }))
     ];
     // Tooltip given
     if (this.tooltip.length > 0) {

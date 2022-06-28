@@ -42,11 +42,11 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
 
     @State() query: string
     @State() items: any[] = []
-    @State() numResults: number = 0
     @State() error: string = ""
     @State() search: boolean = false
     @State() previousStart: number = 0
     @State() activeFilter: string = "all"
+    @State() showSearchBarWidth: number
 
     // Dictionary object with key as path to folder mapped to value to be displayed
     @State() filtersObject: Object = new Object()
@@ -107,7 +107,6 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
     
             if ((this.items == null) || (start == 0)) {
                 this.items = [];
-                this.numResults = 0;
             }
     
             let url = `https://www.googleapis.com/customsearch/v1?key=${this.API}&cx=${this.cx}&q=${query}&start=${start}`;
@@ -116,7 +115,6 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
             fetch(url)
             .then(res => res.json())
             .then(res => {
-                this.numResults = res["queries"]["request"]["0"]["count"];
                 this.items = this.items.concat(this.applyFilters(res["items"]));
     
                 // If there is no more results after these
@@ -166,7 +164,6 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
                 if (link.startsWith(this.activeFilter)) {
                     filteredItems.push(item);
                 }
-
 
                 // Code for when tags used for filtering rather than file path (not tested)
 
@@ -225,6 +222,8 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
     showSearchBar() {
         this.tooltip = "";
 
+        this.showSearchBarWidth = this.el.shadowRoot.getElementById("ve-search-bar-show-button").clientWidth;
+
         this.el.shadowRoot.getElementById("ve-search-bar").style.display = "block";
         this.el.shadowRoot.getElementById("ve-search-bar-show-button").style.display = "none";
 
@@ -253,7 +252,7 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
                 }
                 1% {
                     display: block;
-                    width: 0px;
+                    width: ${this.showSearchBarWidth}px;
                     overflow: hidden;
                 }
                 99% {
@@ -306,12 +305,8 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
         
         // Only display items if a search has been performed
         if (this.search) {
-                
-            if (this.numResults == 0) {
-                outputText = `<p id = 've-search-output-error'>${this.NO_RESULTS_MESSAGE}</p>`;
-            }
 
-            else if (this.error == "searchQuotaExceeded") {
+            if (this.error == "searchQuotaExceeded") {
                 outputText = `<p id = 've-search-output-error'>${this.SEARCH_QUOTA_EXCEEDED_MESSAGE}</p>`;
             }
 
@@ -328,7 +323,9 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
                         outputText += `<p id = 've-search-output-link'>${item["link"]}"</p>`;
                     }
                 }
-                catch (TypeError) {}
+                catch (TypeError) {
+                    outputText = `<p id = 've-search-output-error'>${this.NO_RESULTS_MESSAGE}</p>`;
+                }
             }
 
             try {
@@ -353,7 +350,7 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
         var searchBarStyleSheet = [<style type = "text/css" id = "search-bar-style" innerHTML={hideSearchBar}></style>]
         
         var searchBarShowButton = [
-            <sl-button id = "ve-search-bar-show-button" onclick = {() => this.showSearchBar()}>
+            <sl-button id = "ve-search-bar-show-button" onclick = {() => this.showSearchBar()} circle>
                 <sl-icon name = "search" label = "Search"></sl-icon>
             </sl-button>
         ]
