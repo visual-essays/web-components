@@ -1445,7 +1445,7 @@ SlTextarea = __decorateClass([
 
 const veContactCss = ":host{z-index:2}#message{margin-top:24px}";
 
-setBasePath(location.port === '3333' ? '' : '/web-components/');
+setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/src');
 const emailAddressRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 const Header = /*@__PURE__*/ proxyCustomElement(class extends HTMLElement {
   constructor() {

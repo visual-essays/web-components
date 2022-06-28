@@ -3,7 +3,7 @@ import { getManifest, label, thumbnail } from '../../utils';
 import '@shoelace-style/shoelace/dist/components/card/card.js';
 import '@shoelace-style/shoelace/dist/components/icon/icon.js';
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js';
-setBasePath(location.port === '3333' ? '' : '/web-components/');
+setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/src');
 export class Card {
   async connectedCallback() {
     this.description = this.el.innerHTML.trim();

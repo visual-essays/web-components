@@ -7,7 +7,7 @@ import '@shoelace-style/shoelace/dist/components/icon/icon.js'
 import '@shoelace-style/shoelace/dist/components/menu/menu.js'
 
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
-setBasePath(location.port === '3333' ? '' : '/web-components/')
+setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/dist/collection')
 
 const navIcons = {
   home: 'house-fill',
@@ -60,10 +60,10 @@ export class Header {
   }
 
   _iiifUrl(serviceUrl: string, options: any) {
-    //let size = `${this.el.clientWidth > 1000 ? 1000 : this.el.clientWidth},${this.height > 1000 ? 1000 : this.height}`
-    //let url = `${serviceUrl}/${options.region}/!${size}/${options.rotation}/${options.quality}.${options.format}`
-    let url = `${serviceUrl.replace(/\/info.json$/,'')}/${options.region}/${options.size}/${options.rotation}/${options.quality}.${options.format}`
-    // console.log('_iiifUrl', url)
+    let size = `${this.el.clientWidth > 1000 ? 1000 : this.el.clientWidth},${this.height > 1000 ? 1000 : this.height}`
+    let url = `${serviceUrl.replace(/\/info.json$/,'')}/${options.region}/!${size}/${options.rotation}/${options.quality}.${options.format}`
+    // let url = `${serviceUrl.replace(/\/info.json$/,'')}/${options.region}/${options.size}/${options.rotation}/${options.quality}.${options.format}`
+    console.log('_iiifUrl', url)
     return url
   }
 

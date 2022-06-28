@@ -1,4 +1,5 @@
-#dist
+dist/components
+dist/types
 loader
-www/build
+www
 node_modules
