@@ -1,6 +1,5 @@
- import { Component, Prop, Element, State, h } from "@stencil/core";
-//  import { ClickOutside } from "stencil-click-outside";
- 
+import { Component, Prop, Element, State, Listen, h } from "@stencil/core";
+
 import '@shoelace-style/shoelace/dist/components/button/button.js'
 import '@shoelace-style/shoelace/dist/components/button-group/button-group.js'
 import '@shoelace-style/shoelace/dist/components/icon/icon.js'
@@ -9,8 +8,10 @@ import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js'
 import '@shoelace-style/shoelace/dist/components/menu/menu.js'
 import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
 
-import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
-setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/src')
+// import '@shoelace-style/shoelace/dist/components/animation/'
+
+// import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
+// setBasePath('https://visual-essays.github.io/web-components/www')
 
  @Component({
     tag: "ve-search",
@@ -23,17 +24,25 @@ setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web
     @Prop() filters: string = ""
     @Prop() icon : boolean = false
     @Prop() tooltip : string = ""
+    @Prop() animationLength : string = "0"
+
+    // Tag name of ve-search's parent tag. Required when embedding ve-search in other web components.
+    // Component detects when user clicks, if their click is not on the ve-search component the search results dropdown is hidden.
+    // If the ve-search component is embedded the click finds the parent component.
+    @Prop() parentComponent : string = ""
 
     @State() API: string = "AIzaSyCEoD17BDJpQxSeNpm-_vy9bJ-dHweFwEs" // Needs to be changed to one linked to Kent Maps
     @State() DOMAIN: string = "https://kent-maps.online/"
     @State() SEARCH_QUOTA_EXCEEDED_MESSAGE: string = "Total site search quota exceeded for the day"
     @State() NO_RESULTS_MESSAGE: string = "No results"
     @State() RESULTS_PER_PAGE: number = 10
+    @State() TAG_NAME: string = "ve-search"
 
     @Element() el: HTMLElement
 
     @State() query: string
     @State() items: any[] = []
+    @State() numResults: number = 0
     @State() error: string = ""
     @State() search: boolean = false
     @State() previousStart: number = 0
@@ -42,11 +51,27 @@ setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web
     // Dictionary object with key as path to folder mapped to value to be displayed
     @State() filtersObject: Object = new Object()
 
-    // @ClickOutside()
-        // hideOutputOnOutsideClick() {
-        //     console.log("hideOutputOnOutsideClick()");
-        //     this.hideOutput();
-        // }
+    @Listen('click', { target: 'window' })
+
+        // Hide dropdown if user clicks elsewhere on document
+        handleClick(ev) {
+
+            var tagInComposition = false;
+
+            // Composed path required if ve-search embedded in another web component
+            var composedPath = ev.composedPath()
+
+            for (var i = 0; i < composedPath.length; i++) {
+
+                if (composedPath[i].localName == this.TAG_NAME) {
+                    tagInComposition = true;
+                }
+            }
+
+            if ((!tagInComposition) && (ev.target.localName != this.TAG_NAME)){
+                this.hideOutput();
+            }
+        }
         
     // Reads filters given in the <ve-search> tag and stores them in filtersObjects
     fillFilters() {
@@ -75,47 +100,44 @@ setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web
         var query = (this.el.shadowRoot.getElementById("ve-search-input") as HTMLInputElement).value;
         query = query.replace(" ", "+");
 
-        this.error = "";
-        this.search = true;
+        if (query.length > 0) {
 
-        if ((this.items == null) || (start == 0)) {
-            this.items = [];
+            this.error = "";
+            this.search = true;
+    
+            if ((this.items == null) || (start == 0)) {
+                this.items = [];
+                this.numResults = 0;
+            }
+    
+            let url = `https://www.googleapis.com/customsearch/v1?key=${this.API}&cx=${this.cx}&q=${query}&start=${start}`;
+            // let url = `http://localhost:3333/v1.json`; // Pre-created JSON to test with after daily searches reached
+    
+            fetch(url)
+            .then(res => res.json())
+            .then(res => {
+                this.numResults = res["queries"]["request"]["0"]["count"];
+                this.items = this.items.concat(this.applyFilters(res["items"]));
+    
+                // If there is no more results after these
+                if (res["queries"]["nextPage"] == null) {
+                    this.el.shadowRoot.getElementById("ve-search-end-of-output").style.display = "none";
+                    this.el.shadowRoot.getElementById("ve-search-show-more").style.display = "none";
+                }
+                else {
+                    this.el.shadowRoot.getElementById("ve-search-end-of-output").style.display = "block";
+                    this.el.shadowRoot.getElementById("ve-search-show-more").style.display = "block";
+                }
+            })
+            .catch(_ => {
+                this.error = "searchQuotaExceeded"
+            })
+            .catch(error => {
+                console.log(error)
+            });
+
+            this.previousStart = start;
         }
-
-        let domain = 'dev.kent-maps.online'
-
-        // let url = `https://www.googleapis.com/customsearch/v1?key=${this.API}&cx=${this.cx}&q=${query}&start=${start}`;
-        // let url = `http://localhost:3333/v1.json`; // Pre-created JSON to test with after daily searches reached
-        let url = `https://${domain}/search?q=${query}&start=${start}`;
-
-        fetch(url)
-        .then(res => res.json())
-        .then(res => {
-            console.log(res)
-            this.items = this.items.concat(this.applyFilters(res["items"]));
-
-            // If there is no more results after these
-            if (res["queries"]["nextPage"] == null) {
-                this.el.shadowRoot.getElementById("ve-search-end-of-output").style.display = "none";
-                this.el.shadowRoot.getElementById("ve-search-show-more").style.display = "none";
-            }
-            else {
-                this.el.shadowRoot.getElementById("ve-search-end-of-output").style.display = "block";
-                this.el.shadowRoot.getElementById("ve-search-show-more").style.display = "block";
-            }
-        })
-        .catch(_ => {
-            this.error = "searchQuotaExceeded"
-        })
-        .catch(error => {
-            console.log(error)
-        });
-
-        this.previousStart = start;
-
-        // Shows results and results hide button
-        this.el.shadowRoot.getElementById("ve-search-hide-output").style.display = "inline-block";
-        this.el.shadowRoot.getElementById("ve-search-dropdown").style.display = "block";
     }
 
     // Detects the enter key in the input field to begin search
@@ -188,14 +210,60 @@ setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web
     }
 
     updateFilter(filter) {
+        var key;
+
+        // Reset checked for all filters
+        for (key in this.filtersObject) {
+            this.el.shadowRoot.getElementById("ve-search-filter-item-" + key).removeAttribute("checked");
+        }
+
         this.activeFilter = filter;
         this.el.shadowRoot.getElementById("ve-search-filter-item-" + filter).setAttribute("checked", "true");
     }
 
     // Used when <ve-search> initially an icon
     showSearchBar() {
+        this.tooltip = "";
+
         this.el.shadowRoot.getElementById("ve-search-bar").style.display = "block";
         this.el.shadowRoot.getElementById("ve-search-bar-show-button").style.display = "none";
+
+        this.horizontalReveal("ve-search-container");
+    }
+
+    horizontalReveal(elementID) {
+        var offsetWidth;
+
+        this.el.shadowRoot.getElementById(elementID).setAttribute("class", "horizontal-reveal");
+
+        this.el.shadowRoot.getElementById("ve-search-horizontal-animations").innerHTML = `
+            sl-tooltip {
+                display: none;
+            }
+
+            .horizontal-reveal {
+                animation: horizontal-animation ${this.animationLength}s;
+                animation-delay: -0.01s;
+            }
+    
+            @keyframes horizontal-animation {
+                0% {
+                    display: none;
+                    ${offsetWidth = this.el.shadowRoot.getElementById("ve-search-container").offsetWidth};
+                }
+                1% {
+                    display: block;
+                    width: 0px;
+                    overflow: hidden;
+                }
+                99% {
+                    width: ${offsetWidth}px;
+                    overflow: hidden;
+                }
+                100% {
+                    overflow: visible;
+                }
+            }`;
     }
 
     // Displays essay filter options
@@ -239,25 +307,36 @@ setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web
         // Only display items if a search has been performed
         if (this.search) {
                 
-            if (this.items.length == 0) {
-                outputText = `<p>${this.NO_RESULTS_MESSAGE}</p>`;
+            if (this.numResults == 0) {
+                outputText = `<p id = 've-search-output-error'>${this.NO_RESULTS_MESSAGE}</p>`;
             }
 
             else if (this.error == "searchQuotaExceeded") {
-                outputText = `<p>${this.SEARCH_QUOTA_EXCEEDED_MESSAGE}</p>`;
+                outputText = `<p id = 've-search-output-error'>${this.SEARCH_QUOTA_EXCEEDED_MESSAGE}</p>`;
             }
 
             else {
 
                 // Display items
-                for (let i = 0; i < this.items.length; i++) {
 
-                    var item = this.items[i];
+                try {
+                    for (let i = 0; i < this.items.length; i++) {
 
-                    outputText += `<p id = 've-search-output-title'><a href = '${item["link"]}'>"${item["title"]}</a></p>`
-                    outputText += `<p id = 've-search-output-link'>${item["link"]}"</p>`;
+                        var item = this.items[i];
+
+                        outputText += `<p id = 've-search-output-title'><a href = '${item["link"]}'>${item["title"]}</a></p>`
+                        outputText += `<p id = 've-search-output-link'>${item["link"]}"</p>`;
+                    }
                 }
+                catch (TypeError) {}
             }
+
+            try {
+                // Shows results and results hide button
+                this.el.shadowRoot.getElementById("ve-search-hide-output").style.display = "inline-block";
+                this.el.shadowRoot.getElementById("ve-search-dropdown").style.display = "block";
+            }
+            catch (TypeError) {}
         }
 
         return outputText;
@@ -306,7 +385,9 @@ setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web
         this.fillFilters();
 
         outputText = outputText.concat([
-            <div id = "search-container">
+            <div id = "ve-search-container">
+
+                <style id = 've-search-horizontal-animations'></style>
 
                 <sl-button-group  id = "ve-search-bar">
             
@@ -329,11 +410,12 @@ setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web
 
                 </sl-button-group>
 
-                <div id = "ve-search-dropdown">
+                <div id = "ve-search-dropdown" class = "vertical-reveal">
                     <div id = "ve-search-output" innerHTML = {this.displayOutput()}></div>
                     <hr id = "ve-search-end-of-output"/>
                     <button id = "ve-search-show-more" onClick = {this.doSearch.bind(this, this.previousStart + this.RESULTS_PER_PAGE)}>Show more...</button>
                 </div>
+
             </div>
         ])
 
