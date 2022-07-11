@@ -88,9 +88,10 @@ export namespace Components {
     interface VeSearch {
         "animationLength": string;
         "cx": string;
-        "filters": string;
         "icon": boolean;
         "parentComponent": string;
+        "searchDomain": string;
+        "searchFilters": string;
         "tooltip": string;
     }
     interface VeStyle {
@@ -295,9 +296,10 @@ declare namespace LocalJSX {
     interface VeSearch {
         "animationLength"?: string;
         "cx"?: string;
-        "filters"?: string;
         "icon"?: boolean;
         "parentComponent"?: string;
+        "searchDomain"?: string;
+        "searchFilters"?: string;
         "tooltip"?: string;
     }
     interface VeStyle {

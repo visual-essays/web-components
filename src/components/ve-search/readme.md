@@ -11,9 +11,10 @@
 | ----------------- | ------------------ | ----------- | --------- | ----------- |
 | `animationLength` | `animation-length` |             | `string`  | `"0"`       |
 | `cx`              | `cx`               |             | `string`  | `undefined` |
-| `filters`         | `filters`          |             | `string`  | `""`        |
 | `icon`            | `icon`             |             | `boolean` | `false`     |
 | `parentComponent` | `parent-component` |             | `string`  | `""`        |
+| `searchDomain`    | `search-domain`    |             | `string`  | `undefined` |
+| `searchFilters`   | `search-filters`   |             | `string`  | `undefined` |
 | `tooltip`         | `tooltip`          |             | `string`  | `""`        |
 
 

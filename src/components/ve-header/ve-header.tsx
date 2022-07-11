@@ -144,7 +144,7 @@ export class Header {
           <sl-icon id="info-icon" name="info-circle-fill" onClick={this._showInfoPopup.bind(this)} title="Image info"></sl-icon>
           { this.searchDomain
             ? <div id="search-box">
-                <ve-search filters={this.searchFilters} cx={this.searchCx} tooltip="Click to search the site" animationLength="1" icon></ve-search>
+                <ve-search search-domain={this.searchDomain} search-filters={this.searchFilters} tooltip="Click to search the site" animationLength="1" icon></ve-search>
                   {/* <sl-icon id="search-icon" name="search" onClick={this._toggleSearchBox.bind(this)}></sl-icon> */}
               </div>
             : null

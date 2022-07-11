@@ -21,7 +21,8 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
 
  export class VeSearch {
     @Prop() cx: string
-    @Prop() filters: string = ""
+    @Prop() searchDomain: string
+    @Prop() searchFilters: string
     @Prop() icon : boolean = false
     @Prop() tooltip : string = ""
     @Prop() animationLength : string = "0"
@@ -31,8 +32,6 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
     // If the ve-search component is embedded the click finds the parent component.
     @Prop() parentComponent : string = ""
 
-    @State() API: string = "AIzaSyCEoD17BDJpQxSeNpm-_vy9bJ-dHweFwEs" // Needs to be changed to one linked to Kent Maps
-    @State() DOMAIN: string = "https://kent-maps.online/"
     @State() SEARCH_QUOTA_EXCEEDED_MESSAGE: string = "Total site search quota exceeded for the day"
     @State() NO_RESULTS_MESSAGE: string = "No results"
     @State() RESULTS_PER_PAGE: number = 10
@@ -79,7 +78,7 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
         this.filtersObject["all"] = "All";
 
         // In the format ["tagValue:displayValue", ... , "tagValue:displayValue"]
-        var splitFilters = this.filters.split(",");
+        var splitFilters = this.searchFilters.split(",");
 
         for (var i = 0; i < splitFilters.length; i++) {
 
@@ -109,8 +108,8 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
                 this.items = [];
             }
     
-            let url = `https://www.googleapis.com/customsearch/v1?key=${this.API}&cx=${this.cx}&q=${query}&start=${start}`;
-            // let url = `http://localhost:3333/v1.json`; // Pre-created JSON to test with after daily searches reached
+            let url = `https://${this.searchDomain}/search?q=${query}&start=${start}`
+            console.log('url=', url)
     
             fetch(url)
             .then(res => res.json())
@@ -159,7 +158,7 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
             for (let i = 0; i < items.length; i++) {
 
                 var item = items[i];
-                var link = item["link"].replace(this.DOMAIN, "");
+                var link = item["link"].replace(this.searchDomain, "");
     
                 if (link.startsWith(this.activeFilter)) {
                     filteredItems.push(item);
@@ -270,7 +269,7 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
 
         var outputText = [];
 
-        if (this.filters.length > 0) {
+        if (this.searchFilters.length > 0) {
 
             var key;
             
