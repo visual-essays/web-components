@@ -1,5 +1,5 @@
 import { Component, Element, State, h } from '@stencil/core';
-import { loadManifests, label, thumbnail } from '../../utils'
+import { loadManifests, label, thumbnail, iiifServer } from '../../utils'
 
 @Component({
   tag: 've-image-grid',
@@ -13,7 +13,7 @@ export class ImageGallery {
   async componentDidLoad() {
     let manifestUrls = Array.from(this.host.querySelectorAll('li')).map(el => {
       let manifestId = el.innerHTML.trim()
-      return manifestId.startsWith('http') ? manifestId : `https://iiif.visual-essays.net/${manifestId}/manifest.json`
+      return manifestId.startsWith('http') ? manifestId : `${iiifServer}/${manifestId}/manifest.json`
     })
     while (this.host.firstChild)
       this.host.removeChild(this.host.firstChild)

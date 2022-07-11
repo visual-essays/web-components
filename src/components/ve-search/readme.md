@@ -7,12 +7,14 @@
 
 ## Properties
 
-| Property  | Attribute | Description | Type      | Default     |
-| --------- | --------- | ----------- | --------- | ----------- |
-| `cx`      | `cx`      |             | `string`  | `undefined` |
-| `filters` | `filters` |             | `string`  | `""`        |
-| `icon`    | `icon`    |             | `boolean` | `false`     |
-| `tooltip` | `tooltip` |             | `string`  | `""`        |
+| Property          | Attribute          | Description | Type      | Default     |
+| ----------------- | ------------------ | ----------- | --------- | ----------- |
+| `animationLength` | `animation-length` |             | `string`  | `"0"`       |
+| `cx`              | `cx`               |             | `string`  | `undefined` |
+| `filters`         | `filters`          |             | `string`  | `""`        |
+| `icon`            | `icon`             |             | `boolean` | `false`     |
+| `parentComponent` | `parent-component` |             | `string`  | `""`        |
+| `tooltip`         | `tooltip`          |             | `string`  | `""`        |
 
 
 ## Dependencies

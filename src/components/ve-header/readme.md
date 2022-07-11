@@ -15,6 +15,7 @@
 | `label`         | `label`          |             | `string`  | `undefined` |
 | `options`       | `options`        |             | `string`  | `undefined` |
 | `position`      | `position`       |             | `string`  | `'center'`  |
+| `searchCx`      | `search-cx`      |             | `string`  | `undefined` |
 | `searchDomain`  | `search-domain`  |             | `string`  | `undefined` |
 | `searchFilters` | `search-filters` |             | `string`  | `undefined` |
 | `sticky`        | `sticky`         |             | `boolean` | `undefined` |

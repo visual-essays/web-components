@@ -1,5 +1,4 @@
-dist/components
-dist/types
+dist
 loader
 www
 node_modules
