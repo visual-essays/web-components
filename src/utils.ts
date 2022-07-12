@@ -2,8 +2,8 @@ import OpenSeadragon from 'openseadragon'
 import { sha256 as __sha256 } from 'js-sha256'
 import __md5 from 'js-md5'
 
-// const iiifServer = location.hostname === 'localhost' ? 'http://localhost:8088' : 'https://iiif.visual-essays.net'
-export const iiifServer = 'https://iiif.visual-essays.net'
+// const iiifServer = location.hostname === 'localhost' ? 'http://localhost:8088' : 'https://iiif.juncture-digital.org'
+export const iiifServer = 'https://iiif.juncture-digital.org'
 
 export function sha256(str: string) {
   return __sha256(str)
@@ -60,19 +60,23 @@ export async function loadManifests(manifestUrls: string[], refresh: boolean=fal
         : `${iiifServer}/${manifestId}/manifest.json`
     )
     .map(manifestUrl => {
-      if (refresh && ['localhost', 'iiif.visual-essays.net'].includes(new URL(manifestUrl).hostname)) {
+      if (refresh && ['localhost', 'iiif.juncture-digital.org'].includes(new URL(manifestUrl).hostname)) {
         manifestUrl += '?refresh'
       }
+      /*
       return fetch(manifestUrl,
-        ['localhost', 'iiif.visual-essays.net'].includes(new URL(manifestUrl).hostname)
+        ['localhost', 'iiif.juncture-digital.org'].includes(new URL(manifestUrl).hostname)
           ? {headers: {'X-Requested-From': window.location.href}}
           : {}
-    )})
+      )
+      */
+      return fetch(manifestUrl)
+    })
   let responses = await Promise.all(requests)
   let manifests = await Promise.all(responses.map((resp:any) => resp.json()))
   requests = manifests
     .filter(manifest => !Array.isArray(manifest['@context']) && parseFloat(manifest['@context'].split('/').slice(-2,-1).pop()) < 3)
-    .map(manifest => fetch('https://api.visual-essays.net/prezi2to3/', {
+    .map(manifest => fetch('https://api.juncture-digital.org/prezi2to3/', {
       method: 'POST', 
       body: JSON.stringify(manifest)
     }))
