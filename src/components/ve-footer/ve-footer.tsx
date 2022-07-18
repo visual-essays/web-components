@@ -9,7 +9,7 @@ setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web
 @Component({
   tag: 've-footer',
   styleUrl: 've-footer.css',
-  shadow: false,
+  shadow: true,
 })
 export class Footer {
 
@@ -35,11 +35,11 @@ export class Footer {
   render() {
     return [
 
-      <section class="container">
-        <a href="https://visual-essays.net" target="_blank">
-          <img class="logo" src="https://visual-essays.github.io/content/static/images/favicon.svg" alt="Logo"/>
+      <section class="footer">
+        <a class="logo" href="https://visual-essays.net" target="_blank">
+          <img src="https://visual-essays.github.io/content/static/images/favicon.svg" alt="Logo"/>
         </a>
-        <a href="https://visual-essays.net" target="_blank">visual-essays.net</a>
+        <a href="https://visual-essays.net" target="_blank">juncture-digital.org</a>
         <div class="contact push" onClick={this.showContactForm.bind(this)}>
           <sl-tooltip content="Contact us">
             <sl-icon name="envelope" label="Contact us"></sl-icon>

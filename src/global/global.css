@@ -56,8 +56,8 @@ section.footnote {
 p {
   /* border-left: 8px solid transparent; */
 }
-ve-image.sticky + p.active, ve-image.sticky ~ p.active,
-ve-image.sticky + section p.active, ve-image.sticky ~ section p.active {
+.ve-component.sticky + p.active, .ve-component.sticky ~ p.active,
+.ve-component.sticky + section p.active, .ve-component.sticky ~ section p.active {
   /*
   border-left: 4px solid #ccc;
   padding-left: 4px;
@@ -72,7 +72,7 @@ ve-footer {
   width: 100%;
 }
 
-ve-image.sticky  {
+.ve-component.sticky {
   position: sticky;
   top: 0;
   background-color: white;
@@ -148,7 +148,7 @@ ve-image.sticky  {
     padding: .5rem .5rem 40vh .5rem;
   }
 
-  ve-image.sticky  {
+  .ve-component.sticky  {
     height: calc(60vh - 124px);
   }
 
@@ -169,11 +169,15 @@ ve-image.sticky  {
     background-color: #eee;
   }
 
-  main.sticky-header ve-image.sticky {
-    top: 104px;
+  main.sticky-header .ve-component.sticky {
+      top: 104px;
   }
 
-  ve-image {
+  main.sticky-header ve-map.sticky {
+    top: 150px;
+  }
+
+  ve-image, ve-map {
     clear: both;
     float: right;
     width: 45%;
@@ -181,7 +185,8 @@ ve-image.sticky  {
     z-index: 2;
   }
 
-  ve-image {
+  ve-image,
+  ve-map {
     border: 1px solid #ddd;
     box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
   }
@@ -196,61 +201,61 @@ ve-image.sticky  {
     margin: auto;
     width: 80%;
   }
-  ve-image.sticky.full  {
+  .ve-component.sticky.full  {
     height: 40vh;
     width: 100%;
   }
 
-  ve-image.sticky {
+  .ve-component.sticky {
     position: sticky;
     top: 0;
   }
 
-  main.sticky-header ve-image.sticky {
-    top: 140px;
+  main.sticky-header .ve-component.sticky {
+    top: 150px;
   }
 
-  ve-image.sticky + div.footnote, 
-  ve-image.sticky ~ div.footnote {
+  .ve-component.sticky + div.footnote, 
+  .ve-component.sticky ~ div.footnote {
     width: 100%;
   }
 
-  ve-image.sticky + section, 
-  ve-image.sticky ~ section,
-  ve-image.sticky + div, 
-  ve-image.sticky ~ div,
-  ve-image.sticky + p, 
-  ve-image.sticky ~ p,
-  ve-image.sticky + blockquote, 
-  ve-image.sticky ~ blockquote,
-  ve-image.sticky + ve-image-grid,
-  ve-image.sticky ~ ve-image-grid {
+  .ve-component.sticky + section, 
+  .ve-component.sticky ~ section,
+  .ve-component.sticky + div, 
+  .ve-component.sticky ~ div,
+  .ve-component.sticky + p, 
+  .ve-component.sticky ~ p,
+  .ve-component.sticky + blockquote, 
+  .ve-component.sticky ~ blockquote,
+  .ve-component.sticky + ve-image-grid,
+  .ve-component.sticky ~ ve-image-grid {
     width: 53%;
   }
 
-  ve-image.sticky.left + section, 
-  ve-image.sticky.left ~ section,
-  ve-image.sticky.left + div, 
-  ve-image.sticky.left ~ div,
-  ve-image.sticky.left + p, 
-  ve-image.sticky.left ~ p,
-  ve-image.sticky.left + blockquote, 
-  ve-image.sticky.left ~ blockquote,
-  ve-image.sticky.left + ve-image-grid,
-  ve-image.sticky.left ~ ve-image-grid {
+  .ve-component.sticky.left + section, 
+  .ve-component.sticky.left ~ section,
+  .ve-component.sticky.left + div, 
+  .ve-component.sticky.left ~ div,
+  .ve-component.sticky.left + p, 
+  .ve-component.sticky.left ~ p,
+  .ve-component.sticky.left + blockquote, 
+  .ve-component.sticky.left ~ blockquote,
+  .ve-component.sticky.left + ve-image-grid,
+  .ve-component.sticky.left ~ ve-image-grid {
     margin-left: 47%;
   }
 
-  ve-image.sticky.full + section, 
-  ve-image.sticky.full ~ section,
-  ve-image.sticky.full + div, 
-  ve-image.sticky.full ~ div,
-  ve-image.sticky.full + p, 
-  ve-image.sticky.full ~ p,
-  ve-image.sticky.full + blockquote, 
-  ve-image.sticky.full ~ blockquote,
-  ve-image.sticky.full + ve-image-grid,
-  ve-image.sticky.full ~ ve-image-grid {
+  .ve-component.sticky.full + section, 
+  .ve-component.sticky.full ~ section,
+  .ve-component.sticky.full + div, 
+  .ve-component.sticky.full ~ div,
+  .ve-component.sticky.full + p, 
+  .ve-component.sticky.full ~ p,
+  .ve-component.sticky.full + blockquote, 
+  .ve-component.sticky.full ~ blockquote,
+  .ve-component.sticky.full + ve-image-grid,
+  .ve-component.sticky.full ~ ve-image-grid {
     width: 100%;
   }
 

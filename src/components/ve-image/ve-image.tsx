@@ -308,9 +308,8 @@ export class ImageViewer {
   }
 
   componentDidLoad() {
-    if (this.sticky) {
-      this.el.classList.add('sticky')
-    }
+    this.el.classList.add('ve-component')
+    if (this.sticky) this.el.classList.add('sticky')
     if (this._images.length > 0) this._setHostDimensions()
     this.listenForSlotChanges()
 
@@ -413,26 +412,29 @@ export class ImageViewer {
   }
 
   async _tileSource(imgUrl: any, options: any) {
+    let tileSource
     if (imgUrl.indexOf('/info.json') > 0) {
       if (this.compare) {
-        let url = `${imgUrl.slice(0,-10)}/${options.region}/${options.size}/${options.rotation}/${options.quality}.${options.format}`
-        return { url, type: 'image', buildPyramid: true }
+        // let url = `${imgUrl.slice(0,-10)}/${options.region}/${options.size}/${options.rotation}/${options.quality}.${options.format}`
+        let url = `${imgUrl.slice(0,-10)}/${options.region}/1000,/${options.rotation}/${options.quality}.${options.format}`
+        tileSource = { url, type: 'image', buildPyramid: true }
       } else {
-        console.log(imgUrl)
-        return imgUrl
+        tileSource = imgUrl
       }
     } else {
       const el = this.el.shadowRoot.querySelector('#osd')
       if (options.region === 'full' || !this.compare) {
-        return { url:imgUrl, type: 'image', buildPyramid: true }
+        tileSource = { url:imgUrl, type: 'image', buildPyramid: true }
       } else {
         let [x, y, width, height] = options.region.replace(/pct:/,'').split(',').map(s => s !== '' ? parseFloat(s) : undefined)
         const region = {x, y, w: width, h: height}
         const dest = {width: el.clientWidth, height: el.clientHeight}
         let url = await imageDataUrl(imgUrl, region, dest)
-        return { url, type: 'image', buildPyramid: true }
+        tileSource = { url, type: 'image', buildPyramid: true }
       }
     }
+    console.log(tileSource)
+    return tileSource
   }
 
   async _loadTileSources() {
@@ -700,8 +702,8 @@ export class ImageViewer {
       height = 800
       width = height * ratio
     }
-    // let url = location.hostname === 'localhost'? 'http://localhost:4444/' : 'https://annotator.visual-essays.net/'
-    let url = 'https://annotator.visual-essays.net/'
+    let url = location.hostname === 'localhost'? 'http://localhost:4444/' : 'https://annotator.juncture-digital.org/'
+    // let url = 'https://annotator.visual-essays.net/'
     url += `?manifest=${this._current.manifest.id || this._current.manifest['@id']}`
     if (this.annoBase) url += `&anno-base=${this.annoBase}`
     url += `&auth-token=${this.authToken}`

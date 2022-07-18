@@ -81,6 +81,12 @@ export namespace Components {
         "images": string;
         "src": string;
     }
+    interface VeMap {
+        "center": string;
+        "overlay": string;
+        "sticky": boolean;
+        "zoom": number;
+    }
     interface VeMeta {
         "description": string;
         "title": string;
@@ -101,6 +107,18 @@ export namespace Components {
     interface VeWikidataSearch {
         "language": string;
     }
+}
+export interface VeDepictsCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLVeDepictsElement;
+}
+export interface VeDepictsDialogCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLVeDepictsDialogElement;
+}
+export interface VeWikidataSearchCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLVeWikidataSearchElement;
 }
 declare global {
     interface HTMLVeAnnoElement extends Components.VeAnno, HTMLStencilElement {
@@ -169,6 +187,12 @@ declare global {
         prototype: HTMLVeManifestElement;
         new (): HTMLVeManifestElement;
     };
+    interface HTMLVeMapElement extends Components.VeMap, HTMLStencilElement {
+    }
+    var HTMLVeMapElement: {
+        prototype: HTMLVeMapElement;
+        new (): HTMLVeMapElement;
+    };
     interface HTMLVeMetaElement extends Components.VeMeta, HTMLStencilElement {
     }
     var HTMLVeMetaElement: {
@@ -205,6 +229,7 @@ declare global {
         "ve-image": HTMLVeImageElement;
         "ve-image-grid": HTMLVeImageGridElement;
         "ve-manifest": HTMLVeManifestElement;
+        "ve-map": HTMLVeMapElement;
         "ve-meta": HTMLVeMetaElement;
         "ve-search": HTMLVeSearchElement;
         "ve-style": HTMLVeStyleElement;
@@ -228,15 +253,15 @@ declare namespace LocalJSX {
         "editable"?: boolean;
         "format"?: string;
         "manifest"?: string;
-        "onDroToggled"?: (event: CustomEvent<any>) => void;
-        "onEntityRemoved"?: (event: CustomEvent<any>) => void;
-        "onProminentToggled"?: (event: CustomEvent<any>) => void;
+        "onDroToggled"?: (event: VeDepictsCustomEvent<any>) => void;
+        "onEntityRemoved"?: (event: VeDepictsCustomEvent<any>) => void;
+        "onProminentToggled"?: (event: VeDepictsCustomEvent<any>) => void;
     }
     interface VeDepictsDialog {
         "depicted"?: any[];
         "imageHash"?: string;
         "label"?: string;
-        "onDepictedChanged"?: (event: CustomEvent<any>) => void;
+        "onDepictedChanged"?: (event: VeDepictsDialogCustomEvent<any>) => void;
         "show"?: boolean;
         "source"?: string;
         "sourceId"?: string;
@@ -289,6 +314,12 @@ declare namespace LocalJSX {
         "images"?: string;
         "src"?: string;
     }
+    interface VeMap {
+        "center"?: string;
+        "overlay"?: string;
+        "sticky"?: boolean;
+        "zoom"?: number;
+    }
     interface VeMeta {
         "description"?: string;
         "title"?: string;
@@ -308,7 +339,7 @@ declare namespace LocalJSX {
     }
     interface VeWikidataSearch {
         "language"?: string;
-        "onEntitySelected"?: (event: CustomEvent<any>) => void;
+        "onEntitySelected"?: (event: VeWikidataSearchCustomEvent<any>) => void;
     }
     interface IntrinsicElements {
         "ve-anno": VeAnno;
@@ -322,6 +353,7 @@ declare namespace LocalJSX {
         "ve-image": VeImage;
         "ve-image-grid": VeImageGrid;
         "ve-manifest": VeManifest;
+        "ve-map": VeMap;
         "ve-meta": VeMeta;
         "ve-search": VeSearch;
         "ve-style": VeStyle;
@@ -343,6 +375,7 @@ declare module "@stencil/core" {
             "ve-image": LocalJSX.VeImage & JSXBase.HTMLAttributes<HTMLVeImageElement>;
             "ve-image-grid": LocalJSX.VeImageGrid & JSXBase.HTMLAttributes<HTMLVeImageGridElement>;
             "ve-manifest": LocalJSX.VeManifest & JSXBase.HTMLAttributes<HTMLVeManifestElement>;
+            "ve-map": LocalJSX.VeMap & JSXBase.HTMLAttributes<HTMLVeMapElement>;
             "ve-meta": LocalJSX.VeMeta & JSXBase.HTMLAttributes<HTMLVeMetaElement>;
             "ve-search": LocalJSX.VeSearch & JSXBase.HTMLAttributes<HTMLVeSearchElement>;
             "ve-style": LocalJSX.VeStyle & JSXBase.HTMLAttributes<HTMLVeStyleElement>;

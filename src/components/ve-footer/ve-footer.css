@@ -5,7 +5,7 @@
   z-index: 100;
 }
 
-.container {
+.footer {
   clear: both;
   display: flex;
   padding: 3px 12px;
@@ -21,11 +21,11 @@
   */
 }
 
-.container a {
+.footer a {
   text-decoration: none;
 }
 
-.logo {
+.logo, .logo img {
   height:20px;
 }
 
