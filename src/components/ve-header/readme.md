@@ -11,6 +11,7 @@
 | --------------- | ---------------- | ----------- | --------- | ----------- |
 | `background`    | `background`     |             | `string`  | `undefined` |
 | `contact`       | `contact`        |             | `string`  | `undefined` |
+| `entities`      | `entities`       |             | `string`  | `undefined` |
 | `height`        | `height`         |             | `number`  | `300`       |
 | `label`         | `label`          |             | `string`  | `undefined` |
 | `options`       | `options`        |             | `string`  | `undefined` |

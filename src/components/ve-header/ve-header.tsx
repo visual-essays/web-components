@@ -1,5 +1,5 @@
 import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
-import { parseImageOptions, imageInfo, getManifest, imageDataUrl } from '../../utils'
+import { parseImageOptions, imageInfo, getManifest, imageDataUrl, getEntity } from '../../utils'
 
 import '@shoelace-style/shoelace/dist/components/button/button.js'
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
@@ -25,19 +25,21 @@ export class Header {
   
   @Element() el: HTMLElement
 
-  @Prop() label: string
-  @Prop() background: string
+  @Prop({ mutable: true, reflect: true }) label: string
+  @Prop({ mutable: true, reflect: true }) background: string
   @Prop() subtitle: string
   @Prop() options: string
   @Prop() height: number = 300
   @Prop() sticky: boolean
   @Prop() position: string = 'center' // center, top, bottom
   @Prop() contact: string // Email address for Contact Us
-  
+  @Prop() entities: string
+
   @Prop() searchDomain: string // Domain for site search
   @Prop() searchFilters: string
   @Prop() searchCx: string
 
+  @State() _entities: string[] = []
   @State() imageOptions: any
   @State() navItems: any = []
 
@@ -65,21 +67,36 @@ export class Header {
   }
 
   _iiifUrl(serviceUrl: string, options: any) {
-    let size = `${this.el.clientWidth > 1000 ? 1000 : this.el.clientWidth},${this.height > 1000 ? 1000 : this.height}`
-    let url = `${serviceUrl.replace(/\/info.json$/,'')}/${options.region}/!${size}/${options.rotation}/${options.quality}.${options.format}`
-    // let url = `${serviceUrl.replace(/\/info.json$/,'')}/${options.region}/${options.size}/${options.rotation}/${options.quality}.${options.format}`
+    // let size = `${this.el.clientWidth > 1000 ? 1000 : this.el.clientWidth},${this.height > 1000 ? 1000 : this.height}`
+    // let url = `${serviceUrl.replace(/\/info.json$/,'')}/${options.region}/!${size}/${options.rotation}/${options.quality}.${options.format}`
+    let url = `${serviceUrl.replace(/\/info.json$/,'')}/${options.region}/${options.size}/${options.rotation}/${options.quality}.${options.format}`
     console.log('_iiifUrl', url)
     return url
   }
 
-  connectedCallback() {
+  async setDefaults() {
+    this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
+    if ((!this.label || !this.background) && this._entities.length > 0) {
+      if (this.sticky === undefined) this.sticky = true
+      let entity = await getEntity(this._entities[0])
+      if (!this.label) this.label = entity.label
+      if (!this.background) {
+        if (entity.pageBanner) this.background = `wc:${entity.pageBanner.split('/Special:FilePath/')[1]}`
+        else if (entity.image) this.background = `wc:${entity.image.split('/Special:FilePath/')[1]}`
+      }
+    }
+  }
+
+  async componentDidLoad() {  
+    console.log('componentDidLoad')
+    await this.setDefaults()
     if (this.label) {
       let titleEl = document.querySelector('title')
       if (!titleEl) {
         titleEl = document.createElement('title')
-        titleEl.innerText = this.label
         document.head.appendChild(titleEl)
       }
+      titleEl.innerText = this.label
     }
     this.imageOptions = parseImageOptions(this.options)
     this.navItems = Array.from(this.el.querySelectorAll('li')).map(navItem =>
@@ -90,9 +107,7 @@ export class Header {
     // console.log(this.navItems)
     while (this.el.firstChild)
       this.el.removeChild(this.el.firstChild)
-  }
 
-  componentDidLoad() {  
     this.el.style.height = `${this.height}px`
     if (this.sticky) {
       this.el.classList.add('sticky')

@@ -186,13 +186,22 @@ export function parseRegionString(region: string, viewer: OpenSeadragon.Viewer) 
   }
 }
 
+// Creates a GeoJSON file URL from a Who's on First ID 
+function whosOnFirstUrl(wof) {
+  let wofParts = []
+  for (let i = 0; i < wof.length; i += 3) {
+    wofParts.push(wof.slice(i,i+3))
+  }
+  return `https://data.whosonfirst.org/${wofParts.join('/')}/${wof}.geojson`
+}
+
 let entityData = {}
 export async function getEntityData(qids: string[] = [], language: string = 'en') {
   let values = qids.filter(qid => !entityData[qid]).map(qid => `(<http://www.wikidata.org/entity/${qid}>)`)
   // console.log(`getEntityData: qids=${qids.length} toGet=${values.length}`)
   if (values.length > 0) {
     let query = `
-      SELECT ?item ?label ?description ?alias ?image ?coords ?wikipedia WHERE {
+      SELECT ?item ?label ?description ?alias ?image ?coords ?pageBanner ?whosOnFirst ?wikipedia WHERE {
         VALUES (?item) { ${values.join(' ')} }
         ?item rdfs:label ?label . 
         FILTER (LANG(?label) = "${language}" || LANG(?label) = "en")
@@ -200,6 +209,8 @@ export async function getEntityData(qids: string[] = [], language: string = 'en'
         OPTIONAL { ?item skos:altLabel ?alias . FILTER (LANG(?alias) = "${language}" || LANG(?alias) = "en")}
         OPTIONAL { ?item wdt:P625 ?coords . }
         OPTIONAL { ?item wdt:P18 ?image . }
+        OPTIONAL { ?item wdt:P948 ?pageBanner . }
+        OPTIONAL { ?item wdt:P6766 ?whosOnFirst . }
         OPTIONAL { ?wikipedia schema:about ?item; schema:isPartOf <https://${language}.wikipedia.org/> . }
     }`
     let resp = await fetch('https://query.wikidata.org/sparql', {
@@ -220,10 +231,12 @@ export async function getEntityData(qids: string[] = [], language: string = 'en'
           if (rec.alias) entityData[qid].aliases = [rec.alias.value]
           if (rec.coords) entityData[qid].coords = rec.coords.value.slice(6,-1).split(' ').reverse().join(',')
           if (rec.wikipedia) entityData[qid].wikipedia = rec.wikipedia.value
+          if (rec.pageBanner) entityData[qid].pageBanner = rec.pageBanner.value
           if (rec.image) {
             entityData[qid].image = rec.image.value
             entityData[qid].thumbnail = mwImage(rec.image.value, 120)
           }
+          if (rec.whosOnFirst) entityData[qid].geojson = whosOnFirstUrl(rec.whosOnFirst.value)
         } else {
           if (rec.alias) entityData[qid].aliases.push(rec.alias.value)
         }
@@ -232,6 +245,15 @@ export async function getEntityData(qids: string[] = [], language: string = 'en'
     }
   }
   return entityData
+}
+
+export function isQID(s: string) {
+  return s[0] === 'Q' && isNum(s.slice(1))
+}
+
+export async function getEntity(qid: string, language: string = 'en') {
+  let entities = await getEntityData([qid], language)
+  return entities[qid]
 }
 
 export async function getDepictedEntities(hash: string) {

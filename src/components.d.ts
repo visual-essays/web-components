@@ -45,6 +45,7 @@ export namespace Components {
     interface VeHeader {
         "background": string;
         "contact": string;
+        "entities": string;
         "height": number;
         "label": string;
         "options": string;
@@ -83,6 +84,7 @@ export namespace Components {
     }
     interface VeMap {
         "center": string;
+        "entities": string;
         "overlay": string;
         "sticky": boolean;
         "zoom": number;
@@ -101,8 +103,7 @@ export namespace Components {
         "tooltip": string;
     }
     interface VeStyle {
-        "layout": string;
-        "theme": string;
+        "href": string;
     }
     interface VeWikidataSearch {
         "language": string;
@@ -278,6 +279,7 @@ declare namespace LocalJSX {
     interface VeHeader {
         "background"?: string;
         "contact"?: string;
+        "entities"?: string;
         "height"?: number;
         "label"?: string;
         "options"?: string;
@@ -316,6 +318,7 @@ declare namespace LocalJSX {
     }
     interface VeMap {
         "center"?: string;
+        "entities"?: string;
         "overlay"?: string;
         "sticky"?: boolean;
         "zoom"?: number;
@@ -334,8 +337,7 @@ declare namespace LocalJSX {
         "tooltip"?: string;
     }
     interface VeStyle {
-        "layout"?: string;
-        "theme"?: string;
+        "href"?: string;
     }
     interface VeWikidataSearch {
         "language"?: string;

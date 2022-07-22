@@ -3,6 +3,8 @@ import { Component, Element, Prop, State, h } from '@stencil/core';
 import L from 'leaflet'
 import 'leaflet.control.opacity'
 
+import { isQID, getEntity } from '../../utils'
+
 @Component({
   tag: 've-map',
   styleUrl: 've-map.css',
@@ -10,25 +12,53 @@ import 'leaflet.control.opacity'
 })
 export class MapViewer {
   @Prop() overlay: string
-  @Prop() zoom: number = 10
-  @Prop() center: string = '0,0'
+  @Prop({ mutable: true, reflect: true }) zoom: number
+  @Prop({ mutable: true, reflect: true }) center: string
   @Prop() sticky: boolean
+  @Prop() entities: string
 
   @Element() el: HTMLElement;
 
   @State() map: L.Map
   @State() allmapsLayer: L.TileLayer
   @State() opacitySlider: HTMLInputElement
-  
+  @State() _entities: string[] = []
+
+  connectedCallback() {
+    this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
+  }
+
   componentDidLoad() {
     this.el.classList.add('ve-component')
     if (this.sticky) this.el.classList.add('sticky')
     this.initMap()
   }
 
-  initMap() {
-    let [lat, lng] = this.center.split(',').map(val => parseFloat(val.trim()))
-    let center = new L.LatLng(lat, lng)
+  async coordsFromEntity(qid: string) {
+    let entity = await getEntity(qid)
+    console.log(entity)
+    let [lat, lng] = entity.coords.split(',').map(val => parseFloat(val.trim()))
+    return new L.LatLng(lat, lng)
+  }
+
+  async initMap() {
+    let center: L.LatLng
+    if (this.center) {
+      if (isQID(this.center)) {
+        center = await this.coordsFromEntity(this.center)
+      } else {
+        let [lat, lng] = this.center.split(',').map(val => parseFloat(val.trim()))
+        center = new L.LatLng(lat, lng)
+      }
+    } else if (this.entities) {
+      center = await this.coordsFromEntity(this._entities[0])
+      this.zoom = 9
+    } else {
+      center = new L.LatLng(0, 0)
+      this.zoom = 6
+    }
+
+    console.log(`center=${center} zoom=${this.zoom}`)
     this.map = L.map(this.el.shadowRoot.getElementById('map'), {
       zoomSnap: 0.1,
       center, 
