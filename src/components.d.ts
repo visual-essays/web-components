@@ -105,6 +105,18 @@ export namespace Components {
     interface VeStyle {
         "href": string;
     }
+    interface VeVideo {
+        "autoplay": boolean;
+        "height": string;
+        "heightUnit": string;
+        "loop": boolean;
+        "muted": boolean;
+        "src": string;
+        "start": string;
+        "type": string;
+        "width": string;
+        "widthUnit": string;
+    }
     interface VeWikidataSearch {
         "language": string;
     }
@@ -212,6 +224,12 @@ declare global {
         prototype: HTMLVeStyleElement;
         new (): HTMLVeStyleElement;
     };
+    interface HTMLVeVideoElement extends Components.VeVideo, HTMLStencilElement {
+    }
+    var HTMLVeVideoElement: {
+        prototype: HTMLVeVideoElement;
+        new (): HTMLVeVideoElement;
+    };
     interface HTMLVeWikidataSearchElement extends Components.VeWikidataSearch, HTMLStencilElement {
     }
     var HTMLVeWikidataSearchElement: {
@@ -234,6 +252,7 @@ declare global {
         "ve-meta": HTMLVeMetaElement;
         "ve-search": HTMLVeSearchElement;
         "ve-style": HTMLVeStyleElement;
+        "ve-video": HTMLVeVideoElement;
         "ve-wikidata-search": HTMLVeWikidataSearchElement;
     }
 }
@@ -339,6 +358,18 @@ declare namespace LocalJSX {
     interface VeStyle {
         "href"?: string;
     }
+    interface VeVideo {
+        "autoplay"?: boolean;
+        "height"?: string;
+        "heightUnit"?: string;
+        "loop"?: boolean;
+        "muted"?: boolean;
+        "src"?: string;
+        "start"?: string;
+        "type"?: string;
+        "width"?: string;
+        "widthUnit"?: string;
+    }
     interface VeWikidataSearch {
         "language"?: string;
         "onEntitySelected"?: (event: VeWikidataSearchCustomEvent<any>) => void;
@@ -359,6 +390,7 @@ declare namespace LocalJSX {
         "ve-meta": VeMeta;
         "ve-search": VeSearch;
         "ve-style": VeStyle;
+        "ve-video": VeVideo;
         "ve-wikidata-search": VeWikidataSearch;
     }
 }
@@ -381,6 +413,7 @@ declare module "@stencil/core" {
             "ve-meta": LocalJSX.VeMeta & JSXBase.HTMLAttributes<HTMLVeMetaElement>;
             "ve-search": LocalJSX.VeSearch & JSXBase.HTMLAttributes<HTMLVeSearchElement>;
             "ve-style": LocalJSX.VeStyle & JSXBase.HTMLAttributes<HTMLVeStyleElement>;
+            "ve-video": LocalJSX.VeVideo & JSXBase.HTMLAttributes<HTMLVeVideoElement>;
             "ve-wikidata-search": LocalJSX.VeWikidataSearch & JSXBase.HTMLAttributes<HTMLVeWikidataSearchElement>;
         }
     }
