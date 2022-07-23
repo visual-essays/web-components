@@ -107,12 +107,14 @@ export namespace Components {
     }
     interface VeVideo {
         "autoplay": boolean;
+        "end": string;
         "height": string;
         "heightUnit": string;
         "loop": boolean;
         "muted": boolean;
         "src": string;
         "start": string;
+        "sticky": boolean;
         "type": string;
         "width": string;
         "widthUnit": string;
@@ -360,12 +362,14 @@ declare namespace LocalJSX {
     }
     interface VeVideo {
         "autoplay"?: boolean;
+        "end"?: string;
         "height"?: string;
         "heightUnit"?: string;
         "loop"?: boolean;
         "muted"?: boolean;
         "src"?: string;
         "start"?: string;
+        "sticky"?: boolean;
         "type"?: string;
         "width"?: string;
         "widthUnit"?: string;

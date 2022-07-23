@@ -180,7 +180,7 @@ ve-footer {
     top: 150px;
   }
 
-  ve-image, ve-map {
+  ve-image, ve-map, ve-video {
     clear: both;
     float: right;
     width: 45%;
