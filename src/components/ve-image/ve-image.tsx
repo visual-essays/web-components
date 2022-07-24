@@ -338,6 +338,14 @@ export class ImageViewer {
 
   }
 
+  _findWidth() {
+    let el = this.el
+    while (!el.clientWidth && el.parentElement) {
+      el = el.parentElement
+    }
+    return el.clientWidth * .45
+  }
+
   _setHostDimensions(imageData: any = null) {
     console.dir(this.el)
     let wrapper = this.el.shadowRoot.getElementById('wrapper')
@@ -346,6 +354,7 @@ export class ImageViewer {
     let osd = this.el.shadowRoot.getElementById('osd')
 
     let elWidth = this.el.clientWidth || this.el.parentElement.clientWidth
+    // let elWidth = this._findWidth()
     // let elWidth = this.el.clientWidth
     // let elHeight = this.el.clientHeight || this.el.parentElement.clientHeight
     let elHeight = this.el.clientHeight

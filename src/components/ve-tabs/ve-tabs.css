@@ -1,0 +1,27 @@
+:host {
+  font-family: Roboto, sans-serif;
+}
+
+div {
+  display: inline-block;
+}
+input { display: none; }
+input + label {
+  border: 1px solid #999;
+  border-bottom: none;
+  background: #EEE;
+  padding: 4px 12px;
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  top: 1px;
+  cursor: pointer;
+}
+input:checked + label {
+  background: transparent;
+  border-bottom: 1px solid white;
+  z-index: 2;
+}
+
+.tab { display:none; }
+.tab h1, .tab h2, .tab h3, .tab h4, .tab h5, .tab h6 { display:none; }
+.active { display:block; }
