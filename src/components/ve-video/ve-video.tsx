@@ -18,8 +18,8 @@ export class VeVideo {
     @Prop() loop: boolean
     @Prop() sticky: boolean
 
-    @Prop() width: string = "100"
-    @Prop() height: string = "100"
+    @Prop() width: string = "100%"
+    @Prop() height: string = "300"
     @Prop() widthUnit: string = "px"
     @Prop() heightUnit: string = "px"
 
@@ -174,17 +174,20 @@ export class VeVideo {
                     let length = attributes.length;
 
                     if (length > 0) {
-                        this.start = attributes[0];
+                        this.start = attributes[0].replace(" ", "");
                     
                         if (length > 1) {
-                            this.end = attributes[1];
+                            this.end = attributes[1].replace(" ", "");
                         }
                         
                         if (length > 2) {
-                            if (attributes[2] == "true") {
+                            let mutedAttribute = attributes[2].replace(" ", "");
+                            mutedAttribute.toLowerCase();
+
+                            if (mutedAttribute == "true") {
                                 this.muted = true;
                             }
-                            else if (attributes[2] == "false") {
+                            else if (mutedAttribute == "false") {
                                 this.muted = false;
                             }
                         }
