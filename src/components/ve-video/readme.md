@@ -95,7 +95,8 @@ Mark tags will always autoplay the video.
 
 ## Examples
 
-```<ve-video sticky type = "self-hosted" src = "example_video_3.mp4" width = "100%" height = "300"></ve-video>
+```
+<ve-video sticky type = "self-hosted" src = "example_video_3.mp4" width = "100%" height = "300"></ve-video>
 <ve-video sticky type = "vimeo" autoplay muted loop src = "https://vimeo.com/181199735" width = "100%" height = "300"></ve-video>
 <ve-video sticky type = "youtube" muted loop start = "30" end = "33" src = "https://www.youtube.com/watch?v=_GZlJGERbvE" width = "100%" height = "300"></ve-video>
 ```
