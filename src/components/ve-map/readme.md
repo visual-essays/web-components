@@ -9,6 +9,7 @@
 
 | Property   | Attribute  | Description | Type      | Default     |
 | ---------- | ---------- | ----------- | --------- | ----------- |
+| `cards`    | `cards`    |             | `string`  | `undefined` |
 | `center`   | `center`   |             | `string`  | `undefined` |
 | `entities` | `entities` |             | `string`  | `undefined` |
 | `overlay`  | `overlay`  |             | `string`  | `undefined` |

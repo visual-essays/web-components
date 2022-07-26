@@ -7,11 +7,13 @@
 
 ## Properties
 
-| Property   | Attribute  | Description | Type     | Default     |
-| ---------- | ---------- | ----------- | -------- | ----------- |
-| `entities` | `entities` |             | `string` | `undefined` |
-| `label`    | `label`    |             | `string` | `undefined` |
-| `manifest` | `manifest` |             | `string` | `undefined` |
+| Property      | Attribute     | Description | Type     | Default     |
+| ------------- | ------------- | ----------- | -------- | ----------- |
+| `description` | `description` |             | `string` | `undefined` |
+| `entities`    | `entities`    |             | `string` | `undefined` |
+| `href`        | `href`        |             | `string` | `undefined` |
+| `image`       | `image`       |             | `string` | `undefined` |
+| `label`       | `label`       |             | `string` | `undefined` |
 
 
 ----------------------------------------------

@@ -13,7 +13,7 @@ input + label {
   padding: 4px 12px;
   border-radius: 4px 4px 0 0;
   position: relative;
-  top: 1px;
+  /* top: 1px; */
   cursor: pointer;
 }
 input:checked + label {

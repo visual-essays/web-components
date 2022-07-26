@@ -8,12 +8,13 @@ import '@shoelace-style/shoelace/dist/components/menu/menu.js'
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js'
 
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
-setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/src')
+setBasePath(location.hostname === 'localhost' ? 'http://localhost:3333' : 'https://visual-essays.github.io/web-components/src')
 
 const navIcons = {
   home: 'house-fill',
   about: 'info-circle-fill',
-  contact: 'envelope-fill'
+  contact: 'envelope-fill',
+  'how to': 'book-fill'
 }
 
 @Component({
@@ -27,6 +28,7 @@ export class Header {
 
   @Prop({ mutable: true, reflect: true }) label: string
   @Prop({ mutable: true, reflect: true }) background: string
+  @Prop() logo: string
   @Prop() subtitle: string
   @Prop() options: string
   @Prop() height: number = 300
@@ -74,6 +76,10 @@ export class Header {
     return url
   }
 
+  connectedCallback() {
+    console.log('connectedCallback')
+  }
+
   async setDefaults() {
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
     if ((!this.label || !this.background) && this._entities.length > 0) {
@@ -86,6 +92,7 @@ export class Header {
       }
     }
   }
+
 
   async componentDidLoad() {  
     console.log('componentDidLoad')
@@ -109,6 +116,9 @@ export class Header {
       this.el.removeChild(this.el.firstChild)
 
     this.el.style.height = `${this.height}px`
+    if (!this.background) {
+      this.el.classList.add('simple')
+    }
     if (this.sticky) {
       this.el.classList.add('sticky')
       document.querySelector('main').classList.add('sticky-header')
@@ -151,9 +161,27 @@ export class Header {
     return iconName
   }
 
-  render() {
+  renderSimple() {
     return [
+      <section class="ve-header simple">
+        {this.logo
+          ? <img src={this.logo} alt="logo" class="logo"/>
+          : null
+        }
+        {this.label ? this.label : null}
+              { this.navItems.map((item:any) => 
+                <div 
+                  onClick={this.menuItemSelected.bind(this, item)}>
+                    <sl-icon slot="prefix" name={this.navIcon(item)} label={item.label}></sl-icon>
+                    {item.label}
+                </div>
+              )}
+      </section>
+    ]
+  }
 
+  renderWithBackground() {
+    return [
       <section class="ve-header">
         <div class="title-panel">
           <sl-icon id="info-icon" name="info-circle-fill" onClick={this._showInfoPopup.bind(this)} title="Image info"></sl-icon>
@@ -191,4 +219,11 @@ export class Header {
       <ve-contact contact={this.contact}></ve-contact>
     ]
   }
+
+  render() {
+    return this.background
+      ? this.renderWithBackground()
+      : this.renderSimple()
+  }
+
 }

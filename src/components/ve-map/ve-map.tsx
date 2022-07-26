@@ -16,6 +16,7 @@ export class MapViewer {
   @Prop({ mutable: true, reflect: true }) center: string
   @Prop() sticky: boolean
   @Prop() entities: string
+  @Prop() cards: string
 
   @Element() el: HTMLElement;
 
@@ -24,8 +25,24 @@ export class MapViewer {
   @State() opacitySlider: HTMLInputElement
   @State() _entities: string[] = []
 
+  @State() _markers: any[] = []
+
   connectedCallback() {
+    console.log('connectedCallback')
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
+    if (this.cards) {
+      let cardsEl = document.getElementById(this.cards)
+      if (cardsEl) {
+        cardsEl.querySelectorAll('.card').forEach(card => {
+          let coords = Array.from(card.querySelectorAll('li'))
+            .filter(li => li.innerHTML.trim().indexOf('coords:') === 0)
+            .map(coordsEl => coordsEl.innerHTML.split(':')[1].trim())
+            .map(coordsStr => coordsStr.split(',').map(s => parseFloat(s.trim())))
+            .pop()
+          if (coords) this._markers.push({coords, card: card.innerHTML})
+        })
+      }
+    }
   }
 
   componentDidLoad() {
@@ -76,6 +93,12 @@ export class MapViewer {
         maxZoom: 19, attribution: 'Allmaps'
       }).addTo(this.map)
     }
+
+    const myIcon = L.icon({iconUrl: 'https://unpkg.com/leaflet@1.8.0/dist/images/marker-icon.png'})
+    this._markers.forEach(marker => {
+      let m = L.marker(marker.coords, {icon: myIcon}).addTo(this.map)
+      m.bindPopup(`<div class="card">${marker.card}</div>`)
+    })
   }
 
   updateOpacity() {

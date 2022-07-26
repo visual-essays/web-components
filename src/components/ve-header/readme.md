@@ -14,6 +14,7 @@
 | `entities`      | `entities`       |             | `string`  | `undefined` |
 | `height`        | `height`         |             | `number`  | `300`       |
 | `label`         | `label`          |             | `string`  | `undefined` |
+| `logo`          | `logo`           |             | `string`  | `undefined` |
 | `options`       | `options`        |             | `string`  | `undefined` |
 | `position`      | `position`       |             | `string`  | `'center'`  |
 | `searchCx`      | `search-cx`      |             | `string`  | `undefined` |

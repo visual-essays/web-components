@@ -43,13 +43,14 @@ export class ImageViewer {
   @Prop() entities: string
   @Prop({ mutable: true, reflect: true }) user: string = null
   @Prop({ mutable: true, reflect: true }) path: string
-  @Prop({ mutable: true, reflect: true }) compare: string
+  @Prop() compare: boolean = false
+  @Prop({ mutable: true, reflect: true }) mode: string = 'curtain'
   @Prop() width: string
   @Prop() height: string
   @Prop() align: string // 'left', 'center', 'right'
   @Prop() authToken: string = null
   @Prop() annoBase: string
-  @Prop() shoelace: boolean = false
+  @Prop() shoelace: boolean = true
   @Prop() sticky: boolean
 
   @Element() el: HTMLElement;
@@ -66,7 +67,7 @@ export class ImageViewer {
   @State() _zoomedIn: any = {}
   @State() _tileSources: any[] = []
 
-  @Watch('compare')
+  @Watch('mode')
   compareModeChanged() {
     this._compareViewerInit()
   }
@@ -408,8 +409,8 @@ export class ImageViewer {
 
     console.log(`ve-image.setHostDimensions: width=${width} height=${height} caption=${captionHeight}`)
     // osd.style.width = `${width}px`
-    wrapper.style.width = this.compare ? '100%' : `${width}px`
-    wrapper.style.height = this.compare ? '100%' : `${height}px`
+    wrapper.style.width =  `${width}px`
+    wrapper.style.height = `${height}px`
     osd.style.width = '100%'
     osd.style.height = `${height - captionHeight}px`
     //this.el.style.width = `${width}px`
@@ -569,7 +570,7 @@ export class ImageViewer {
       container.style.height = `${height}px`
       osdWrapper.appendChild(container)
       this._viewer = new (window as any).CurtainSyncViewer({
-        mode: this.compare, // 'sync' or 'curtain'
+        mode: this.mode, // 'sync' or 'curtain'
         container,
         images: this._tileSources.map((tileSource, idx) => ({ key: `item-${idx}`, tileSource, shown: true })),
         osdOptions: { // OpenSeaDragon options

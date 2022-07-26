@@ -27,6 +27,56 @@
 	z-index: 2;
 }
 
+.card {
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: auto auto auto 1fr 0px;
+	border-radius: 4px;
+	padding: 0;
+  }
+  
+  .card p {
+	border: none;
+  }
+  
+  .card-image {  /* image */
+	grid-area: 1 / 1 / 2 / 2;
+	width: 100%;
+	height: 190px;
+  }
+  
+  .card-title {  /* title */
+	grid-area: 2 / 1 / 3 / 2;
+	font-weight: bold;
+	font-size: 1.5rem;
+	line-height: 1;
+	padding: 1.3rem .5rem .2rem .5rem;
+	text-decoration: none;
+  }
+  
+  .card-metadata {  /* metadata list */
+	grid-area: 3 / 1 / 4 / 2;
+	list-style: none;
+	padding: .2rem .5rem;
+	margin: 0;
+	font-size: 0.9rem;
+	font-weight: 400;
+  }
+  
+  .card-abstract{  /* abstract */
+	grid-area: 4 / 1 / 5 / 2;
+	align-self: flex-end;
+	height: 110px;
+	line-height: 1.4;
+	font-size: 0.9em;
+	padding: .5rem .5rem 0 .5rem;
+	overflow: hidden;
+	display: -webkit-box;
+	-webkit-line-clamp: 5;
+	-webkit-box-orient: vertical;
+	margin: 0 0 .5rem 0;
+  }
+  
 /* required styles */
 
 .leaflet-pane,

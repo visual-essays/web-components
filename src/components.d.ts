@@ -50,6 +50,7 @@ export namespace Components {
         "entities": string;
         "height": number;
         "label": string;
+        "logo": string;
         "options": string;
         "position": string;
         "searchCx": string;
@@ -63,10 +64,11 @@ export namespace Components {
         "alt": string;
         "annoBase": string;
         "authToken": string;
-        "compare": string;
+        "compare": boolean;
         "entities": string;
         "fit": string;
         "height": string;
+        "mode": string;
         "options": string;
         "path": string;
         "seq": number;
@@ -85,6 +87,7 @@ export namespace Components {
         "src": string;
     }
     interface VeMap {
+        "cards": string;
         "center": string;
         "entities": string;
         "overlay": string;
@@ -316,6 +319,7 @@ declare namespace LocalJSX {
         "entities"?: string;
         "height"?: number;
         "label"?: string;
+        "logo"?: string;
         "options"?: string;
         "position"?: string;
         "searchCx"?: string;
@@ -329,10 +333,11 @@ declare namespace LocalJSX {
         "alt"?: string;
         "annoBase"?: string;
         "authToken"?: string;
-        "compare"?: string;
+        "compare"?: boolean;
         "entities"?: string;
         "fit"?: string;
         "height"?: string;
+        "mode"?: string;
         "options"?: string;
         "path"?: string;
         "seq"?: number;
@@ -351,6 +356,7 @@ declare namespace LocalJSX {
         "src"?: string;
     }
     interface VeMap {
+        "cards"?: string;
         "center"?: string;
         "entities"?: string;
         "overlay"?: string;
