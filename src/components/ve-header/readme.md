@@ -28,14 +28,14 @@
 
 ### Depends on
 
-- [ve-search](../ve-search)
 - [ve-contact](../ve-contact)
+- [ve-search](../ve-search)
 
 ### Graph
 ```mermaid
 graph TD;
-  ve-header --> ve-search
   ve-header --> ve-contact
+  ve-header --> ve-search
   style ve-header fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

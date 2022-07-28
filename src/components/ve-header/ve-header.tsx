@@ -76,10 +76,6 @@ export class Header {
     return url
   }
 
-  connectedCallback() {
-    console.log('connectedCallback')
-  }
-
   async setDefaults() {
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
     if ((!this.label || !this.background) && this._entities.length > 0) {
@@ -92,7 +88,6 @@ export class Header {
       }
     }
   }
-
 
   async componentDidLoad() {  
     console.log('componentDidLoad')
@@ -111,23 +106,16 @@ export class Header {
         ? {label: navItem.firstChild.textContent, href: (navItem.firstChild as HTMLLinkElement).href}
         : {label: navItem.firstChild.textContent}
     )
-    // console.log(this.navItems)
     while (this.el.firstChild)
       this.el.removeChild(this.el.firstChild)
 
     this.el.style.height = `${this.height}px`
-    if (!this.background) {
-      this.el.classList.add('simple')
-    }
+    this.el.classList.add(this.background ? 'background' : 'simple')
     if (this.sticky) {
       this.el.classList.add('sticky')
       document.querySelector('main').classList.add('sticky-header')
     } 
     getManifest(this.background).then(manifest => this._manifest = manifest)
-  }
-
-  htmlToElem(html: string) {
-    return new DOMParser().parseFromString(html, 'text/html').children[0].children[1]
   }
 
   _showInfoPopup() {
@@ -137,19 +125,17 @@ export class Header {
     popup.style.display = popup.style.display === 'block' ? 'none' : 'block'
   }
 
-  _toggleSearchBox() {
-    let searchBox = this.el.shadowRoot.querySelector('ve-search')
-    searchBox.style.visibility = searchBox.style.visibility === 'visible' ? 'hidden' : 'visible'
-  }
-
   menuItemSelected(item: any) {
-    console.log('menuItemSelected', item)
     if (item.label.toLowerCase().indexOf('contact') === 0 && this.contact) {
-      let contactDialog = this.el.shadowRoot.querySelector('ve-contact')
-      contactDialog.show = !contactDialog.show
+      this.showContactForm()
     } else if (item.href) {
       location.href = item.href
     }
+  }
+
+  showContactForm() {
+    let contactDialog = this.el.shadowRoot.querySelector('ve-contact')
+    contactDialog.show = !contactDialog.show
   }
 
   navIcon(item: any) {
@@ -169,14 +155,15 @@ export class Header {
           : null
         }
         {this.label ? this.label : null}
-              { this.navItems.map((item:any) => 
-                <div 
-                  onClick={this.menuItemSelected.bind(this, item)}>
-                    <sl-icon slot="prefix" name={this.navIcon(item)} label={item.label}></sl-icon>
-                    {item.label}
-                </div>
-              )}
-      </section>
+          { this.navItems.map((item:any) => 
+            <div 
+              onClick={this.menuItemSelected.bind(this, item)}>
+                <sl-icon slot="prefix" name={this.navIcon(item)} label={item.label}></sl-icon>
+                {item.label}
+            </div>
+          )}
+      </section>,
+      <ve-contact contact={this.contact}></ve-contact>
     ]
   }
 
@@ -185,13 +172,9 @@ export class Header {
       <section class="ve-header">
         <div class="title-panel">
           <sl-icon id="info-icon" name="info-circle-fill" onClick={this._showInfoPopup.bind(this)} title="Image info"></sl-icon>
-          { this.searchDomain
-            ? <div id="search-box">
-                <ve-search search-domain={this.searchDomain} search-filters={this.searchFilters} tooltip="Click to search the site" animationLength="1" icon></ve-search>
-                  {/* <sl-icon id="search-icon" name="search" onClick={this._toggleSearchBox.bind(this)}></sl-icon> */}
-              </div>
-            : null
-          }
+          <div id="search-box">
+            <ve-search search-domain={this.searchDomain} search-filters={this.searchFilters} tooltip="Click to search the site" animationLength="1" icon></ve-search>
+          </div>
           { this.navItems.length > 0 && 
             <nav>
               <sl-dropdown>
