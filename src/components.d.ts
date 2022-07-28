@@ -6,15 +6,6 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
-    interface VeAnno {
-    }
-    interface VeCard {
-        "description": string;
-        "entities": string;
-        "href": string;
-        "image": string;
-        "label": string;
-    }
     interface VeContact {
         "contact": string;
         "show": boolean;
@@ -110,8 +101,6 @@ export namespace Components {
     interface VeStyle {
         "href": string;
     }
-    interface VeTabs {
-    }
     interface VeVideo {
         "autoplay": boolean;
         "end": string;
@@ -143,18 +132,6 @@ export interface VeWikidataSearchCustomEvent<T> extends CustomEvent<T> {
     target: HTMLVeWikidataSearchElement;
 }
 declare global {
-    interface HTMLVeAnnoElement extends Components.VeAnno, HTMLStencilElement {
-    }
-    var HTMLVeAnnoElement: {
-        prototype: HTMLVeAnnoElement;
-        new (): HTMLVeAnnoElement;
-    };
-    interface HTMLVeCardElement extends Components.VeCard, HTMLStencilElement {
-    }
-    var HTMLVeCardElement: {
-        prototype: HTMLVeCardElement;
-        new (): HTMLVeCardElement;
-    };
     interface HTMLVeContactElement extends Components.VeContact, HTMLStencilElement {
     }
     var HTMLVeContactElement: {
@@ -233,12 +210,6 @@ declare global {
         prototype: HTMLVeStyleElement;
         new (): HTMLVeStyleElement;
     };
-    interface HTMLVeTabsElement extends Components.VeTabs, HTMLStencilElement {
-    }
-    var HTMLVeTabsElement: {
-        prototype: HTMLVeTabsElement;
-        new (): HTMLVeTabsElement;
-    };
     interface HTMLVeVideoElement extends Components.VeVideo, HTMLStencilElement {
     }
     var HTMLVeVideoElement: {
@@ -252,8 +223,6 @@ declare global {
         new (): HTMLVeWikidataSearchElement;
     };
     interface HTMLElementTagNameMap {
-        "ve-anno": HTMLVeAnnoElement;
-        "ve-card": HTMLVeCardElement;
         "ve-contact": HTMLVeContactElement;
         "ve-depicts": HTMLVeDepictsElement;
         "ve-depicts-dialog": HTMLVeDepictsDialogElement;
@@ -267,21 +236,11 @@ declare global {
         "ve-meta": HTMLVeMetaElement;
         "ve-search": HTMLVeSearchElement;
         "ve-style": HTMLVeStyleElement;
-        "ve-tabs": HTMLVeTabsElement;
         "ve-video": HTMLVeVideoElement;
         "ve-wikidata-search": HTMLVeWikidataSearchElement;
     }
 }
 declare namespace LocalJSX {
-    interface VeAnno {
-    }
-    interface VeCard {
-        "description"?: string;
-        "entities"?: string;
-        "href"?: string;
-        "image"?: string;
-        "label"?: string;
-    }
     interface VeContact {
         "contact"?: string;
         "show"?: boolean;
@@ -379,8 +338,6 @@ declare namespace LocalJSX {
     interface VeStyle {
         "href"?: string;
     }
-    interface VeTabs {
-    }
     interface VeVideo {
         "autoplay"?: boolean;
         "end"?: string;
@@ -400,8 +357,6 @@ declare namespace LocalJSX {
         "onEntitySelected"?: (event: VeWikidataSearchCustomEvent<any>) => void;
     }
     interface IntrinsicElements {
-        "ve-anno": VeAnno;
-        "ve-card": VeCard;
         "ve-contact": VeContact;
         "ve-depicts": VeDepicts;
         "ve-depicts-dialog": VeDepictsDialog;
@@ -415,7 +370,6 @@ declare namespace LocalJSX {
         "ve-meta": VeMeta;
         "ve-search": VeSearch;
         "ve-style": VeStyle;
-        "ve-tabs": VeTabs;
         "ve-video": VeVideo;
         "ve-wikidata-search": VeWikidataSearch;
     }
@@ -424,8 +378,6 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
-            "ve-anno": LocalJSX.VeAnno & JSXBase.HTMLAttributes<HTMLVeAnnoElement>;
-            "ve-card": LocalJSX.VeCard & JSXBase.HTMLAttributes<HTMLVeCardElement>;
             "ve-contact": LocalJSX.VeContact & JSXBase.HTMLAttributes<HTMLVeContactElement>;
             "ve-depicts": LocalJSX.VeDepicts & JSXBase.HTMLAttributes<HTMLVeDepictsElement>;
             "ve-depicts-dialog": LocalJSX.VeDepictsDialog & JSXBase.HTMLAttributes<HTMLVeDepictsDialogElement>;
@@ -439,7 +391,6 @@ declare module "@stencil/core" {
             "ve-meta": LocalJSX.VeMeta & JSXBase.HTMLAttributes<HTMLVeMetaElement>;
             "ve-search": LocalJSX.VeSearch & JSXBase.HTMLAttributes<HTMLVeSearchElement>;
             "ve-style": LocalJSX.VeStyle & JSXBase.HTMLAttributes<HTMLVeStyleElement>;
-            "ve-tabs": LocalJSX.VeTabs & JSXBase.HTMLAttributes<HTMLVeTabsElement>;
             "ve-video": LocalJSX.VeVideo & JSXBase.HTMLAttributes<HTMLVeVideoElement>;
             "ve-wikidata-search": LocalJSX.VeWikidataSearch & JSXBase.HTMLAttributes<HTMLVeWikidataSearchElement>;
         }

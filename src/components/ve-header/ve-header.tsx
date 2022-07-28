@@ -69,9 +69,16 @@ export class Header {
   }
 
   _iiifUrl(serviceUrl: string, options: any) {
+    let elWidth = this.el.clientWidth
+    let elHeight = this.el.clientHeight
+    let imageWidth = this._imageInfo.width
+    let imageHeight = this._imageInfo.height
+    console.log(`width=${elWidth} height=${elHeight} imageWidth=${imageWidth} imageHeight=${imageHeight}`)
+    // let size = imageWidth > imageHeight ? `,${elHeight}` : `${elWidth},`
+    let size = `${elWidth},`
     // let size = `${this.el.clientWidth > 1000 ? 1000 : this.el.clientWidth},${this.height > 1000 ? 1000 : this.height}`
     // let url = `${serviceUrl.replace(/\/info.json$/,'')}/${options.region}/!${size}/${options.rotation}/${options.quality}.${options.format}`
-    let url = `${serviceUrl.replace(/\/info.json$/,'')}/${options.region}/${options.size}/${options.rotation}/${options.quality}.${options.format}`
+    let url = `${serviceUrl.replace(/\/info.json$/,'')}/${options.region}/${size}/${options.rotation}/${options.quality}.${options.format}`
     console.log('_iiifUrl', url)
     return url
   }

@@ -1,3 +1,5 @@
+* { box-sizing: border-box; } 
+
 :host {
   font-family: Roboto, sans-serif;
   font-size: 1rem;
