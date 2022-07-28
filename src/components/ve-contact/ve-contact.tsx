@@ -11,6 +11,7 @@ import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.j
 setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/src')
 
 const emailAddressRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+const emailEndpoint = 'https://api.juncture-digital.org/sendmail/'
 
 @Component({
   tag: 've-contact',
@@ -76,7 +77,7 @@ export class Header {
         message: this.message.value
       }
       this.hideContactForm()
-      let resp: any = await fetch('https://api.visual-essays.net/sendmail/', {
+      let resp: any = await fetch(emailEndpoint, {
         method: 'POST', body: JSON.stringify(body)
       })
       if (resp.ok) console.log(await resp.json())
