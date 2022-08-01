@@ -100,6 +100,9 @@ export class MapViewer {
       ]
     })
     
+    this.map.on('zoomend', (e) => this.getLatLngZoom(e))
+    this.map.on('moveend', (e) => this.getLatLngZoom(e))
+
     if (this.overlay) {
       this.opacitySlider = this.el.shadowRoot.getElementById('opacity-slider') as HTMLInputElement
       this.allmapsLayer = L.tileLayer(`https://allmaps.xyz/maps/${this.overlay}/{z}/{x}/{y}.png`, {
@@ -117,6 +120,14 @@ export class MapViewer {
       let m = L.marker(marker.coords, {icon: myIcon}).addTo(this.map)
       m.bindPopup(`<div class="card">${marker.card}</div>`)
     })
+  }
+
+  getLatLngZoom(e) {
+    let center = e.target.getCenter()
+    let zoom = e.target.getZoom()
+    let resp = [center.lat, center.lng, zoom]
+    console.log(resp)
+    return resp
   }
 
   async latLng(pos:string) {

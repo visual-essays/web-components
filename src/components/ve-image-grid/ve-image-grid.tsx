@@ -4,7 +4,8 @@ import { loadManifests, imageInfo, label, metadata, thumbnail, iiifServer } from
 import '@shoelace-style/shoelace/dist/components/dialog/dialog.js'
 
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
-setBasePath(location.hostname === 'localhost' ? 'http://localhost:3333' : 'https://visual-essays.github.io/web-components/src')
+// setBasePath(location.hostname === 'localhost' ? 'http://localhost:3333' : 'https://visual-essays.github.io/web-components/src')
+setBasePath('https://visual-essays.github.io/web-components/src')
 
 @Component({
   tag: 've-image-grid',
