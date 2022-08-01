@@ -310,6 +310,7 @@ export class ImageViewer {
 
   addResizeObserver() {
     const resizeObserver = new ResizeObserver(() => {
+      console.log('resizeObserver')
       this._setHostDimensions()
     })
     resizeObserver.observe(this.el.shadowRoot.getElementById('wrapper'))
@@ -356,7 +357,6 @@ export class ImageViewer {
   }
 
   _setHostDimensions(imageData: any = null) {
-    console.dir(this.el)
     let wrapper = this.el.shadowRoot.getElementById('wrapper')
     let captionEl = this.el.shadowRoot.getElementById('caption')
     let captionHeight = captionEl ? captionEl.clientHeight : 32
@@ -409,7 +409,7 @@ export class ImageViewer {
           elWidth,
           imageData
             ? Math.round(imageWidth/imageHeight * (requestedHeight - captionHeight)) // width scaled to height
-            : requestedWidth
+            : requestedWidth || elWidth
           )
       } else {
         width = elWidth
