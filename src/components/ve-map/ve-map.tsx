@@ -1,4 +1,4 @@
-import { Component, Element, Prop, State, h } from '@stencil/core';
+import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
 
 import L from 'leaflet'
 import 'leaflet.control.opacity'
@@ -14,6 +14,7 @@ export class MapViewer {
   @Prop() overlay: string
   @Prop({ mutable: true, reflect: true }) zoom: number
   @Prop({ mutable: true, reflect: true }) center: string
+  @Prop({ mutable: true, reflect: true }) marker: string
   @Prop() sticky: boolean
   @Prop() entities: string
   @Prop() cards: string
@@ -26,6 +27,11 @@ export class MapViewer {
   @State() _entities: string[] = []
 
   @State() _markers: any[] = []
+
+  @Watch('center')
+  async centerChanged() {
+    console.log('map.centerChanged', this.center)
+  }
 
   connectedCallback() {
     console.log('connectedCallback')
@@ -46,9 +52,15 @@ export class MapViewer {
   }
 
   componentDidLoad() {
+    console.log('componentDidLoad')
     this.el.classList.add('ve-component')
     if (this.sticky) this.el.classList.add('sticky')
-    this.initMap()
+    const resizeObserver = new ResizeObserver(() => {
+      console.log('Size changed')
+      this.initMap()
+
+    })
+    resizeObserver.observe(this.el.shadowRoot.getElementById('map'))
   }
 
   async coordsFromEntity(qid: string) {
@@ -59,14 +71,10 @@ export class MapViewer {
   }
 
   async initMap() {
+    console.log('initMap', this.el.parentElement.clientHeight)
     let center: L.LatLng
     if (this.center) {
-      if (isQID(this.center)) {
-        center = await this.coordsFromEntity(this.center)
-      } else {
-        let [lat, lng] = this.center.split(',').map(val => parseFloat(val.trim()))
-        center = new L.LatLng(lat, lng)
-      }
+      center = await this.latLng(this.center)
     } else if (this.entities) {
       center = await this.coordsFromEntity(this._entities[0])
       this.zoom = 9
@@ -76,7 +84,12 @@ export class MapViewer {
     }
 
     console.log(`center=${center} zoom=${this.zoom}`)
+    if (this.map) {
+      this.map.off()
+      this.map.remove()
+    }
     this.map = L.map(this.el.shadowRoot.getElementById('map'), {
+      preferCanvas: true,
       zoomSnap: 0.1,
       center, 
       zoom: this.zoom,
@@ -95,10 +108,24 @@ export class MapViewer {
     }
 
     const myIcon = L.icon({iconUrl: 'https://unpkg.com/leaflet@1.8.0/dist/images/marker-icon.png'})
+    
+    if (this.marker) {
+      L.marker(await this.latLng(this.marker), {icon: myIcon}).addTo(this.map)
+    }
+
     this._markers.forEach(marker => {
       let m = L.marker(marker.coords, {icon: myIcon}).addTo(this.map)
       m.bindPopup(`<div class="card">${marker.card}</div>`)
     })
+  }
+
+  async latLng(pos:string) {
+    if (isQID(pos)) {
+      return await this.coordsFromEntity(this.center)
+    } else {
+      let [lat, lng] = this.center.split(',').map(val => parseFloat(val.trim()))
+      return new L.LatLng(lat, lng)
+    }
   }
 
   updateOpacity() {

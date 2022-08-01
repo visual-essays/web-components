@@ -5,6 +5,7 @@ import '@shoelace-style/shoelace/dist/components/button/button.js'
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
 import '@shoelace-style/shoelace/dist/components/icon/icon.js'
 import '@shoelace-style/shoelace/dist/components/menu/menu.js'
+import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js'
 
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
@@ -179,9 +180,11 @@ export class Header {
       <section class="ve-header">
         <div class="title-panel">
           <sl-icon id="info-icon" name="info-circle-fill" onClick={this._showInfoPopup.bind(this)} title="Image info"></sl-icon>
-          <div id="search-box">
-            <ve-search search-domain={this.searchDomain} search-filters={this.searchFilters} tooltip="Click to search the site" animationLength="1" icon></ve-search>
-          </div>
+          { this.searchDomain && 
+            <div id="search-box">
+              <ve-search search-domain={this.searchDomain} search-filters={this.searchFilters} tooltip="Click to search the site" animationLength="1" icon></ve-search>
+            </div>
+          }
           { this.navItems.length > 0 && 
             <nav>
               <sl-dropdown>

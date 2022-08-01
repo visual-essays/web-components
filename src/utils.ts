@@ -351,3 +351,13 @@ export function thumbnail(manifest: any) {
       : _imageInfo.id
   }
 }
+
+export function metadata(manifest:any, language:string = 'en') {
+  let metadata = []
+  if (manifest.metadata) {
+    manifest.metadata.forEach(md => {
+      metadata.push({label: _value(md.label, language)[0], value: _value(md.value, language)})
+    })
+  }
+  return metadata
+}

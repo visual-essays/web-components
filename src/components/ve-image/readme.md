@@ -30,6 +30,10 @@
 
 ## Dependencies
 
+### Used by
+
+ - [ve-image-grid](../ve-image-grid)
+
 ### Depends on
 
 - [ve-manifest](../ve-manifest)
@@ -38,6 +42,7 @@
 ```mermaid
 graph TD;
   ve-image --> ve-manifest
+  ve-image-grid --> ve-image
   style ve-image fill:#f9f,stroke:#333,stroke-width:4px
 ```
 

@@ -69,7 +69,11 @@ export namespace Components {
         "user": string;
         "width": string;
     }
+    interface VeImageCard {
+        "manifest": string;
+    }
     interface VeImageGrid {
+        "asCards": boolean;
     }
     interface VeManifest {
         "condensed": boolean;
@@ -81,6 +85,7 @@ export namespace Components {
         "cards": string;
         "center": string;
         "entities": string;
+        "marker": string;
         "overlay": string;
         "sticky": boolean;
         "zoom": number;
@@ -126,6 +131,10 @@ export interface VeDepictsCustomEvent<T> extends CustomEvent<T> {
 export interface VeDepictsDialogCustomEvent<T> extends CustomEvent<T> {
     detail: T;
     target: HTMLVeDepictsDialogElement;
+}
+export interface VeImageCardCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLVeImageCardElement;
 }
 export interface VeWikidataSearchCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -173,6 +182,12 @@ declare global {
     var HTMLVeImageElement: {
         prototype: HTMLVeImageElement;
         new (): HTMLVeImageElement;
+    };
+    interface HTMLVeImageCardElement extends Components.VeImageCard, HTMLStencilElement {
+    }
+    var HTMLVeImageCardElement: {
+        prototype: HTMLVeImageCardElement;
+        new (): HTMLVeImageCardElement;
     };
     interface HTMLVeImageGridElement extends Components.VeImageGrid, HTMLStencilElement {
     }
@@ -230,6 +245,7 @@ declare global {
         "ve-footer": HTMLVeFooterElement;
         "ve-header": HTMLVeHeaderElement;
         "ve-image": HTMLVeImageElement;
+        "ve-image-card": HTMLVeImageCardElement;
         "ve-image-grid": HTMLVeImageGridElement;
         "ve-manifest": HTMLVeManifestElement;
         "ve-map": HTMLVeMapElement;
@@ -306,7 +322,12 @@ declare namespace LocalJSX {
         "user"?: string;
         "width"?: string;
     }
+    interface VeImageCard {
+        "manifest"?: string;
+        "onImageSelectedEvent"?: (event: VeImageCardCustomEvent<any>) => void;
+    }
     interface VeImageGrid {
+        "asCards"?: boolean;
     }
     interface VeManifest {
         "condensed"?: boolean;
@@ -318,6 +339,7 @@ declare namespace LocalJSX {
         "cards"?: string;
         "center"?: string;
         "entities"?: string;
+        "marker"?: string;
         "overlay"?: string;
         "sticky"?: boolean;
         "zoom"?: number;
@@ -364,6 +386,7 @@ declare namespace LocalJSX {
         "ve-footer": VeFooter;
         "ve-header": VeHeader;
         "ve-image": VeImage;
+        "ve-image-card": VeImageCard;
         "ve-image-grid": VeImageGrid;
         "ve-manifest": VeManifest;
         "ve-map": VeMap;
@@ -385,6 +408,7 @@ declare module "@stencil/core" {
             "ve-footer": LocalJSX.VeFooter & JSXBase.HTMLAttributes<HTMLVeFooterElement>;
             "ve-header": LocalJSX.VeHeader & JSXBase.HTMLAttributes<HTMLVeHeaderElement>;
             "ve-image": LocalJSX.VeImage & JSXBase.HTMLAttributes<HTMLVeImageElement>;
+            "ve-image-card": LocalJSX.VeImageCard & JSXBase.HTMLAttributes<HTMLVeImageCardElement>;
             "ve-image-grid": LocalJSX.VeImageGrid & JSXBase.HTMLAttributes<HTMLVeImageGridElement>;
             "ve-manifest": LocalJSX.VeManifest & JSXBase.HTMLAttributes<HTMLVeManifestElement>;
             "ve-map": LocalJSX.VeMap & JSXBase.HTMLAttributes<HTMLVeMapElement>;

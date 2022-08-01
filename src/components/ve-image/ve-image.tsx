@@ -21,7 +21,7 @@ import '@shoelace-style/shoelace/dist/components/image-comparer/image-comparer.j
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js'
 
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
-setBasePath(location.port === '3333' ? '' : 'https://visual-essays.github.io/web-components/src')
+setBasePath(location.hostname === 'localhost' ? 'http://localhost:3333' : 'https://visual-essays.github.io/web-components/src')
 
 @Component({
   tag: 've-image',
@@ -308,7 +308,15 @@ export class ImageViewer {
     observer.observe(el, {attributes: true})
   }
 
+  addResizeObserver() {
+    const resizeObserver = new ResizeObserver(() => {
+      this._setHostDimensions()
+    })
+    resizeObserver.observe(this.el.shadowRoot.getElementById('wrapper'))
+  }
+
   componentDidLoad() {
+    this.addResizeObserver()
     this.el.classList.add('ve-component')
     if (this.sticky) this.el.classList.add('sticky')
     if (this._images.length > 0) this._setHostDimensions()
@@ -382,7 +390,9 @@ export class ImageViewer {
       height = requestedHeight
         ? requestedHeight
         : imageData
-          ? Math.round(imageHeight/imageWidth * requestedWidth) + captionHeight // height scaled to width
+          ? elHeight
+            ? Math.min(elHeight, Math.round(imageHeight/imageWidth * requestedWidth)) + captionHeight 
+            : Math.round(imageHeight/imageWidth * requestedWidth) + captionHeight // height scaled to width
           : requestedWidth
     } else if (requestedHeight) {
       height = requestedHeight

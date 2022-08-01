@@ -1,0 +1,114 @@
+.card {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto auto 1fr auto;
+  border: 0.5px solid #ddd;
+  border-radius: 4px;
+  padding: 0;
+  height: 100%;
+}
+
+.card p {
+  border: none;
+}
+
+.card-image {  /* image */
+  grid-area: 1 / 1 / 2 / 2;
+  width: 100%;
+  height: 190px;
+}
+
+.card-title {  /* title */
+  grid-area: 2 / 1 / 3 / 2;
+  font-weight: bold;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 1.3rem .5rem .2rem .5rem;
+  text-decoration: none;
+}
+
+.card-metadata {  /* metadata list */
+  grid-area: 3 / 1 / 4 / 2;
+  list-style: none;
+  padding: 1rem 0.5rem;
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.card-metadata ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.card-links { 
+  grid-area: 4 / 1 / 5 / 2;
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  align-self: flex-end;
+  padding: .2rem .5rem;
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.card-links a {
+  height: 24px;
+}
+.card-links img {
+  height: 24px;
+}
+.card-links sl-icon {
+  font-size: 20px;
+  color: #999;;
+}
+
+.card-abstract{  /* abstract */
+  grid-area: 5 / 1 / 6 / 2;
+  align-self: flex-end;
+  height: 110px;
+  line-height: 1.4;
+  font-size: 0.9em;
+  padding: .5rem .5rem 0 .5rem;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  margin: 0 0 .5rem 0;
+}
+
+.md-label {
+  font-weight: bold;
+  margin-right: 6px;
+}
+
+.md-value {
+  display: inline;
+  line-height: 1.2rem;
+  /* These are technically the same, but use both */
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+
+  -ms-word-break: break-all;
+  /* This is the dangerous one in WebKit, as it breaks things wherever */
+  word-break: break-all;
+  /* Instead use this non-standard one: */
+  word-break: break-word;
+
+  /* Adds a hyphen where the word breaks, if supported (No Blink) */
+  -ms-hyphens: auto;
+  -moz-hyphens: auto;
+  -webkit-hyphens: auto;
+  hyphens: auto;
+  color: #444;
+}
+
+.md-label::after {
+  content: ":";
+}
+
+.card-metadata ul ul {
+  margin-left: 18px;
+}
