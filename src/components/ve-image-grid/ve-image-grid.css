@@ -39,3 +39,24 @@
     max-width: 100%;
   }
 }
+
+sl-dialog {
+  --width: 75vw;
+}
+
+sl-dialog::part(body) {
+  padding: 0;
+}
+
+/* Mobile Devices */
+@media (max-width: 480px) {
+
+  .card-image {
+    height: 72vw;
+  }
+
+  sl-dialog {
+    --width: 100vw;
+  }
+
+}

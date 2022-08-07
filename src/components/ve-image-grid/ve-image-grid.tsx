@@ -49,16 +49,19 @@ export class ImageGallery {
 
   connectedCallback() {
     this.listenForSlotChanges()
+    this.buildManifestsList()
   }
 
   buildManifestsList() {
+
     this.manifestUrls = Array.from(this.host.querySelectorAll('li'))
     .filter(el => el.innerHTML.trim())
     .map(el => {
       let manifestId = el.innerHTML.trim()
       return manifestId.startsWith('http') ? manifestId : `${iiifServer}/${manifestId}/manifest.json`
   })
-  while (this.host.firstChild) this.host.removeChild(this.host.firstChild)
+  console.log(`buildManifestsList: manifests=${this.manifestUrls.length}`)
+  //while (this.host.firstChild) this.host.removeChild(this.host.firstChild)
   }
 
   listenForSlotChanges() {
@@ -129,7 +132,7 @@ export class ImageGallery {
           )
         }
       </section>,
-      <sl-dialog style={{'--width':'75vw'}}>
+      <sl-dialog no-header>
         { this.dialogType === 'map' &&
           <ve-map center={this.location} marker={this.location} zoom={this.zoom} overlay={this.overlay}></ve-map>
         }

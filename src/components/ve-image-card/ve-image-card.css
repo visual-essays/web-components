@@ -112,3 +112,12 @@
 .card-metadata ul ul {
   margin-left: 18px;
 }
+
+/* Mobile Devices */
+@media (max-width: 480px) {
+
+  .card-image {
+    height: 72vw;
+  }
+
+}

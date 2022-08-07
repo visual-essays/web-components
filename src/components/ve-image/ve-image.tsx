@@ -540,6 +540,8 @@ export class ImageViewer {
       }}
     ]})
 
+    /*
+    // Inhibits panning using drag
     new OpenSeadragonViewerInputHook({ viewer: this._viewer, hooks: [
       {tracker: 'viewer', handler: 'dragHandler', hookHandler: (event) => {
         // if mobile disable drag event 
@@ -557,6 +559,7 @@ export class ImageViewer {
         return true
       }}
     ]})
+    */
 
     new OpenSeadragonViewerInputHook({ viewer: this._viewer, hooks: [
       {tracker: 'viewer', handler: 'dragEndHandler', hookHandler: (event) => {

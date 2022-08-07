@@ -340,16 +340,16 @@ export function sourceId(manifest:any) {
   }
 }
 
-export function thumbnail(manifest: any) {
+export function thumbnail(manifest: any, width:number=400) {
   if (!manifest) return null
-  if (manifest.thumbnail) {
-    return manifest.thumbnail[0].id
-  } else {
+  //if (manifest.thumbnail) {
+  //  return manifest.thumbnail[0].id
+  //} else {
     let _imageInfo = imageInfo(manifest)
     return _imageInfo.service
-      ? `${_imageInfo.service.id}/full/240,/0/default.jpg`
+      ? `${_imageInfo.service[0].id}/full/${width},/0/default.jpg`
       : _imageInfo.id
-  }
+  //}
 }
 
 export function metadata(manifest:any, language:string = 'en') {
