@@ -21,7 +21,7 @@ export class WikidataSearch {
     this.reset()
   }
 
-  @Event({ bubbles: true, composed: true }) entitySelected: EventEmitter<any>
+  @Event({ eventName: 'entity-selected', bubbles: true, composed: true }) entitySelected: EventEmitter<any>
 
   componentDidLoad() {
     this.autocompleteResults = this.el.shadowRoot.getElementById('autocompleteResults') as HTMLInputElement

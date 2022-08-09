@@ -53,6 +53,7 @@ export class ImageViewer {
   @Prop() annoBase: string
   @Prop() shoelace: boolean = true
   @Prop() sticky: boolean
+  @Prop() noScroll: boolean
 
   @Element() el: HTMLElement;
 
@@ -617,6 +618,7 @@ export class ImageViewer {
       showNavigationControl: true,
       minZoomImageRatio: 0.2,
       maxZoomPixelRatio: 5,
+      showRotationControl: true,
       // homeFillsViewer: this.fit === 'cover',
       //animationTime: 100,
       showHomeControl: true,
@@ -635,7 +637,7 @@ export class ImageViewer {
     // this._viewer = OpenSeadragon(osdOptions);
 
     this._viewer = OpenSeadragon(osdOptions)
-    if (location.hostname.indexOf('iiif') < 0) this.configureScrollBehavior()
+    if (location.hostname.indexOf('iiif') < 0 && this.noScroll) this.configureScrollBehavior()
 
     this._annotator = new Annotator(this._viewer, this.el.shadowRoot.querySelector('#toolbar'), this.authToken)
     if (this._annoTarget) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)

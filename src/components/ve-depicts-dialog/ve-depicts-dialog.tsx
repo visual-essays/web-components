@@ -52,7 +52,7 @@ export class DepictsDialog {
     if (this.show) this.dialog.show()
   }
 
-  @Listen('entitySelected')
+  @Listen('entity-selected')
   async onEntitySelected(event: CustomEvent) {
     this._depicted = [...this._depicted, ...[event.detail]]
   }

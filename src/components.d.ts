@@ -60,6 +60,7 @@ export namespace Components {
         "fit": string;
         "height": string;
         "mode": string;
+        "noScroll": boolean;
         "options": string;
         "path": string;
         "seq": number;
@@ -313,6 +314,7 @@ declare namespace LocalJSX {
         "fit"?: string;
         "height"?: string;
         "mode"?: string;
+        "noScroll"?: boolean;
         "options"?: string;
         "path"?: string;
         "seq"?: number;
@@ -376,7 +378,7 @@ declare namespace LocalJSX {
     }
     interface VeWikidataSearch {
         "language"?: string;
-        "onEntitySelected"?: (event: VeWikidataSearchCustomEvent<any>) => void;
+        "onEntity-selected"?: (event: VeWikidataSearchCustomEvent<any>) => void;
     }
     interface IntrinsicElements {
         "ve-contact": VeContact;
