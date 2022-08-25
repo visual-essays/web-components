@@ -159,13 +159,14 @@ export class Video {
   }
 
   seekTo(start:number, end:number=0) {
+    console.log(`seekTo: start=${start} end=${end}`)
     if (this.timeoutId) {
       clearTimeout(this.timeoutId)
       this.timeoutId = null
     }
 
+    this.play()
     if (this.isYouTube) {
-      this.play()
       this.player.seekTo(start)
       if (end > start) this.setDelayedPause(end-start)
     } else if (this.isVimeo) {
