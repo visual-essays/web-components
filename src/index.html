@@ -6,20 +6,41 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
     <link href="https://visual-essays.github.io/web-app/static/all.css" rel="stylesheet" />
     <script type="module" src="/build/visual-essays.esm.js"></script>
+    <script src="https://www.youtube.com/iframe_api"></script>
     <script nomodule src="/build/visual-essays.js"></script>
-
+    <style>
+      ve-video {
+        float: right;
+        width: 45%;
+        padding: 0 0 12px 12px;
+      }
+    </style>
   </head>
   <body>
 
     <main >
       <section>
-
-        <ve-image-grid as-cards>
-          <ul>
-            <li>gh:rdsnyder/images/italy-2022/amalfi-coast/Amalfi__1</li>
-          </ul>
-        </ve-image-grid>
-        <!--
+        <!-- 
+          Dickens Museum: https://www.youtube.com/watch?v=aPFN14CPISk
+          Vimeo: https://vimeo.com/737854276
+          Self hosted: https://raw.githubusercontent.com/kent-map/images/main/example_video_3.mp4
+                       https://upload.wikimedia.org/wikipedia/commons/2/26/Bees_on_flowers.webm
+        -->
+        <ve-video src="https://www.youtube.com/watch?v=aPFN14CPISk"></ve-video>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. <mark attr="20,25">Ut enim ad</mark> minim veniam, quis nostrud
+          exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
+          occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>
+        <p>
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua. <mark attr="60,65">Ut enim ad</mark> minim veniam, quis nostrud
+          exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
+          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
+          occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </p>        <!--
         <ve-image src="gh:rdsnyder/images/italy-2022/amalfi-coast/Amalfi__2"></ve-image>
         <ve-header label="Header" background="gh:kent-map/images/Kent_Maps.jpg" contact="ron@snyderjr.com">
           <ul>

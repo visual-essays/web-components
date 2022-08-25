@@ -109,7 +109,6 @@ import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
             }
     
             let url = `https://${this.searchDomain}/search?q=${query}&start=${start}`
-            console.log('url=', url)
     
             fetch(url)
             .then(res => res.json())

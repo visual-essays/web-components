@@ -42,6 +42,7 @@
 
 sl-dialog {
   --width: 75vw;
+  background-color: #999;
 }
 
 sl-dialog::part(body) {

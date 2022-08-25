@@ -27,7 +27,6 @@ export class Header {
   @Prop({ mutable: true, reflect: true }) show: boolean = false
   @Watch('show')
   showChanged() {
-    console.log(`show=${this.show}`)
     if (this.show) this.showContactForm()
     else this.hideContactForm()
   }
@@ -57,7 +56,6 @@ export class Header {
   }
 
   showContactForm() {
-    console.log('showContactForm')
     this.contactDialog.show()
   }
 

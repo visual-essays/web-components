@@ -3,6 +3,10 @@
 
 }
 
+#wrapper {
+  background-color: #999;
+}
+
 .osd-wrapper {
   position: relative;
 }

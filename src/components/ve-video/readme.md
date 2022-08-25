@@ -1,4 +1,4 @@
-# ve-video
+# ve-image-viewer
 
 
 
@@ -7,20 +7,14 @@
 
 ## Properties
 
-| Property     | Attribute     | Description | Type      | Default     |
-| ------------ | ------------- | ----------- | --------- | ----------- |
-| `autoplay`   | `autoplay`    |             | `boolean` | `undefined` |
-| `end`        | `end`         |             | `string`  | `undefined` |
-| `height`     | `height`      |             | `string`  | `"300"`     |
-| `heightUnit` | `height-unit` |             | `string`  | `"px"`      |
-| `loop`       | `loop`        |             | `boolean` | `undefined` |
-| `muted`      | `muted`       |             | `boolean` | `undefined` |
-| `src`        | `src`         |             | `string`  | `undefined` |
-| `start`      | `start`       |             | `string`  | `"0"`       |
-| `sticky`     | `sticky`      |             | `boolean` | `undefined` |
-| `type`       | `type`        |             | `string`  | `undefined` |
-| `width`      | `width`       |             | `string`  | `"100%"`    |
-| `widthUnit`  | `width-unit`  |             | `string`  | `"px"`      |
+| Property   | Attribute  | Description | Type      | Default     |
+| ---------- | ---------- | ----------- | --------- | ----------- |
+| `autoplay` | `autoplay` |             | `boolean` | `false`     |
+| `end`      | `end`      |             | `number`  | `-1`        |
+| `loop`     | `loop`     |             | `boolean` | `false`     |
+| `muted`    | `muted`    |             | `boolean` | `false`     |
+| `src`      | `src`      |             | `string`  | `undefined` |
+| `start`    | `start`    |             | `number`  | `-1`        |
 
 
 ----------------------------------------------

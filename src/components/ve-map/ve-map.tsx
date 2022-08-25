@@ -34,7 +34,6 @@ export class MapViewer {
   }
 
   connectedCallback() {
-    console.log('connectedCallback')
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
     if (this.cards) {
       let cardsEl = document.getElementById(this.cards)
@@ -52,26 +51,20 @@ export class MapViewer {
   }
 
   componentDidLoad() {
-    console.log('componentDidLoad')
     this.el.classList.add('ve-component')
     if (this.sticky) this.el.classList.add('sticky')
-    const resizeObserver = new ResizeObserver(() => {
-      console.log('Size changed')
-      this.initMap()
-
-    })
+    const resizeObserver = new ResizeObserver(() => this.initMap())
     resizeObserver.observe(this.el.shadowRoot.getElementById('map'))
   }
 
   async coordsFromEntity(qid: string) {
     let entity = await getEntity(qid)
-    console.log(entity)
     let [lat, lng] = entity.coords.split(',').map(val => parseFloat(val.trim()))
     return new L.LatLng(lat, lng)
   }
 
   async initMap() {
-    console.log('initMap', this.el.parentElement.clientHeight)
+    // console.log('initMap', this.el.parentElement.clientHeight)
     let center: L.LatLng
     if (this.center) {
       center = await this.latLng(this.center)
@@ -83,7 +76,7 @@ export class MapViewer {
       this.zoom = 6
     }
 
-    console.log(`center=${center} zoom=${this.zoom}`)
+    // console.log(`center=${center} zoom=${this.zoom}`)
     if (this.map) {
       this.map.off()
       this.map.remove()
@@ -126,7 +119,6 @@ export class MapViewer {
     let center = e.target.getCenter()
     let zoom = e.target.getZoom()
     let resp = [center.lat, center.lng, zoom]
-    console.log(resp)
     return resp
   }
 

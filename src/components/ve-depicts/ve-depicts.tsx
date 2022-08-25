@@ -27,7 +27,7 @@ export class Depicts {
   @State() imageHash: string
 
   async connectedCallback() {
-    console.log(`ve-depicts.connectedCallback editable=${this.editable} format=${this.format} depicted=${this.depicted.length}`)
+    // console.log(`ve-depicts.connectedCallback editable=${this.editable} format=${this.format} depicted=${this.depicted.length}`)
     if (this.manifest) {
       this._manifest = await getManifest(this.manifest)
       this.imageHash = sha256(imageInfo(this._manifest).id)

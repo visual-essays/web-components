@@ -14,9 +14,9 @@
 
 ## Events
 
-| Event            | Description | Type               |
-| ---------------- | ----------- | ------------------ |
-| `entitySelected` |             | `CustomEvent<any>` |
+| Event             | Description | Type               |
+| ----------------- | ----------- | ------------------ |
+| `entity-selected` |             | `CustomEvent<any>` |
 
 
 ## Dependencies

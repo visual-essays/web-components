@@ -1,3 +1,4 @@
-#ve-video-container {
-    background-color: black;
+:host {
+  position: relative;
 }
+

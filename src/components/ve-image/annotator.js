@@ -9,7 +9,7 @@ const annotationsEndpoint = ENV === 'DEV'
   ? 'https://api.juncture-digital.org'
   : `https://editor.${location.hostname.split('.').slice(1).join('.')}`
 
-console.log(`annotator: ENV=${ENV} annotationsEndpoint=${annotationsEndpoint}`)
+// console.log(`annotator: ENV=${ENV} annotationsEndpoint=${annotationsEndpoint}`)
 
 export class Annotator {
 

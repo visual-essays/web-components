@@ -18,6 +18,7 @@
 | `fit`       | `fit`        |             | `string`  | `undefined` |
 | `height`    | `height`     |             | `string`  | `undefined` |
 | `mode`      | `mode`       |             | `string`  | `'curtain'` |
+| `noScroll`  | `no-scroll`  |             | `boolean` | `undefined` |
 | `options`   | `options`    |             | `string`  | `undefined` |
 | `path`      | `path`       |             | `string`  | `undefined` |
 | `seq`       | `seq`        |             | `number`  | `undefined` |

@@ -60,7 +60,7 @@ export class ImageGallery {
       let manifestId = el.innerHTML.trim()
       return manifestId.startsWith('http') ? manifestId : `${iiifServer}/${manifestId}/manifest.json`
   })
-  console.log(`buildManifestsList: manifests=${this.manifestUrls.length}`)
+  //console.log(`buildManifestsList: manifests=${this.manifestUrls.length}`)
   //while (this.host.firstChild) this.host.removeChild(this.host.firstChild)
   }
 
@@ -139,7 +139,7 @@ export class ImageGallery {
         { this.dialogType === 'image' &&
           <ve-image src={this.selected?.id} width="100%"></ve-image>
         }
-        </sl-dialog>
+      </sl-dialog>
     ]
   }
 

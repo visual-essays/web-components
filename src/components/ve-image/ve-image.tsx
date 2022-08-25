@@ -312,7 +312,6 @@ export class ImageViewer {
 
   addResizeObserver() {
     const resizeObserver = new ResizeObserver(() => {
-      console.log('resizeObserver')
       this._setHostDimensions()
     })
     resizeObserver.observe(this.el.shadowRoot.getElementById('wrapper'))
@@ -455,7 +454,6 @@ export class ImageViewer {
         tileSource = { url, type: 'image', buildPyramid: true }
       }
     }
-    console.log(tileSource)
     return tileSource
   }
 

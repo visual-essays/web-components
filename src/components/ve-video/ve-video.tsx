@@ -1,290 +1,236 @@
-import { Component, Prop, Element, State, h } from "@stencil/core";
+import { Component, Element, Prop, State, h } from '@stencil/core';
 import Player from '@vimeo/player';
 
+const youtubeDomains = new Set(['youtube.com', 'youtube.co.uk', 'youtu.be'])
+const vimeoDomains = new Set(['vimeo.com'])
+
 @Component({
-    tag: "ve-video",
-    styleUrl: "ve-video.css",
-    shadow: true
- })
+  tag: 've-video',
+  styleUrl: 've-video.css',
+  shadow: true,
+})
+export class Video {
+  @Prop() src: string
+  @Prop({ mutable: true, reflect: true }) start: number = -1
+  @Prop({ mutable: true, reflect: true }) end: number = -1
+  @Prop() autoplay: boolean = false
+  @Prop() muted: boolean = false
+  @Prop() loop: boolean = false
 
-export class VeVideo {
+  @Element() el: HTMLElement;
 
-    @Prop() type: string
-    @Prop() start: string = "0"
-    @Prop() end: string
-    @Prop() src: string
-    @Prop() autoplay: boolean
-    @Prop() muted: boolean
-    @Prop() loop: boolean
-    @Prop() sticky: boolean
+  @State() player: any
+  @State() timeoutId: any
+  
+  @State() type: string
+  @State() isYouTube: boolean = false
+  @State() isVimeo: boolean = false
+  @State() isSelfHosted: boolean = false
+  @State() videoId: string
 
-    @Prop() width: string = "100%"
-    @Prop() height: string = "300"
-    @Prop() widthUnit: string = "px"
-    @Prop() heightUnit: string = "px"
+  connectedCallback() {}
 
-    @State() GH_USER: string = "kent-map"
+  componentWillLoad() {
+    this.parseSource()
+  }
 
-    // Replace with a video repo in the future
-    @State() GH_REPO: string = "images"
+  componentDidLoad() {
+    this.initialize()
+  }
 
-    @Element() el: HTMLElement;
-
-    @State() formattedSource: string
-
-    @State() video: HTMLVideoElement
-
-    // Removes the 1st value and then stops
-    removeFromStart(string, removeValues) {
-        
-        for (var i = 0; i < removeValues.length; i++) {
-            if (string.startsWith(removeValues[i])) {
-                return string.slice(removeValues[i].length);
-            }
+  initialize() {
+    if (this.isYouTube) this.initializeYouTubePlayer()
+    else if (this.isVimeo) this.initializeVimeoPlayer()
+    else this.initializeSelfHostedPlayer()
+    this.addMarkListeners()
+  }
+    
+  initializeYouTubePlayer() {
+    // this.player = new (window as any).YT.Player('video-placeholder', {
+    this.player = new (window as any).YT.Player(this.el.shadowRoot.getElementById('video-placeholder'), {
+      width: 600,
+      height: 400,
+      videoId: this.videoId,
+      playerVars: {
+        color: 'white',
+        rel: 0,
+        modestbranding: 1,
+      },
+      events: {
+        onReady: () => {
+          if (!this.muted) this.player.unMute()
+          if (this.start >= 0) this.seekTo(this.start, this.end)
         }
-        return string;
+      }
+    })
+  }
+
+  initializeVimeoPlayer() {
+    this.player = new Player(this.el.shadowRoot.getElementById('ve-video-vimeo'), {
+      id: this.videoId
+    })
+  }
+
+  initializeSelfHostedPlayer() {
+    this.player = this.el.shadowRoot.getElementById('ve-video-self-hosted') as HTMLVideoElement
+  }
+
+  parseSource() {
+    if (this.src.indexOf('http') === 0) {
+      let srcUrl = new URL(this.src)
+      let domain = srcUrl.hostname.replace(/^www\./, '')
+      if (youtubeDomains.has(domain)) {
+        this.type = 'youtube'
+        this.isYouTube = true
+        this.videoId = srcUrl.searchParams.get('v')
+      } else if (vimeoDomains.has(domain)) {
+        this.type = 'vimeo'
+        this.isVimeo = true
+        this.videoId = srcUrl.pathname.slice(1)
+      } else {
+        this.type = 'self-hosted'
+        this.isSelfHosted = true
+      }
+    }
+    // console.log(`type=${this.type} videoId=${this.videoId}`)
+  }
+
+  findVeVideo(el: HTMLSpanElement) {
+    let sib = el.previousSibling
+    while (sib) {
+      if (sib.nodeName === 'VE-VIDEO') {
+        return sib === this.el ? sib : null
+      }
+      sib = sib.previousSibling
+    }
+    while (el.parentElement && el.tagName !== 'MAIN') {
+      el = el.parentElement
+      let veVideo = el.querySelector(':scope > ve-video')
+      if (veVideo) {
+        return veVideo === this.el ? veVideo : null
+      }
+    }
+  }
+
+  // Changes video start, end and muted properties when mark clicked
+  addMarkListeners() {
+    Array.from(document.querySelectorAll('mark')).forEach(mark => {
+
+      let attributesNode = mark.attributes
+      let attributes = attributesNode.item(0).value.split(',')
+      let veVideo = this.findVeVideo(mark.parentElement)
+      if (veVideo) {
+        mark.addEventListener('click', () => setTimeout(() => {
+          if (attributes.length > 0) {
+            let start = parseInt(attributes[0])
+            let end = attributes.length > 1 ? parseInt(attributes[1].replace(' ', '')) : -1
+            this.seekTo(start, end)
+          }
+        }, 200))
+      }
+    })
+  }
+
+  play() {
+    if (this.isYouTube) this.player.playVideo()
+    else if (this.isVimeo) this.player.play()
+    else if (this.isSelfHosted) this.player.play()
+  }
+
+  unMute() {
+    if (this.isYouTube) this.player.unMute()
+  }
+
+  pause() {
+    if (this.isYouTube) this.player.pauseVideo()
+    else if (this.isVimeo) this.player.pause()
+    else if (this.isSelfHosted) this.player.pause()
+  }
+
+  setDelayedPause(duration:number) {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId)
+      this.timeoutId = null
+    }
+    this.timeoutId = setTimeout(() => {
+      this.timeoutId = null
+      this.pause()
+    }, duration*1000)
+  }
+
+  seekTo(start:number, end:number=0) {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId)
+      this.timeoutId = null
     }
 
-    // Removes any other URL components to ensure src only contains videoID
-    getVideoID(videoID) {
-        videoID = this.removeFromStart(videoID, ["https://", "http://"]);
-        videoID = this.removeFromStart(videoID, ["www."]);
-
-        if (this.type == "youtube") {
-            videoID = this.removeFromStart(videoID, ["youtube.com/", "youtube.co.uk/", "youtu.be/"]);
-            videoID = this.removeFromStart(videoID, ["watch?v="]);
-        }
-        else if (this.type == "vimeo") {
-            videoID = this.removeFromStart(videoID, ["vimeo.com/"]);
-        }
-
-        return videoID;
+    if (this.isYouTube) {
+      this.play()
+      this.player.seekTo(start)
+      if (end > start) this.setDelayedPause(end-start)
+    } else if (this.isVimeo) {
+      this.player.setCurrentTime(start)
+      if (end > start) this.setDelayedPause(end-start)
+    } else if (this.isSelfHosted) {
+      this.player.currentTime = start
+      if (end > start) this.setDelayedPause(end-start)
     }
+    
+  }
 
-    // Gets src in correct format, allowing users to enter it in various ways
-    getFormattedSrc() {
-        
-        // Self-hosted assumes video always in same GitHub repo
-        if (this.type == "self-hosted") {
-            return `https://raw.githubusercontent.com/${this.GH_USER}/${this.GH_REPO}/main/${this.src}#t=${this.start}`;
-        }
-        else {
-            var videoID = this.getVideoID(this.src);
+  renderYouTubePlayer() {
+    return [<div id="video-placeholder"></div>]
+  }
 
-            // Options not enabled by default
-            var muted = 0;
-            var autoplay = 0;
-            var loop = 0;
+  renderVimeoPlayer() {
+    return [
+      <div id="ve-video-vimeo"></div>
+    ]
+  }
 
-            if (this.muted) {
-                muted = 1;
-            }
-            if (this.autoplay) {
-                autoplay = 1;
-            }
-            if (this.loop) {
-                loop = 1;
-            }
+  renderSelfHostedPlayer() {
+    let fileExtension = this.src.split('#')[0].split('.').pop()
+    if (this.autoplay && this.start >= 0 && this.end > this.start) this.setDelayedPause(this.end - this.start)
+    return [
+      <video
+        id="ve-video-self-hosted"
+        style={{width: '100%', height: '100%'}} 
+        controls
+        muted={this.muted}
+        autoplay={this.autoplay}
+        loop={this.loop}
+      >
+        <source src={`${this.src}${this.start > 0 ? '#'+'t='+this.start : ''}`} type={`video/${fileExtension}`}/>
+      </video>
+    ]
+  }
 
-            if (this.type == "youtube") {
-                var src = `https://www.youtube.com/embed/${videoID}?&start=${this.start}&mute=${muted}&autoplay=${autoplay}&loop=${loop}`;
-                
-                if (this.end != null) {
-                    return `${src}&end=${this.end}`;
-                }
-                else {
-                    return src;
-                }
-            }
-            else if (this.type == "vimeo") {
-                return `https://player.vimeo.com/video/${videoID}?h=d002a35f57&muted=${muted}&autoplay=${autoplay}&loop=${loop}&title=0&byline=0&portrait=0`;
-            }
-        }
+  /*
+  render() {
+    return [
+      this.isYouTube
+        ? this.renderYouTubePlayer()
+        : this.isVimeo
+          ? this.renderVimeoPlayer()
+          : this.renderSelfHostedPlayer()
+      ,
+      <br/>,
+      <button onClick={this.unMute.bind(this)}>Unmute</button>,
+      <button onClick={this.play.bind(this)}>Play</button>,
+      <button onClick={this.pause.bind(this)}>Pause</button>,
+      <button onClick={this.seekTo.bind(this, 3, 7)}>seekTo</button>
+    ]
+  }
+  */
 
-        return this.src;
-    }
+  render() {
+    return [
+      this.isYouTube
+        ? this.renderYouTubePlayer()
+        : this.isVimeo
+          ? this.renderVimeoPlayer()
+          : this.renderSelfHostedPlayer()
+    ]
+  }
 
-    // Gets the tag(s) used to display the video
-    getVideoTag() {
-        var src = this.getFormattedSrc();
-
-        // <video> tag used for self hosted
-        if (this.type == "self-hosted") {
-
-            var attributes = "";
-            if (this.muted) {
-                attributes += "muted";
-            }
-            if (this.autoplay) {
-                attributes += " autoPlay";
-            }
-            if (this.loop) {
-                attributes += " loop";
-            }
-
-            var splitSrc = src.split(".");
-            var type = splitSrc[splitSrc.length - 1];
-
-            var splitType = type.split("#");
-            type = splitType[0];
-
-            return `
-                <video id = "ve-video-self-hosted" width = "100%" height = "100%" controls ${attributes}>
-                    <source src = ${src} type = "video/${type}"/>
-                </video>
-            `;
-        }
-        // iFrame used for YouTube and Vimeo
-        else {
-            return `
-                <iframe id = "ve-video-vimeo" src = ${src} width = "100%" height = "100%" frameborder = "0" allow = "autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
-            `;
-        }
-    }
-
-    // Needed for mark listeners, code taken from ve-image
-    findVeVideo(el: HTMLSpanElement) {
-        let sib = el.previousSibling;
-        while (sib) {
-            if (sib.nodeName === 'VE-VIDEO') {
-                return sib === this.el ? sib : null;
-            }
-            sib = sib.previousSibling;
-        }
-        while (el.parentElement && el.tagName !== 'MAIN') {
-            el = el.parentElement;
-            let veVideo = el.querySelector(':scope > ve-video');
-            if (veVideo) {
-                return veVideo === this.el ? veVideo : null;
-            }
-        }
-    }
-
-    // Changes video start, end and muted properties when mark clicked
-    addMarkListeners() {
-        Array.from(document.querySelectorAll('mark')).forEach(mark => {
-
-            let attributesNode = mark.attributes;
-            let attributes = attributesNode.item(0).value.split(",");
-            let veVideo = this.findVeVideo(mark.parentElement);
-
-            if (veVideo) {
-                mark.addEventListener("click", () => setTimeout(() => {
-
-                    let length = attributes.length;
-
-                    if (length > 0) {
-                        this.start = attributes[0].replace(" ", "");
-                    
-                        if (length > 1) {
-                            this.end = attributes[1].replace(" ", "");
-                        }
-                        
-                        if (length > 2) {
-                            let mutedAttribute = attributes[2].replace(" ", "");
-                            mutedAttribute.toLowerCase();
-
-                            if (mutedAttribute == "true") {
-                                this.muted = true;
-                            }
-                            else if (mutedAttribute == "false") {
-                                this.muted = false;
-                            }
-                        }
-
-                        this.autoplay = true;
-
-                        // Needs to be called again as start and (potentially) end times have changed
-                        this.addVideoListeners();
-                    }
-
-                }, 200))
-            }
-        })
-    }
-
-    // setInterval used over actionListener as it does not require video to be initialized
-    addSelfHostedVideoListeners() {
-        if (this.end != undefined) { 
-
-            var endTime = Number(this.end);
-
-            // pausedOnce allows user to resume video past endTime point
-            var pausedOnce = false;
-
-            setInterval(() => {
-                if (!pausedOnce) {
-                    var video = this.el.shadowRoot.getElementById("ve-video-self-hosted") as HTMLVideoElement;
-                    if (video.currentTime >= endTime) {
-                        video.pause();
-                        pausedOnce = true;
-                    }            
-                }
-            }, 300);
-        }
-    }
-
-    // Starts and ends video with JS
-    addVimeoVideoListeners() {
-        var iframe = this.el.shadowRoot.getElementById("ve-video-vimeo") as HTMLIFrameElement;
-        var vimeoPlayer = new Player(iframe);
-
-        vimeoPlayer.setCurrentTime(Number(this.start));
-
-        if (this.end != undefined) {    
-
-            var endTime = Number(this.end);
-            var pausedOnce = false;
-
-            vimeoPlayer.on("timeupdate", function(data) {
-                if (!pausedOnce) {
-                    if (data.seconds >= endTime) {
-                        vimeoPlayer.pause();
-                        pausedOnce = true;
-                    }
-                }
-              });
-        }
-    }
-
-    // YouTubes start and end time achieved in URL paramaters
-    addVideoListeners() {
-        
-        if (this.type == "self-hosted") {
-            this.addSelfHostedVideoListeners();
-        }
-
-        else if (this.type == "vimeo") {
-            this.addVimeoVideoListeners();
-        }
-    }
-
-    componentDidLoad() {
-        this.el.classList.add("ve-component");
-        if (this.sticky) {
-            this.el.classList.add("sticky");
-        }
-
-        this.addMarkListeners();
-        this.addVideoListeners();
-    }
-
-    // Allows height and width off component to be changed
-    getVideoStyle() {
-        return `
-            #ve-video-container {
-                width: ${this.width}${this.widthUnit};
-                height: ${this.height}${this.heightUnit};
-            }
-        `;
-    }
-
-    render() {
-        return [
-            <div>
-                <style innerHTML = {this.getVideoStyle()}></style>
-                <div id = "ve-video-container" innerHTML = {this.getVideoTag()}></div>
-            </div>
-        ]
-    }
 }
