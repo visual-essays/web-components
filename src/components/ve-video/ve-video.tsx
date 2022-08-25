@@ -1,5 +1,6 @@
 import { Component, Element, Prop, State, h } from '@stencil/core';
-import Player from '@vimeo/player';
+import * as vimeo from '@vimeo/player'
+import * as yt from 'yt-player'
 
 const youtubeDomains = new Set(['youtube.com', 'youtube.co.uk', 'youtu.be'])
 const vimeoDomains = new Set(['vimeo.com'])
@@ -47,7 +48,7 @@ export class Video {
     
   initializeYouTubePlayer() {
     // this.player = new (window as any).YT.Player('video-placeholder', {
-    this.player = new (window as any).YT.Player(this.el.shadowRoot.getElementById('video-placeholder'), {
+    this.player = new yt.Player(this.el.shadowRoot.getElementById('video-placeholder'), {
       width: 600,
       height: 400,
       videoId: this.videoId,
@@ -66,7 +67,7 @@ export class Video {
   }
 
   initializeVimeoPlayer() {
-    this.player = new Player(this.el.shadowRoot.getElementById('ve-video-vimeo'), {
+    this.player = new vimeo.Player(this.el.shadowRoot.getElementById('ve-video-vimeo'), {
       id: this.videoId
     })
   }

@@ -1,10 +1,15 @@
 import { Config } from '@stencil/core';
 import { inlineSvg } from 'stencil-inline-svg';
-// import nodePolyfills from 'rollup-plugin-node-polyfills';
+import nodePolyfills from 'rollup-plugin-node-polyfills';
 
 export const config: Config = {
   namespace: 'visual-essays',
   globalStyle: 'src/global/global.css',
+  rollupPlugins: {
+    after: [
+      nodePolyfills(),
+    ]
+  },
   outputTargets: [
     {
       type: 'dist',
