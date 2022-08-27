@@ -1,6 +1,7 @@
 import { Component, Element, Prop, State, h } from '@stencil/core';
-import * as vimeo from '@vimeo/player'
-import * as yt from 'yt-player'
+import VimeoPlayer from '@vimeo/player'
+// import YTPlayer from 'yt-player'
+import YouTubePlayer from 'youtube-player'
 
 const youtubeDomains = new Set(['youtube.com', 'youtube.co.uk', 'youtu.be'])
 const vimeoDomains = new Set(['vimeo.com'])
@@ -12,30 +13,40 @@ const vimeoDomains = new Set(['vimeo.com'])
 })
 export class Video {
   @Prop() src: string
-  @Prop({ mutable: true, reflect: true }) start: number = -1
-  @Prop({ mutable: true, reflect: true }) end: number = -1
+  @Prop({ mutable: true, reflect: true }) start: string = '0'
+  @Prop({ mutable: true, reflect: true }) end: string = '-1'
+  @Prop({ mutable: true, reflect: true }) muted: boolean = false
   @Prop() autoplay: boolean = false
-  @Prop() muted: boolean = false
   @Prop() loop: boolean = false
+  @Prop() sticky: boolean
 
   @Element() el: HTMLElement;
 
   @State() player: any
-  @State() timeoutId: any
+  @State() timeoutId: any = null
   
-  @State() type: string
+  @State() startSecs: number 
+  @State() endSecs: number
   @State() isYouTube: boolean = false
   @State() isVimeo: boolean = false
   @State() isSelfHosted: boolean = false
   @State() videoId: string
 
-  connectedCallback() {}
+  @State() isMuted: boolean = true
+  @State() forceMuteOnPlay: boolean = true
+
+  connectedCallback() {
+    this.startSecs = this.hmsToSeconds(this.start)
+    this.endSecs = this.hmsToSeconds(this.end);
+  }
 
   componentWillLoad() {
     this.parseSource()
   }
 
   componentDidLoad() {
+    this.el.classList.add('ve-component')
+    if (this.sticky) this.el.classList.add('sticky')
     this.initialize()
   }
 
@@ -44,36 +55,39 @@ export class Video {
     else if (this.isVimeo) this.initializeVimeoPlayer()
     else this.initializeSelfHostedPlayer()
     this.addMarkListeners()
+    // setInterval(() => {this.isPlaying().then(isPlaying => console.log(`isPlaying=${isPlaying}`))}, 1000)
   }
     
   initializeYouTubePlayer() {
-    // this.player = new (window as any).YT.Player('video-placeholder', {
-    this.player = new yt.Player(this.el.shadowRoot.getElementById('video-placeholder'), {
-      width: 600,
-      height: 400,
-      videoId: this.videoId,
-      playerVars: {
-        color: 'white',
-        rel: 0,
-        modestbranding: 1,
-      },
-      events: {
-        onReady: () => {
-          if (!this.muted) this.player.unMute()
-          if (this.start >= 0) this.seekTo(this.start, this.end)
-        }
-      }
-    })
+    let playerVars = {
+      color: 'white',
+      rel: 0,
+      modestbranding: 1,
+      autoplay: this.autoplay ? 1 : 0,
+      start: this.start
+    }
+    this.player = YouTubePlayer(
+      this.el.shadowRoot.getElementById('video-placeholder'), {
+        videoId: this.videoId,
+        playerVars
+      })
+    this.player.on('ready', () => {})
+    setInterval(() => {this.player.isMuted().then(isMuted => this.isMuted = isMuted)}, 250)
   }
 
   initializeVimeoPlayer() {
-    this.player = new vimeo.Player(this.el.shadowRoot.getElementById('ve-video-vimeo'), {
+    this.player = new VimeoPlayer(this.el.shadowRoot.getElementById('ve-video-vimeo'), {
       id: this.videoId
     })
+    this.player.on('loaded', () => {
+      if (this.startSecs > 0) this.seekTo(this.start, this.autoplay ? this.end : this.start)
+    })
+    setInterval(() => {this.player.getMuted().then(isMuted => this.isMuted = isMuted)}, 250)
   }
 
   initializeSelfHostedPlayer() {
     this.player = this.el.shadowRoot.getElementById('ve-video-self-hosted') as HTMLVideoElement
+    setInterval(() => {this.isMuted = this.muted}, 250)
   }
 
   parseSource() {
@@ -81,19 +95,15 @@ export class Video {
       let srcUrl = new URL(this.src)
       let domain = srcUrl.hostname.replace(/^www\./, '')
       if (youtubeDomains.has(domain)) {
-        this.type = 'youtube'
         this.isYouTube = true
         this.videoId = srcUrl.searchParams.get('v')
       } else if (vimeoDomains.has(domain)) {
-        this.type = 'vimeo'
         this.isVimeo = true
         this.videoId = srcUrl.pathname.slice(1)
       } else {
-        this.type = 'self-hosted'
         this.isSelfHosted = true
       }
     }
-    // console.log(`type=${this.type} videoId=${this.videoId}`)
   }
 
   findVeVideo(el: HTMLSpanElement) {
@@ -113,8 +123,13 @@ export class Video {
     }
   }
 
-  // Changes video start, end and muted properties when mark clicked
   addMarkListeners() {
+
+    Array.from(document.querySelectorAll('[enter],[exit]')).forEach((el:HTMLElement) => {
+      let veVideo = this.findVeVideo(el)
+      if (veVideo) this.addMutationObserver(el)
+    })
+    
     Array.from(document.querySelectorAll('mark')).forEach(mark => {
 
       let attributesNode = mark.attributes
@@ -122,14 +137,52 @@ export class Video {
       let veVideo = this.findVeVideo(mark.parentElement)
       if (veVideo) {
         mark.addEventListener('click', () => setTimeout(() => {
+          this.forceMuteOnPlay = false
           if (attributes.length > 0) {
-            let start = parseInt(attributes[0])
-            let end = attributes.length > 1 ? parseInt(attributes[1].replace(' ', '')) : -1
+            let start = attributes[0]
+            let end = attributes.length > 1 ? attributes[1].replace(' ', '') : '-1'
             this.seekTo(start, end)
           }
         }, 200))
       }
     })
+
+  }
+
+  hmsToSeconds(str:string) {
+    var p = str.split(':').map(pe => parseInt(pe, 10))
+    let secs = 0, m = 1
+    while (p.length > 0) {
+      secs += m * p.pop()
+      m *= 60
+    }
+    return secs
+}
+
+  addMutationObserver(el: HTMLElement) {
+    let prevClassState = el.classList.contains('active')
+    let observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.attributeName == 'class') {
+          let currentClassState = (mutation.target as HTMLElement).classList.contains('active')
+          if (prevClassState !== currentClassState) {
+            prevClassState = currentClassState
+            let enter = el.attributes.getNamedItem('enter')?.value
+            let exit = el.attributes.getNamedItem('exit')?.value
+
+            if (currentClassState) {
+              if (enter) { // attr === 'enter'
+                let [start, end] = enter.split(',').map(pe => pe.trim()).filter(pe => pe)
+                setTimeout(() => {this.seekTo(start, end)}, 200)
+              }
+            }
+            else if (exit){ // attr === 'exit
+            }
+          }
+        }
+      })
+    })
+    observer.observe(el, {attributes: true})
   }
 
   play() {
@@ -138,50 +191,90 @@ export class Video {
     else if (this.isSelfHosted) this.player.play()
   }
 
-  unMute() {
-    if (this.isYouTube) this.player.unMute()
-  }
-
   pause() {
     if (this.isYouTube) this.player.pauseVideo()
     else if (this.isVimeo) this.player.pause()
     else if (this.isSelfHosted) this.player.pause()
   }
 
-  setDelayedPause(duration:number) {
-    if (this.timeoutId) {
-      clearTimeout(this.timeoutId)
-      this.timeoutId = null
+  async isPlaying() {
+    if (this.isYouTube) return await this.player.getPlayerState() === 1
+    else if (this.isVimeo) {
+      return !(await this.player.getEnded() || await this.player.getPaused())
     }
-    this.timeoutId = setTimeout(() => {
-      this.timeoutId = null
-      this.pause()
-    }, duration*1000)
+    else if (this.isSelfHosted) {
+      return ! (this.player.ended || this.player.paused)
+    }
   }
 
-  seekTo(start:number, end:number=0) {
-    console.log(`seekTo: start=${start} end=${end}`)
+  setMute(mute:boolean) {
+    if (this.isYouTube) {
+      if (mute) this.player.mute()
+      else this.player.unMute()
+    } 
+    else if (this.isVimeo) this.player.setMuted(mute)
+    else if (this.isSelfHosted) this.muted = mute
+  }
+
+  seekTo(start:string, end:string) {
+    let startSecs = this.hmsToSeconds(start)
+    let endSecs = this.hmsToSeconds(end)
+    console.log(`seekTo: start=${startSecs} end=${endSecs} isMuted=${this.isMuted} forceMuteOnPlay=${this.forceMuteOnPlay}`)
+    
+    // clear delayed pause
     if (this.timeoutId) {
       clearTimeout(this.timeoutId)
       this.timeoutId = null
     }
 
-    this.play()
+    let wasMuted = this.isMuted
+    if (this.forceMuteOnPlay) this.setMute(true)
+
     if (this.isYouTube) {
-      this.player.seekTo(start)
-      if (end > start) this.setDelayedPause(end-start)
-    } else if (this.isVimeo) {
-      this.player.setCurrentTime(start)
-      if (end > start) this.setDelayedPause(end-start)
-    } else if (this.isSelfHosted) {
-      this.player.currentTime = start
-      if (end > start) this.setDelayedPause(end-start)
+      this.player.playVideo()
+      this.player.seekTo(startSecs).then(_ => {
+        if (endSecs >= startSecs) {
+          this.timeoutId = setTimeout(() => {
+            this.player.pauseVideo().then(_ => {
+              this.timeoutId = null
+              if (!wasMuted && this.forceMuteOnPlay) this.setMute(false)
+            })
+          }, endSecs === startSecs ? 200 : (endSecs-startSecs)*1000)
+        }
+      })
     }
-    
+  
+    else if (this.isVimeo) {
+      this.player.setCurrentTime(startSecs)
+      this.player.play().then(_ => {
+        if (endSecs >= startSecs) {
+          this.timeoutId = setTimeout(() => {
+            this.player.pause().then(_ => {
+              this.timeoutId = null
+              if (!wasMuted && this.forceMuteOnPlay) this.setMute(false)
+            })
+          }, endSecs === startSecs ? 200 : (endSecs-startSecs)*1000)
+        }
+      })
+    }
+
+    else if (this.isSelfHosted) {
+      setTimeout(() => {
+        this.player.play()
+        this.player.currentTime = startSecs
+        if (endSecs >= startSecs) {
+          this.timeoutId = setTimeout(() => {
+            this.timeoutId = null
+            this.player.pause()
+            if (!wasMuted && this.forceMuteOnPlay) this.setMute(false)
+          }, endSecs === startSecs ? 200 : (endSecs-startSecs)*1000)
+        }
+      }, 200)
+    } 
   }
 
   renderYouTubePlayer() {
-    return [<div id="video-placeholder"></div>]
+    return [<div id="video-placeholder" style={{width: '100%'}}></div>]
   }
 
   renderVimeoPlayer() {
@@ -192,7 +285,16 @@ export class Video {
 
   renderSelfHostedPlayer() {
     let fileExtension = this.src.split('#')[0].split('.').pop()
-    if (this.autoplay && this.start >= 0 && this.end > this.start) this.setDelayedPause(this.end - this.start)
+    if (this.autoplay && this.startSecs >= 0 && this.endSecs > this.startSecs) {
+      let wasMuted = this.muted
+      if (this.forceMuteOnPlay) this.setMute(true)
+      this.timeoutId = setTimeout(() => {
+        this.player.pauseVideo().then(_ => {
+          this.timeoutId = null
+          if (!wasMuted && this.forceMuteOnPlay) this.setMute(false)
+        })
+      }, this.endSecs === this.startSecs ? 200 : (this.endSecs-this.startSecs)*1000)
+    }
     return [
       <video
         id="ve-video-self-hosted"
@@ -200,9 +302,8 @@ export class Video {
         controls
         muted={this.muted}
         autoplay={this.autoplay}
-        loop={this.loop}
       >
-        <source src={`${this.src}${this.start > 0 ? '#'+'t='+this.start : ''}`} type={`video/${fileExtension}`}/>
+        <source src={`${this.src}${this.startSecs > 0 ? '#'+'t='+this.startSecs : ''}`} type={`video/${fileExtension}`}/>
       </video>
     ]
   }

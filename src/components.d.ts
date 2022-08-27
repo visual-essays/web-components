@@ -109,11 +109,12 @@ export namespace Components {
     }
     interface VeVideo {
         "autoplay": boolean;
-        "end": number;
+        "end": string;
         "loop": boolean;
         "muted": boolean;
         "src": string;
-        "start": number;
+        "start": string;
+        "sticky": boolean;
     }
     interface VeWikidataSearch {
         "language": string;
@@ -358,11 +359,12 @@ declare namespace LocalJSX {
     }
     interface VeVideo {
         "autoplay"?: boolean;
-        "end"?: number;
+        "end"?: string;
         "loop"?: boolean;
         "muted"?: boolean;
         "src"?: string;
-        "start"?: number;
+        "start"?: string;
+        "sticky"?: boolean;
     }
     interface VeWikidataSearch {
         "language"?: string;

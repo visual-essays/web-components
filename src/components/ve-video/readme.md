@@ -15,6 +15,7 @@
 | `muted`    | `muted`    |             | `boolean` | `false`     |
 | `src`      | `src`      |             | `string`  | `undefined` |
 | `start`    | `start`    |             | `number`  | `-1`        |
+| `sticky`   | `sticky`   |             | `boolean` | `undefined` |
 
 
 ----------------------------------------------

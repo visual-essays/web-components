@@ -1,6 +1,6 @@
 {
   "name": "visual-essays",
-  "version": "0.2.59",
+  "version": "0.3.0",
   "description": "Visual Essays Web Components",
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
@@ -37,7 +37,7 @@
     "lodash.throttle": "^4.1.1",
     "openseadragon": "2.4.2",
     "stencil-click-outside": "^1.8.0",
-    "yt-player": "^3.6.1"
+    "youtube-player": "^5.5.2"
   },
   "devDependencies": {
     "@types/jest": "^27.5.0",
