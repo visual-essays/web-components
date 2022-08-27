@@ -10,11 +10,11 @@
 | Property   | Attribute  | Description | Type      | Default     |
 | ---------- | ---------- | ----------- | --------- | ----------- |
 | `autoplay` | `autoplay` |             | `boolean` | `false`     |
-| `end`      | `end`      |             | `number`  | `-1`        |
+| `end`      | `end`      |             | `string`  | `'-1'`      |
 | `loop`     | `loop`     |             | `boolean` | `false`     |
 | `muted`    | `muted`    |             | `boolean` | `false`     |
 | `src`      | `src`      |             | `string`  | `undefined` |
-| `start`    | `start`    |             | `number`  | `-1`        |
+| `start`    | `start`    |             | `string`  | `'0'`       |
 | `sticky`   | `sticky`   |             | `boolean` | `undefined` |
 
 

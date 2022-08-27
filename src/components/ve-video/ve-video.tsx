@@ -63,6 +63,7 @@ export class Video {
       color: 'white',
       rel: 0,
       modestbranding: 1,
+      playsinline: 1,
       autoplay: this.autoplay ? 1 : 0,
       start: this.start
     }
@@ -279,7 +280,7 @@ export class Video {
 
   renderVimeoPlayer() {
     return [
-      <div id="ve-video-vimeo"></div>
+      <div id="ve-video-vimeo" data-vimeo-playsinline="true"></div>
     ]
   }
 
@@ -300,6 +301,7 @@ export class Video {
         id="ve-video-self-hosted"
         style={{width: '100%', height: '100%'}} 
         controls
+        playsinline
         muted={this.muted}
         autoplay={this.autoplay}
       >
