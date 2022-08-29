@@ -33,7 +33,7 @@ export class Header {
   @Prop() logo: string
   @Prop() subtitle: string
   @Prop() options: string
-  @Prop() height: number = 300
+  @Prop() height: number = 180
   @Prop() sticky: boolean
   @Prop() position: string = 'center' // center, top, bottom
   @Prop() contact: string // Email address for Contact Us

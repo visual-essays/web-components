@@ -271,6 +271,7 @@ export class ImageViewer {
   }
 
   connectedCallback() {
+    console.log(`image: no-scroll=${this.noScroll}`)
     // console.log(`connectedCallback: annoBase=${this.annoBase}`)
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
   }
@@ -312,16 +313,18 @@ export class ImageViewer {
 
   addResizeObserver() {
     const resizeObserver = new ResizeObserver(() => {
-      this._setHostDimensions()
+      console.log('resizeObserver')
+      // this._setHostDimensions()
     })
     resizeObserver.observe(this.el.shadowRoot.getElementById('wrapper'))
   }
 
   componentDidLoad() {
+    console.log('componentDidLoad')
     this.addResizeObserver()
     this.el.classList.add('ve-component')
     if (this.sticky) this.el.classList.add('sticky')
-    if (this._images.length > 0) this._setHostDimensions()
+    // if (this._images.length > 0) this._setHostDimensions()
     this.listenForSlotChanges()
 
     Array.from(document.querySelectorAll('[enter],[exit]')).forEach((el:HTMLElement) => {
@@ -404,7 +407,7 @@ export class ImageViewer {
           : requestedWidth
         )
     } else {
-      if (elHeight) {
+      if (elHeight === null) {
         height = elHeight
         width = Math.min(
           elWidth,
@@ -413,6 +416,7 @@ export class ImageViewer {
             : requestedWidth || elWidth
           )
       } else {
+        console.log('here')
         width = elWidth
         height = Math.round(imageHeight/imageWidth * elWidth + captionHeight) // height scaled to width
       }
@@ -424,8 +428,8 @@ export class ImageViewer {
     wrapper.style.height = `${height}px`
     osd.style.width = '100%'
     osd.style.height = `${height - captionHeight}px`
-    //this.el.style.width = `${width}px`
-    //this.el.style.height = `${height}px`
+    // this.el.style.width = '100%'
+    this.el.style.height = `${height}px`
     if (this.align) {
       if (this.align === 'center') this.el.style.margin = 'auto'
       else this.el.style.float = this.align
@@ -559,7 +563,7 @@ export class ImageViewer {
       }}
     ]})
     */
-
+   
     new OpenSeadragonViewerInputHook({ viewer: this._viewer, hooks: [
       {tracker: 'viewer', handler: 'dragEndHandler', hookHandler: (event) => {
         event.preventDefaultAction = true

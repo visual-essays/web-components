@@ -12,7 +12,7 @@
 | `background`    | `background`     |             | `string`  | `undefined` |
 | `contact`       | `contact`        |             | `string`  | `undefined` |
 | `entities`      | `entities`       |             | `string`  | `undefined` |
-| `height`        | `height`         |             | `number`  | `300`       |
+| `height`        | `height`         |             | `number`  | `180`       |
 | `label`         | `label`          |             | `string`  | `undefined` |
 | `logo`          | `logo`           |             | `string`  | `undefined` |
 | `options`       | `options`        |             | `string`  | `undefined` |

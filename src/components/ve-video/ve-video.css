@@ -1,4 +1,8 @@
 :host {
   position: relative;
+  display: block;
 }
 
+iframe {
+  max-width: 100%;
+}

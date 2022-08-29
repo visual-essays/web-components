@@ -275,12 +275,12 @@ export class Video {
   }
 
   renderYouTubePlayer() {
-    return [<div id="video-placeholder" style={{width: '100%'}}></div>]
+    return [<div id="video-placeholder" style={{height:'300px', width: '100%'}}></div>]
   }
 
   renderVimeoPlayer() {
     return [
-      <div id="ve-video-vimeo" data-vimeo-playsinline="true"></div>
+      <div id="ve-video-vimeo" data-vimeo-playsinline="true" style={{maxWwidth:'100%'}}></div>
     ]
   }
 
@@ -299,7 +299,7 @@ export class Video {
     return [
       <video
         id="ve-video-self-hosted"
-        style={{width: '100%', height: '100%'}} 
+        style={{width: '100%'}} 
         controls
         playsinline
         muted={this.muted}
@@ -331,10 +331,10 @@ export class Video {
   render() {
     return [
       this.isYouTube
-        ? this.renderYouTubePlayer()
-        : this.isVimeo
-          ? this.renderVimeoPlayer()
-          : this.renderSelfHostedPlayer()
+      ? this.renderYouTubePlayer()
+      : this.isVimeo
+        ? this.renderVimeoPlayer()
+        : this.renderSelfHostedPlayer()
     ]
   }
 

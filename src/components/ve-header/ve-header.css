@@ -257,7 +257,7 @@ nav sl-menu-item:hover sl-icon {
   }
 
   :host(.sticky) {
-    top: -158px;
+    top: -70px;
   }
   
   .title-panel {
