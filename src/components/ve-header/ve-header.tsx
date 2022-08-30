@@ -1,5 +1,6 @@
-import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
-import { parseImageOptions, imageInfo, getManifest, imageDataUrl, getEntity } from '../../utils'
+import { Component, Element, Prop, State, h, Watch } from '@stencil/core';
+
+import { getEntity, getManifest, imageDataUrl, imageInfo, parseImageOptions, titlePanelHeight } from '../../utils'
 
 import '@shoelace-style/shoelace/dist/components/button/button.js'
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
@@ -33,16 +34,15 @@ export class Header {
   @Prop() logo: string
   @Prop() subtitle: string
   @Prop() options: string
-  @Prop() height: number = 180
   @Prop() sticky: boolean
+  @Prop() height: string = '300px'
   @Prop() position: string = 'center' // center, top, bottom
   @Prop() contact: string // Email address for Contact Us
   @Prop() entities: string
 
   @Prop() searchDomain: string // Domain for site search
   @Prop() searchFilters: string
-  @Prop() searchCx: string
-
+  
   @State() _entities: string[] = []
   @State() imageOptions: any
   @State() navItems: any = []
@@ -62,7 +62,7 @@ export class Header {
         : await imageDataUrl(imageInfo.id, this.imageOptions.region, {width: this.el.clientWidth, height: this.height})
     }
   }
-  
+
   @State() _imgUrl: any
   @Watch('_imgUrl')
   async _imgUrlChanged(imgUrl: any) {
@@ -72,36 +72,29 @@ export class Header {
 
   _iiifUrl(serviceUrl: string, options: any) {
     let elWidth = this.el.clientWidth
-    /*
-    let elHeight = this.el.clientHeight
-    let imageWidth = this._imageInfo.width
-    let imageHeight = this._imageInfo.height
-    */
-    // console.log(`width=${elWidth} height=${elHeight} imageWidth=${imageWidth} imageHeight=${imageHeight}`)
-    // let size = imageWidth > imageHeight ? `,${elHeight}` : `${elWidth},`
     let size = `${elWidth},`
-    // let size = `${this.el.clientWidth > 1000 ? 1000 : this.el.clientWidth},${this.height > 1000 ? 1000 : this.height}`
-    // let url = `${serviceUrl.replace(/\/info.json$/,'')}/${options.region}/!${size}/${options.rotation}/${options.quality}.${options.format}`
     let url = `${serviceUrl.replace(/\/info.json$/,'')}/${options.region}/${size}/${options.rotation}/${options.quality}.${options.format}`
-    // console.log('_iiifUrl', url)
     return url
   }
 
-  async setDefaults() {
-    this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
-    if ((!this.label || !this.background) && this._entities.length > 0) {
-      if (this.sticky === undefined) this.sticky = true
-      let entity = await getEntity(this._entities[0])
-      if (!this.label) this.label = entity.label
-      if (!this.background) {
-        if (entity.pageBanner) this.background = `wc:${entity.pageBanner.split('/Special:FilePath/')[1]}`
-        else if (entity.image) this.background = `wc:${entity.image.split('/Special:FilePath/')[1]}`
-      }
+  componentWillLoad() {
+    console.log(`ve-header.componentWillLoad: sticky=${this.sticky} height=${this.height} background=${this.background}`)
+    this.el.classList.add(this.background ? 'background' : 'simple')
+    if (this.sticky) {
+      this.el.style.position = 'sticky'
+      this.el.style.top = this.background
+        ? `-${parseInt(this.height.slice(0,-2)) - titlePanelHeight}px`
+        : '0'
+      this.el.style.width = `${this.el.parentElement.clientWidth}px`
     }
+    this.el.style.height = this.height
+    if (this.background) getManifest(this.background).then(manifest => this._manifest = manifest)
+
   }
 
-  async componentDidLoad() {  
-    await this.setDefaults()
+  componentDidLoad() {
+    console.log('header.componentDidLoad')
+    this.setDefaults()
     if (this.label) {
       let titleEl = document.querySelector('title')
       if (!titleEl) {
@@ -118,14 +111,19 @@ export class Header {
     )
     while (this.el.firstChild)
       this.el.removeChild(this.el.firstChild)
+  }
 
-    this.el.style.height = `${this.height}px`
-    this.el.classList.add(this.background ? 'background' : 'simple')
-    if (this.sticky) {
-      this.el.classList.add('sticky')
-      document.querySelector('main').classList.add('sticky-header')
-    } 
-    getManifest(this.background).then(manifest => this._manifest = manifest)
+  async setDefaults() {
+    this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
+    if ((!this.label || !this.background) && this._entities.length > 0) {
+      if (this.sticky === undefined) this.sticky = true
+      let entity = await getEntity(this._entities[0])
+      if (!this.label) this.label = entity.label
+      if (!this.background) {
+        if (entity.pageBanner) this.background = `wc:${entity.pageBanner.split('/Special:FilePath/')[1]}`
+        else if (entity.image) this.background = `wc:${entity.image.split('/Special:FilePath/')[1]}`
+      }
+    }
   }
 
   _showInfoPopup() {
@@ -159,7 +157,7 @@ export class Header {
 
   renderSimple() {
     return [
-      <section class="ve-header simple">
+      <section class="ve-header simple" style={{height: this.height}}>
         {this.logo
           ? <img src={this.logo} alt="logo" class="logo"/>
           : null
@@ -220,5 +218,6 @@ export class Header {
       ? this.renderWithBackground()
       : this.renderSimple()
   }
+
 
 }

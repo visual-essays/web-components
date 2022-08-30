@@ -39,12 +39,11 @@ export namespace Components {
         "background": string;
         "contact": string;
         "entities": string;
-        "height": number;
+        "height": string;
         "label": string;
         "logo": string;
         "options": string;
         "position": string;
-        "searchCx": string;
         "searchDomain": string;
         "searchFilters": string;
         "sticky": boolean;
@@ -288,12 +287,11 @@ declare namespace LocalJSX {
         "background"?: string;
         "contact"?: string;
         "entities"?: string;
-        "height"?: number;
+        "height"?: string;
         "label"?: string;
         "logo"?: string;
         "options"?: string;
         "position"?: string;
-        "searchCx"?: string;
         "searchDomain"?: string;
         "searchFilters"?: string;
         "sticky"?: boolean;

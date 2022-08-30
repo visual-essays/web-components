@@ -23,10 +23,16 @@ export class Footer {
     if (this.sticky) {
       this.el.style.position = 'fixed'
       this.el.style.bottom = '0'
-      // this.el.style.left = '0'
       this.el.style.width = `${this.el.parentElement.clientWidth}px`
     }
   }
+
+  componentDidLoad() {
+    if (this.sticky) {
+      document.querySelector('main').style.paddingBottom = `${this.el.clientHeight}px`
+    }
+  }
+
 
   showContactForm() {
     let contactDialog = this.el.querySelector('ve-contact')

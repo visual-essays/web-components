@@ -9,7 +9,7 @@ import jwt_decode from 'jwt-decode'
 import './openseadragon-curtain-sync'
 
 import debounce from 'lodash.debounce'
-import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isNum } from '../../utils'
+import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isNum, fixedHeaderHeight } from '../../utils'
 import { Annotator } from './annotator'
 import { parseInt } from 'lodash';
 
@@ -271,7 +271,7 @@ export class ImageViewer {
   }
 
   connectedCallback() {
-    console.log(`image: no-scroll=${this.noScroll}`)
+    console.log(`ve-image: sticky=${this.sticky} no-scroll=${this.noScroll}`)
     // console.log(`connectedCallback: annoBase=${this.annoBase}`)
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
   }
@@ -320,10 +320,13 @@ export class ImageViewer {
   }
 
   componentDidLoad() {
-    console.log('componentDidLoad')
     this.addResizeObserver()
     this.el.classList.add('ve-component')
-    if (this.sticky) this.el.classList.add('sticky')
+    if (this.sticky) {
+      this.el.style.position = 'sticky'
+      this.el.style.top = `${fixedHeaderHeight()}px`
+    }
+
     // if (this._images.length > 0) this._setHostDimensions()
     this.listenForSlotChanges()
 

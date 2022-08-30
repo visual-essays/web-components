@@ -2,6 +2,8 @@ import OpenSeadragon from 'openseadragon'
 import { sha256 as __sha256 } from 'js-sha256'
 import __md5 from 'js-md5'
 
+export const titlePanelHeight = 100
+
 // const iiifServer = location.hostname === 'localhost' ? 'http://localhost:8088' : 'https://iiif.juncture-digital.org'
 export const iiifServer = 'https://iiif.juncture-digital.org'
 
@@ -11,6 +13,19 @@ export function sha256(str: string) {
 
 export function md5(str: string) {
   return __md5(str)
+}
+
+export function fixedHeaderHeight() {
+  let header = (document.querySelector('ve-header[sticky="true"]') as HTMLElement)
+  if (header) {
+    console.log(header)
+    let top = parseInt(header.style.top.replace(/^-/,'').replace(/px$/,''))
+    let height = parseInt(header.style.height.replace(/px$/,''))
+    console.log(height, top, height-top)
+    return height - top
+  } else {
+    return 0
+  }
 }
 
 export async function getManifest(manifestId: string, refresh: boolean=false) {
