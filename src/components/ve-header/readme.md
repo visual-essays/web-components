@@ -12,12 +12,11 @@
 | `background`    | `background`     |             | `string`  | `undefined` |
 | `contact`       | `contact`        |             | `string`  | `undefined` |
 | `entities`      | `entities`       |             | `string`  | `undefined` |
-| `height`        | `height`         |             | `number`  | `180`       |
+| `height`        | `height`         |             | `string`  | `'300px'`   |
 | `label`         | `label`          |             | `string`  | `undefined` |
 | `logo`          | `logo`           |             | `string`  | `undefined` |
 | `options`       | `options`        |             | `string`  | `undefined` |
 | `position`      | `position`       |             | `string`  | `'center'`  |
-| `searchCx`      | `search-cx`      |             | `string`  | `undefined` |
 | `searchDomain`  | `search-domain`  |             | `string`  | `undefined` |
 | `searchFilters` | `search-filters` |             | `string`  | `undefined` |
 | `sticky`        | `sticky`         |             | `boolean` | `undefined` |
