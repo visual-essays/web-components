@@ -9,7 +9,7 @@ import jwt_decode from 'jwt-decode'
 import './openseadragon-curtain-sync'
 
 import debounce from 'lodash.debounce'
-import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isNum, fixedHeaderHeight } from '../../utils'
+import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isNum, makeSticky } from '../../utils'
 import { Annotator } from './annotator'
 import { parseInt } from 'lodash';
 
@@ -319,13 +319,26 @@ export class ImageViewer {
     resizeObserver.observe(this.el.shadowRoot.getElementById('wrapper'))
   }
 
+  setStickyTop() {
+    this.el.style.position = 'sticky'
+    let header = (document.querySelector('ve-header[sticky="true"]') as HTMLElement)
+    if (header) {
+      const callback = () => {
+        console.log('header MutationObserver callback')
+        let top = parseInt(header.style.top.replace(/^-/,'').replace(/px$/,''))
+        let height = parseInt(header.style.height.replace(/px$/,''))
+        console.log(height, top, height-top)
+        this.el.style.top = `${height-top}px`
+      }
+      const observer = new MutationObserver(callback)
+      observer.observe(header, { childList: true, subtree: true, characterData: true })
+    }
+  }
+
   componentDidLoad() {
     this.addResizeObserver()
     this.el.classList.add('ve-component')
-    if (this.sticky) {
-      this.el.style.position = 'sticky'
-      this.el.style.top = `${fixedHeaderHeight()}px`
-    }
+    if (this.sticky) makeSticky(this.el)
 
     // if (this._images.length > 0) this._setHostDimensions()
     this.listenForSlotChanges()

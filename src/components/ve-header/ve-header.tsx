@@ -1,6 +1,6 @@
 import { Component, Element, Prop, State, h, Watch } from '@stencil/core';
 
-import { getEntity, getManifest, imageDataUrl, imageInfo, parseImageOptions, titlePanelHeight } from '../../utils'
+import { getManifest, imageDataUrl, imageInfo, isURL, parseImageOptions, titlePanelHeight } from '../../utils'
 
 import '@shoelace-style/shoelace/dist/components/button/button.js'
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
@@ -20,9 +20,12 @@ const navIcons = {
   'how to': 'book-fill'
 }
 
+const manifestShorthandRegex = /^\w+:/
+
 @Component({
   tag: 've-header',
-  styleUrl: 've-header.css',
+  styleUrls: ['ve-header.css'],
+  assetsDirs: ['assets'],
   shadow: true
 })
 export class Header {
@@ -35,7 +38,7 @@ export class Header {
   @Prop() subtitle: string
   @Prop() options: string
   @Prop() sticky: boolean
-  @Prop() height: string = '300px'
+  @Prop() height: string
   @Prop() position: string = 'center' // center, top, bottom
   @Prop() contact: string // Email address for Contact Us
   @Prop() entities: string
@@ -46,6 +49,9 @@ export class Header {
   @State() _entities: string[] = []
   @State() imageOptions: any
   @State() navItems: any = []
+  @State() backgroundIsImage: boolean = false
+
+  @State() navEl: HTMLUListElement
 
   @State() _manifest: any
   @Watch('_manifest')
@@ -71,20 +77,43 @@ export class Header {
   }
 
   _iiifUrl(serviceUrl: string, options: any) {
-    let elWidth = this.el.clientWidth
-    let size = `${elWidth},`
+    // let size = `${this.el.clientWidth},`
+    let size = `,${this.el.clientHeight}`
     let url = `${serviceUrl.replace(/\/info.json$/,'')}/${options.region}/${size}/${options.rotation}/${options.quality}.${options.format}`
+    console.log(url)
     return url
   }
 
+  connectedCallback() {
+    console.log(`ve-header.connectedCallback: sticky=${this.sticky} height=${this.height} background=${this.background}`)
+  }
+
+  isManifestShorthand(s:string) {
+    return manifestShorthandRegex.test(s) 
+  }
+
   componentWillLoad() {
-    console.log(`ve-header.componentWillLoad: sticky=${this.sticky} height=${this.height} background=${this.background}`)
-    this.el.classList.add(this.background ? 'background' : 'simple')
+    this.backgroundIsImage = isURL(this.background) || this.isManifestShorthand(this.background)
+    if (!this.height) this.height = this.backgroundIsImage ? '300px' : '80px' 
+    this.el.classList.add(this.backgroundIsImage ? 'background' : 'simple')
+    
+    console.log(`ve-header.componentWillLoad: sticky=${this.sticky} height=${this.height} background=${this.background} backgroundIsImage=${this.backgroundIsImage} logo=${this.logo}`)
+
+    if (this.background) {
+      if (this.backgroundIsImage) 
+        getManifest(this.background).then(manifest => this._manifest = manifest)
+      else
+        this.el.style.backgroundColor = this.background
+    }
     if (this.sticky) {
-      this.el.style.position = 'sticky'
-      this.el.style.top = this.background
-        ? `-${parseInt(this.height.slice(0,-2)) - titlePanelHeight}px`
-        : '0'
+      if (this.backgroundIsImage) {
+        this.el.style.position = 'sticky'
+        this.el.style.top = `-${parseInt(this.height.slice(0,-2)) - titlePanelHeight}px`
+      } else {
+        this.el.style.position = 'fixed'
+        this.el.style.top = '0';
+        (this.el.nextElementSibling as HTMLElement).style.marginTop = this.height
+      }
       this.el.style.width = `${this.el.parentElement.clientWidth}px`
     }
     this.el.style.height = this.height
@@ -104,6 +133,8 @@ export class Header {
       titleEl.innerText = this.label
     }
     this.imageOptions = parseImageOptions(this.options)
+    this.navEl = this.el.querySelector('ul') as HTMLUListElement
+    console.log(this.navEl)
     this.navItems = Array.from(this.el.querySelectorAll('li')).map(navItem =>
       navItem.firstChild.nodeName === 'A'
         ? {label: navItem.firstChild.textContent, href: (navItem.firstChild as HTMLLinkElement).href}
@@ -114,6 +145,9 @@ export class Header {
   }
 
   async setDefaults() {
+    let backgroundIsImage = this.background ? isURL(this.background) : false
+    if (!this.height) this.height = backgroundIsImage ? '300px' : '100px' 
+    /*
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
     if ((!this.label || !this.background) && this._entities.length > 0) {
       if (this.sticky === undefined) this.sticky = true
@@ -124,6 +158,7 @@ export class Header {
         else if (entity.image) this.background = `wc:${entity.image.split('/Special:FilePath/')[1]}`
       }
     }
+    */
   }
 
   _showInfoPopup() {
@@ -158,18 +193,22 @@ export class Header {
   renderSimple() {
     return [
       <section class="ve-header simple" style={{height: this.height}}>
+        <fa-icon type="far" name="grin-stars" size="x-large" color="blue"></fa-icon>
         {this.logo
           ? <img src={this.logo} alt="logo" class="logo"/>
           : null
         }
         {this.label ? this.label : null}
-          { this.navItems.map((item:any) => 
-            <div 
-              onClick={this.menuItemSelected.bind(this, item)}>
-                <sl-icon slot="prefix" name={this.navIcon(item)} label={item.label}></sl-icon>
-                {item.label}
-            </div>
-          )}
+        <ve-nav background={this.background} position="right">
+          { this.navEl
+            ? <ul>
+              { Array.from(this.navEl.querySelectorAll('li')).map(li => 
+                <li innerHTML={li.innerHTML}></li>
+              ) }
+              </ul>
+            : null
+        }
+        </ve-nav>
       </section>,
       <ve-contact contact={this.contact}></ve-contact>
     ]
@@ -214,9 +253,8 @@ export class Header {
   }
 
   render() {
-    return this.background
-      ? this.renderWithBackground()
-      : this.renderSimple()
+    return         <fa-icon type="far" name="grin-stars" size="x-large" color="blue"></fa-icon>
+
   }
 
 

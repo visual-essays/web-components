@@ -7,6 +7,8 @@ export const titlePanelHeight = 100
 // const iiifServer = location.hostname === 'localhost' ? 'http://localhost:8088' : 'https://iiif.juncture-digital.org'
 export const iiifServer = 'https://iiif.juncture-digital.org'
 
+export function isURL(str:string) { return /^https*:\/\//.test(str) }
+
 export function sha256(str: string) {
   return __sha256(str)
 }
@@ -15,16 +17,20 @@ export function md5(str: string) {
   return __md5(str)
 }
 
-export function fixedHeaderHeight() {
+export function makeSticky(el:HTMLElement) {
+  el.classList.add('sticky')
+  el.style.position = 'sticky'
   let header = (document.querySelector('ve-header[sticky="true"]') as HTMLElement)
   if (header) {
-    console.log(header)
-    let top = parseInt(header.style.top.replace(/^-/,'').replace(/px$/,''))
-    let height = parseInt(header.style.height.replace(/px$/,''))
-    console.log(height, top, height-top)
-    return height - top
+    const setTop = () => {
+      let top = parseInt(header.style.top.replace(/^-/,'').replace(/px$/,''))
+      let height = parseInt(header.style.height.replace(/px$/,''))
+      el.style.top = `${height-top}px`
+    }
+    const observer = new MutationObserver(setTop)
+    observer.observe(header, { attributes: true })
   } else {
-    return 0
+    el.style.top = '0'
   }
 }
 

@@ -3,6 +3,7 @@
 :host {
   background-color: #ccc;
   z-index: 10;
+  max-width: calc(1000px - 2rem);
 }
 
 :host(.background) {
@@ -14,32 +15,13 @@
   margin-top: -1rem;
 }
 
-.title-panel {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4px;
-  font-family: Roboto, sans-serif;
-  position: absolute;
-  height: 100px;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 3px;;
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
-  color: white;
-  padding: .5rem 3.2rem .5rem .5rem;
-  font-weight: bold;
-  left: 0;
-  bottom: 0;
-  right: 0;
-}
-
 .ve-header.simple {
   display: flex;
   width: 100%;
   padding: 0 20px;
   align-items: center;
   gap: 24px;
-  background-color: white;
+  /* background-color: white; */
   z-index: 10;
 }
 
@@ -57,25 +39,31 @@
 }
 
 img.logo {
-  max-height: 32px;
+  max-height: 50px;
 }
 
 .title-panel {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 4px;
+  height: 100%;
+  /* gap: 4px; */
   font-family: Roboto, sans-serif;
   position: absolute;
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 3px;;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  border-radius: 3px;;
   color: white;
   padding: .5rem 3.2rem .5rem .5rem;
   font-weight: bold;
+  /*
   left: 0;
   bottom: 0;
   right: 0;
+  */
+}
+
+.background .title-panel {
+  background: rgba(0, 0, 0, 0.3);
 }
 
 .title-buttons {
@@ -102,7 +90,7 @@ img.logo {
 }
 
 .title, .subtitle {
-  line-height: 3rem;
+  /* line-height: 3rem; */
 }
 .title-panel a {
   text-decoration: none;
@@ -120,7 +108,7 @@ img.logo {
 
 .subtitle {
   font-size: 1.4rem;
-  line-height: 1.4rem;
+  /* line-height: 1.4rem; */
 }
 
 
@@ -252,7 +240,7 @@ nav sl-menu-item:hover sl-icon {
 @media (min-width: 481px) {
 
   .title-panel {
-    padding: 1rem 5rem .5rem 2rem;
+    padding: 0 1.5rem;
   }
 
   nav {
@@ -276,9 +264,11 @@ nav sl-menu-item:hover sl-icon {
   }
   
   .subtitle {
+    /*
     font-size: 2rem;
     line-height: 2rem;
     min-height: 1em;
+    */
   }
   
   #menuToggle {

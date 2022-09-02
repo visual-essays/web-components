@@ -94,6 +94,10 @@ export namespace Components {
         "description": string;
         "title": string;
     }
+    interface VeNav {
+        "background": string;
+        "position": string;
+    }
     interface VeSearch {
         "animationLength": string;
         "cx": string;
@@ -208,6 +212,12 @@ declare global {
         prototype: HTMLVeMetaElement;
         new (): HTMLVeMetaElement;
     };
+    interface HTMLVeNavElement extends Components.VeNav, HTMLStencilElement {
+    }
+    var HTMLVeNavElement: {
+        prototype: HTMLVeNavElement;
+        new (): HTMLVeNavElement;
+    };
     interface HTMLVeSearchElement extends Components.VeSearch, HTMLStencilElement {
     }
     var HTMLVeSearchElement: {
@@ -245,6 +255,7 @@ declare global {
         "ve-manifest": HTMLVeManifestElement;
         "ve-map": HTMLVeMapElement;
         "ve-meta": HTMLVeMetaElement;
+        "ve-nav": HTMLVeNavElement;
         "ve-search": HTMLVeSearchElement;
         "ve-style": HTMLVeStyleElement;
         "ve-video": HTMLVeVideoElement;
@@ -343,6 +354,10 @@ declare namespace LocalJSX {
         "description"?: string;
         "title"?: string;
     }
+    interface VeNav {
+        "background"?: string;
+        "position"?: string;
+    }
     interface VeSearch {
         "animationLength"?: string;
         "cx"?: string;
@@ -381,6 +396,7 @@ declare namespace LocalJSX {
         "ve-manifest": VeManifest;
         "ve-map": VeMap;
         "ve-meta": VeMeta;
+        "ve-nav": VeNav;
         "ve-search": VeSearch;
         "ve-style": VeStyle;
         "ve-video": VeVideo;
@@ -403,6 +419,7 @@ declare module "@stencil/core" {
             "ve-manifest": LocalJSX.VeManifest & JSXBase.HTMLAttributes<HTMLVeManifestElement>;
             "ve-map": LocalJSX.VeMap & JSXBase.HTMLAttributes<HTMLVeMapElement>;
             "ve-meta": LocalJSX.VeMeta & JSXBase.HTMLAttributes<HTMLVeMetaElement>;
+            "ve-nav": LocalJSX.VeNav & JSXBase.HTMLAttributes<HTMLVeNavElement>;
             "ve-search": LocalJSX.VeSearch & JSXBase.HTMLAttributes<HTMLVeSearchElement>;
             "ve-style": LocalJSX.VeStyle & JSXBase.HTMLAttributes<HTMLVeStyleElement>;
             "ve-video": LocalJSX.VeVideo & JSXBase.HTMLAttributes<HTMLVeVideoElement>;

@@ -1,4 +1,6 @@
 import { Component, Element, Prop, State, h } from '@stencil/core';
+import { makeSticky } from '../../utils'
+
 import VimeoPlayer from '@vimeo/player'
 // import YTPlayer from 'yt-player'
 import YouTubePlayer from 'youtube-player'
@@ -18,7 +20,7 @@ export class Video {
   @Prop({ mutable: true, reflect: true }) muted: boolean = false
   @Prop() autoplay: boolean = false
   @Prop() loop: boolean = false
-  @Prop() sticky: boolean
+  @Prop() sticky: boolean = false
 
   @Element() el: HTMLElement;
 
@@ -45,8 +47,9 @@ export class Video {
   }
 
   componentDidLoad() {
+    console.log(`ve-video.componentDidLoad: sticky=${this.sticky}`)
     this.el.classList.add('ve-component')
-    if (this.sticky) this.el.classList.add('sticky')
+    if (this.sticky) makeSticky(this.el)
     this.initialize()
   }
 
