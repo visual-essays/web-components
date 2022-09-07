@@ -11,14 +11,31 @@
   padding: 3px 12px;
   align-items: center;
   gap: 12px;
-  width: 100%;
-  background-color: #ddd;
+  max-width: 1000px;
+  margin: auto;
+  margin-top: 54px;
+  background-color: #222029;
+  color: white;
+  height: 86px;
   /* background-color: #eee; */
   /*
   margin-left: -1rem;
   margin-bottom: -1rem;
   width: calc(100% + 2rem);
   */
+  justify-content: space-between;
+}
+
+.footer div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.footer img {
+  height: 40px;
+}
+.footer a {
+  color: white;
 }
 
 .footer a {

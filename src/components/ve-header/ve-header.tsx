@@ -80,7 +80,6 @@ export class Header {
     // let size = `${this.el.clientWidth},`
     let size = `,${this.el.clientHeight}`
     let url = `${serviceUrl.replace(/\/info.json$/,'')}/${options.region}/${size}/${options.rotation}/${options.quality}.${options.format}`
-    console.log(url)
     return url
   }
 
@@ -134,7 +133,6 @@ export class Header {
     }
     this.imageOptions = parseImageOptions(this.options)
     this.navEl = this.el.querySelector('ul') as HTMLUListElement
-    console.log(this.navEl)
     this.navItems = Array.from(this.el.querySelectorAll('li')).map(navItem =>
       navItem.firstChild.nodeName === 'A'
         ? {label: navItem.firstChild.textContent, href: (navItem.firstChild as HTMLLinkElement).href}
@@ -193,22 +191,27 @@ export class Header {
   renderSimple() {
     return [
       <section class="ve-header simple" style={{height: this.height}}>
-        <fa-icon type="far" name="grin-stars" size="x-large" color="blue"></fa-icon>
+    
         {this.logo
           ? <img src={this.logo} alt="logo" class="logo"/>
           : null
         }
         {this.label ? this.label : null}
-        <ve-nav background={this.background} position="right">
-          { this.navEl
-            ? <ul>
-              { Array.from(this.navEl.querySelectorAll('li')).map(li => 
-                <li innerHTML={li.innerHTML}></li>
-              ) }
-              </ul>
-            : null
-        }
-        </ve-nav>
+        <div class="controls">
+          { this.searchDomain && 
+            <ve-site-search search-domain="localhost:8080"></ve-site-search>
+          }
+          <ve-nav background={this.background} position="right" contact={this.contact}>
+            { this.navEl
+              ? <ul>
+                { Array.from(this.navEl.querySelectorAll('li')).map(li => 
+                  <li innerHTML={li.innerHTML}></li>
+                ) }
+                </ul>
+              : null
+          }
+          </ve-nav>
+        </div>
       </section>,
       <ve-contact contact={this.contact}></ve-contact>
     ]
@@ -253,8 +256,9 @@ export class Header {
   }
 
   render() {
-    return         <fa-icon type="far" name="grin-stars" size="x-large" color="blue"></fa-icon>
-
+    return this.backgroundIsImage
+      ? this.renderWithBackground()
+      : this.renderSimple()
   }
 
 

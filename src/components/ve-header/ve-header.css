@@ -1,12 +1,12 @@
 * { box-sizing: border-box; } 
 
-:host {
+:host, ve-header {
   background-color: #ccc;
   z-index: 10;
   max-width: calc(1000px - 2rem);
 }
 
-:host(.background) {
+:host(.background), ve-header {
   display: block;
   background-repeat: no-repeat;
   background-size: cover;
@@ -18,10 +18,10 @@
 .ve-header.simple {
   display: flex;
   width: 100%;
-  padding: 0 20px;
+  padding: 0;
   align-items: center;
-  gap: 24px;
-  /* background-color: white; */
+  /* gap: 24px; */
+  background-color: inherit;
   z-index: 10;
 }
 
@@ -38,8 +38,15 @@
   padding-right: 6px;;
 }
 
+.logo {
+  margin-left: 20px;
+}
 img.logo {
-  max-height: 50px;
+  max-height: 40px;
+}
+
+.controls {
+  margin-left: auto;
 }
 
 .title-panel {

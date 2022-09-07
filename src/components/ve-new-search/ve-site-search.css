@@ -1,0 +1,85 @@
+:host {
+  padding: 0 10px;
+  margin-top: 8px;
+}
+
+.search-icon {
+  color: white;
+  font-size: 28px;
+  margin-top: 4px;
+}
+
+.search-icon:hover {
+  cursor: pointer;
+}
+
+.search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-btn,
+.search-form,
+.wrapper {
+  display: none;
+}
+
+.wrapper {
+  flex-direction: column;
+  position: absolute;
+  top: -4px;
+  right: 40px;
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+}
+.search-input {
+  height: 30px;
+  width: 200px;
+  border-radius: 6px 0 0 0;
+  padding: 3px 10px;
+  font-size: 1rem;
+}
+
+.search-submit {
+  background-color: white;
+  border-radius: 0 6px 0 0;
+  padding: 8px 8px 4px 8px;
+  height: 24px;
+  z-index: 4;
+}
+.search-submit:hover {
+  background-color: #ddd;
+  cursor: pointer;
+}
+.search-submit sl-icon {
+  color: blue;
+  font-size: 20px;
+}
+
+.search-results {
+  z-index: 2;
+  background-color: white;
+  margin: 0 0 0 2px;
+  width: 246px;
+  list-style: none;
+  padding: 6px;
+  border-radius: 0 0 6px 6px;
+  font-size: 1rem;
+}
+
+.search-results li {
+  padding: 3px;;
+}
+
+.search-btn:checked ~ .wrapper .search-form {
+  display: flex;
+  width: 100%;
+}
+.search-btn:checked ~ .wrapper {
+  display: flex;
+}

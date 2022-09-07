@@ -20,6 +20,7 @@ export class Video {
   @Prop({ mutable: true, reflect: true }) muted: boolean = false
   @Prop() autoplay: boolean = false
   @Prop() loop: boolean = false
+  @Prop() poster: string
   @Prop() sticky: boolean = false
 
   @Element() el: HTMLElement;
@@ -305,6 +306,7 @@ export class Video {
         style={{width: '100%'}} 
         controls
         playsinline
+        poster={this.poster}
         muted={this.muted}
         autoplay={this.autoplay}
       >
