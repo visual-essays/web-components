@@ -1,12 +1,9 @@
-import { Component, Element, Prop, State, Watch, h } from "@stencil/core";
+import { Component, Element, Prop, State, h } from "@stencil/core";
 
-import '@shoelace-style/shoelace/dist/components/button/button.js'
 import '@shoelace-style/shoelace/dist/components/icon/icon.js'
-import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
 import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js'
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js'
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
-// setBasePath(location.hostname === 'localhost' ? 'http://localhost:3333' : 'https://visual-essays.github.io/web-components/src')
 setBasePath('https://visual-essays.github.io/web-components/src')
 
 @Component({
@@ -47,26 +44,33 @@ export class VeSiteSearch {
 
   }
 
+  cancel() {
+    console.log('cancel')
+  }
+
   render() {
     return [
       <div class="search">
         <input class="search-btn" type="checkbox" id="search-btn"/>
         <div class="wrapper">
           <div class="search-form">
-            <input
-              type="text"
-              id="search-input"
-              class="search-input"
-              autocomplete="off"
-              role="textbox"
-              placeholder="Search site"
-            />
-              <sl-tooltip content="Submit">
-                <div class="search-submit" onClick={this.doSearch.bind(this)}>
-                  <sl-icon name="search" label="Search"></sl-icon>
-                </div>
+            <div class="input-wrapper">
+              <sl-icon-button class="cancel" onClick={this.cancel.bind(this)} name="search" label="Clear"></sl-icon-button>
+              <input
+                type="text"
+                id="search-input"
+                class="search-input"
+                autocomplete="off"
+                role="textbox"
+                placeholder="Search site"
+              />
+            </div>
+            <sl-tooltip content="Submit">
+              <div class="search-submit" onClick={this.doSearch.bind(this)}>
+                <sl-icon name="search" label="Search"></sl-icon>
+              </div>
 
-              </sl-tooltip>          
+            </sl-tooltip>          
           </div>
           { this.searchResults.length > 0 && <ul class="search-results">
               {this.searchResults.map((item) => 

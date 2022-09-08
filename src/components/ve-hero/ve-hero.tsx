@@ -2,6 +2,11 @@ import { Component, Element, Prop, State, h, Watch } from '@stencil/core';
 
 import { getManifest, imageDataUrl, imageInfo, parseImageOptions } from '../../utils'
 
+import '@shoelace-style/shoelace/dist/components/icon/icon.js'
+import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js'
+import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
+setBasePath('https://visual-essays.github.io/web-components/src')
+
 @Component({
   tag: 've-hero',
   styleUrl: 've-hero.css',
@@ -73,7 +78,9 @@ export class Header {
   render() {
     return [
       <section>
-        <sl-icon id="info-icon" name="info-circle-fill" onClick={this._showInfoPopup.bind(this)} title="Image info"></sl-icon>
+        <sl-tooltip content="Show image info">
+          <sl-icon id="info-icon" name="info-circle-fill" onClick={this._showInfoPopup.bind(this)} title="Image info"></sl-icon>
+        </sl-tooltip>
         <div id="image-info-popup"></div>
       </section>
     ]

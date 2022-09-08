@@ -111,3 +111,17 @@
 .search-btn:checked ~ .wrapper {
   display: flex;
 }
+
+.input-wrapper {
+  display: inline-block;
+  position: relative
+}
+
+.cancel {
+  position: absolute;
+  right: 0;
+  top: 0;
+  color: gray;
+  font-size: 16px;
+  cursor: pointer;
+}
