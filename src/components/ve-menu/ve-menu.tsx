@@ -18,8 +18,8 @@ const navIcons = {
 }
 
 @Component({
-  tag: 've-nav',
-  styleUrl: 've-nav.css',
+  tag: 've-menu',
+  styleUrl: 've-menu.css',
   assetsDirs: ['assets'],
   shadow: true
 })
@@ -95,7 +95,7 @@ export class VeNav {
         <input class="menu-btn" type="checkbox" id="menu-btn"/>
         <div class="wrapper">
           <label class="menu-icon" htmlFor="menu-btn"><span class="navicon"></span></label>
-          <ul class="menu">
+          <ul class="menu" style={{backgroundColor: this.background || '#444'}}>
           { this.navItems.map((item:any) =>
             <li onClick={this.menuItemSelected.bind(this, item)}>
               <sl-icon slot="prefix" name={this.navIcon(item)} label={item.label}></sl-icon>

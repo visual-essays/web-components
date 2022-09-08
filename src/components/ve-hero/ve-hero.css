@@ -1,0 +1,52 @@
+* { box-sizing: border-box; } 
+
+:host, ve-hero {
+  display: block;
+  position: relative;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  width: 100%;
+  z-index: 8;
+}
+
+:host(:hover) #info-icon {
+  visibility: visible;
+}
+
+#info-icon {
+  visibility: hidden;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  color: white;
+  background: black;
+  border-radius: 50%;
+  border: 1px solid black;
+}
+
+#info-icon::part(base) {
+  background-color: inherit;  
+}
+
+#info-icon:hover {
+  cursor: pointer;
+}
+
+#image-info-popup {
+  position: absolute;
+  display: none;
+  width: 75%;
+  max-width: 300px;
+  height: auto;
+  max-height: 500px;
+  background: #fff;
+  right: 40px; 
+  top: 10px;
+  padding: 6px;
+  border: 1px solid #444;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  border-radius: 3px;
+  overflow-y: scroll;
+  z-index: 10;
+}

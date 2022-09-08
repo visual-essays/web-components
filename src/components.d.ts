@@ -38,16 +38,22 @@ export namespace Components {
     interface VeHeader {
         "background": string;
         "contact": string;
-        "entities": string;
-        "height": string;
+        "height": number;
         "label": string;
         "logo": string;
         "options": string;
         "position": string;
         "searchDomain": string;
-        "searchFilters": string;
         "sticky": boolean;
         "subtitle": string;
+    }
+    interface VeHero {
+        "background": string;
+        "height": number;
+        "options": string;
+        "position": string;
+        "sticky": boolean;
+        "top": number;
     }
     interface VeImage {
         "align": string;
@@ -90,14 +96,26 @@ export namespace Components {
         "sticky": boolean;
         "zoom": number;
     }
+    interface VeMenu {
+        "background": string;
+        "contact": string;
+        "position": string;
+    }
     interface VeMeta {
         "description": string;
         "title": string;
     }
-    interface VeNav {
+    interface VeNavbar {
+        "alpha": number;
         "background": string;
         "contact": string;
-        "position": string;
+        "height": number;
+        "label": string;
+        "logo": string;
+        "offset": number;
+        "searchDomain": string;
+        "sticky": boolean;
+        "subtitle": string;
     }
     interface VeSearch {
         "animationLength": string;
@@ -181,6 +199,12 @@ declare global {
         prototype: HTMLVeHeaderElement;
         new (): HTMLVeHeaderElement;
     };
+    interface HTMLVeHeroElement extends Components.VeHero, HTMLStencilElement {
+    }
+    var HTMLVeHeroElement: {
+        prototype: HTMLVeHeroElement;
+        new (): HTMLVeHeroElement;
+    };
     interface HTMLVeImageElement extends Components.VeImage, HTMLStencilElement {
     }
     var HTMLVeImageElement: {
@@ -211,17 +235,23 @@ declare global {
         prototype: HTMLVeMapElement;
         new (): HTMLVeMapElement;
     };
+    interface HTMLVeMenuElement extends Components.VeMenu, HTMLStencilElement {
+    }
+    var HTMLVeMenuElement: {
+        prototype: HTMLVeMenuElement;
+        new (): HTMLVeMenuElement;
+    };
     interface HTMLVeMetaElement extends Components.VeMeta, HTMLStencilElement {
     }
     var HTMLVeMetaElement: {
         prototype: HTMLVeMetaElement;
         new (): HTMLVeMetaElement;
     };
-    interface HTMLVeNavElement extends Components.VeNav, HTMLStencilElement {
+    interface HTMLVeNavbarElement extends Components.VeNavbar, HTMLStencilElement {
     }
-    var HTMLVeNavElement: {
-        prototype: HTMLVeNavElement;
-        new (): HTMLVeNavElement;
+    var HTMLVeNavbarElement: {
+        prototype: HTMLVeNavbarElement;
+        new (): HTMLVeNavbarElement;
     };
     interface HTMLVeSearchElement extends Components.VeSearch, HTMLStencilElement {
     }
@@ -260,13 +290,15 @@ declare global {
         "ve-entities": HTMLVeEntitiesElement;
         "ve-footer": HTMLVeFooterElement;
         "ve-header": HTMLVeHeaderElement;
+        "ve-hero": HTMLVeHeroElement;
         "ve-image": HTMLVeImageElement;
         "ve-image-card": HTMLVeImageCardElement;
         "ve-image-grid": HTMLVeImageGridElement;
         "ve-manifest": HTMLVeManifestElement;
         "ve-map": HTMLVeMapElement;
+        "ve-menu": HTMLVeMenuElement;
         "ve-meta": HTMLVeMetaElement;
-        "ve-nav": HTMLVeNavElement;
+        "ve-navbar": HTMLVeNavbarElement;
         "ve-search": HTMLVeSearchElement;
         "ve-site-search": HTMLVeSiteSearchElement;
         "ve-style": HTMLVeStyleElement;
@@ -309,16 +341,22 @@ declare namespace LocalJSX {
     interface VeHeader {
         "background"?: string;
         "contact"?: string;
-        "entities"?: string;
-        "height"?: string;
+        "height"?: number;
         "label"?: string;
         "logo"?: string;
         "options"?: string;
         "position"?: string;
         "searchDomain"?: string;
-        "searchFilters"?: string;
         "sticky"?: boolean;
         "subtitle"?: string;
+    }
+    interface VeHero {
+        "background"?: string;
+        "height"?: number;
+        "options"?: string;
+        "position"?: string;
+        "sticky"?: boolean;
+        "top"?: number;
     }
     interface VeImage {
         "align"?: string;
@@ -362,14 +400,26 @@ declare namespace LocalJSX {
         "sticky"?: boolean;
         "zoom"?: number;
     }
+    interface VeMenu {
+        "background"?: string;
+        "contact"?: string;
+        "position"?: string;
+    }
     interface VeMeta {
         "description"?: string;
         "title"?: string;
     }
-    interface VeNav {
+    interface VeNavbar {
+        "alpha"?: number;
         "background"?: string;
         "contact"?: string;
-        "position"?: string;
+        "height"?: number;
+        "label"?: string;
+        "logo"?: string;
+        "offset"?: number;
+        "searchDomain"?: string;
+        "sticky"?: boolean;
+        "subtitle"?: string;
     }
     interface VeSearch {
         "animationLength"?: string;
@@ -407,13 +457,15 @@ declare namespace LocalJSX {
         "ve-entities": VeEntities;
         "ve-footer": VeFooter;
         "ve-header": VeHeader;
+        "ve-hero": VeHero;
         "ve-image": VeImage;
         "ve-image-card": VeImageCard;
         "ve-image-grid": VeImageGrid;
         "ve-manifest": VeManifest;
         "ve-map": VeMap;
+        "ve-menu": VeMenu;
         "ve-meta": VeMeta;
-        "ve-nav": VeNav;
+        "ve-navbar": VeNavbar;
         "ve-search": VeSearch;
         "ve-site-search": VeSiteSearch;
         "ve-style": VeStyle;
@@ -431,13 +483,15 @@ declare module "@stencil/core" {
             "ve-entities": LocalJSX.VeEntities & JSXBase.HTMLAttributes<HTMLVeEntitiesElement>;
             "ve-footer": LocalJSX.VeFooter & JSXBase.HTMLAttributes<HTMLVeFooterElement>;
             "ve-header": LocalJSX.VeHeader & JSXBase.HTMLAttributes<HTMLVeHeaderElement>;
+            "ve-hero": LocalJSX.VeHero & JSXBase.HTMLAttributes<HTMLVeHeroElement>;
             "ve-image": LocalJSX.VeImage & JSXBase.HTMLAttributes<HTMLVeImageElement>;
             "ve-image-card": LocalJSX.VeImageCard & JSXBase.HTMLAttributes<HTMLVeImageCardElement>;
             "ve-image-grid": LocalJSX.VeImageGrid & JSXBase.HTMLAttributes<HTMLVeImageGridElement>;
             "ve-manifest": LocalJSX.VeManifest & JSXBase.HTMLAttributes<HTMLVeManifestElement>;
             "ve-map": LocalJSX.VeMap & JSXBase.HTMLAttributes<HTMLVeMapElement>;
+            "ve-menu": LocalJSX.VeMenu & JSXBase.HTMLAttributes<HTMLVeMenuElement>;
             "ve-meta": LocalJSX.VeMeta & JSXBase.HTMLAttributes<HTMLVeMetaElement>;
-            "ve-nav": LocalJSX.VeNav & JSXBase.HTMLAttributes<HTMLVeNavElement>;
+            "ve-navbar": LocalJSX.VeNavbar & JSXBase.HTMLAttributes<HTMLVeNavbarElement>;
             "ve-search": LocalJSX.VeSearch & JSXBase.HTMLAttributes<HTMLVeSearchElement>;
             "ve-site-search": LocalJSX.VeSiteSearch & JSXBase.HTMLAttributes<HTMLVeSiteSearchElement>;
             "ve-style": LocalJSX.VeStyle & JSXBase.HTMLAttributes<HTMLVeStyleElement>;

@@ -1,10 +1,10 @@
-:host, ve-nav {
+:host, ve-menu {
   height: 100%;
 }
-:host(.right), ve-nav.right {
+:host(.right), ve-menu.right {
   /* margin-left: auto; */
 }
-:host(.right) .menu, ve-nav.right .menu {
+:host(.right) .menu, ve-menu.right .menu {
   right: 0;
 }
 
@@ -20,16 +20,15 @@
   background-color: inherit;
 }
 
-
 .menu {
   display: none;
   clear: both;
   max-height: 0;
   transition: max-height .2s ease-out;
   position: absolute;
-  top: 61px;
+  top: 59px;
   width: 200px;
-  background-color: inherit;
+  background-color: rgba(0, 0, 0, 0.4);
   color: white;
 }
 ul.menu {

@@ -6,9 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
     <link href="https://visual-essays.github.io/web-app/static/all.css" rel="stylesheet" />
     <script type="module" src="/build/visual-essays.esm.js"></script>
-    <!-- <script src="https://www.youtube.com/iframe_api"></script> -->
     <script nomodule src="/build/visual-essays.js"></script>
     <style>
+      main {
+        padding: 0;
+        max-width: 1000px;
+        margin: auto;
+      }
       .active {
         background-color: #ddd;
       }
@@ -23,89 +27,52 @@
         padding-left: 2px;
         padding-right: 4px;
       }
-      main {
-        padding: 0;
-      }
+
     </style>
   </head>
   <body>
 
     <main>
-      <ve-header 
+
+
+      <!--
+      <ve-hero background="gh:kent-map/images/Kent_Maps.jpg" sticky="true" top="220"></ve-hero>
+      <ve-navbar
+        label="Essay Title"
         sticky="true"
-        background="#5B152E"
-        logo="https://raw.githubusercontent.com/visual-essays/media/main/images/Juncture_Logo.png"
+        search-domain="staging.kent-maps.online"
+        contact="ron@snyderjr.com"
+        alpha="0.2"
+        offset="80"
       >
         <ul>
-          <li><a href="">Home</a></li>
-          <li><a href="">About</a></li>
-          <li><a href="">Contact Us</a></li>
+          <li><a href="/">Home</a></li>
+          <li><a href="/about">About</a></li>
+          <li>Contact Us</li>
         </ul>
-      </ve-header>
-      <section style="height:400px; background:url(https://raw.githubusercontent.com/visual-essays/media/main/images/Juncture_Hero.png)">
-
-      </section>
-      <section>
-        <h2>Dickens Museum</h2>
-        <!-- 
-          Dickens Museum: https://www.youtube.com/watch?v=aPFN14CPISk
-          Vimeo: https://vimeo.com/737854276
-          Self hosted: https://raw.githubusercontent.com/kent-map/images/main/videos/Dickens_Museum.mp4
-                       https://upload.wikimedia.org/wikipedia/commons/2/26/Bees_on_flowers.webm
-        -->
-        <ve-video 
-          src="https://vimeo.com/737854276"
-          sticky
-        >
-        </ve-video>
-        <p>
-          <mark attr="0,5">Lorem ipsum</mark> dolor sit amet, consectetur adipiscing elit, sed do 
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-          exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-          occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-        </p>
-        <p enter="30,50">
-          <mark attr="30,50">Lorem ipsum</mark> dolor sit amet, consectetur adipiscing elit, sed 
-          do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-          exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-          occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-        </p>        
-        <p enter="50,1:10">
-          <mark attr="50,1:10">Lorem ipsum</mark> dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-          exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-          occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-        </p>          
-        <p enter="1:10,1:20">
-          <mark attr="1:10,1:20">Lorem ipsum</mark> dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud
-          exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint
-          occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-        </p>       
-        <!--
-        <ve-image src="gh:rdsnyder/images/italy-2022/amalfi-coast/Amalfi__2"></ve-image>
-        <ve-header label="Header" background="gh:kent-map/images/Kent_Maps.jpg" contact="ron@snyderjr.com">
-          <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/about">About</a></li>
-            <li>Contact us</li>
-          </ul>
-        </ve-header>
-
-        <div style="width:100%;height:100px"></div>
-
-        <ve-header label="Header" background="wc:August_Macke_-_Three_girls_in_yellow_straw_hats_I_-_Google_Art_Project.jpg"></ve-header>
-      
-        <div style="width:100%;height:100px"></div>
-
-        <ve-header label="Header" background="https://iiif.juncture-digital.org/https://stor.artstor.org/stor/f0bec294-4bea-40c0-8161-a6c8c1f1cdde/manifest.json"></ve-header>
+      </ve-navbar>
       -->
 
+      <ve-header
+        label="Essay Title"
+        sticky="true"
+        search-domain="staging.kent-maps.online"
+        contact="ron@snyderjr.com"
+        background="gh:kent-map/images/Kent_Maps.jpg"
+      >
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/about">About</a></li>
+          <li>Contact Us</li>
+        </ul>
+      </ve-header>
+
+      <section style="height:100vh;background-color:#ddd;">
+        Content
       </section>
+
+      <ve-footer></ve-footer>
+
     </main>
     
     <script src="//cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.7/ScrollMagic.min.js" type="text/javascript"></script>
