@@ -7,28 +7,22 @@
 
 ## Properties
 
-| Property          | Attribute          | Description | Type      | Default     |
-| ----------------- | ------------------ | ----------- | --------- | ----------- |
-| `animationLength` | `animation-length` |             | `string`  | `"0"`       |
-| `cx`              | `cx`               |             | `string`  | `undefined` |
-| `icon`            | `icon`             |             | `boolean` | `false`     |
-| `parentComponent` | `parent-component` |             | `string`  | `""`        |
-| `searchDomain`    | `search-domain`    |             | `string`  | `undefined` |
-| `searchFilters`   | `search-filters`   |             | `string`  | `undefined` |
-| `tooltip`         | `tooltip`          |             | `string`  | `""`        |
+| Property       | Attribute       | Description | Type     | Default     |
+| -------------- | --------------- | ----------- | -------- | ----------- |
+| `searchDomain` | `search-domain` |             | `string` | `undefined` |
 
 
 ## Dependencies
 
 ### Used by
 
- - [ve-header](../ve-header)
+ - [ve-navbar](../ve-navbar)
 
 ### Graph
 ```mermaid
 graph TD;
-  ve-header --> ve-search
-  style ve-search fill:#f9f,stroke:#333,stroke-width:4px
+  ve-navbar --> ve-site-search
+  style ve-site-search fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
 ----------------------------------------------

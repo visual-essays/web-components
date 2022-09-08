@@ -7,35 +7,27 @@
 
 ## Properties
 
-| Property        | Attribute        | Description | Type      | Default     |
-| --------------- | ---------------- | ----------- | --------- | ----------- |
-| `background`    | `background`     |             | `string`  | `undefined` |
-| `contact`       | `contact`        |             | `string`  | `undefined` |
-| `entities`      | `entities`       |             | `string`  | `undefined` |
-| `height`        | `height`         |             | `string`  | `'300px'`   |
-| `label`         | `label`          |             | `string`  | `undefined` |
-| `logo`          | `logo`           |             | `string`  | `undefined` |
-| `options`       | `options`        |             | `string`  | `undefined` |
-| `position`      | `position`       |             | `string`  | `'center'`  |
-| `searchDomain`  | `search-domain`  |             | `string`  | `undefined` |
-| `searchFilters` | `search-filters` |             | `string`  | `undefined` |
-| `sticky`        | `sticky`         |             | `boolean` | `undefined` |
-| `subtitle`      | `subtitle`       |             | `string`  | `undefined` |
+| Property     | Attribute    | Description | Type      | Default     |
+| ------------ | ------------ | ----------- | --------- | ----------- |
+| `background` | `background` |             | `string`  | `undefined` |
+| `height`     | `height`     |             | `number`  | `300`       |
+| `options`    | `options`    |             | `string`  | `undefined` |
+| `position`   | `position`   |             | `string`  | `'center'`  |
+| `sticky`     | `sticky`     |             | `boolean` | `undefined` |
+| `top`        | `top`        |             | `number`  | `0`         |
 
 
 ## Dependencies
 
-### Depends on
+### Used by
 
-- [ve-contact](../ve-contact)
-- [ve-search](../ve-search)
+ - [ve-header](../ve-header)
 
 ### Graph
 ```mermaid
 graph TD;
-  ve-header --> ve-contact
-  ve-header --> ve-search
-  style ve-header fill:#f9f,stroke:#333,stroke-width:4px
+  ve-header --> ve-hero
+  style ve-hero fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
 ----------------------------------------------

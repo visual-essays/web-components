@@ -1,6 +1,4 @@
 :host {
-  padding: 0 10px;
-  margin-top: 8px;
 }
 
 .search-icon {
@@ -28,8 +26,7 @@
 .wrapper {
   flex-direction: column;
   position: absolute;
-  top: -4px;
-  right: 40px;
+  right: -4px;
 }
 
 .search-form {
@@ -38,15 +35,15 @@
 }
 .search-input {
   height: 30px;
-  width: 200px;
-  border-radius: 6px 0 0 0;
+  width: 250px;
+  border-radius: 6px;
   padding: 3px 10px;
   font-size: 1rem;
 }
 
 .search-submit {
   background-color: white;
-  border-radius: 0 6px 0 0;
+  border-radius: 6px;
   padding: 8px 8px 4px 8px;
   height: 24px;
   z-index: 4;
@@ -62,10 +59,9 @@
 
 .search-results {
   position: absolute;
-  top: 38px;
-  right: 0;
-  width: 500px;
-  max-width: 50vh;
+  top: 42px;
+  left: 0;
+  width: 326px;
   max-height: 50vh;
   overflow-y: scroll;
   z-index: 2;
@@ -73,8 +69,9 @@
   margin: 0 0 0 2px;
   list-style: none;
   padding: 6px;
-  border-radius: 0 0 6px 6px;
-  font-size: 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  box-shadow: 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .search-results li:nth-of-type(even) {
@@ -82,8 +79,14 @@
 }
 
 .search-results li {
-  padding: 3px;
+  padding: 6px;
   margin: 3px;
+  border: 1px solid #E6E6DF
+}
+
+.search-results li h3,
+.search-results li p {
+  margin: 8px 0;
 }
 
 .search-results li a {
@@ -101,7 +104,14 @@
 
 .search-results li:hover {
   cursor: pointer;
-  background: #ccc;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+}
+
+.search-icon sl-icon-button::part(base) {
+  color: white;
+}
+.search-btn:checked ~ .search-icon sl-icon-button::part(base) {
+  visibility: hidden;
 }
 
 .search-btn:checked ~ .wrapper .search-form {
@@ -120,8 +130,7 @@
 .cancel {
   position: absolute;
   right: 0;
-  top: 0;
-  color: gray;
+  top: 4px;
   font-size: 16px;
   cursor: pointer;
 }

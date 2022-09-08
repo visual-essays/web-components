@@ -7,35 +7,39 @@
 
 ## Properties
 
-| Property        | Attribute        | Description | Type      | Default     |
-| --------------- | ---------------- | ----------- | --------- | ----------- |
-| `background`    | `background`     |             | `string`  | `undefined` |
-| `contact`       | `contact`        |             | `string`  | `undefined` |
-| `entities`      | `entities`       |             | `string`  | `undefined` |
-| `height`        | `height`         |             | `string`  | `'300px'`   |
-| `label`         | `label`          |             | `string`  | `undefined` |
-| `logo`          | `logo`           |             | `string`  | `undefined` |
-| `options`       | `options`        |             | `string`  | `undefined` |
-| `position`      | `position`       |             | `string`  | `'center'`  |
-| `searchDomain`  | `search-domain`  |             | `string`  | `undefined` |
-| `searchFilters` | `search-filters` |             | `string`  | `undefined` |
-| `sticky`        | `sticky`         |             | `boolean` | `undefined` |
-| `subtitle`      | `subtitle`       |             | `string`  | `undefined` |
+| Property       | Attribute       | Description | Type      | Default     |
+| -------------- | --------------- | ----------- | --------- | ----------- |
+| `alpha`        | `alpha`         |             | `number`  | `undefined` |
+| `background`   | `background`    |             | `string`  | `undefined` |
+| `contact`      | `contact`       |             | `string`  | `undefined` |
+| `height`       | `height`        |             | `number`  | `80`        |
+| `label`        | `label`         |             | `string`  | `undefined` |
+| `logo`         | `logo`          |             | `string`  | `undefined` |
+| `offset`       | `offset`        |             | `number`  | `0`         |
+| `searchDomain` | `search-domain` |             | `string`  | `undefined` |
+| `sticky`       | `sticky`        |             | `boolean` | `undefined` |
+| `subtitle`     | `subtitle`      |             | `string`  | `undefined` |
 
 
 ## Dependencies
 
+### Used by
+
+ - [ve-header](../ve-header)
+
 ### Depends on
 
-- [ve-contact](../ve-contact)
-- [ve-search](../ve-search)
+- [ve-site-search](../ve-new-search)
+- [ve-menu](../ve-menu)
 
 ### Graph
 ```mermaid
 graph TD;
-  ve-header --> ve-contact
-  ve-header --> ve-search
-  style ve-header fill:#f9f,stroke:#333,stroke-width:4px
+  ve-navbar --> ve-site-search
+  ve-navbar --> ve-menu
+  ve-menu --> ve-contact
+  ve-header --> ve-navbar
+  style ve-navbar fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
 ----------------------------------------------

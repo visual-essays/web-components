@@ -13,9 +13,10 @@
 | `end`      | `end`      |             | `string`  | `'-1'`      |
 | `loop`     | `loop`     |             | `boolean` | `false`     |
 | `muted`    | `muted`    |             | `boolean` | `false`     |
+| `poster`   | `poster`   |             | `string`  | `undefined` |
 | `src`      | `src`      |             | `string`  | `undefined` |
 | `start`    | `start`    |             | `string`  | `'0'`       |
-| `sticky`   | `sticky`   |             | `boolean` | `undefined` |
+| `sticky`   | `sticky`   |             | `boolean` | `false`     |
 
 
 ----------------------------------------------
