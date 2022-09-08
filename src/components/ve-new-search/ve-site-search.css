@@ -61,18 +61,47 @@
 }
 
 .search-results {
+  position: absolute;
+  top: 38px;
+  right: 0;
+  width: 500px;
+  max-width: 50vh;
+  max-height: 50vh;
+  overflow-y: scroll;
   z-index: 2;
   background-color: white;
   margin: 0 0 0 2px;
-  width: 246px;
   list-style: none;
   padding: 6px;
   border-radius: 0 0 6px 6px;
   font-size: 1rem;
 }
 
+.search-results li:nth-of-type(even) {
+  background-color: #E6E6DF;
+}
+
 .search-results li {
-  padding: 3px;;
+  padding: 3px;
+  margin: 3px;
+}
+
+.search-results li a {
+  text-decoration: none;
+  color: #444;
+}
+
+.search-results li a h3 {
+  font-weight: bold;
+}
+
+.search-results li a p {
+  font-weight: 300;
+}
+
+.search-results li:hover {
+  cursor: pointer;
+  background: #ccc;
 }
 
 .search-btn:checked ~ .wrapper .search-form {

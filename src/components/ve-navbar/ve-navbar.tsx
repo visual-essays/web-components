@@ -73,7 +73,7 @@ export class Header {
         </div>
         <div class="controls">
           { this.searchDomain && 
-            <ve-site-search search-domain="localhost:8080"></ve-site-search>
+            <ve-site-search search-domain={this.searchDomain}></ve-site-search>
           }
           <ve-menu background={this.background} position="right" contact={this.contact}>
             { this.navEl

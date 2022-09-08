@@ -9,12 +9,6 @@ import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.j
 // setBasePath(location.hostname === 'localhost' ? 'http://localhost:3333' : 'https://visual-essays.github.io/web-components/src')
 setBasePath('https://visual-essays.github.io/web-components/src')
 
-const mockResults = [
-  {label: 'Item 1'},
-  {label: 'Item 2'},
-  {label: 'Item 3'},
-]
-
 @Component({
   tag: "ve-site-search",
   styleUrl: "ve-site-search.css",
@@ -28,7 +22,7 @@ export class VeSiteSearch {
   @Element() el: HTMLElement
 
   @State() searchInput: HTMLInputElement
-  @State() searchEndpoint: string
+  @State() searchEndpoint: string = '/search'
 
   @State() searchResults: any = []
 
@@ -36,19 +30,19 @@ export class VeSiteSearch {
     this.searchInput = this.el.shadowRoot.getElementById('search-input') as HTMLInputElement
     this.searchInput.value = ''
     this.searchResults = []
-    this.searchEndpoint = `${location.hostname === 'localhost' ? 'http' : 'https'}://${this.searchDomain}/search`
+    // this.searchEndpoint = `${location.hostname === 'localhost' ? 'http' : 'https'}://${this.searchDomain}/search`
   }
 
   doSearch() {
     let start = 0
     let query = this.searchInput.value.replace(/ /,'%20')
     console.log('doSearch', query)
-    let url = `${this.searchEndpoint}?q=${query}&start=${start}`
+    let url = `${this.searchEndpoint}?domain=${this.searchDomain}&q=${query}&start=${start}`
     fetch(url)
     .then(res => res.json())
-    .then(resp => {
-      this.searchResults = mockResults
-      console.log(this.searchResults)
+    .then(results => {
+      console.log(results)
+      this.searchResults = results.items
     })
 
   }
@@ -76,7 +70,12 @@ export class VeSiteSearch {
           </div>
           { this.searchResults.length > 0 && <ul class="search-results">
               {this.searchResults.map((item) => 
-                <li>{item.label}</li>
+                <li>
+                  <a href={item.link}>
+                    <h3 innerHTML={item.htmlTitle}></h3>
+                    <p innerHTML={item.htmlSnippet}></p>
+                  </a>
+                </li>
               )}
             </ul>
           }
