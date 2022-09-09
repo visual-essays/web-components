@@ -17,20 +17,43 @@ export function md5(str: string) {
   return __md5(str)
 }
 
+function observeNavbar(navbar:HTMLElement, target:HTMLElement) {
+  const setTop = () => {
+    let top = parseInt(navbar.style.top.replace(/^-/,'').replace(/px$/,''))
+    let height = parseInt(navbar.style.height.replace(/px$/,''))
+    target.style.top = `${height-top + 12}px`
+  }
+  const observer = new MutationObserver(setTop)
+  observer.observe(navbar, { attributes: true })
+}
+
 export function makeSticky(el:HTMLElement) {
   el.classList.add('sticky')
   el.style.position = 'sticky'
-  let header = (document.querySelector('ve-header[sticky="true"]') as HTMLElement)
-  if (header) {
-    const setTop = () => {
-      let top = parseInt(header.style.top.replace(/^-/,'').replace(/px$/,''))
-      let height = parseInt(header.style.height.replace(/px$/,''))
-      el.style.top = `${height-top}px`
-    }
-    const observer = new MutationObserver(setTop)
-    observer.observe(header, { attributes: true })
+  let stickyNavbar = document.querySelector('ve-navbar[sticky="true"]') as HTMLElement
+  console.log(`makeSticky: stickyNavbar=${stickyNavbar !== null}`)
+  if (stickyNavbar) {
+    observeNavbar(stickyNavbar, el)
   } else {
-    el.style.top = '0'
+    let header = (document.querySelector('ve-header[sticky="true"]') as HTMLElement)
+    console.log(`makeSticky: header=${header !== null}`)
+    if (header) {
+      stickyNavbar = header.shadowRoot.querySelector('ve-navbar')
+      console.log(`makeSticky: stickyNavbar=${stickyNavbar !== null}`)
+      if (stickyNavbar) {
+        observeNavbar(stickyNavbar, el)
+      } else {
+        const observer = new MutationObserver(() => {
+          console.log('headerMutationObserver.callback')
+          stickyNavbar = header.shadowRoot.querySelector('ve-navbar')
+          console.log(`makeSticky: stickyNavbar=${stickyNavbar !== null}`)
+          if (stickyNavbar) observeNavbar(stickyNavbar, el)
+        })
+        observer.observe(header, { childList: true, subtree: true, attributes: true })
+      }
+    } else {
+      el.style.top = '0'
+    }
   }
 }
 

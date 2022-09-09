@@ -355,6 +355,7 @@ export class ImageViewer {
           let veImage = this.findVeImage(mark.parentElement)
           if (veImage) {
             this._zoomedIn[attr.value] = false
+            mark.classList.add('zoom')
             mark.addEventListener('click', () => setTimeout(() => {
               this._zoomedIn[attr.value] = !this._zoomedIn[attr.value]
               if (this._zoomedIn[attr.value]) this.zoomto(attr.value)

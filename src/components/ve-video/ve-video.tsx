@@ -141,6 +141,7 @@ export class Video {
       let attributes = attributesNode.item(0).value.split(',')
       let veVideo = this.findVeVideo(mark.parentElement)
       if (veVideo) {
+        mark.classList.add('play')
         mark.addEventListener('click', () => setTimeout(() => {
           this.forceMuteOnPlay = false
           if (attributes.length > 0) {
