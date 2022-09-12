@@ -29,7 +29,7 @@
 
 ### Depends on
 
-- [ve-site-search](../ve-new-search)
+- [ve-site-search](../ve-site-search)
 - [ve-menu](../ve-menu)
 
 ### Graph
@@ -38,6 +38,7 @@ graph TD;
   ve-navbar --> ve-site-search
   ve-navbar --> ve-menu
   ve-menu --> ve-contact
+  ve-menu --> ve-content-viewer
   ve-header --> ve-navbar
   style ve-navbar fill:#f9f,stroke:#333,stroke-width:4px
 ```

@@ -23,11 +23,13 @@
 ### Depends on
 
 - [ve-contact](../ve-contact)
+- [ve-content-viewer](../ve-content-viewer)
 
 ### Graph
 ```mermaid
 graph TD;
   ve-menu --> ve-contact
+  ve-menu --> ve-content-viewer
   ve-navbar --> ve-menu
   style ve-menu fill:#f9f,stroke:#333,stroke-width:4px
 ```

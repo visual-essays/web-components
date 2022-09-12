@@ -271,7 +271,7 @@ export class ImageViewer {
   }
 
   connectedCallback() {
-    console.log(`ve-image: sticky=${this.sticky} no-scroll=${this.noScroll}`)
+    // console.log(`ve-image: sticky=${this.sticky} no-scroll=${this.noScroll}`)
     // console.log(`connectedCallback: annoBase=${this.annoBase}`)
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
   }
@@ -312,31 +312,12 @@ export class ImageViewer {
   }
 
   addResizeObserver() {
-    const resizeObserver = new ResizeObserver(() => {
-      console.log('resizeObserver')
-      // this._setHostDimensions()
-    })
+    const resizeObserver = new ResizeObserver(() => this._setHostDimensions())
     resizeObserver.observe(this.el.shadowRoot.getElementById('wrapper'))
   }
 
-  setStickyTop() {
-    this.el.style.position = 'sticky'
-    let header = (document.querySelector('ve-header[sticky="true"]') as HTMLElement)
-    if (header) {
-      const callback = () => {
-        console.log('header MutationObserver callback')
-        let top = parseInt(header.style.top.replace(/^-/,'').replace(/px$/,''))
-        let height = parseInt(header.style.height.replace(/px$/,''))
-        console.log(height, top, height-top)
-        this.el.style.top = `${height-top}px`
-      }
-      const observer = new MutationObserver(callback)
-      observer.observe(header, { childList: true, subtree: true, characterData: true })
-    }
-  }
-
   componentDidLoad() {
-    this.addResizeObserver()
+    // this.addResizeObserver()
     this.el.classList.add('ve-component')
     if (this.sticky) makeSticky(this.el)
 
@@ -403,7 +384,7 @@ export class ImageViewer {
       : null
     let imageWidth = imageData ? imageData.width : null
     let imageHeight = imageData ? imageData.height : null
-    console.log(`ve-image.setHostDimensions: elWidth=${elWidth} elHeight=${elHeight} parentOffset=${parentOffset} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} imageWidth=${imageWidth} imageHeight=${imageHeight}`)
+    // console.log(`ve-image.setHostDimensions: elWidth=${elWidth} elHeight=${elHeight} parentOffset=${parentOffset} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} imageWidth=${imageWidth} imageHeight=${imageHeight}`)
     
     let width, height
     if (requestedWidth) {
@@ -433,7 +414,6 @@ export class ImageViewer {
             : requestedWidth || elWidth
           )
       } else {
-        console.log('here')
         width = elWidth
         height = Math.round(imageHeight/imageWidth * elWidth + captionHeight) // height scaled to width
       }

@@ -10,6 +10,11 @@ export namespace Components {
         "contact": string;
         "show": boolean;
     }
+    interface VeContentViewer {
+        "format": string;
+        "path": string;
+        "show": boolean;
+    }
     interface VeDepicts {
         "depicted": any[];
         "edit": () => Promise<void>;
@@ -117,15 +122,6 @@ export namespace Components {
         "sticky": boolean;
         "subtitle": string;
     }
-    interface VeSearch {
-        "animationLength": string;
-        "cx": string;
-        "icon": boolean;
-        "parentComponent": string;
-        "searchDomain": string;
-        "searchFilters": string;
-        "tooltip": string;
-    }
     interface VeSiteSearch {
         "searchDomain": string;
     }
@@ -168,6 +164,12 @@ declare global {
     var HTMLVeContactElement: {
         prototype: HTMLVeContactElement;
         new (): HTMLVeContactElement;
+    };
+    interface HTMLVeContentViewerElement extends Components.VeContentViewer, HTMLStencilElement {
+    }
+    var HTMLVeContentViewerElement: {
+        prototype: HTMLVeContentViewerElement;
+        new (): HTMLVeContentViewerElement;
     };
     interface HTMLVeDepictsElement extends Components.VeDepicts, HTMLStencilElement {
     }
@@ -253,12 +255,6 @@ declare global {
         prototype: HTMLVeNavbarElement;
         new (): HTMLVeNavbarElement;
     };
-    interface HTMLVeSearchElement extends Components.VeSearch, HTMLStencilElement {
-    }
-    var HTMLVeSearchElement: {
-        prototype: HTMLVeSearchElement;
-        new (): HTMLVeSearchElement;
-    };
     interface HTMLVeSiteSearchElement extends Components.VeSiteSearch, HTMLStencilElement {
     }
     var HTMLVeSiteSearchElement: {
@@ -285,6 +281,7 @@ declare global {
     };
     interface HTMLElementTagNameMap {
         "ve-contact": HTMLVeContactElement;
+        "ve-content-viewer": HTMLVeContentViewerElement;
         "ve-depicts": HTMLVeDepictsElement;
         "ve-depicts-dialog": HTMLVeDepictsDialogElement;
         "ve-entities": HTMLVeEntitiesElement;
@@ -299,7 +296,6 @@ declare global {
         "ve-menu": HTMLVeMenuElement;
         "ve-meta": HTMLVeMetaElement;
         "ve-navbar": HTMLVeNavbarElement;
-        "ve-search": HTMLVeSearchElement;
         "ve-site-search": HTMLVeSiteSearchElement;
         "ve-style": HTMLVeStyleElement;
         "ve-video": HTMLVeVideoElement;
@@ -309,6 +305,11 @@ declare global {
 declare namespace LocalJSX {
     interface VeContact {
         "contact"?: string;
+        "show"?: boolean;
+    }
+    interface VeContentViewer {
+        "format"?: string;
+        "path"?: string;
         "show"?: boolean;
     }
     interface VeDepicts {
@@ -421,15 +422,6 @@ declare namespace LocalJSX {
         "sticky"?: boolean;
         "subtitle"?: string;
     }
-    interface VeSearch {
-        "animationLength"?: string;
-        "cx"?: string;
-        "icon"?: boolean;
-        "parentComponent"?: string;
-        "searchDomain"?: string;
-        "searchFilters"?: string;
-        "tooltip"?: string;
-    }
     interface VeSiteSearch {
         "searchDomain"?: string;
     }
@@ -452,6 +444,7 @@ declare namespace LocalJSX {
     }
     interface IntrinsicElements {
         "ve-contact": VeContact;
+        "ve-content-viewer": VeContentViewer;
         "ve-depicts": VeDepicts;
         "ve-depicts-dialog": VeDepictsDialog;
         "ve-entities": VeEntities;
@@ -466,7 +459,6 @@ declare namespace LocalJSX {
         "ve-menu": VeMenu;
         "ve-meta": VeMeta;
         "ve-navbar": VeNavbar;
-        "ve-search": VeSearch;
         "ve-site-search": VeSiteSearch;
         "ve-style": VeStyle;
         "ve-video": VeVideo;
@@ -478,6 +470,7 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "ve-contact": LocalJSX.VeContact & JSXBase.HTMLAttributes<HTMLVeContactElement>;
+            "ve-content-viewer": LocalJSX.VeContentViewer & JSXBase.HTMLAttributes<HTMLVeContentViewerElement>;
             "ve-depicts": LocalJSX.VeDepicts & JSXBase.HTMLAttributes<HTMLVeDepictsElement>;
             "ve-depicts-dialog": LocalJSX.VeDepictsDialog & JSXBase.HTMLAttributes<HTMLVeDepictsDialogElement>;
             "ve-entities": LocalJSX.VeEntities & JSXBase.HTMLAttributes<HTMLVeEntitiesElement>;
@@ -492,7 +485,6 @@ declare module "@stencil/core" {
             "ve-menu": LocalJSX.VeMenu & JSXBase.HTMLAttributes<HTMLVeMenuElement>;
             "ve-meta": LocalJSX.VeMeta & JSXBase.HTMLAttributes<HTMLVeMetaElement>;
             "ve-navbar": LocalJSX.VeNavbar & JSXBase.HTMLAttributes<HTMLVeNavbarElement>;
-            "ve-search": LocalJSX.VeSearch & JSXBase.HTMLAttributes<HTMLVeSearchElement>;
             "ve-site-search": LocalJSX.VeSiteSearch & JSXBase.HTMLAttributes<HTMLVeSiteSearchElement>;
             "ve-style": LocalJSX.VeStyle & JSXBase.HTMLAttributes<HTMLVeStyleElement>;
             "ve-video": LocalJSX.VeVideo & JSXBase.HTMLAttributes<HTMLVeVideoElement>;

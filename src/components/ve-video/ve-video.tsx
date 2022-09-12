@@ -48,7 +48,7 @@ export class Video {
   }
 
   componentDidLoad() {
-    console.log(`ve-video.componentDidLoad: sticky=${this.sticky}`)
+    // console.log(`ve-video.componentDidLoad: sticky=${this.sticky}`)
     this.el.classList.add('ve-component')
     if (this.sticky) makeSticky(this.el)
     this.initialize()
@@ -225,7 +225,7 @@ export class Video {
   seekTo(start:string, end:string) {
     let startSecs = this.hmsToSeconds(start)
     let endSecs = this.hmsToSeconds(end)
-    console.log(`seekTo: start=${startSecs} end=${endSecs} isMuted=${this.isMuted} forceMuteOnPlay=${this.forceMuteOnPlay}`)
+    // console.log(`seekTo: start=${startSecs} end=${endSecs} isMuted=${this.isMuted} forceMuteOnPlay=${this.forceMuteOnPlay}`)
     
     // clear delayed pause
     if (this.timeoutId) {

@@ -8,8 +8,12 @@ const navIcons = {
   home: 'house-fill',
   about: 'info-circle-fill',
   contact: 'envelope-fill',
+  documentation: 'book',
+  docs: 'book',
+  help: 'question-circle',
   login: 'person-circle',
   logout: 'person-circle',
+  markdown: 'markdown',
   tools: 'tools',
   essays: 'pencil',
   editor: 'pencil',
@@ -33,8 +37,10 @@ export class VeNav {
 
   @State() navItems: any = []
 
+  @State() contentPath: string = '/visual-essays/content'
+
   connectedCallback() {
-    console.log(`ve-nav: background=${this.background} position=${this.position}`)
+    // console.log(`ve-menu: background=${this.background} position=${this.position}`)
     this.el.classList.add(this.position)
   }
 
@@ -70,10 +76,25 @@ export class VeNav {
     contactDialog.show = !contactDialog.show
   }
 
+  showHelpDialog() {
+    let helpDialog = this.el.shadowRoot.getElementById('help') as any
+    helpDialog.show = !helpDialog.show
+  }
+
+  showMarkdownDialog() {
+    let markdownDialog = this.el.shadowRoot.getElementById('markdown') as any
+    markdownDialog.show = !markdownDialog.show
+  }
+
   menuItemSelected(item: any) {
-    console.log('menuItemSelected', item)
-    if (item.label.toLowerCase().indexOf('contact') === 0 && this.contact) {
+    // console.log('menuItemSelected', item)
+    let action = item.href ? item.href.split('/').pop() : null
+    if ((action === 'contact') || item.label.toLowerCase().indexOf('contact') === 0 && this.contact) {
       this.showContactForm()
+    } else if (action === 'help') {
+      this.showHelpDialog()
+    } else if (action === 'markdown') {
+      this.showMarkdownDialog()
     } else if (item.href) {
       location.href = item.href
     }
@@ -88,6 +109,7 @@ export class VeNav {
     })
     return iconName
   }
+
 
   render() {
     return [
@@ -105,7 +127,9 @@ export class VeNav {
           </ul>
         </div>
       </div>,
-      <ve-contact contact={this.contact}></ve-contact>
+      <ve-contact contact={this.contact}></ve-contact>,
+      <ve-content-viewer id="help" path="/visual-essays/content/help" format="html"></ve-content-viewer>,
+      <ve-content-viewer id="markdown" path={this.contentPath} format="markdown"></ve-content-viewer>
     ]
   }
 

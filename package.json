@@ -1,6 +1,6 @@
 {
   "name": "visual-essays",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "description": "Visual Essays Web Components",
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
@@ -28,6 +28,7 @@
     "@stencil/core": "^2.15.1",
     "@types/leaflet": "^1.7.11",
     "@vimeo/player": "^2.17.1",
+    "highlight.js": "^11.6.0",
     "js-md5": "^0.7.3",
     "js-sha256": "^0.9.0",
     "jwt-decode": "^3.1.2",

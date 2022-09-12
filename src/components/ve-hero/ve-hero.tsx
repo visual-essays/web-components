@@ -56,7 +56,6 @@ export class Header {
   }
 
   connectedCallback() {
-    console.log(`ve-hero: height=${this.height} background=${this.background}`)
     this.imageOptions = parseImageOptions(this.options)
     getManifest(this.background).then(manifest => this._manifest = manifest)
     this.el.style.height = `${this.height}px`

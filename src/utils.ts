@@ -31,22 +31,17 @@ export function makeSticky(el:HTMLElement) {
   el.classList.add('sticky')
   el.style.position = 'sticky'
   let stickyNavbar = document.querySelector('ve-navbar[sticky="true"]') as HTMLElement
-  console.log(`makeSticky: stickyNavbar=${stickyNavbar !== null}`)
   if (stickyNavbar) {
     observeNavbar(stickyNavbar, el)
   } else {
     let header = (document.querySelector('ve-header[sticky="true"]') as HTMLElement)
-    console.log(`makeSticky: header=${header !== null}`)
     if (header) {
       stickyNavbar = header.shadowRoot.querySelector('ve-navbar')
-      console.log(`makeSticky: stickyNavbar=${stickyNavbar !== null}`)
       if (stickyNavbar) {
         observeNavbar(stickyNavbar, el)
       } else {
         const observer = new MutationObserver(() => {
-          console.log('headerMutationObserver.callback')
           stickyNavbar = header.shadowRoot.querySelector('ve-navbar')
-          console.log(`makeSticky: stickyNavbar=${stickyNavbar !== null}`)
           if (stickyNavbar) observeNavbar(stickyNavbar, el)
         })
         observer.observe(header, { childList: true, subtree: true, attributes: true })
@@ -389,7 +384,6 @@ export function thumbnail(manifest: any, width:number=400) {
   //if (manifest.thumbnail) {
   //  return manifest.thumbnail[0].id
   //} else {
-    console.log(manifest)
     let _imageInfo = imageInfo(manifest)
     return _imageInfo.service
       ? `${_imageInfo.service[0].id || _imageInfo.service[0]['@id']}/full/${width},/0/default.jpg`

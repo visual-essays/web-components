@@ -34,7 +34,6 @@ export class Footer {
       document.querySelector('main').style.paddingBottom = `${this.el.clientHeight}px`
     }
     this.footerElems = Array.from(this.el.querySelectorAll('li'))
-    console.log(this.footerElems)
   }
 
 
