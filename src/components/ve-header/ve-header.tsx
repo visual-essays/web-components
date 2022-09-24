@@ -38,6 +38,7 @@ export class Header {
   }
 
   componentWillLoad() {
+    console.log(`ve-header: sticky=${this.sticky}`)
     this.backgroundIsImage = isURL(this.background) || this.isManifestShorthand(this.background)
     if (!this.height) this.height = this.backgroundIsImage ? heroHeight : navbarHeight
     this.el.style.height = `${this.height}px`
@@ -47,6 +48,7 @@ export class Header {
         ? {label: navItem.firstChild.textContent, href: (navItem.firstChild as HTMLLinkElement).href}
         : {label: navItem.firstChild.textContent}
     )
+    if (this.sticky) this.el.classList.add('sticky')
     while (this.el.firstChild)
       this.el.removeChild(this.el.firstChild)
   }

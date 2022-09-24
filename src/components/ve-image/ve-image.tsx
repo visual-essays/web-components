@@ -271,7 +271,7 @@ export class ImageViewer {
   }
 
   connectedCallback() {
-    // console.log(`ve-image: sticky=${this.sticky} no-scroll=${this.noScroll}`)
+    console.log(`ve-image: sticky=${this.sticky} no-scroll=${this.noScroll}`)
     // console.log(`connectedCallback: annoBase=${this.annoBase}`)
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
   }
@@ -317,7 +317,7 @@ export class ImageViewer {
   }
 
   componentDidLoad() {
-    // this.addResizeObserver()
+    this.addResizeObserver()
     this.el.classList.add('ve-component')
     if (this.sticky) makeSticky(this.el)
 
@@ -358,7 +358,7 @@ export class ImageViewer {
     return el.clientWidth * .45
   }
 
-  _setHostDimensions(imageData: any = null) {
+  _setHostDimensionsSav(imageData: any = null) {
     let wrapper = this.el.shadowRoot.getElementById('wrapper')
     let captionEl = this.el.shadowRoot.getElementById('caption')
     let captionHeight = captionEl ? captionEl.clientHeight : 32
@@ -741,9 +741,45 @@ export class ImageViewer {
     this._annotatorWindow = window.open(url, '_blank', options)
   }
 
-  render() {
+  _setHostDimensions(imageData: any = null) {
+    let wrapper = this.el.shadowRoot.getElementById('wrapper')
+    let captionEl = this.el.shadowRoot.getElementById('caption')
+    let captionHeight = captionEl ? captionEl.clientHeight : 32
+    let osd = this.el.shadowRoot.getElementById('osd')
+
+    let elWidth = this.el.clientWidth || this.el.parentElement.clientWidth
+    let elHeight = this.el.clientHeight || this.el.parentElement.clientHeight
+
+    let imageWidth = imageData ? imageData.width : null
+    let imageHeight = imageData ? imageData.height : null
+
+    if (imageWidth) {
+      let orientation = imageHeight > imageWidth ? 'portrait' : 'landscape'
+      let width, height
+
+      if (orientation === 'landscape') {
+        height = window.innerHeight * .5
+        width = Math.round(imageWidth/imageHeight * (height - captionHeight)) // width scaled to height
+      } else { // orientation = portrait
+        width = elWidth * .5 - 25
+        height = Math.round(imageHeight/imageWidth * width + captionHeight)
+        this.el.classList.add('right')
+      }
+      console.log(`hostDimensions" elWidth=${elWidth} elHeight=${elHeight} imageWidth=${imageWidth} imageHeight=${imageHeight} width=${width} height=${height}`)
+
+      wrapper.style.width = `${width}px`
+      osd.style.width = `${width}px`
+    
+      wrapper.style.height = `${height}px`
+      osd.style.height = `${height - captionHeight}px`
+    }
+  }
+
+
+  viewer() {
     return this._images.length > 0
-    ? [<div id="toolbar"></div>,
+    ? [<div id="innerWrapper" style={{height:'100%'}}>
+        <div id="toolbar"></div>
         <div id="wrapper">
           <div class="osd-wrapper">
           {this.compare && this.shoelace
@@ -812,15 +848,24 @@ export class ImageViewer {
           </div>
         </div>
         <div id="image-info-popup"></div>
+      </div>
       </div>]
     : [
-        <div id="toolbar"></div>,
-        <div id="wrapper">
-          <div class="osd-wrapper">
-            <div id="osd"></div>
-            <div id="instructions" class="hidden">use ctrl + scroll or 2 fingers to zoom image.</div>
+          <div id="innerWrapper" style={{width:'100%'}}>
+          <div id="toolbar"></div>,
+          <div id="wrapper">
+            <div class="osd-wrapper">
+              <div id="osd"></div>
+              <div id="instructions" class="hidden">use ctrl + scroll or 2 fingers to zoom image.</div>
+            </div>
           </div>
-        </div>
+          </div>
     ]
+  }
+
+  render() {
+    return <div id="outerWrapper" style={{width: '100%', padding:'12px 0', backgroundColor: '#fff'}}>
+      { this.viewer() }
+    </div>
   }
 }

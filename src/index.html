@@ -4,79 +4,137 @@
     <base href="">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
-    <link href="https://visual-essays.github.io/web-app/static/all.css" rel="stylesheet" />
+    <!-- <link href="https://visual-essays.github.io/web-app/static/all.css" rel="stylesheet" /> -->
+    <!-- <link href="http://localhost:8080/static/all.css" rel="stylesheet" /> -->
     <script type="module" src="/build/visual-essays.esm.js"></script>
     <script nomodule src="/build/visual-essays.js"></script>
     <style>
-      main {
-        padding: 0;
-        max-width: 1000px;
-        margin: auto;
-      }
-      .active {
-        background-color: #ddd;
-      }
-      mark::after {
-        font-weight: 900;
-        content: "▶";
-        font-size: 75%;
-        line-height: 0;
-        position: relative;
-        vertical-align: baseline;
-        top: -0.5em;
-        padding-left: 2px;
-        padding-right: 4px;
+  
+      body {
+        font-family: Roboto, sans-serif;
+        margin: 0;
+        background-color: white;
       }
 
+      /* Mobile Devices */
+      @media (max-width: 480px) {
+        main {
+          font-size: 1.2rem;
+          line-height: 1.3;
+          padding: 0 0 40vh 0;
+        }
+      }
+  
+      /* Larger Devices */
+      @media (min-width: 481px) {
+        main {
+          font-size: 1.3rem;
+          line-height: 1.4;
+          padding: 0 1rem;
+          max-width: 1000px;
+          margin: auto;
+        }
+      }
+
+      .right {
+        float: right;
+      }
+
+      .ve-component.sticky.right + section, 
+      .ve-component.sticky.right ~ section,
+      .ve-component.sticky.right + div, 
+      .ve-component.sticky.right ~ div,
+      .ve-component.sticky.right + p, 
+      .ve-component.sticky.right ~ p,
+      .ve-component.sticky.right + ol, 
+      .ve-component.sticky.right ~ ol
+      .ve-component.sticky.right + ul, 
+      .ve-component.sticky.right ~ ul,
+      .ve-component.sticky.right + blockquote, 
+      .ve-component.sticky.right ~ blockquote,
+      .ve-component.sticky.right + ve-image-grid,
+      .ve-component.sticky.right ~ ve-image-grid {
+        width: 50%;
+      }
+    
+      .ve-component.sticky.left + section, 
+      .ve-component.sticky.left ~ section,
+      .ve-component.sticky.left + div, 
+      .ve-component.sticky.left ~ div,
+      .ve-component.sticky.left + p, 
+      .ve-component.sticky.left ~ p,
+      .ve-component.sticky.left + ol, 
+      .ve-component.sticky.left ~ ol
+      .ve-component.sticky.left + ul, 
+      .ve-component.sticky.left ~ ul,
+      .ve-component.sticky.left + blockquote, 
+      .ve-component.sticky.left ~ blockquote,
+      .ve-component.sticky.left + ve-image-grid,
+      .ve-component.sticky.left ~ ve-image-grid {
+        margin-left: 50%;
+      }
+    
     </style>
   </head>
   <body>
 
     <main>
-
-
-      <!--
-      <ve-hero background="gh:kent-map/images/Kent_Maps.jpg" sticky="true" top="220"></ve-hero>
-      <ve-navbar
-        label="Essay Title"
-        sticky="true"
-        search-domain="staging.kent-maps.online"
-        contact="ron@snyderjr.com"
-        alpha="0.2"
-        offset="80"
-      >
+      
+      <ve-header 
+        label="Kent Maps Online"
+        subtitle="A Subtitle"
+        background="gh:kent-map/images/Kent_Maps.jpg" 
+        contact="ron.snyder@ithaka.org" 
+        search-domain="kent-maps.online"
+        sticky>
         <ul>
           <li><a href="/">Home</a></li>
           <li><a href="/about">About</a></li>
-          <li>Contact Us</li>
-        </ul>
-      </ve-navbar>
-      -->
-
-      <ve-header
-        label="Essay Title"
-        sticky="true"
-        search-domain="staging.kent-maps.online"
-        contact="ron@snyderjr.com"
-        background="gh:kent-map/images/Kent_Maps.jpg"
-      >
-        <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/about">About</a></li>
-          <li><a href="/help">Help</a></li>
           <li>Contact Us</li>
         </ul>
       </ve-header>
 
-      <section style="height:100vh;background-color:#ddd;">
-        Content
+      <section class="section1">
+        <h1>Top level section</h1>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        <section class-"section2">
+          <h2>Second level section</h2>
+          <ve-image src="wc:AmalfiCoast11.jpg" sticky no-scroll></ve-image>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        </section>
+        <section class-"section2">
+          <h2>Second level section</h2>
+          <ve-image src="wc:Amalfi_Coast,_view.jpg" sticky no-scroll></ve-image>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        </section>
       </section>
 
-      <ve-footer></ve-footer>
+      <ve-footer>
+        <ul>
+          <li><img src="https://raw.githubusercontent.com/kent-map/kent/main/images/Centre_for_Kent_History_and_Heritage_logo_1.jpg"></li>
+          <li><a href="https://twitter.com/KentMaps1"><img src="https://raw.githubusercontent.com/kent-map/kent/main/images/twitter.png"></a></li>
+          <li><a href="https://dofe.kent-maps.online"><img src="https://raw.githubusercontent.com/kent-map/kent/main/images/dofe-logo.png" alt="DoE participants' showcase"></a></li>
+          <li class="push">A collaboration between: <img src="https://raw.githubusercontent.com/kent-map/kent/main/dickens/images/CCCU-logo-2colour.svg"> <a href="https://labs.jstor.org"><img src="https://raw.githubusercontent.com/kent-map/kent/main/images/labs.jpg"></a></li>
+        </ul>
+      </ve-footer>
 
     </main>
     
-    <script src="//cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.7/ScrollMagic.min.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.7/ScrollMagic.min.js" type="text/javascript"></script>
     <script src="https://api.juncture-digital.org/static/v2/js/main.js"></script>
 
   </body>

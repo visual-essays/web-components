@@ -37,7 +37,6 @@ export namespace Components {
         "entities": string;
     }
     interface VeFooter {
-        "contact": string;
         "sticky": boolean;
     }
     interface VeHeader {
@@ -336,7 +335,6 @@ declare namespace LocalJSX {
         "entities"?: string;
     }
     interface VeFooter {
-        "contact"?: string;
         "sticky"?: boolean;
     }
     interface VeHeader {

@@ -21,7 +21,7 @@ function observeNavbar(navbar:HTMLElement, target:HTMLElement) {
   const setTop = () => {
     let top = parseInt(navbar.style.top.replace(/^-/,'').replace(/px$/,''))
     let height = parseInt(navbar.style.height.replace(/px$/,''))
-    target.style.top = `${height-top + 12}px`
+    target.style.top = `${height-top}px`
   }
   const observer = new MutationObserver(setTop)
   observer.observe(navbar, { attributes: true })
@@ -34,7 +34,7 @@ export function makeSticky(el:HTMLElement) {
   if (stickyNavbar) {
     observeNavbar(stickyNavbar, el)
   } else {
-    let header = (document.querySelector('ve-header[sticky="true"]') as HTMLElement)
+    let header = (document.querySelector('ve-header[sticky]') as HTMLElement)
     if (header) {
       stickyNavbar = header.shadowRoot.querySelector('ve-navbar')
       if (stickyNavbar) {
