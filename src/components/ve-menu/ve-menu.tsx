@@ -11,6 +11,7 @@ const navIcons = {
   documentation: 'book',
   docs: 'book',
   help: 'question-circle',
+  link: 'link-45deg',
   login: 'person-circle',
   logout: 'person-circle',
   markdown: 'markdown',
@@ -102,12 +103,13 @@ export class VeNav {
   }
 
   navIcon(item: any) {
+    console.log(item)
     let iconName = ''
     let menuLabel = item.label.toLowerCase()
     Object.keys(navIcons).forEach(key => {
       if (menuLabel.indexOf(key) >= 0) iconName = navIcons[key]
     })
-    return iconName
+    return iconName ? iconName : 'link'
   }
 
 

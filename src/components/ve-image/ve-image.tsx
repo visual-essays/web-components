@@ -9,7 +9,7 @@ import jwt_decode from 'jwt-decode'
 import './openseadragon-curtain-sync'
 
 import debounce from 'lodash.debounce'
-import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isNum, makeSticky } from '../../utils'
+import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isMobile, isNum, makeSticky } from '../../utils'
 import { Annotator } from './annotator'
 import { parseInt } from 'lodash';
 
@@ -109,7 +109,7 @@ export class ImageViewer {
     this._selectedIdx = 0
     this._current = this._images.length > 0 ? this._images[0] : null
     if (this._current) {
-      this._setHostDimensions(imageInfo(this._current.manifest))
+      this._setHostDimensions(imageInfo(this._current.manifest), this._current.fit)
       if (this._viewer) {
         if (!this.compare) this._viewer.open(await this._loadTileSources())
       } else {
@@ -233,7 +233,10 @@ export class ImageViewer {
     let images: any[] = []
     if (this.src) {
       let img: any = {manifest: this.src, options: parseImageOptions(this.options)}
-      if (this.fit) img.fit = this.fit
+      if (this.fit) {
+        if (this.fit === 'cover' || this.fit === 'contain') img.fit = this.fit
+        else img.options = parseImageOptions(this.fit)
+      }
       images.push(img)
     }
     
@@ -317,7 +320,7 @@ export class ImageViewer {
   }
 
   componentDidLoad() {
-    this.addResizeObserver()
+    // this.addResizeObserver()
     this.el.classList.add('ve-component')
     if (this.sticky) makeSticky(this.el)
 
@@ -573,7 +576,7 @@ export class ImageViewer {
     this._tileSources = await this._loadTileSources()
     // let tileSources = await this._loadTileSources()
     if (!this.shoelace) {
-      let osdWrapper = this.el.shadowRoot.querySelector('.osd-wrapper')
+      let osdWrapper = this.el.shadowRoot.querySelector('.viewer')
       let height = osdWrapper.clientHeight
       let container: HTMLElement = this.el.shadowRoot.getElementById('osd')
       if (container) {
@@ -741,7 +744,8 @@ export class ImageViewer {
     this._annotatorWindow = window.open(url, '_blank', options)
   }
 
-  _setHostDimensions(imageData: any = null) {
+  _setHostDimensions(imageData: any = null, fit: string = 'contain') {
+    console.log('_setHostDimensions', imageData, fit)
     let wrapper = this.el.shadowRoot.getElementById('wrapper')
     let captionEl = this.el.shadowRoot.getElementById('caption')
     let captionHeight = captionEl ? captionEl.clientHeight : 32
@@ -757,15 +761,35 @@ export class ImageViewer {
       let orientation = imageHeight > imageWidth ? 'portrait' : 'landscape'
       let width, height
 
-      if (orientation === 'landscape') {
-        height = window.innerHeight * .5
-        width = Math.round(imageWidth/imageHeight * (height - captionHeight)) // width scaled to height
-      } else { // orientation = portrait
-        width = elWidth * .5 - 25
-        height = Math.round(imageHeight/imageWidth * width + captionHeight)
-        this.el.classList.add('right')
+      if (isMobile()) {
+
+        if (fit === 'cover') {
+          width = elWidth
+          height = window.innerHeight * .4
+        } else { // fit === contain
+          if (orientation === 'landscape') {
+            width = elWidth
+            height = Math.round(imageHeight/imageWidth * width + captionHeight)
+          } else { // orientation = portrait
+            height = window.innerHeight * .4
+            width = Math.round(imageWidth/imageHeight * (height - captionHeight))
+          }
+        }
+
+      } else {
+
+        if (orientation === 'landscape') {
+          height = window.innerHeight * .5
+          width = Math.round(imageWidth/imageHeight * (height - captionHeight)) // width scaled to height
+        } else { // orientation = portrait
+          width = elWidth * .5 - 25
+          height = Math.round(imageHeight/imageWidth * width + captionHeight)
+          this.el.classList.add('right')
+        }
+
       }
-      console.log(`hostDimensions" elWidth=${elWidth} elHeight=${elHeight} imageWidth=${imageWidth} imageHeight=${imageHeight} width=${width} height=${height}`)
+
+      console.log(`hostDimensions: fit=${fit} elWidth=${elWidth} elHeight=${elHeight} imageWidth=${imageWidth} imageHeight=${imageHeight} width=${width} height=${height}`)
 
       wrapper.style.width = `${width}px`
       osd.style.width = `${width}px`
@@ -775,97 +799,109 @@ export class ImageViewer {
     }
   }
 
-
-  viewer() {
-    return this._images.length > 0
-    ? [<div id="innerWrapper" style={{height:'100%'}}>
-        <div id="toolbar"></div>
-        <div id="wrapper">
-          <div class="osd-wrapper">
-          {this.compare && this.shoelace
-            ? <sl-image-comparer position="0">
-              {this._tileSources.map((ts:any, idx:number) =>
-                <img
-                  slot={idx === 0 ? 'before' : 'after'}
-                  src={ts.url}
-                  alt={this._value(this._images[idx].manifest.label).toString()}
-                />
-              )}
-              </sl-image-comparer>
-            : <div id="osd"></div>
-          }
-          <div id="instructions" class="hidden">use ctrl + scroll or 2 fingers to zoom image.</div>
-          <sl-drawer label="" contained class="drawer-contained" placement="start" style={{'--size': '40%'}}>
-          <ve-manifest images={this.serializedManifests()} condensed></ve-manifest>
-          <div class="annotations-heading">
-            { this.editorIsParent() || this._annotations.length > 0
-              ? <span>Annotations</span>
-              : null
-            }
-            { this.editorIsParent()
-              ? <sl-tooltip content="Annotate image">
-                  <div class="annotator-link" onClick={this.openAnnotator.bind(this)} >
-                    <sl-icon name="pencil-square"></sl-icon>
-                  </div>
-                </sl-tooltip>
-              : null
-            }
-          </div>
-          {this._annotations.length > 0
-            ? <div>
-                {this._annotations.map((anno) =>
-                  <div class="anno">
-                    <sl-tooltip content="Copy annotation ID">
-                      <sl-icon-button class="anno-copy" onClick={this._copyTextToClipboard.bind(this, anno.id.split('/').pop())} name="clipboard" label="Copy annotation ID"></sl-icon-button>
-                    </sl-tooltip>
-                    <span class="anno-link" onClick={this.setRegion.bind(this, anno.target.selector.value.split('=').pop(), false)}>{anno.body[0].value}</span>
-                  </div>
-                )}
+  renderAnnotations() {
+    return  <div>
+      <div class="annotations-heading">
+        { this.editorIsParent() || this._annotations.length > 0
+          ? <span>Annotations</span>
+          : null
+        }
+        { this.editorIsParent()
+          ? <sl-tooltip content="Annotate image">
+              <div class="annotator-link" onClick={this.openAnnotator.bind(this)} >
+                <sl-icon name="pencil-square"></sl-icon>
               </div>
-            : null
-          }
-          </sl-drawer>
-        </div>
-        {!this.compare && <span id="coords" class="viewport-coords" onClick={this._copyTextToClipboard.bind(this, this._viewportBounds)}>{this._viewportBounds}</span>}
-        <div id="caption">
-          <sl-tooltip content={`${this._infoPanelIsOpen ? 'Close' : 'Open'} image info panel`} disabled={this.isTouchEnabled()}>
-            <sl-icon-button onClick={this.toggleMenu.bind(this)} id="menu-icon" name="three-dots-vertical" label="Open image info panel"></sl-icon-button>
-          </sl-tooltip>
-          {!this.compare && this._annotations.length > 0
-            ? <sl-tooltip content={`${this._showAnnotations ? 'Hide' : 'Show'} annotations`} disabled={this.isTouchEnabled()}>
-                <div class="button-icon-with-badge" onClick={this.toggleAnnotations.bind(this)}>
-                  <sl-icon-button id="annotations-icon" name="chat-square-text" label="Show annotations"></sl-icon-button>
-                  <sl-badge variant="danger" pill>{this._annotations.length}</sl-badge>
-                </div>
-              </sl-tooltip>
-            : null
-          }
-          <div>
-            {this.compare
-              ? 'Compare viewer: move cursor over image to change view'
-              : this.alt
-            }
+            </sl-tooltip>
+          : null
+        }
+      </div>,
+      { this._annotations.length > 0 &&
+      <div>
+        {this._annotations.map((anno) =>
+          <div class="anno">
+            <sl-tooltip content="Copy annotation ID">
+              <sl-icon-button class="anno-copy" onClick={this._copyTextToClipboard.bind(this, anno.id.split('/').pop())} name="clipboard" label="Copy annotation ID"></sl-icon-button>
+            </sl-tooltip>
+            <span class="anno-link" onClick={this.setRegion.bind(this, anno.target.selector.value.split('=').pop(), false)}>{anno.body[0].value}</span>
           </div>
-        </div>
-        <div id="image-info-popup"></div>
+        )}
       </div>
-      </div>]
-    : [
-          <div id="innerWrapper" style={{width:'100%'}}>
-          <div id="toolbar"></div>,
-          <div id="wrapper">
-            <div class="osd-wrapper">
-              <div id="osd"></div>
-              <div id="instructions" class="hidden">use ctrl + scroll or 2 fingers to zoom image.</div>
-            </div>
-          </div>
-          </div>
+      }
+    </div>
+  }
+
+  renderCurtaimViewer() {
+    return <sl-image-comparer position="0">
+      {this._tileSources.map((ts:any, idx:number) =>
+        <img
+          slot={idx === 0 ? 'before' : 'after'}
+          src={ts.url}
+          alt={this._value(this._images[idx].manifest.label).toString()}
+        />
+      )}
+    </sl-image-comparer>
+  }
+
+  renderOsdViewer() {
+    return [
+      <div id="osd"></div>,
+      <div id="instructions" class="hidden">use ctrl + scroll or 2 fingers to zoom image.</div>
     ]
   }
 
+  renderViewer() {
+    return <div class="viewer">
+      {this.compare && this.shoelace
+        ? this.renderCurtaimViewer()
+        : this.renderOsdViewer()
+      }
+      { this._images.length > 0 &&
+        <sl-drawer label="" contained class="drawer-contained" placement="start" style={{'--size': '40%'}}>
+          <ve-manifest images={this.serializedManifests()} condensed></ve-manifest>
+          { this.renderAnnotations() }
+        </sl-drawer>
+      }
+    </div>
+  }
+
+  renderCaption() {
+    return <div id="caption">
+      <sl-tooltip content={`${this._infoPanelIsOpen ? 'Close' : 'Open'} image info panel`} disabled={this.isTouchEnabled()}>
+        <sl-icon-button onClick={this.toggleMenu.bind(this)} id="menu-icon" name="three-dots-vertical" label="Open image info panel"></sl-icon-button>
+      </sl-tooltip>
+      {!this.compare && this._annotations.length > 0
+        ? <sl-tooltip content={`${this._showAnnotations ? 'Hide' : 'Show'} annotations`} disabled={this.isTouchEnabled()}>
+            <div class="button-icon-with-badge" onClick={this.toggleAnnotations.bind(this)}>
+              <sl-icon-button id="annotations-icon" name="chat-square-text" label="Show annotations"></sl-icon-button>
+              <sl-badge variant="danger" pill>{this._annotations.length}</sl-badge>
+            </div>
+          </sl-tooltip>
+        : null
+      }
+      <div>
+        {this.compare
+          ? 'Compare viewer: move cursor over image to change view'
+          : this.alt
+        }
+      </div>
+    </div>
+  }
+
+  renderViewportCoords() {
+    return <span id="coords" class="viewport-coords" onClick={this._copyTextToClipboard.bind(this, this._viewportBounds)}>{this._viewportBounds}</span>
+  }
+
   render() {
-    return <div id="outerWrapper" style={{width: '100%', padding:'12px 0', backgroundColor: '#fff'}}>
-      { this.viewer() }
+    return <div style={{width: '100%', padding:'6px 0', backgroundColor: '#fff'}}>
+      <div style={{height:'100%'}}>
+        <div id="toolbar"></div>
+        <div id="wrapper">
+          { this.renderViewer() }
+          { !this.compare && this.renderViewportCoords()}
+          { this.renderCaption() }
+          <div id="image-info-popup"></div>
+        </div>
+      </div>
     </div>
   }
 }

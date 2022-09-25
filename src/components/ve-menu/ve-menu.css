@@ -36,7 +36,7 @@ ul.menu {
   list-style: none;
 }
 .menu li {
-  display: block;
+  display: flex;
   padding: 10px 20px;
   text-decoration: none;
   cursor: pointer;

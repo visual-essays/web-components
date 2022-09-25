@@ -4,7 +4,7 @@
     <base href="">
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0" />
-    <!-- <link href="https://visual-essays.github.io/web-app/static/all.css" rel="stylesheet" /> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.0.0-beta.83/dist/themes/light.css" />
     <!-- <link href="http://localhost:8080/static/all.css" rel="stylesheet" /> -->
     <script type="module" src="/build/visual-essays.esm.js"></script>
     <script nomodule src="/build/visual-essays.js"></script>
@@ -18,15 +18,25 @@
 
       /* Mobile Devices */
       @media (max-width: 480px) {
+
         main {
           font-size: 1.2rem;
           line-height: 1.3;
           padding: 0 0 40vh 0;
         }
+        main > section {
+          padding: 0 6px;
+        }
+
+        p {
+          text-align: justify;
+        }
+      
       }
   
       /* Larger Devices */
       @media (min-width: 481px) {
+
         main {
           font-size: 1.3rem;
           line-height: 1.4;
@@ -34,44 +44,45 @@
           max-width: 1000px;
           margin: auto;
         }
-      }
 
-      .right {
-        float: right;
-      }
+        .right {
+          float: right;
+        }
 
-      .ve-component.sticky.right + section, 
-      .ve-component.sticky.right ~ section,
-      .ve-component.sticky.right + div, 
-      .ve-component.sticky.right ~ div,
-      .ve-component.sticky.right + p, 
-      .ve-component.sticky.right ~ p,
-      .ve-component.sticky.right + ol, 
-      .ve-component.sticky.right ~ ol
-      .ve-component.sticky.right + ul, 
-      .ve-component.sticky.right ~ ul,
-      .ve-component.sticky.right + blockquote, 
-      .ve-component.sticky.right ~ blockquote,
-      .ve-component.sticky.right + ve-image-grid,
-      .ve-component.sticky.right ~ ve-image-grid {
-        width: 50%;
-      }
-    
-      .ve-component.sticky.left + section, 
-      .ve-component.sticky.left ~ section,
-      .ve-component.sticky.left + div, 
-      .ve-component.sticky.left ~ div,
-      .ve-component.sticky.left + p, 
-      .ve-component.sticky.left ~ p,
-      .ve-component.sticky.left + ol, 
-      .ve-component.sticky.left ~ ol
-      .ve-component.sticky.left + ul, 
-      .ve-component.sticky.left ~ ul,
-      .ve-component.sticky.left + blockquote, 
-      .ve-component.sticky.left ~ blockquote,
-      .ve-component.sticky.left + ve-image-grid,
-      .ve-component.sticky.left ~ ve-image-grid {
-        margin-left: 50%;
+        .ve-component.sticky.right + section, 
+        .ve-component.sticky.right ~ section,
+        .ve-component.sticky.right + div, 
+        .ve-component.sticky.right ~ div,
+        .ve-component.sticky.right + p, 
+        .ve-component.sticky.right ~ p,
+        .ve-component.sticky.right + ol, 
+        .ve-component.sticky.right ~ ol
+        .ve-component.sticky.right + ul, 
+        .ve-component.sticky.right ~ ul,
+        .ve-component.sticky.right + blockquote, 
+        .ve-component.sticky.right ~ blockquote,
+        .ve-component.sticky.right + ve-image-grid,
+        .ve-component.sticky.right ~ ve-image-grid {
+          width: 50%;
+        }
+      
+        .ve-component.sticky.left + section, 
+        .ve-component.sticky.left ~ section,
+        .ve-component.sticky.left + div, 
+        .ve-component.sticky.left ~ div,
+        .ve-component.sticky.left + p, 
+        .ve-component.sticky.left ~ p,
+        .ve-component.sticky.left + ol, 
+        .ve-component.sticky.left ~ ol
+        .ve-component.sticky.left + ul, 
+        .ve-component.sticky.left ~ ul,
+        .ve-component.sticky.left + blockquote, 
+        .ve-component.sticky.left ~ blockquote,
+        .ve-component.sticky.left + ve-image-grid,
+        .ve-component.sticky.left ~ ve-image-grid {
+          margin-left: 50%;
+        }
+
       }
     
     </style>
@@ -99,10 +110,8 @@
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
         <section class-"section2">
           <h2>Second level section</h2>
-          <ve-image src="wc:AmalfiCoast11.jpg" sticky no-scroll></ve-image>
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <ve-video src="https://raw.githubusercontent.com/kent-map/images/main/videos/Dickens_Museum.mp4" sticky></ve-video>
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
@@ -111,9 +120,17 @@
         </section>
         <section class-"section2">
           <h2>Second level section</h2>
-          <ve-image src="wc:Amalfi_Coast,_view.jpg" sticky no-scroll></ve-image>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <ve-image src="wc:AmalfiCoast11.jpg" fit="1996,1589,1775,1000" sticky no-scroll></ve-image>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+        </section>
+        <section class-"section2">
+          <h2>Second level section</h2>
+          <ve-image src="wc:Amalfi_Coast,_view.jpg" fit="cover" sticky no-scroll></ve-image>
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
             <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
