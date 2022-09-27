@@ -269,18 +269,24 @@
         return stack.join('.')
       }
   
-      function offsetTop() {
+      function findStickyElems() {
         let stickyElems = Array.from(document.querySelectorAll('.sticky'))
-        let offset = 0
         let stickyNavBar = stickyElems[0].localName.toLowerCase() === 've-navbar' ? stickyElems[0] : null
         if (!stickyNavBar) {
           let header = stickyElems[0].localName.toLowerCase() === 've-header' ? stickyElems[0] : null
-          if (header) stickyNavBar = header.shadowRoot.querySelector('ve-navbar.sticky')
+          if (header) {
+            stickyNavBar = header.shadowRoot.querySelector('ve-navbar.sticky')
+            if (stickyNavBar) stickyElems[0] = stickyNavBar
+            else stickyElems = stickyElems.slice(1)
+          }
         }
-        if (stickyNavBar) {
-          offset = parseInt(window.getComputedStyle(stickyNavBar).height.slice(0,-2))
-          stickyElems = stickyElems.slice(1)
-        }
+        let main = document.querySelector('main')
+        if (main) main.style.paddingBottom = '75vh'
+        return stickyElems
+      }
+
+      function activeRegionOffset() {
+        let offset = 0
         stickyElems.forEach(el => {
           let bcr = el.getBoundingClientRect()
           let col = bcr.x < bcr.width ? 0 : 1
@@ -289,39 +295,31 @@
         return offset
       }
 
+      let stickyElems = []
+      const mutationObserver = new MutationObserver(() => stickyElems = findStickyElems())
+      mutationObserver.observe(document, { childList: true, subtree: true })
+
       let targets = {}
       let active
-      Array.from(document.querySelectorAll('p'))
-        .forEach(el => {
-          const observer = new IntersectionObserver ((entries, observer) => {
-            let offset = offsetTop()
-            console.log(`offset=${offset}`)
-            entries.forEach(entry => targets[domPath(entry.target)] = entry)
-            let intersecting = Object.values(targets)
-              .filter(entry => entry.isIntersecting)
-              .filter(entry => {
-                let bcr = entry.target.getBoundingClientRect()
-                console.log(bcr, entry.target)
-                return bcr.y >= offset
-              })
-              .sort((a,b) => a.target.offsetTop > b.target.offsetTop ? 1 : -1)
-            // console.log(`targets=${Object.values(targets).length} intersecting=${Object.values(intersecting).length}`)
-            intersecting.forEach(entry => {
-              let isVisible = true
-              // console.log(isVisible, entry.intersectionRatio, entry.boundingClientRect.y, entry.target)
-            })
-            let selected = (intersecting.find(entry => entry.intersectionRatio === 1) || intersecting[0]).target
-            // console.log(selected)
-            if (Array.from(selected.classList).indexOf('active') < 0) {
-              if (active) active.classList.remove('active')
-              selected.classList.add('active')
-              active = selected
-            }
-            },
-            { root: null, threshold: [0, 0.25, 0.5, 0.75, 1], rootMargin: '-80px 0px 0px 0px' }
-          )
-          observer.observe(el)
-        })
+  
+      const intersectionObserver = new IntersectionObserver ((entries, observer) => {
+        let offset = activeRegionOffset(stickyElems)
+        entries.forEach(entry => targets[domPath(entry.target)] = entry)
+        let intersecting = Object.values(targets)
+          .filter(entry => entry.isIntersecting)
+          .filter(entry => entry.target.getBoundingClientRect().y >= offset)
+          .sort((a,b) => a.target.offsetTop > b.target.offsetTop ? 1 : -1)
+        let selected = (intersecting.find(entry => entry.intersectionRatio === 1) || intersecting[0]).target
+        if (Array.from(selected.classList).indexOf('active') < 0) {
+          if (active) active.classList.remove('active')
+          selected.classList.add('active')
+          active = selected
+        }
+        },
+        { root: null, threshold: [0, 0.25, 0.5, 0.75, 1], rootMargin: '-80px 0px 0px 0px' }
+      )
+      Array.from(document.querySelectorAll('p')).forEach(el => intersectionObserver.observe(el))
+    
     </script>
 
   </body>
