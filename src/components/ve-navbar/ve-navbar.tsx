@@ -36,6 +36,7 @@ export class Header {
     this.el.style.height = `${this.height}px`
     if (this.offset) this.el.style.marginTop = `-${this.offset}px`
     if (this.sticky) {
+      this.el.classList.add('sticky')
       this.el.style.position = 'sticky'
       this.el.style.top = '0'
     }

@@ -19,9 +19,20 @@
       }
 
       .sticky {
+        /*
         position: sticky;
         top: 0;
         padding: 0;
+        */
+      }
+
+      /* Used for placing left vertical bar on active paragraphs */
+      p {
+        border-left: 8px solid transparent;
+      }
+      p.active {
+        border-left: 4px solid #ccc;
+        padding-left: 4px;
       }
 
       /* Mobile Devices */
@@ -42,7 +53,7 @@
         }
       
       }
-  
+
       /* Larger Devices */
       @media (min-width: 481px) {
 
@@ -226,8 +237,92 @@
 
     </main>
     
+    <!--
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ScrollMagic/2.0.7/ScrollMagic.min.js" type="text/javascript"></script>
     <script src="https://api.juncture-digital.org/static/v2/js/main.js"></script>
+    -->
+
+    <script>
+      function domPath(el) {
+        var stack = []
+        while ( el.parentNode != null ) {
+          let sibCount = 0
+          let sibIndex = 0
+          for ( var i = 0; i < el.parentNode.childNodes.length; i++ ) {
+            let sib = el.parentNode.childNodes[i];
+            if ( sib.nodeName == el.nodeName ) {
+              if ( sib === el ) {
+                sibIndex = sibCount;
+              }
+              sibCount++
+            }
+          }
+          if ( el.hasAttribute('id') && el.id != '' ) {
+            stack.unshift(el.nodeName.toLowerCase() + `#${el.id}`)
+          } else if ( sibCount > 1 ) {
+            stack.unshift(el.nodeName.toLowerCase() + (sibIndex > 0 ? `[${sibIndex}]` : ''))
+          } else {
+            stack.unshift(el.nodeName.toLowerCase())
+          }
+          el = el.parentNode
+        }
+        return stack.join('.')
+      }
+  
+      function offsetTop() {
+        let stickyElems = Array.from(document.querySelectorAll('.sticky'))
+        let offset = 0
+        let stickyNavBar = stickyElems[0].localName.toLowerCase() === 've-navbar' ? stickyElems[0] : null
+        if (!stickyNavBar) {
+          let header = stickyElems[0].localName.toLowerCase() === 've-header' ? stickyElems[0] : null
+          if (header) stickyNavBar = header.shadowRoot.querySelector('ve-navbar.sticky')
+        }
+        if (stickyNavBar) {
+          offset = parseInt(window.getComputedStyle(stickyNavBar).height.slice(0,-2))
+          stickyElems = stickyElems.slice(1)
+        }
+        stickyElems.forEach(el => {
+          let bcr = el.getBoundingClientRect()
+          let col = bcr.x < bcr.width ? 0 : 1
+          if (col === 0 && bcr.top === offset) offset += parseInt(window.getComputedStyle(el).height.slice(0,-2))
+        })
+        return offset
+      }
+
+      let targets = {}
+      let active
+      Array.from(document.querySelectorAll('p'))
+        .forEach(el => {
+          const observer = new IntersectionObserver ((entries, observer) => {
+            let offset = offsetTop()
+            console.log(`offset=${offset}`)
+            entries.forEach(entry => targets[domPath(entry.target)] = entry)
+            let intersecting = Object.values(targets)
+              .filter(entry => entry.isIntersecting)
+              .filter(entry => {
+                let bcr = entry.target.getBoundingClientRect()
+                console.log(bcr, entry.target)
+                return bcr.y >= offset
+              })
+              .sort((a,b) => a.target.offsetTop > b.target.offsetTop ? 1 : -1)
+            // console.log(`targets=${Object.values(targets).length} intersecting=${Object.values(intersecting).length}`)
+            intersecting.forEach(entry => {
+              let isVisible = true
+              // console.log(isVisible, entry.intersectionRatio, entry.boundingClientRect.y, entry.target)
+            })
+            let selected = (intersecting.find(entry => entry.intersectionRatio === 1) || intersecting[0]).target
+            // console.log(selected)
+            if (Array.from(selected.classList).indexOf('active') < 0) {
+              if (active) active.classList.remove('active')
+              selected.classList.add('active')
+              active = selected
+            }
+            },
+            { root: null, threshold: [0, 0.25, 0.5, 0.75, 1], rootMargin: '-80px 0px 0px 0px' }
+          )
+          observer.observe(el)
+        })
+    </script>
 
   </body>
 </html>

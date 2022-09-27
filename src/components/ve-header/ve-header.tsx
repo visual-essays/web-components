@@ -48,7 +48,7 @@ export class Header {
         ? {label: navItem.firstChild.textContent, href: (navItem.firstChild as HTMLLinkElement).href}
         : {label: navItem.firstChild.textContent}
     )
-    // if (this.sticky) this.el.classList.add('sticky')
+    if (this.sticky) this.el.classList.add('sticky')
     while (this.el.firstChild)
       this.el.removeChild(this.el.firstChild)
   }
