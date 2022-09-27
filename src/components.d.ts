@@ -129,6 +129,7 @@ export namespace Components {
     }
     interface VeVideo {
         "autoplay": boolean;
+        "caption": string;
         "end": string;
         "loop": boolean;
         "muted": boolean;
@@ -428,6 +429,7 @@ declare namespace LocalJSX {
     }
     interface VeVideo {
         "autoplay"?: boolean;
+        "caption"?: string;
         "end"?: string;
         "loop"?: boolean;
         "muted"?: boolean;

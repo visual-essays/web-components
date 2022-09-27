@@ -46,7 +46,7 @@ export class ImageViewer {
   @Prop({ mutable: true, reflect: true }) path: string
   @Prop() compare: boolean = false
   @Prop({ mutable: true, reflect: true }) mode: string = 'curtain'
-  @Prop() width: string
+  @Prop() width: string = '100%'
   @Prop() height: string
   @Prop() align: string // 'left', 'center', 'right'
   @Prop() authToken: string = null
@@ -323,6 +323,9 @@ export class ImageViewer {
     // this.addResizeObserver()
     this.el.classList.add('ve-component')
     if (this.sticky) makeSticky(this.el)
+    if (Array.from(this.el.parentElement.classList).indexOf('sticky') >= 0) {
+      makeSticky(this.el.parentElement)
+    }
 
     // if (this._images.length > 0) this._setHostDimensions()
     this.listenForSlotChanges()
@@ -745,11 +748,12 @@ export class ImageViewer {
   }
 
   _setHostDimensions(imageData: any = null, fit: string = 'contain') {
-    console.log('_setHostDimensions', imageData, fit)
     let wrapper = this.el.shadowRoot.getElementById('wrapper')
     let captionEl = this.el.shadowRoot.getElementById('caption')
     let captionHeight = captionEl ? captionEl.clientHeight : 32
     let osd = this.el.shadowRoot.getElementById('osd')
+    let classes = Array.from(this.el.classList)
+    let position = classes.find(cls => cls === 'right' || cls === 'left' || cls === 'full')
 
     let elWidth = this.el.clientWidth || this.el.parentElement.clientWidth
     let elHeight = this.el.clientHeight || this.el.parentElement.clientHeight
@@ -768,7 +772,7 @@ export class ImageViewer {
           height = window.innerHeight * .4
         } else { // fit === contain
           if (orientation === 'landscape') {
-            width = elWidth
+            width = wrapper.clientWidth
             height = Math.round(imageHeight/imageWidth * width + captionHeight)
           } else { // orientation = portrait
             height = window.innerHeight * .4
@@ -779,17 +783,27 @@ export class ImageViewer {
       } else {
 
         if (orientation === 'landscape') {
-          height = window.innerHeight * .5
-          width = Math.round(imageWidth/imageHeight * (height - captionHeight)) // width scaled to height
+          if (position === 'full') {
+            height = window.innerHeight * .5
+            width = Math.round(imageWidth/imageHeight * (height - captionHeight)) // width scaled to height
+          } else {
+            width = wrapper.clientWidth
+            height = Math.round(imageHeight/imageWidth * width + captionHeight)
+          }
         } else { // orientation = portrait
-          width = elWidth * .5 - 25
-          height = Math.round(imageHeight/imageWidth * width + captionHeight)
-          this.el.classList.add('right')
+          if (position === 'full') {
+            width = wrapper.clientWidth
+            height = Math.round(imageHeight/imageWidth * width + captionHeight)
+          } else {
+            width = wrapper.clientWidth * .5 - 6
+            height = Math.round(imageHeight/imageWidth * width + captionHeight)
+            this.el.classList.add(position === 'left' ? 'left' : 'right')
+          }
         }
 
       }
 
-      console.log(`hostDimensions: fit=${fit} elWidth=${elWidth} elHeight=${elHeight} imageWidth=${imageWidth} imageHeight=${imageHeight} width=${width} height=${height}`)
+      console.log(`hostDimensions: position=${position} fit=${fit} elWidth=${elWidth} elHeight=${elHeight} imageWidth=${imageWidth} imageHeight=${imageHeight} width=${width} height=${height}`)
 
       wrapper.style.width = `${width}px`
       osd.style.width = `${width}px`
@@ -895,7 +909,7 @@ export class ImageViewer {
     return <div style={{width: '100%', padding:'6px 0', backgroundColor: '#fff'}}>
       <div style={{height:'100%'}}>
         <div id="toolbar"></div>
-        <div id="wrapper">
+        <div id="wrapper" style={{width: this.width}}>
           { this.renderViewer() }
           { !this.compare && this.renderViewportCoords()}
           { this.renderCaption() }

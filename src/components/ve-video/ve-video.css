@@ -1,10 +1,40 @@
+* { box-sizing: border-box; }
+
 :host {
-  position: relative;
-  display: block;
+
   z-index: 2;
-  padding: 6px 0;
+  background-color: white;
+}
+
+/* Larger Devices */
+@media (min-width: 481px) {
+  :host {
+    padding: 6px 5%;
+  }
+}
+
+/* Mobile Devices */
+@media (max-width: 480px) {
+  :host {
+    padding: 6px;
+  }
 }
 
 iframe {
   max-width: 100%;
+}
+
+#caption {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 6px 12px;
+}
+
+#wrapper {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 0;
 }

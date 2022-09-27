@@ -2,7 +2,6 @@ import { Component, Element, Prop, State, h } from '@stencil/core';
 import { makeSticky } from '../../utils'
 
 import VimeoPlayer from '@vimeo/player'
-// import YTPlayer from 'yt-player'
 import YouTubePlayer from 'youtube-player'
 
 const youtubeDomains = new Set(['youtube.com', 'youtube.co.uk', 'youtu.be'])
@@ -15,6 +14,7 @@ const vimeoDomains = new Set(['vimeo.com'])
 })
 export class Video {
   @Prop() src: string
+  @Prop() caption: string
   @Prop({ mutable: true, reflect: true }) start: string = '0'
   @Prop({ mutable: true, reflect: true }) end: string = '-1'
   @Prop({ mutable: true, reflect: true }) muted: boolean = false
@@ -38,6 +38,8 @@ export class Video {
   @State() isMuted: boolean = true
   @State() forceMuteOnPlay: boolean = true
 
+  @State() startTimes: any 
+
   connectedCallback() {
     this.startSecs = this.hmsToSeconds(this.start)
     this.endSecs = this.hmsToSeconds(this.end);
@@ -55,6 +57,7 @@ export class Video {
   }
 
   initialize() {
+    this.startTimes = this.getStartTimes()
     if (this.isYouTube) this.initializeYouTubePlayer()
     else if (this.isVimeo) this.initializeVimeoPlayer()
     else this.initializeSelfHostedPlayer()
@@ -77,7 +80,15 @@ export class Video {
         playerVars
       })
     this.player.on('ready', () => {})
-    setInterval(() => {this.player.isMuted().then(isMuted => this.isMuted = isMuted)}, 250)
+    setInterval(() => {
+      this.player.isMuted().then(isMuted => this.isMuted = isMuted)
+      this.currentTime().then(time => {
+        time = Math.round(time)
+        if (this.startTimes[time]) {
+          this.startTimes[time].scrollIntoView()
+        }
+      })
+    }, 250)
   }
 
   initializeVimeoPlayer() {
@@ -87,12 +98,18 @@ export class Video {
     this.player.on('loaded', () => {
       if (this.startSecs > 0) this.seekTo(this.start, this.autoplay ? this.end : this.start)
     })
-    setInterval(() => {this.player.getMuted().then(isMuted => this.isMuted = isMuted)}, 250)
+    setInterval(() => {
+      this.player.getMuted().then(isMuted => this.isMuted = isMuted)
+      this.currentTime().then(time => console.log(time))
+    }, 250)
   }
 
   initializeSelfHostedPlayer() {
     this.player = this.el.shadowRoot.getElementById('ve-video-self-hosted') as HTMLVideoElement
-    setInterval(() => {this.isMuted = this.muted}, 250)
+    setInterval(() => {
+      this.isMuted = this.muted
+      this.currentTime().then(time => console.log(time))
+    }, 250)
   }
 
   parseSource() {
@@ -128,8 +145,14 @@ export class Video {
     }
   }
 
-  addMarkListeners() {
+  getStartTimes() {
+    return Object.fromEntries(
+      Array.from(document.querySelectorAll('p[data-start]'))
+        .map((el:HTMLElement) => [parseInt(el.dataset.start), el])
+    )
+  }
 
+  addMarkListeners() {
     Array.from(document.querySelectorAll('[enter],[exit]')).forEach((el:HTMLElement) => {
       let veVideo = this.findVeVideo(el)
       if (veVideo) this.addMutationObserver(el)
@@ -195,6 +218,12 @@ export class Video {
     if (this.isYouTube) this.player.playVideo()
     else if (this.isVimeo) this.player.play()
     else if (this.isSelfHosted) this.player.play()
+  }
+
+  async currentTime() {
+    if (this.isYouTube) return this.player.getCurrentTime()
+    else if (this.isVimeo) return await this.player.getCurrentTime()
+    else if (this.isSelfHosted) return this.player.currentTime
   }
 
   pause() {
@@ -279,6 +308,11 @@ export class Video {
     } 
   }
 
+  renderCaption() {
+    return <div id="caption" innerHTML={this.caption}>
+    </div>
+  }
+
   renderYouTubePlayer() {
     return [<div id="video-placeholder" style={{height:'300px', width: '100%'}}></div>]
   }
@@ -334,7 +368,7 @@ export class Video {
   }
   */
 
-  render() {
+  renderPlayer() {
     return [
       this.isYouTube
       ? this.renderYouTubePlayer()
@@ -342,6 +376,13 @@ export class Video {
         ? this.renderVimeoPlayer()
         : this.renderSelfHostedPlayer()
     ]
+  }
+
+  render() {
+    return <div id="wrapper">
+        { this.renderPlayer() }
+        { this.caption && this.renderCaption() }
+      </div>
   }
 
 }
