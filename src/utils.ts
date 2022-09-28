@@ -52,6 +52,40 @@ export function makeSticky(el:HTMLElement) {
   }
 }
 
+function findStickyElems() {
+  let stickyElems = Array.from(document.querySelectorAll('.sticky'))
+  let stickyNavBar = stickyElems[0].localName.toLowerCase() === 've-navbar' ? stickyElems[0] : null
+  if (!stickyNavBar) {
+    let header = stickyElems[0].localName.toLowerCase() === 've-header' ? stickyElems[0] : null
+    if (header) {
+      stickyNavBar = header.shadowRoot.querySelector('ve-navbar.sticky')
+      if (stickyNavBar) stickyElems[0] = stickyNavBar
+      else stickyElems = stickyElems.slice(1)
+    }
+  }
+  return stickyElems
+}
+
+export function activeRegionOffset() {
+  let offset = 0
+  stickyElems.forEach(el => {
+    let bcr = el.getBoundingClientRect()
+    let col = bcr.x < bcr.width ? 0 : 1
+    if (col === 0 && bcr.top === offset) offset += parseInt(window.getComputedStyle(el).height.slice(0,-2))
+  })
+  return offset
+}
+
+export function top() {
+  return stickyElems.length > 0 && stickyElems[0].localName.toLowerCase() === 've-navbar'
+    ? parseInt(window.getComputedStyle(stickyElems[0]).height.slice(0,-2))
+    : 0
+}
+
+let stickyElems = []
+const mutationObserver = new MutationObserver(() => stickyElems = findStickyElems())
+mutationObserver.observe(document, { childList: true, subtree: true })
+
 export async function getManifest(manifestId: string, refresh: boolean=false) {
   let manifestUrl = manifestId.indexOf('http') === 0
     ? manifestId

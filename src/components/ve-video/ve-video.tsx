@@ -1,5 +1,5 @@
 import { Component, Element, Prop, State, h } from '@stencil/core';
-import { makeSticky } from '../../utils'
+import { makeSticky, top } from '../../utils'
 
 import VimeoPlayer from '@vimeo/player'
 import YouTubePlayer from 'youtube-player'
@@ -85,10 +85,17 @@ export class Video {
       this.currentTime().then(time => {
         time = Math.round(time)
         if (this.startTimes[time]) {
-          this.startTimes[time].scrollIntoView()
+
+          // scroll player to top
+          let player = document.querySelector('ve-video')
+          window.scrollTo(0, player.getBoundingClientRect().top + window.scrollY - top())
+
+          // scroll paragraph into active region
+          let bcr = this.startTimes[time].getBoundingClientRect()
+          window.scrollTo(0, bcr.top + window.scrollY - player.getBoundingClientRect().bottom)
         }
       })
-    }, 250)
+    }, 1000)
   }
 
   initializeVimeoPlayer() {
