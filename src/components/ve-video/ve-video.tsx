@@ -36,6 +36,7 @@ export class Video {
   @State() videoId: string
 
   @State() isMuted: boolean = true
+  @State() isPlaying: boolean = false
   @State() forceMuteOnPlay: boolean = true
 
   @State() startTimes: any 
@@ -62,9 +63,39 @@ export class Video {
     else if (this.isVimeo) this.initializeVimeoPlayer()
     else this.initializeSelfHostedPlayer()
     this.addMarkListeners()
-    // setInterval(() => {this.isPlaying().then(isPlaying => console.log(`isPlaying=${isPlaying}`))}, 1000)
   }
+  
+  monitor() {
+    let playerEl = document.querySelector('ve-video')
+    let playerScrolledToTop = false
     
+    setInterval(async () => {
+      this.isMuted = await this.getIsMuted()
+      this.isPlaying = await this.getIsPlaying()
+
+      console.log(`ve-video: isMuted=${this.isMuted} isPlaying=${this.isPlaying}`)
+      if (this.isPlaying && this.sticky && !playerScrolledToTop) {
+        // scroll player to top
+        console.log(`player.scrollTo`)
+        window.scrollTo(0, playerEl.getBoundingClientRect().top + window.scrollY - top())
+        // playerScrolledToTop = true
+      }
+
+      if (this.isPlaying) {
+        this.getCurrentTime().then(time => {
+          time = Math.round(time)
+          if (this.startTimes[time]) {
+            // scroll paragraph into active region
+            let bcr = this.startTimes[time].getBoundingClientRect()
+            console.log(`elem.scrollTo`)
+            window.scrollTo(0, bcr.top + window.scrollY - playerEl.getBoundingClientRect().bottom)
+          }
+        })
+      }
+    }, 1000)
+
+  }
+
   initializeYouTubePlayer() {
     let playerVars = {
       color: 'white',
@@ -80,22 +111,7 @@ export class Video {
         playerVars
       })
     this.player.on('ready', () => {})
-    setInterval(() => {
-      this.player.isMuted().then(isMuted => this.isMuted = isMuted)
-      this.currentTime().then(time => {
-        time = Math.round(time)
-        if (this.startTimes[time]) {
-
-          // scroll player to top
-          let player = document.querySelector('ve-video')
-          window.scrollTo(0, player.getBoundingClientRect().top + window.scrollY - top())
-
-          // scroll paragraph into active region
-          let bcr = this.startTimes[time].getBoundingClientRect()
-          window.scrollTo(0, bcr.top + window.scrollY - player.getBoundingClientRect().bottom)
-        }
-      })
-    }, 1000)
+    this.monitor()
   }
 
   initializeVimeoPlayer() {
@@ -105,18 +121,12 @@ export class Video {
     this.player.on('loaded', () => {
       if (this.startSecs > 0) this.seekTo(this.start, this.autoplay ? this.end : this.start)
     })
-    setInterval(() => {
-      this.player.getMuted().then(isMuted => this.isMuted = isMuted)
-      this.currentTime().then(time => console.log(time))
-    }, 250)
+    this.monitor()
   }
 
   initializeSelfHostedPlayer() {
     this.player = this.el.shadowRoot.getElementById('ve-video-self-hosted') as HTMLVideoElement
-    setInterval(() => {
-      this.isMuted = this.muted
-      this.currentTime().then(time => console.log(time))
-    }, 250)
+    this.monitor()
   }
 
   parseSource() {
@@ -227,7 +237,7 @@ export class Video {
     else if (this.isSelfHosted) this.player.play()
   }
 
-  async currentTime() {
+  async getCurrentTime() {
     if (this.isYouTube) return this.player.getCurrentTime()
     else if (this.isVimeo) return await this.player.getCurrentTime()
     else if (this.isSelfHosted) return this.player.currentTime
@@ -239,7 +249,7 @@ export class Video {
     else if (this.isSelfHosted) this.player.pause()
   }
 
-  async isPlaying() {
+  async getIsPlaying() {
     if (this.isYouTube) return await this.player.getPlayerState() === 1
     else if (this.isVimeo) {
       return !(await this.player.getEnded() || await this.player.getPaused())
@@ -249,7 +259,13 @@ export class Video {
     }
   }
 
-  setMute(mute:boolean) {
+  async getIsMuted() {
+    if (this.isYouTube) return await this.player.isMuted()
+    else if (this.isVimeo) return await this.player.getMuted()
+    else return await this.muted
+  }
+
+  setMuted(mute:boolean) {
     if (this.isYouTube) {
       if (mute) this.player.mute()
       else this.player.unMute()
@@ -270,7 +286,7 @@ export class Video {
     }
 
     let wasMuted = this.isMuted
-    if (this.forceMuteOnPlay) this.setMute(true)
+    if (this.forceMuteOnPlay) this.setMuted(true)
 
     if (this.isYouTube) {
       this.player.playVideo()
@@ -279,7 +295,7 @@ export class Video {
           this.timeoutId = setTimeout(() => {
             this.player.pauseVideo().then(_ => {
               this.timeoutId = null
-              if (!wasMuted && this.forceMuteOnPlay) this.setMute(false)
+              if (!wasMuted && this.forceMuteOnPlay) this.setMuted(false)
             })
           }, endSecs === startSecs ? 200 : (endSecs-startSecs)*1000)
         }
@@ -293,7 +309,7 @@ export class Video {
           this.timeoutId = setTimeout(() => {
             this.player.pause().then(_ => {
               this.timeoutId = null
-              if (!wasMuted && this.forceMuteOnPlay) this.setMute(false)
+              if (!wasMuted && this.forceMuteOnPlay) this.setMuted(false)
             })
           }, endSecs === startSecs ? 200 : (endSecs-startSecs)*1000)
         }
@@ -308,7 +324,7 @@ export class Video {
           this.timeoutId = setTimeout(() => {
             this.timeoutId = null
             this.player.pause()
-            if (!wasMuted && this.forceMuteOnPlay) this.setMute(false)
+            if (!wasMuted && this.forceMuteOnPlay) this.setMuted(false)
           }, endSecs === startSecs ? 200 : (endSecs-startSecs)*1000)
         }
       }, 200)
@@ -334,11 +350,11 @@ export class Video {
     let fileExtension = this.src.split('#')[0].split('.').pop()
     if (this.autoplay && this.startSecs >= 0 && this.endSecs > this.startSecs) {
       let wasMuted = this.muted
-      if (this.forceMuteOnPlay) this.setMute(true)
+      if (this.forceMuteOnPlay) this.setMuted(true)
       this.timeoutId = setTimeout(() => {
         this.player.pauseVideo().then(_ => {
           this.timeoutId = null
-          if (!wasMuted && this.forceMuteOnPlay) this.setMute(false)
+          if (!wasMuted && this.forceMuteOnPlay) this.setMuted(false)
         })
       }, this.endSecs === this.startSecs ? 200 : (this.endSecs-this.startSecs)*1000)
     }

@@ -3,13 +3,12 @@ import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
 import OpenSeadragon from 'openseadragon'
 import OpenSeadragonViewerInputHook from '@openseadragon-imaging/openseadragon-viewerinputhook';
 
-import { sha256 } from '../../utils'
 import jwt_decode from 'jwt-decode'
 
 import './openseadragon-curtain-sync'
 
 import debounce from 'lodash.debounce'
-import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isMobile, isNum, makeSticky } from '../../utils'
+import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isMobile, isNum, makeSticky, sha256 } from '../../utils'
 import { Annotator } from './annotator'
 import { parseInt } from 'lodash';
 
@@ -233,10 +232,8 @@ export class ImageViewer {
     let images: any[] = []
     if (this.src) {
       let img: any = {manifest: this.src, options: parseImageOptions(this.options)}
-      if (this.fit) {
-        if (this.fit === 'cover' || this.fit === 'contain') img.fit = this.fit
-        else img.options = parseImageOptions(this.fit)
-      }
+      img.fit = (this.fit === 'cover' || this.fit === 'contain') ? this.fit : this.fit ? 'custom' : 'contain'
+      if (img.fit === 'custom') img.options = parseImageOptions(this.fit)
       images.push(img)
     }
     
@@ -274,7 +271,7 @@ export class ImageViewer {
   }
 
   connectedCallback() {
-    console.log(`ve-image: sticky=${this.sticky} no-scroll=${this.noScroll}`)
+    // console.log(`ve-image: sticky=${this.sticky} no-scroll=${this.noScroll}`)
     // console.log(`connectedCallback: annoBase=${this.annoBase}`)
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
   }
@@ -443,7 +440,6 @@ export class ImageViewer {
     let tileSource
     if (imgUrl.indexOf('/info.json') > 0) {
       if (this.compare) {
-        // let url = `${imgUrl.slice(0,-10)}/${options.region}/${options.size}/${options.rotation}/${options.quality}.${options.format}`
         let url = `${imgUrl.slice(0,-10)}/${options.region}/1000,/${options.rotation}/${options.quality}.${options.format}`
         tileSource = { url, type: 'image', buildPyramid: true }
       } else {
@@ -783,33 +779,47 @@ export class ImageViewer {
       } else {
 
         if (orientation === 'landscape') {
-          if (position === 'full') {
+          if (this.compare) {
+            width = wrapper.clientWidth
+            height = Math.round(imageHeight/imageWidth * width)
+          } else if (position === 'full') {
             height = window.innerHeight * .5
-            width = Math.round(imageWidth/imageHeight * (height - captionHeight)) // width scaled to height
+            width = fit === 'contain'
+              ? Math.round(imageWidth/imageHeight * (height - captionHeight)) // width scaled to height
+              : wrapper.clientWidth
           } else {
             width = wrapper.clientWidth
-            height = Math.round(imageHeight/imageWidth * width + captionHeight)
+            height = fit === 'contain'
+              ? Math.round(imageHeight/imageWidth * width + captionHeight)
+              : Math.min(this.el.parentElement.clientHeight, window.innerHeight * .5)
           }
         } else { // orientation = portrait
-          if (position === 'full') {
+          if (this.compare) {
+            height = window.innerHeight * .6 + captionHeight
+            width = Math.round(imageWidth/imageHeight * height)
+          } else if (position === 'full') {
             width = wrapper.clientWidth
-            height = Math.round(imageHeight/imageWidth * width + captionHeight)
+            height = fit === 'contain'
+              ? Math.min(Math.round(imageHeight/imageWidth * width + captionHeight), window.innerHeight * .5)
+              : window.innerHeight * .5
           } else {
             width = wrapper.clientWidth * .5 - 6
-            height = Math.round(imageHeight/imageWidth * width + captionHeight)
+            height = fit === 'contain'
+              ? Math.round(imageHeight/imageWidth * width + captionHeight)
+              : window.innerHeight * .5
             this.el.classList.add(position === 'left' ? 'left' : 'right')
           }
         }
 
       }
 
-      console.log(`hostDimensions: position=${position} fit=${fit} elWidth=${elWidth} elHeight=${elHeight} imageWidth=${imageWidth} imageHeight=${imageHeight} width=${width} height=${height}`)
+      console.log(`hostDimensions: compare=${this.compare} orientation=${orientation} position=${position} fit=${fit} elWidth=${elWidth} elHeight=${elHeight} imageWidth=${imageWidth} imageHeight=${imageHeight} width=${width} height=${height}`)
 
       wrapper.style.width = `${width}px`
-      osd.style.width = `${width}px`
+      if (osd) osd.style.width = `${width}px`
     
-      wrapper.style.height = `${height}px`
-      osd.style.height = `${height - captionHeight}px`
+      wrapper.style.height = `${height - captionHeight}px`
+      if (osd) osd.style.height = `${height - captionHeight}px`
     }
   }
 
@@ -844,10 +854,10 @@ export class ImageViewer {
     </div>
   }
 
-  renderCurtaimViewer() {
-    return <sl-image-comparer position="0">
+  renderCurtainViewer() {
+    return <sl-image-comparer position="50">
       {this._tileSources.map((ts:any, idx:number) =>
-        <img
+        <img style={{}}
           slot={idx === 0 ? 'before' : 'after'}
           src={ts.url}
           alt={this._value(this._images[idx].manifest.label).toString()}
@@ -864,9 +874,9 @@ export class ImageViewer {
   }
 
   renderViewer() {
-    return <div class="viewer">
+    return <div class="viewer" style={{height: '100%'}}>
       {this.compare && this.shoelace
-        ? this.renderCurtaimViewer()
+        ? this.renderCurtainViewer()
         : this.renderOsdViewer()
       }
       { this._images.length > 0 &&

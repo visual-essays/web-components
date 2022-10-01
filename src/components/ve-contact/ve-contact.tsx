@@ -16,7 +16,8 @@ const emailEndpoint = 'https://api.juncture-digital.org/sendmail/'
 
 @Component({
   tag: 've-contact',
-  styleUrls: ['ve-contact.css','../global/global.css'],
+  // styleUrls: ['ve-contact.css','../global/global.css'],
+  styleUrl: 've-contact.css',
   shadow: true
 })
 export class Header {

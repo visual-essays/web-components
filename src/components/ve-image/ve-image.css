@@ -43,7 +43,7 @@ sl-image-comparer {
 }
 
 sl-image-comparer img {
-  width: 100%;
+  /* width: 100%; */
 }
 
 :host, ve-image {

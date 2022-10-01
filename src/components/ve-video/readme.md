@@ -10,6 +10,7 @@
 | Property   | Attribute  | Description | Type      | Default     |
 | ---------- | ---------- | ----------- | --------- | ----------- |
 | `autoplay` | `autoplay` |             | `boolean` | `false`     |
+| `caption`  | `caption`  |             | `string`  | `undefined` |
 | `end`      | `end`      |             | `string`  | `'-1'`      |
 | `loop`     | `loop`     |             | `boolean` | `false`     |
 | `muted`    | `muted`    |             | `boolean` | `false`     |

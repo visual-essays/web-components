@@ -65,6 +65,7 @@ export class MapViewer {
 
   async initMap() {
     // console.log('initMap', this.el.parentElement.clientHeight)
+    console.log(this.el.parentElement)
     let center: L.LatLng
     if (this.center) {
       center = await this.latLng(this.center)

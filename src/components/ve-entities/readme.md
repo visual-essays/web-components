@@ -7,9 +7,10 @@
 
 ## Properties
 
-| Property   | Attribute  | Description | Type     | Default     |
-| ---------- | ---------- | ----------- | -------- | ----------- |
-| `entities` | `entities` |             | `string` | `undefined` |
+| Property   | Attribute  | Description | Type      | Default     |
+| ---------- | ---------- | ----------- | --------- | ----------- |
+| `language` | `language` |             | `string`  | `undefined` |
+| `sticky`   | `sticky`   |             | `boolean` | `undefined` |
 
 
 ----------------------------------------------

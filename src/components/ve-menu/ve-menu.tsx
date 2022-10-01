@@ -103,7 +103,6 @@ export class VeNav {
   }
 
   navIcon(item: any) {
-    console.log(item)
     let iconName = ''
     let menuLabel = item.label.toLowerCase()
     Object.keys(navIcons).forEach(key => {

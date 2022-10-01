@@ -26,7 +26,7 @@
 | `src`       | `src`        |             | `string`  | `undefined` |
 | `sticky`    | `sticky`     |             | `boolean` | `undefined` |
 | `user`      | `user`       |             | `string`  | `null`      |
-| `width`     | `width`      |             | `string`  | `undefined` |
+| `width`     | `width`      |             | `string`  | `'100%'`    |
 
 
 ## Dependencies

@@ -34,7 +34,8 @@ export namespace Components {
         "thumbnail": string;
     }
     interface VeEntities {
-        "entities": string;
+        "language": string;
+        "sticky": boolean;
     }
     interface VeFooter {
         "sticky": boolean;
@@ -333,7 +334,8 @@ declare namespace LocalJSX {
         "thumbnail"?: string;
     }
     interface VeEntities {
-        "entities"?: string;
+        "language"?: string;
+        "sticky"?: boolean;
     }
     interface VeFooter {
         "sticky"?: boolean;

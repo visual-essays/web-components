@@ -30,7 +30,7 @@ export class Header {
   }
 
   componentWillLoad() {
-    console.log(`ve-navbar: sticky=${this.sticky} height=${this.height}`)
+    // console.log(`ve-navbar: sticky=${this.sticky} height=${this.height}`)
     if (this.background) this.el.style.backgroundColor = this.background
     if (this.alpha) this.el.style.background = `rgba(0, 0, 0, ${this.alpha})`
     this.el.style.height = `${this.height}px`

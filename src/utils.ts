@@ -21,7 +21,9 @@ function observeNavbar(navbar:HTMLElement, target:HTMLElement) {
   const setTop = () => {
     let top = parseInt(navbar.style.top.replace(/^-/,'').replace(/px$/,''))
     let height = parseInt(navbar.style.height.replace(/px$/,''))
-    target.style.top = `${height-top}px`
+    let topOffset = height - top
+    if (target.style.top) topOffset += parseInt(target.style.marginTop.slice(0,-2))
+    target.style.top = `${topOffset}px`
   }
   const observer = new MutationObserver(setTop)
   observer.observe(navbar, { attributes: true })
@@ -54,9 +56,9 @@ export function makeSticky(el:HTMLElement) {
 
 function findStickyElems() {
   let stickyElems = Array.from(document.querySelectorAll('.sticky'))
-  let stickyNavBar = stickyElems[0].localName.toLowerCase() === 've-navbar' ? stickyElems[0] : null
+  let stickyNavBar = stickyElems[0]?.localName.toLowerCase() === 've-navbar' ? stickyElems[0] : null
   if (!stickyNavBar) {
-    let header = stickyElems[0].localName.toLowerCase() === 've-header' ? stickyElems[0] : null
+    let header = stickyElems[0]?.localName.toLowerCase() === 've-header' ? stickyElems[0] : null
     if (header) {
       stickyNavBar = header.shadowRoot.querySelector('ve-navbar.sticky')
       if (stickyNavBar) stickyElems[0] = stickyNavBar
@@ -314,10 +316,12 @@ export async function getEntityData(qids: string[] = [], language: string = 'en'
           if (rec.alias) entityData[qid].aliases.push(rec.alias.value)
         }
       })
-      return entityData
+      // return entityData
+      return Object.fromEntries(qids.filter(qid => entityData[qid]).map(qid => [qid,entityData[qid]]))
     }
   }
-  return entityData
+  // return entityData
+  return Object.fromEntries(qids.filter(qid => entityData[qid]).map(qid => [qid,entityData[qid]]))
 }
 
 export function isQID(s: string) {
