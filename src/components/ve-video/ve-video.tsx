@@ -73,7 +73,7 @@ export class Video {
       this.isMuted = await this.getIsMuted()
       this.isPlaying = await this.getIsPlaying()
 
-      console.log(`ve-video: isMuted=${this.isMuted} isPlaying=${this.isPlaying}`)
+      // console.log(`ve-video: isMuted=${this.isMuted} isPlaying=${this.isPlaying}`)
       if (this.isPlaying && this.sticky && !playerScrolledToTop) {
         // scroll player to top
         console.log(`player.scrollTo`)

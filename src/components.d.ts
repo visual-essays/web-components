@@ -10,6 +10,9 @@ export namespace Components {
         "contact": string;
         "show": boolean;
     }
+    interface VeContentPath {
+        "sticky": boolean;
+    }
     interface VeContentViewer {
         "format": string;
         "path": string;
@@ -70,7 +73,6 @@ export namespace Components {
         "fit": string;
         "height": string;
         "mode": string;
-        "noScroll": boolean;
         "options": string;
         "path": string;
         "seq": number;
@@ -79,6 +81,7 @@ export namespace Components {
         "sticky": boolean;
         "user": string;
         "width": string;
+        "zoomOnScroll": boolean;
     }
     interface VeImageCard {
         "manifest": string;
@@ -165,6 +168,12 @@ declare global {
     var HTMLVeContactElement: {
         prototype: HTMLVeContactElement;
         new (): HTMLVeContactElement;
+    };
+    interface HTMLVeContentPathElement extends Components.VeContentPath, HTMLStencilElement {
+    }
+    var HTMLVeContentPathElement: {
+        prototype: HTMLVeContentPathElement;
+        new (): HTMLVeContentPathElement;
     };
     interface HTMLVeContentViewerElement extends Components.VeContentViewer, HTMLStencilElement {
     }
@@ -282,6 +291,7 @@ declare global {
     };
     interface HTMLElementTagNameMap {
         "ve-contact": HTMLVeContactElement;
+        "ve-content-path": HTMLVeContentPathElement;
         "ve-content-viewer": HTMLVeContentViewerElement;
         "ve-depicts": HTMLVeDepictsElement;
         "ve-depicts-dialog": HTMLVeDepictsDialogElement;
@@ -307,6 +317,9 @@ declare namespace LocalJSX {
     interface VeContact {
         "contact"?: string;
         "show"?: boolean;
+    }
+    interface VeContentPath {
+        "sticky"?: boolean;
     }
     interface VeContentViewer {
         "format"?: string;
@@ -370,7 +383,6 @@ declare namespace LocalJSX {
         "fit"?: string;
         "height"?: string;
         "mode"?: string;
-        "noScroll"?: boolean;
         "options"?: string;
         "path"?: string;
         "seq"?: number;
@@ -379,6 +391,7 @@ declare namespace LocalJSX {
         "sticky"?: boolean;
         "user"?: string;
         "width"?: string;
+        "zoomOnScroll"?: boolean;
     }
     interface VeImageCard {
         "manifest"?: string;
@@ -446,6 +459,7 @@ declare namespace LocalJSX {
     }
     interface IntrinsicElements {
         "ve-contact": VeContact;
+        "ve-content-path": VeContentPath;
         "ve-content-viewer": VeContentViewer;
         "ve-depicts": VeDepicts;
         "ve-depicts-dialog": VeDepictsDialog;
@@ -472,6 +486,7 @@ declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
             "ve-contact": LocalJSX.VeContact & JSXBase.HTMLAttributes<HTMLVeContactElement>;
+            "ve-content-path": LocalJSX.VeContentPath & JSXBase.HTMLAttributes<HTMLVeContentPathElement>;
             "ve-content-viewer": LocalJSX.VeContentViewer & JSXBase.HTMLAttributes<HTMLVeContentViewerElement>;
             "ve-depicts": LocalJSX.VeDepicts & JSXBase.HTMLAttributes<HTMLVeDepictsElement>;
             "ve-depicts-dialog": LocalJSX.VeDepictsDialog & JSXBase.HTMLAttributes<HTMLVeDepictsDialogElement>;

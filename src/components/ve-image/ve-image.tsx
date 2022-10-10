@@ -52,7 +52,7 @@ export class ImageViewer {
   @Prop() annoBase: string
   @Prop() shoelace: boolean = true
   @Prop() sticky: boolean
-  @Prop() noScroll: boolean
+  @Prop() zoomOnScroll: boolean = false
 
   @Element() el: HTMLElement;
 
@@ -271,7 +271,7 @@ export class ImageViewer {
   }
 
   connectedCallback() {
-    // console.log(`ve-image: sticky=${this.sticky} no-scroll=${this.noScroll}`)
+    // console.log(`ve-image: sticky=${this.sticky} zoomOnScroll=${this.zoomOnScroll}`)
     // console.log(`connectedCallback: annoBase=${this.annoBase}`)
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
   }
@@ -514,6 +514,7 @@ export class ImageViewer {
   }
 
   configureScrollBehavior() {
+    console.log(`configureScrollBehavior: isMobile=${isMobile()} isTouchEnabled=${this.isTouchEnabled()} zoomOnScroll=${this.zoomOnScroll} isFullPage=${this._viewer.isFullPage()}`)
     /* This is intended to provide touch-based scrolling of OSD images in mobile mode.  Pan/zoom is
     disabled to permit scrolling.  The technique for doing this is as described in this
     OSD Github issue - https://github.com/openseadragon/openseadragon/issues/1791#issuecomment-1000045888
@@ -525,50 +526,52 @@ export class ImageViewer {
     const canvas: any = this.el.shadowRoot.querySelector('.openseadragon-canvas')
     canvas.style.touchAction = 'pan-y'
 
-    new OpenSeadragonViewerInputHook({ viewer: this._viewer, hooks: [
-      {tracker: 'viewer', handler: 'scrollHandler', hookHandler: (event) => {
-        if (!this._viewer.isFullPage() && !event.originalEvent.ctrlKey) {
-          event.preventDefaultAction = true
-          event.stopHandlers = true
-          // display meta key warning
-          if (instructions.className == 'hidden') {
-            instructions.className = 'visible'
-            setTimeout(() => instructions.className = 'hidden', 1000)
-          }
-        } else {
-          if (instructions.className == 'visible') instructions.className = 'hidden'
-        }
-        return true
-      }}
-    ]})
+    if (!this.zoomOnScroll) {
 
-    /*
-    // Inhibits panning using drag
-    new OpenSeadragonViewerInputHook({ viewer: this._viewer, hooks: [
-      {tracker: 'viewer', handler: 'dragHandler', hookHandler: (event) => {
-        // if mobile disable drag event 
-        // pinch event handles panning with 2 fingers
-        if (!this._viewer.isFullPage() && this.isTouchEnabled()) {
+      new OpenSeadragonViewerInputHook({ viewer: this._viewer, hooks: [
+        {tracker: 'viewer', handler: 'scrollHandler', hookHandler: (event) => {
+          if (!this._viewer.isFullPage() && !event.originalEvent.ctrlKey) {
+            event.preventDefaultAction = true
+            event.stopHandlers = true
+            // display meta key warning
+            if (instructions.className == 'hidden') {
+              instructions.className = 'visible'
+              setTimeout(() => instructions.className = 'hidden', 1000)
+            }
+          } else {
+            if (instructions.className == 'visible') instructions.className = 'hidden'
+          }
+          return true
+        }}
+      ]})
+    }
+
+      // Inhibits panning using drag
+      new OpenSeadragonViewerInputHook({ viewer: this._viewer, hooks: [
+        {tracker: 'viewer', handler: 'dragHandler', hookHandler: (event) => {
+          // if mobile disable drag event 
+          // pinch event handles panning with 2 fingers
+          if (!this._viewer.isFullPage() && this.isTouchEnabled()) {
+            event.preventDefaultAction = true
+            event.stopHandlers = true
+            if (instructions.className == 'hidden') {
+              instructions.className = 'visible'
+              setTimeout(() => instructions.className = 'hidden', 1000)
+            }
+          } else {
+            if (instructions.className == 'visible') instructions.className = 'hidden';
+          }
+          return true
+        }}
+      ]})
+
+      new OpenSeadragonViewerInputHook({ viewer: this._viewer, hooks: [
+        {tracker: 'viewer', handler: 'dragEndHandler', hookHandler: (event) => {
           event.preventDefaultAction = true
           event.stopHandlers = true
-          if (instructions.className == 'hidden') {
-            instructions.className = 'visible'
-            setTimeout(() => instructions.className = 'hidden', 1000)
-          }
-        } else {
-          if (instructions.className == 'visible') instructions.className = 'hidden';
-        }
-        return true
-      }}
-    ]})
-    */
-   
-    new OpenSeadragonViewerInputHook({ viewer: this._viewer, hooks: [
-      {tracker: 'viewer', handler: 'dragEndHandler', hookHandler: (event) => {
-        event.preventDefaultAction = true
-        event.stopHandlers = true
-      }}
-    ]})
+        }}
+      ]})
+  
   }
 
   async _compareViewerInit() {
@@ -638,7 +641,7 @@ export class ImageViewer {
     // this._viewer = OpenSeadragon(osdOptions);
 
     this._viewer = OpenSeadragon(osdOptions)
-    if (location.hostname.indexOf('iiif') < 0 && this.noScroll) this.configureScrollBehavior()
+    this.configureScrollBehavior()
 
     this._annotator = new Annotator(this._viewer, this.el.shadowRoot.querySelector('#toolbar'), this.authToken)
     if (this._annoTarget) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
@@ -744,6 +747,7 @@ export class ImageViewer {
   }
 
   _setHostDimensions(imageData: any = null, fit: string = 'contain') {
+    let outer = this.el.shadowRoot.getElementById('outer')
     let wrapper = this.el.shadowRoot.getElementById('wrapper')
     let captionEl = this.el.shadowRoot.getElementById('caption')
     let captionHeight = captionEl ? captionEl.clientHeight : 32
@@ -820,6 +824,16 @@ export class ImageViewer {
     
       wrapper.style.height = `${height - captionHeight}px`
       if (osd) osd.style.height = `${height - captionHeight}px`
+
+      outer.style.height = `${height}px`
+
+      if (osd) {
+        osd.addEventListener('click', (evt:PointerEvent) => {
+          console.log('image clicked', evt)
+          // evt.preventDefault()
+          // this._viewer.setFullScreen(true)
+        })
+      }
     }
   }
 
@@ -917,7 +931,7 @@ export class ImageViewer {
 
   render() {
     return <div style={{width: '100%', padding:'6px 0', backgroundColor: '#fff'}}>
-      <div style={{height:'100%'}}>
+      <div id="outer">
         <div id="toolbar"></div>
         <div id="wrapper" style={{width: this.width}}>
           { this.renderViewer() }

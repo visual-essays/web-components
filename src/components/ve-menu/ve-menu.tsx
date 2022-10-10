@@ -42,6 +42,19 @@ export class VeNav {
 
   connectedCallback() {
     // console.log(`ve-menu: background=${this.background} position=${this.position}`)
+    let code = (new URL(window.location.href)).searchParams.get('code')
+    // console.log(`ve-menu: hostname=${window.location.hostname} code=${code}`)
+    if (code) {
+      window.history.replaceState({}, '', window.location.pathname)
+      let url = `http://${window.location.hostname}:8000/gh-token?code=${code}`
+      fetch(url).then(resp => resp.text())
+        .then(authToken => {
+          if (authToken) {
+            localStorage.setItem('gh-auth-token', authToken)
+            window.dispatchEvent(new Event("storage"))
+          }
+      })
+    }
     this.el.classList.add(this.position)
   }
 
@@ -49,11 +62,19 @@ export class VeNav {
   }
 
   getNavItems() {
-    this.navItems = Array.from(this.el.querySelectorAll('li')).map(navItem =>
-      navItem.firstChild.nodeName === 'A'
-        ? {label: navItem.firstChild.textContent, href: (navItem.firstChild as HTMLLinkElement).href}
-        : {label: navItem.firstChild.textContent}
-    )
+    this.navItems = Array.from(this.el.querySelectorAll('li')).map(navItem => {
+      if (navItem.firstChild.nodeName === 'A') {
+        return {label: navItem.firstChild.textContent, href: (navItem.firstChild as HTMLLinkElement).href}
+      } else {
+        let text = navItem.firstChild.textContent
+        if (text.toLowerCase() === 'auth') {
+          let isLoggedIn = this.isLoggedIn()
+          return {label: isLoggedIn ? 'Logout' : 'Login', href: isLoggedIn ? 'logout' : 'login'}
+        } else {
+          return {label: text}
+        }
+      }
+    })
   }
 
   listenForSlotChanges() {
@@ -92,6 +113,10 @@ export class VeNav {
     let action = item.href ? item.href.split('/').pop() : null
     if ((action === 'contact') || item.label.toLowerCase().indexOf('contact') === 0 && this.contact) {
       this.showContactForm()
+    } else if (action === 'login') {
+      this.login()
+    } else if (action === 'logout') {
+      this.logout()
     } else if (action === 'help') {
       this.showHelpDialog()
     } else if (action === 'markdown') {
@@ -100,6 +125,36 @@ export class VeNav {
       location.href = item.href
     }
     (this.el.shadowRoot.getElementById('menu-btn') as HTMLInputElement).checked = false
+  }
+
+  ghAuthToken() {
+    return localStorage.getItem('gh-auth-token')
+  }
+
+  isLoggedIn() {
+    return this.ghAuthToken() !== null
+  }
+
+  login() {
+    console.log(window.location)
+    let hostname = (new URL(window.location.href)).hostname
+    let href = hostname === 'localhost' || hostname.indexOf('192.168.') === 0
+      ? `${window.location.origin}${window.location.pathname}?code=testing`
+      : `https://github.com/login/oauth/authorize?client_id=f30ce4168a0bb95ecaa3&scope=repo&state=some_state&redirect_uri=${location.href}`
+    console.log(`login: hostname=${hostname} href=${href}`)
+    window.location.href = href
+
+    // 
+    localStorage.setItem('gh-auth-token', localStorage.getItem('gh-auth-token-sav'))
+    window.dispatchEvent(new Event("storage"))
+    this.navItems = this.navItems.map(item => item.href === 'login' ? {label: 'Logout', href: 'logout'} : item)
+  }
+
+  logout() {
+    localStorage.setItem('gh-auth-token-sav', localStorage.getItem('gh-auth-token'))
+    localStorage.removeItem('gh-auth-token')
+    window.dispatchEvent(new Event("storage"))
+    this.navItems = this.navItems.map(item => item.href === 'logout' ? {label: 'Login', href: 'login'} : item)
   }
 
   navIcon(item: any) {

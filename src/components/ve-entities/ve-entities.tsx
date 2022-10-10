@@ -17,22 +17,21 @@ export class Entities {
   @State() activeElem: HTMLElement = null
   @Watch('activeElem')
   activeElemChanged(activeElem) {
-    console.log(activeElem)
     this.qids = (activeElem.getAttribute('entities') || '').replace(/\s/g,',').split(',').filter(pe => pe)
   }
 
   @State() entities: any[] = []
+  /*
   @Watch('entities')
   entitiesChanged(entities) {
     console.log('entitiesChanged', entities)
   }
+  */
 
   @State() qids: string[] = []
   @Watch('qids')
   async qidsChanged(qids) {
-    console.log(qids)
     let _entities = await getEntityData(qids, this.language || 'en')
-    console.log(qids, _entities)
     this.entities = Object.values(_entities)
   }
 
@@ -56,7 +55,6 @@ export class Entities {
   }
 
   render() {
-    console.log('render')
     return [
       <section>
         { this.entities.map((entity:any) => <sl-tag size="large" pill innerHTML={entity.label}></sl-tag> )}

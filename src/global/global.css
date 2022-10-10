@@ -28,10 +28,10 @@ section {
 }
 
 /* Used for placing left vertical bar on active paragraphs */
-p {
+.show-active p {
   border-left: 8px solid transparent;
 }
-p.active {
+.show-active p.active {
   border-left: 4px solid #ccc;
   padding-left: 4px;
 }
@@ -43,8 +43,8 @@ Source - https://www.wikitechy.com/tutorials/javascript/offsetting-an-html-ancho
 :target:before {
   content: "";
   display: block;
-  height: 150px; /* fixed header height*/
-  margin: -150px 0 0; /* negative fixed header height */
+  height: 80px; /* fixed header height*/
+  margin: -32px 0 0; /* negative fixed header height */
 }
 
 section.no-offset:target:before {
@@ -306,12 +306,24 @@ h1 {margin-bottom: 32px;}
   background-color: #FFE55A;
   border-radius: 50px;
   font-family: Roboto;
-  font-size: 30px;
+  font-size: 2rem;
   padding: 16px 72px;
   margin: auto;
   margin-top: 0;
   text-align: center;
 }
+
+@media (max-width: 480px) { /* mobile */
+  .hero-text {
+    font-size: 2rem;
+    max-width: 80%;
+  }
+  .cta {
+    font-size: 1.5rem;
+    padding: 12px 60px;
+  }
+}
+
 /***************** hero end *****************/
 
 /***************** markdown start *****************/
