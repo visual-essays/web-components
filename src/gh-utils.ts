@@ -69,7 +69,6 @@ export class GithubClient {
       let resp:any = await fetch(url, { headers: {Authorization: `Token ${this.authToken}`} })
       if (resp.ok) resp = await resp.json()
       let sha = resp.sha
-      console.log(`sha=${sha}`)
       return sha
     }
   
@@ -94,15 +93,22 @@ export class GithubClient {
       console.log(resp)
     }
   
-    defaultBranch(acct:string, repo:string) {
-      console.log(`defaultBranch: acct=${acct} repo=${repo}`)
-      return 'main'  // TODO
+    async defaultBranch(acct:string, repo:string) {
+      let defaultBranch = null
+      let url = `https://api.github.com/repos/${acct}/${repo}`
+      let resp:any = await fetch(url, { headers: {Authorization: `Token ${this.authToken}`} })
+      if (resp.ok) {
+        resp = await resp.json()
+        defaultBranch = resp.default_branch
+      }
+      console.log(`defaultBranch: acct=${acct} repo=${repo} default=${defaultBranch}`)
+      return defaultBranch
     }
   
     async dirlist(acct:string, repo:string, path:string, ref:string): Promise<any[]> {
       console.log(`GithubClient.dirList: acct=${acct} repo=${repo} path=${path} ref=${ref}`)
       path = path || ''
-      ref = ref || this.defaultBranch(acct, repo)
+      ref = ref || await this.defaultBranch(acct, repo)
       let files: any[] = []
       let url = `https://api.github.com/repos/${acct}/${repo}/git/trees/${ref}`
       let headers = {

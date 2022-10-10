@@ -8,3 +8,58 @@
   border: 1px solid #444;
   padding: 12px;
 }
+
+.values {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.values > div {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.label {
+  font-weight: bold;
+}
+
+.value {
+  display: inline-block;
+}
+
+div.path {
+}
+
+sl-breadcrumb-item::part(label) {
+  font-size: 1.2rem;
+  color: var(--sl-color-primary-600);
+}
+
+.dir-items li {
+  cursor: pointer;
+}
+
+.dir-items {
+  height: 40vh;
+  overflow-y: scroll;
+}
+
+.dir-items li:hover {
+  color: var(--sl-color-primary-600);
+}
+
+sl-icon-button::part(base) {
+  padding: 0;
+}
+
+.summary {
+  display: flex;
+  flex-direction: column;
+}
+
+sl-menu::part(base) {
+  max-height: 300px;
+  overflow-y: scroll;
+}

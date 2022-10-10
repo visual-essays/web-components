@@ -11,6 +11,8 @@ export namespace Components {
         "show": boolean;
     }
     interface VeContentPath {
+        "contentPath": string;
+        "mode": string;
         "sticky": boolean;
     }
     interface VeContentViewer {
@@ -145,6 +147,10 @@ export namespace Components {
     interface VeWikidataSearch {
         "language": string;
     }
+}
+export interface VeContentPathCustomEvent<T> extends CustomEvent<T> {
+    detail: T;
+    target: HTMLVeContentPathElement;
 }
 export interface VeDepictsCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -319,6 +325,9 @@ declare namespace LocalJSX {
         "show"?: boolean;
     }
     interface VeContentPath {
+        "contentPath"?: string;
+        "mode"?: string;
+        "onContentPathChanged"?: (event: VeContentPathCustomEvent<any>) => void;
         "sticky"?: boolean;
     }
     interface VeContentViewer {

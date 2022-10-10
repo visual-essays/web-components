@@ -15,6 +15,7 @@
 
     <main>
       
+      <!--
       <ve-header 
         label="Kent Maps Online"
         subtitle="A Subtitle"
@@ -28,11 +29,13 @@
           <li>Contact Us</li>
         </ul>
       </ve-header>
+      -->
 
-      <ve-content-path sticky="true"></ve-content-path>
+      <ve-content-path content-path="gh:visual-essays/content?ref=main" mode="media" sticky="true"></ve-content-path>
 
       <div style="height:100vh;"></div>
 
+      <!--
       <ve-footer style="background-color:white;color:#fff;">
         <ul>
           <li><img src="https://raw.githubusercontent.com/kent-map/kent/main/images/Centre_for_Kent_History_and_Heritage_logo_1.jpg"></li>
@@ -41,8 +44,17 @@
           <li class="push">A collaboration between: <img src="https://raw.githubusercontent.com/kent-map/kent/main/dickens/images/CCCU-logo-2colour.svg"> <a href="https://labs.jstor.org"><img src="https://raw.githubusercontent.com/kent-map/kent/main/images/labs.jpg"></a></li>
         </ul>
       </ve-footer>
+      -->
 
     </main>
+
+    <script>
+
+      document.querySelector('ve-content-path').addEventListener('contentPathChanged', (evt) => {
+        console.log(evt)
+      })
+
+    </script>
 
   </body>
 </html>
