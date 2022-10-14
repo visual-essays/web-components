@@ -252,6 +252,10 @@ export class ContentPath {
     this.path = idx === 0 ? [] : this.path.slice(0,idx)
   }
 
+  addFile() {
+    console.log('addFile')
+  }
+
   summary() {
     return <sl-breadcrumb>
       
@@ -305,9 +309,11 @@ export class ContentPath {
           <sl-icon slot="prefix" name={item.type === 'dir' ? 'folder2' : 'file-earmark'}></sl-icon>
         </sl-button>
       )}
-      <sl-button variant="default" size="small" class="add-file" circle>
-        <sl-icon name="plus-lg" label="Add file"></sl-icon>
-      </sl-button>    
+      <sl-tooltip content="Add File">
+        <sl-button variant="default" size="small" class="add-file" name="Add file" circle onClick={this.addFile.bind(this)}>
+          <sl-icon name="plus-lg" label="Add file"></sl-icon>
+        </sl-button>
+      </sl-tooltip>
     </div>
   }
   

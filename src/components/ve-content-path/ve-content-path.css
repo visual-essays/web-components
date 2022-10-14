@@ -101,6 +101,6 @@ sl-button.file::part(base) {
 }
 
 sl-button.add-file::part(base) {
-  background-color: rgba(91,21,46,.6);
-  color: white;
+  background-color: #eee;
+  color: black;
 }
