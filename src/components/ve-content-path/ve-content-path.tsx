@@ -305,8 +305,8 @@ export class ContentPath {
           <sl-icon slot="prefix" name={item.type === 'dir' ? 'folder2' : 'file-earmark'}></sl-icon>
         </sl-button>
       )}
-      <sl-button variant="default" size="small" circle>
-        <sl-icon name="file-earmark-plus" label="Add file" class="add-file"></sl-icon>
+      <sl-button variant="default" size="small" class="add-file" circle>
+        <sl-icon name="plus-lg" label="Add file"></sl-icon>
       </sl-button>    
     </div>
   }
