@@ -4,9 +4,10 @@
   display: block;
   font-family: Roboto, sans-serif;
   width: 100%;
-  min-height: 100px;
   border: 1px solid #444;
   padding: 12px;
+  z-index: 9;
+  background-color: white;
 }
 
 .values {
@@ -33,7 +34,7 @@ div.path {
 }
 
 sl-breadcrumb-item::part(label) {
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: var(--sl-color-primary-600);
 }
 
@@ -54,12 +55,47 @@ sl-icon-button::part(base) {
   padding: 0;
 }
 
-.summary {
+.content-path {
   display: flex;
   flex-direction: column;
+  gap: 12px;
+}
+
+.breadcrumbs {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+}
+
+.breadcrumbs sl-icon-button::part(base) {
+}
+
+sl-icon-button {
+  align-self: start;
+  margin-top:6px;;
 }
 
 sl-menu::part(base) {
   max-height: 300px;
   overflow-y: scroll;
+}
+
+.dirs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.dirs sl-button::part(base) {
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+sl-button.dir::part(base) {
+  background-color: rgba(91,21,46,.6);
+  color: white;
+}
+
+sl-button.file::part(base) {
+  background-color: #eee;
 }

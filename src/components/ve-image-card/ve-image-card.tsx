@@ -37,6 +37,10 @@ export class ImageCard {
     this._manifest = await getManifest(this.manifest)
   }
 
+  async componentDidUpdate() {
+    if (this.manifest !== this._manifest.id) this._manifest = await getManifest(this.manifest)
+  }
+
   getMetadataValue(label): string {
     let found = (this.metadata || []).find(md => md.label === label)
     return found ? (Object.values(found.value).flat()[0] as string) : ''

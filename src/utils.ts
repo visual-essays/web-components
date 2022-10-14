@@ -25,6 +25,7 @@ function observeNavbar(navbar:HTMLElement, target:HTMLElement) {
     if (target.style.top) topOffset += parseInt(target.style.marginTop.slice(0,-2))
     target.style.top = `${topOffset}px`
   }
+  setTop()
   const observer = new MutationObserver(setTop)
   observer.observe(navbar, { attributes: true })
 }

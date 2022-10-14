@@ -31,7 +31,7 @@
       </ve-header>
       -->
 
-      <ve-content-path content-path="gh:visual-essays/content?ref=main" mode="media" sticky="true"></ve-content-path>
+      <ve-content-path sticky="true"></ve-content-path>
 
       <div style="height:100vh;"></div>
 
@@ -50,8 +50,13 @@
 
     <script>
 
-      document.querySelector('ve-content-path').addEventListener('contentPathChanged', (evt) => {
-        console.log(evt)
+      document.querySelector('ve-content-path').addEventListener('contentPathChanged', async (evt) => {
+        let contentPath = evt.detail
+        let filePath = contentPath.split(':').pop().split('?')[0].split('/').slice(2).join('/')
+        console.log(`contentPath=${contentPath} filePath=${filePath}`)
+        if (filePath.indexOf('.md') === filePath.length-3) {
+          console.log(await evt.target.getFile(filePath))
+        }
       })
 
     </script>

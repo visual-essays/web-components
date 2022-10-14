@@ -20,8 +20,7 @@ export class ImageGallery {
   @State() manifestUrls: any[] = []
   @Watch('manifestUrls')
   async manifestUrlsChanged() {
-    if (!this.asCards)
-    this.manifests = await loadManifests(this.manifestUrls)
+    if (!this.asCards) this.manifests = await loadManifests(this.manifestUrls)
   }
 
   @State() manifests: any[] = []
@@ -49,7 +48,7 @@ export class ImageGallery {
 
   connectedCallback() {
     this.listenForSlotChanges()
-    this.buildManifestsList()
+    // this.buildManifestsList()
   }
 
   buildManifestsList() {
@@ -60,8 +59,8 @@ export class ImageGallery {
       let manifestId = el.innerHTML.trim()
       return manifestId.startsWith('http') ? manifestId : `${iiifServer}/${manifestId}/manifest.json`
   })
-  //console.log(`buildManifestsList: manifests=${this.manifestUrls.length}`)
-  //while (this.host.firstChild) this.host.removeChild(this.host.firstChild)
+  // console.log(`buildManifestsList: manifests=${this.manifestUrls.length}`, this.manifestUrls)
+  // while (this.host.firstChild) this.host.removeChild(this.host.firstChild)
   }
 
   listenForSlotChanges() {
@@ -126,11 +125,7 @@ export class ImageGallery {
   renderAsCards() {
     return [
       <section class="cards">
-        {
-          this.manifestUrls.map((manifest) => 
-            <ve-image-card manifest={manifest}></ve-image-card>
-          )
-        }
+        { this.manifestUrls.map(manifest => <ve-image-card manifest={manifest}></ve-image-card>) }
       </section>,
       <sl-dialog no-header>
         { this.dialogType === 'map' &&

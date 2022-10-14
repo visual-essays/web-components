@@ -12,8 +12,13 @@ export namespace Components {
     }
     interface VeContentPath {
         "contentPath": string;
+        "getDirList": () => Promise<any[]>;
+        "getFile": (path: string) => Promise<any>;
         "mode": string;
+        "putFile": (content: string) => Promise<any>;
+        "repositoryIsWriteable": () => Promise<boolean>;
         "sticky": boolean;
+        "updateDirList": () => Promise<void>;
     }
     interface VeContentViewer {
         "format": string;

@@ -4,6 +4,11 @@ import '@shoelace-style/shoelace/dist/components/icon/icon.js'
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
 setBasePath(location.hostname === 'localhost' ? 'http://localhost:3333' : 'https://visual-essays.github.io/web-components/src')
 
+const clientIds = {
+  'beta.juncture-digital.org': 'f30ce4168a0bb95ecaa3',
+  'editor.juncture-digital.org': '6b08f8fc8a36dad96d2b'
+}
+
 const navIcons = {
   home: 'house-fill',
   about: 'info-circle-fill',
@@ -43,10 +48,13 @@ export class VeNav {
   connectedCallback() {
     // console.log(`ve-menu: background=${this.background} position=${this.position}`)
     let code = (new URL(window.location.href)).searchParams.get('code')
-    // console.log(`ve-menu: hostname=${window.location.hostname} code=${code}`)
+    console.log(`ve-menu: hostname=${window.location.hostname} code=${code}`)
     if (code) {
       window.history.replaceState({}, '', window.location.pathname)
-      let url = `http://${window.location.hostname}:8000/gh-token?code=${code}`
+      let isDev = window.location.hostname === 'localhost' || window.location.hostname.indexOf('192.168.') === 0
+      let url = isDev
+        ? `http://${window.location.hostname}:8000/gh-token?code=${code}&hostname=${window.location.hostname}`
+        : `https://api.juncture-digital.org/gh-token?code=${code}&hostname=${window.location.hostname}`
       fetch(url).then(resp => resp.text())
         .then(authToken => {
           if (authToken) {
@@ -138,11 +146,14 @@ export class VeNav {
   login() {
     console.log(window.location)
     let hostname = (new URL(window.location.href)).hostname
-    let href = hostname === 'localhost' || hostname.indexOf('192.168.') === 0
+    let isDev = hostname === 'localhost' || hostname.indexOf('192.168.') === 0
+    let href = isDev
       ? `${window.location.origin}${window.location.pathname}?code=testing`
-      : `https://github.com/login/oauth/authorize?client_id=f30ce4168a0bb95ecaa3&scope=repo&state=some_state&redirect_uri=${location.href}`
+      : clientIds[location.hostname] !== undefined
+        ? `https://github.com/login/oauth/authorize?client_id=${clientIds[location.hostname]}&scope=repo&state=juncture&redirect_uri=${location.href}`
+        : null
     console.log(`login: hostname=${hostname} href=${href}`)
-    window.location.href = href
+    if (href) window.location.href = href
 
     // 
     localStorage.setItem('gh-auth-token', localStorage.getItem('gh-auth-token-sav'))
