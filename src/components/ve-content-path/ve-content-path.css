@@ -104,3 +104,11 @@ sl-button.add-file::part(base) {
   background-color: #eee;
   color: black;
 }
+
+.delete {
+  margin-left: 18px;
+}
+
+sl-icon-button.delete::part(base) {
+  color: red;
+}

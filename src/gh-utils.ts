@@ -98,8 +98,9 @@ export class GithubClient {
       return resp.status === 200
     }
   
-    async deleteFile(acct:string, repo:string, path:string, sha:string): Promise<any> {
+    async deleteFile(acct:string, repo:string, path:string, ref:string, sha:string=''): Promise<any> {
       // // console.log(`deleteFile: acct=${acct} repo=${repo} path=${path} sha=${sha}`)
+      sha = sha || await this.getSha(acct, repo, path, ref)
       let url = `https://api.github.com/repos/${acct}/${repo}/contents/${path}`
       let payload = { message: 'API commit', sha }
       let resp = await fetch(url, { method: 'DELETE', body: JSON.stringify(payload), headers: {Authorization: `Token ${this.authToken}`} })

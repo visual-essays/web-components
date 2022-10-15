@@ -45,6 +45,12 @@ export class ContentPath {
   @State() authToken: string
   @State() userCanUpdateRepo: boolean = false
 
+  @State() fileToDelete: string
+  @Watch('fileToDelete')
+  fileToDeleteChanged() {
+    if (this.fileToDelete) this.showDeleteFileDialog()
+  }
+
   @Watch('authToken')
   authTokenChanged() {
     this.githubClient = new GithubClient(this.authToken)
@@ -148,9 +154,8 @@ export class ContentPath {
   }
 
   setContentPath() {
-    console.log(`setContentPath: mode=${this.mode}`, this.dirList)
-    if (this.mode === 'essays' && this.dirList.length === 1) {
-      this.path = [...this.path, this.dirList[0].name]
+    if (this.mode === 'essays' && this.dirList.length === 1 && this.dirList[0].name.split('.').pop() === 'md') {
+      // this.path = [...this.path, this.dirList[0].name]
     }
     if (this.acct && this.repo) {
       let contentPath = `gh:${this.acct}/${this.repo}`
@@ -227,33 +232,55 @@ export class ContentPath {
     this.ref = branch.name
   }
 
-  pathSelected(item:any) {
-    this.path = item.name
-  }
-
-  showDialog() {
-    (this.el.shadowRoot.getElementById('path-select-dialog') as any).show()
-  }
-
-  hideDialog() {
-    (this.el.shadowRoot.getElementById('path-select-dialog') as any).hide()
-  }
-
-  showControlsDialog() {
-    (this.el.shadowRoot.getElementById('controls-dialog') as any).show()
-  }
-
   appendPath(item: any) {
     this.path = [...this.path, item.name]
   }
 
   prunePath(idx: number) {
-    console.log(`prunePath: idx=${idx}`)
+    console.log('prunePath')
     this.path = idx === 0 ? [] : this.path.slice(0,idx)
   }
 
-  addFile() {
-    console.log('addFile')
+  showAddFileDialog() {
+    let form = (this.el.shadowRoot.getElementById('add-file-form') as HTMLFormElement)
+    if (!form.onclick) {
+      form.onclick = function () { }
+      form.addEventListener('submit', async (evt) => {
+        evt.preventDefault()
+        let inputEl = (this.el.shadowRoot.getElementById('add-file-input') as HTMLInputElement)
+        let newFilePathElems = [...this.path, ...inputEl.value.split('/').filter(pe => pe)]
+        let path = newFilePathElems.join('/')
+        console.log(`addFile: path=${path}`)
+        await this.githubClient.putFile(this.acct, this.repo, path, `# ${path.split('/').pop()}`, this.ref)
+        this.path = newFilePathElems
+        this.hideAddFileDialog()
+      })
+    }
+    (this.el.shadowRoot.getElementById('add-file-dialog') as any).show();
+  }
+
+  hideAddFileDialog() {
+    (this.el.shadowRoot.getElementById('add-file-input') as HTMLInputElement).value = '';
+    (this.el.shadowRoot.getElementById('add-file-dialog') as any).hide();
+
+  }
+
+  showDeleteFileDialog() {
+    (this.el.shadowRoot.getElementById('delete-file-dialog') as any).show()
+  }
+
+  hideDeleteFileDialog() {
+    (this.el.shadowRoot.getElementById('delete-file-dialog') as any).hide()
+  }
+
+  async deleteFile() {
+    let toDelete = this.path.join('/')
+    console.log('deleteFile', this.path.join('/'))
+    await this.githubClient.deleteFile(this.acct, this.repo, toDelete, this.ref)
+    await this.updateDirList()
+    this.prunePath(this.path.length-(this.dirList.length === 0 ? 2 : 1))
+    this.fileToDelete = null
+    this.hideDeleteFileDialog()
   }
 
   summary() {
@@ -261,7 +288,7 @@ export class ContentPath {
       
       <sl-breadcrumb-item>
         {this.acct}
-        <sl-dropdown slot="suffix">
+        <sl-dropdown slot="suffix" skidding="-50">
           <sl-icon-button slot="trigger" name="caret-down" label="Select account"></sl-icon-button>
           <sl-menu> {
             this.accts.map(acct => 
@@ -273,7 +300,7 @@ export class ContentPath {
       
       <sl-breadcrumb-item>
         {this.repo}
-        <sl-dropdown slot="suffix">
+        <sl-dropdown slot="suffix" skidding="-50">
           <sl-icon-button slot="trigger" name="caret-down" label="Select repository"></sl-icon-button>
           <sl-menu> {
             this.repos.map(repo => 
@@ -285,18 +312,29 @@ export class ContentPath {
       
       <sl-breadcrumb-item>
         {this.ref}
-        <sl-dropdown slot="suffix">
-          <sl-icon-button slot="trigger" name="caret-down" label="Select branch"></sl-icon-button>
-          <sl-menu> {
-            this.branches.map(branch => 
-              <sl-menu-item checked={branch.name === this.ref} onClick={this.branchSelected.bind(this, branch)} innerHTML={branch.name}></sl-menu-item>
-            )}
-          </sl-menu>
-        </sl-dropdown>
+        { this.branches.length > 1 && 
+          <sl-dropdown slot="suffix" skidding="-50">
+            <sl-icon-button slot="trigger" name="caret-down" label="Select branch"></sl-icon-button>
+            <sl-menu> {
+              this.branches.map(branch => 
+                <sl-menu-item checked={branch.name === this.ref} onClick={this.branchSelected.bind(this, branch)} innerHTML={branch.name}></sl-menu-item>
+              )}
+            </sl-menu>
+          </sl-dropdown>
+        }
       </sl-breadcrumb-item>
 
-      { this.path && this.path.map((pathElem, idx) => 
-        <sl-breadcrumb-item innerHTML={pathElem} onClick={this.prunePath.bind(this, idx)}></sl-breadcrumb-item> 
+      { this.path.length > 0 && this.path.map((pathElem, idx) => 
+        <sl-breadcrumb-item><span innerHTML={pathElem} onClick={this.prunePath.bind(this, idx)}></span>
+        { idx === (this.path.length-1) && pathElem.split('.').pop() === 'md' &&
+          <sl-dropdown slot="suffix" skidding="-50">
+            <sl-icon-button slot="trigger" name="caret-down" label="File actions"></sl-icon-button>
+            <sl-menu>
+              <sl-menu-item onClick={() => this.fileToDelete = pathElem}>Delete file<sl-icon slot="prefix" name="trash"></sl-icon></sl-menu-item>
+            </sl-menu>
+          </sl-dropdown>
+        }
+        </sl-breadcrumb-item> 
       )}
 
     </sl-breadcrumb>
@@ -309,151 +347,36 @@ export class ContentPath {
           <sl-icon slot="prefix" name={item.type === 'dir' ? 'folder2' : 'file-earmark'}></sl-icon>
         </sl-button>
       )}
-      <sl-tooltip content="Add File">
-        <sl-button variant="default" size="small" class="add-file" name="Add file" circle onClick={this.addFile.bind(this)}>
-          <sl-icon name="plus-lg" label="Add file"></sl-icon>
-        </sl-button>
-      </sl-tooltip>
+      { (this.path.length === 0 || (this.path[this.path.length-1].split('.').pop() !== 'md')) &&
+        <sl-tooltip content="Add File">
+          <sl-button variant="default" size="small" class="add-file" name="Add file" circle onClick={this.showAddFileDialog.bind(this)}>
+            <sl-icon name="plus-lg" label="Add file"></sl-icon>
+          </sl-button>
+        </sl-tooltip>
+      }
     </div>
   }
   
-  controls() {
-    return <div class="values">
-          
-    <div>
-      <div class="label">Acct</div>
-      <div class="value">
-        {this.acct}
-        { this.accts.length > 1 &&
-        <sl-dropdown slot="suffix">
-          <sl-icon-button slot="trigger" name="caret-down" label="Select account"></sl-icon-button>
-          <sl-menu>
-            {
-              this.accts.map(acct => 
-                <sl-menu-item 
-                  checked={acct.login === this.acct}
-                  onClick={this.accountSelected.bind(this, acct)}
-                >
-                  {acct.login}
-                </sl-menu-item>
-              )
-            }
-          </sl-menu>
-        </sl-dropdown>
-      }
-      </div>
-    </div>
-
-    <div>
-      <div class="label">Repo</div>
-      <div class="value">
-        {this.repo}
-        { this.repos.length > 1 &&
-        <sl-dropdown slot="suffix">
-          <sl-icon-button slot="trigger" name="caret-down" label="Select repository"></sl-icon-button>
-          <sl-menu>
-            {
-              this.repos.map(repo => 
-                <sl-menu-item 
-                  checked={repo.name === this.repo}
-                  onClick={this.repoSelected.bind(this, repo)}
-                >
-                  {repo.name}
-                </sl-menu-item>
-              )
-            }
-          </sl-menu>
-        </sl-dropdown>
-      }
-      </div>
-    </div>
-
-    <div>
-      <div class="label">Ref</div>
-      <div class="value">
-        {this.ref}
-        { this.branches.length > 1 &&
-        <sl-dropdown slot="suffix">
-          <sl-icon-button slot="trigger" name="caret-down" label="Select branch"></sl-icon-button>
-          <sl-menu>
-            {
-              this.branches.map(branch => 
-                <sl-menu-item 
-                  checked={branch.name === this.ref}
-                  onClick={this.branchSelected.bind(this, branch)}
-                >
-                  {branch.name}
-                </sl-menu-item>
-              )
-            }
-          </sl-menu>
-        </sl-dropdown>
-      }
-      </div>
-    </div>
-
-    {this.path && 
-      <div>
-        <div class="label">Path</div>
-        <div class="value">
-          {`/${this.path.join('/')}`}
-          <sl-icon-button name="caret-down" label="Select path" onClick={this.showDialog.bind(this)}></sl-icon-button>
-        </div>
-      </div>
-    }
-
-  </div>
-  }
 
   render() {
     return [
       <section class="content-path">
         {this.summary()}
         {this.clicakbleChildren()}
-      </section>
-    ]
-  }
-
-  renderOld() {
-    return [
-      <section class="content-path">
-        <div class="breadcrumbs">
-          <sl-tooltip content="Select content source" placement="bottom-start">
-            <sl-icon-button name="github" label="Select content source" onClick={this.showControlsDialog.bind(this)}></sl-icon-button>
-          </sl-tooltip>
-          {this.summary()}
-        </div>
-        {this.clicakbleChildren()}
       </section>,
-
-      <sl-dialog id="controls-dialog" label="Select Content" class="dialog-overview" style={{'--width': '500px'}}>
-        <div style={{minHeight: '500px'}}>
-          {this.controls()}
-        </div>
-        <sl-button slot="footer" onClick={this.hideDialog.bind(this)}>Done</sl-button>
+      <sl-dialog id="add-file-dialog" label="Add File">
+        <form id="add-file-form" class="input-validation-pattern">
+          <sl-input autofocus autocomplete="off" required id="add-file-input" placeholder="Enter file path" pattern="^\/?([A-z0-9-_+]+\/)*([A-z0-9\-]+\.(md|json))$"></sl-input>
+          <br />
+          <sl-button onClick={this.hideAddFileDialog.bind(this)}>Cancel</sl-button>
+          <sl-button type="reset" variant="default">Reset</sl-button>
+          <sl-button type="submit" variant="primary">Submit</sl-button>
+        </form>
       </sl-dialog>,
-    
-      <sl-dialog id="path-select-dialog" label="Select Content" class="dialog-overview">
-        <div class="path">
-        {this.path && <sl-breadcrumb>
-          { ['root', ...this.path].map((pathElem, idx) => 
-            <sl-breadcrumb-item onClick={this.prunePath.bind(this, idx)} innerHTML={pathElem}></sl-breadcrumb-item>
-          )}
-        </sl-breadcrumb>
-        }
-          
-        </div>
-        <div class="dir-items">
-          <ul>
-            { this.dirList.filter(item => this.mode === 'essay' || item.type !== 'file').map(item => 
-              <li>
-                <span onClick={this.appendPath.bind(this, item)} innerHTML={item.name}></span>
-                { item.type === 'dir' && '/' }
-              </li>
-            )}
-          </ul>
-        </div>
-        <sl-button slot="footer" onClick={this.hideDialog.bind(this)}>Done</sl-button>
+      <sl-dialog id="delete-file-dialog" label="Confirm file delete">
+        <div>Delete file <span innerHTML={this.fileToDelete}></span>?</div>
+        <sl-button slot="footer" onClick={this.hideDeleteFileDialog.bind(this)}>Cancel</sl-button>
+        <sl-button slot="footer" variant="primary" onClick={this.deleteFile.bind(this)}>Confirm</sl-button>
       </sl-dialog>
     ]
   }
