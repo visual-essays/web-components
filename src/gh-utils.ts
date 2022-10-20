@@ -52,7 +52,17 @@ export class GithubClient {
         }
       }).then(resp => resp.json())
     }
-  
+      
+    async createRepository(acct:string, repo:string, description:string='', auto_init=true): Promise<any> {
+      console.log(`createRepository: acct=${acct} repo=${repo} description=${description}`)
+      let resp = await fetch('https://api.github.com/user/repos', {
+        method: 'Post', 
+        body: JSON.stringify({name:repo, description, auto_init}), 
+        headers: {Authorization: `Token ${this.authToken}`} 
+      })
+      return {status:resp.status, statusText:resp.statusText}
+    }
+
     branches(acct:string, repo:string) {
       // console.log(`GithubClient.branches: acct=${acct} repo=${repo}`)
       return fetch(`https://api.github.com/repos/${acct}/${repo}/branches`, {
@@ -64,7 +74,7 @@ export class GithubClient {
     }
   
     async getFile(acct:string, repo:string, path:string, ref:string): Promise<any> {
-      // // console.log(`getFile: acct=${acct} repo=${repo} ref=${ref} path=${path}`)
+      // console.log(`getFile: acct=${acct} repo=${repo} ref=${ref} path=${path}`)
       let content
       let url = `https://api.github.com/repos/${acct}/${repo}/contents/${path}`
       if (ref) url += `?ref=${ref}`
@@ -77,7 +87,7 @@ export class GithubClient {
     }
   
     async getSha(acct:string, repo:string, path:string, ref:string): Promise<any> {
-      // // console.log(`sha: acct=${acct} repo=${repo} path=${path} ref=${ref}`)
+      // console.log(`sha: acct=${acct} repo=${repo} path=${path} ref=${ref}`)
       let url = `https://api.github.com/repos/${acct}/${repo}/contents/${path}`
       if (ref) url += `?ref=${ref}`
       let resp:any = await fetch(url, { headers: {Authorization: `Token ${this.authToken}`} })
@@ -85,21 +95,22 @@ export class GithubClient {
       let sha = resp.sha
       return sha
     }
-  
+
     async putFile(acct:string, repo:string, path:string, content:any, ref:string, sha:string=''): Promise<any> {
       let url = `https://api.github.com/repos/${acct}/${repo}/contents/${path}`
       sha = sha || await this.getSha(acct, repo, path, ref)
-      // // console.log(`putFile: acct=${acct} repo=${repo} path=${path} ref=${ref} sha=${sha}`)
+      // console.log(`putFile: acct=${acct} repo=${repo} path=${path} ref=${ref} sha=${sha}`)
       // let payload:any = { message: 'API commit', content: btoa(unescape(encodeURIComponent(content))) }
       let payload:any = { message: 'API commit', content: btoa(content) }
       if (ref) payload.branch = ref
       if (sha) payload.sha = sha
       let resp = await fetch(url, { method: 'PUT', body: JSON.stringify(payload), headers: {Authorization: `Token ${this.authToken}`} })
-      return resp.status === 200
+      console.log(resp)
+      return {status:resp.status, statusText:resp.statusText}
     }
   
     async deleteFile(acct:string, repo:string, path:string, ref:string, sha:string=''): Promise<any> {
-      // // console.log(`deleteFile: acct=${acct} repo=${repo} path=${path} sha=${sha}`)
+      // console.log(`deleteFile: acct=${acct} repo=${repo} path=${path} sha=${sha}`)
       sha = sha || await this.getSha(acct, repo, path, ref)
       let url = `https://api.github.com/repos/${acct}/${repo}/contents/${path}`
       let payload = { message: 'API commit', sha }
@@ -118,7 +129,7 @@ export class GithubClient {
       }
       return defaultBranch
     }
-  
+
     async dirlist(acct:string, repo:string, path:string, ref:string): Promise<any[]> {
       // console.log(`GithubClient.dirList: acct=${acct} repo=${repo} path=${path} ref=${ref}`)
       path = path || ''

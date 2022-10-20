@@ -14,6 +14,19 @@
 | `position`   | `position`   |             | `string` | `'left'`    |
 
 
+## Methods
+
+### `showHelpWindow() => Promise<void>`
+
+
+
+#### Returns
+
+Type: `Promise<void>`
+
+
+
+
 ## Dependencies
 
 ### Used by

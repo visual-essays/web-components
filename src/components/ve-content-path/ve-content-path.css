@@ -112,3 +112,11 @@ sl-button.add-file::part(base) {
 sl-icon-button.delete::part(base) {
   color: red;
 }
+
+.add-repo {
+  background-color: #ddd;
+}
+
+sl-menu {
+  text-align: left;
+}

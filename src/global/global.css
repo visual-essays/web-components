@@ -36,6 +36,10 @@ section {
   padding-left: 4px;
 }
 
+ve-header > ul {
+  display: none;
+}
+
 /*
 Provide anchor offset for fixed headed
 Source - https://www.wikitechy.com/tutorials/javascript/offsetting-an-html-anchor-to-adjust-for-fixed-header
@@ -277,9 +281,12 @@ h1 {margin-bottom: 32px;}
   padding: .5rem .5rem 0 .5rem;
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
   margin: 0 0 .5rem 0;
+}
+
+.clamp5 {
+  -webkit-line-clamp: 5;
 }
 /***************** cards end *****************/
 

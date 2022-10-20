@@ -19,6 +19,7 @@
 | `searchDomain` | `search-domain` |             | `string`  | `undefined` |
 | `sticky`       | `sticky`        |             | `boolean` | `undefined` |
 | `subtitle`     | `subtitle`      |             | `string`  | `undefined` |
+| `url`          | `url`           |             | `string`  | `undefined` |
 
 
 ## Dependencies

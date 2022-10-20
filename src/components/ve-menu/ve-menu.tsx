@@ -1,4 +1,4 @@
-import { Component, Element, Prop, State, h } from '@stencil/core';
+import { Component, Element, Method, Prop, State, h } from '@stencil/core';
 
 import '@shoelace-style/shoelace/dist/components/icon/icon.js'
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
@@ -6,25 +6,25 @@ setBasePath(location.hostname === 'localhost' ? 'http://localhost:3333' : 'https
 
 const clientIds = {
   'beta.juncture-digital.org': 'f30ce4168a0bb95ecaa3',
-  'editor.juncture-digital.org': '6b08f8fc8a36dad96d2b'
+  'tools.juncture-digital.org': '0b40086fe912d97c03e6'
 }
 
-const navIcons = {
-  home: 'house-fill',
-  about: 'info-circle-fill',
-  contact: 'envelope-fill',
-  documentation: 'book',
-  docs: 'book',
-  help: 'question-circle',
-  link: 'link-45deg',
-  login: 'person-circle',
-  logout: 'person-circle',
-  markdown: 'markdown',
-  tools: 'tools',
-  essays: 'pencil',
-  editor: 'pencil',
-  media: 'images',
-  'how to': 'book-fill'
+const nav = {
+  home: {icon: 'house-fill'},
+  about: {icon: 'info-circle-fill'},
+  contact: {icon: 'envelope-fill'},
+  documentation: {icon: 'book'},
+  docs: {icon: 'book'},
+  help: {icon: 'question-circle'},
+  link: {icon: 'link-45deg'},
+  login: {icon: 'person-circle'},
+  logout: {icon: 'person-circle'},
+  markdown: {icon: 'markdown'},
+  tools: {icon: 'tools', loginRequired: true},
+  essays: {icon: 'pencil'},
+  editor: {icon: 'pencil', loginRequired: true},
+  media: {icon: 'images', loginRequired: true},
+  'how to': {icon: 'book-fill'}
 }
 
 @Component({
@@ -55,13 +55,15 @@ export class VeNav {
       let url = isDev
         ? `http://${window.location.hostname}:8000/gh-token?code=${code}&hostname=${window.location.hostname}`
         : `https://api.juncture-digital.org/gh-token?code=${code}&hostname=${window.location.hostname}`
-      fetch(url).then(resp => resp.text())
+      fetch(url)
+        .then(resp => resp.text())
         .then(authToken => {
           if (authToken) {
             localStorage.setItem('gh-auth-token', authToken)
-            window.dispatchEvent(new Event("storage"))
+            window.dispatchEvent(new Event('storage'))
           }
-      })
+        })
+        .catch(err => console.log('err', err))
     }
     this.el.classList.add(this.position)
   }
@@ -82,6 +84,11 @@ export class VeNav {
           return {label: text}
         }
       }
+    })
+    .filter(item => {
+      let action = item.href ? item.href.split('/').filter(pe => pe).pop().toLowerCase() : 'link'
+      console.log(action, nav[action], nav[action]?.loginRequired, this.isLoggedIn())
+      return !nav[action] || !nav[action]?.loginRequired || this.isLoggedIn()
     })
   }
 
@@ -111,14 +118,27 @@ export class VeNav {
     helpDialog.show = !helpDialog.show
   }
 
+  @State() helpWindow: any
+  @Method()
+  async showHelpWindow() {
+    if (this.helpWindow) { this.helpWindow.close() }
+    let isDev = window.location.hostname === 'localhost' || window.location.hostname.indexOf('192.168.') === 0
+    let url = isDev
+      ? `http://${window.location.hostname}:8080/help`
+      : 'https://beta.juncture-digital.org/help'
+
+    let options = 'toolbar=yes,location=yes,left=0,top=0,width=1040,height=1200,scrollbars=yes,status=yes'
+    this.helpWindow = window.open(url, '_blank', options)
+  }
+
   showMarkdownDialog() {
     let markdownDialog = this.el.shadowRoot.getElementById('markdown') as any
     markdownDialog.show = !markdownDialog.show
   }
 
   menuItemSelected(item: any) {
-    // console.log('menuItemSelected', item)
-    let action = item.href ? item.href.split('/').pop() : null
+    console.log('menuItemSelected', item)
+    let action = item.href ? item.href.split('/').pop().toLowerCase() : null
     if ((action === 'contact') || item.label.toLowerCase().indexOf('contact') === 0 && this.contact) {
       this.showContactForm()
     } else if (action === 'login') {
@@ -126,7 +146,8 @@ export class VeNav {
     } else if (action === 'logout') {
       this.logout()
     } else if (action === 'help') {
-      this.showHelpDialog()
+      // this.showHelpDialog()
+      this.showHelpWindow()
     } else if (action === 'markdown') {
       this.showMarkdownDialog()
     } else if (item.href) {
@@ -144,7 +165,6 @@ export class VeNav {
   }
 
   login() {
-    console.log(window.location)
     let hostname = (new URL(window.location.href)).hostname
     let isDev = hostname === 'localhost' || hostname.indexOf('192.168.') === 0
     let href = isDev
@@ -154,15 +174,10 @@ export class VeNav {
         : null
     console.log(`login: hostname=${hostname} href=${href}`)
     if (href) window.location.href = href
-
-    // 
-    localStorage.setItem('gh-auth-token', localStorage.getItem('gh-auth-token-sav'))
-    window.dispatchEvent(new Event("storage"))
     this.navItems = this.navItems.map(item => item.href === 'login' ? {label: 'Logout', href: 'logout'} : item)
   }
 
   logout() {
-    localStorage.setItem('gh-auth-token-sav', localStorage.getItem('gh-auth-token'))
     localStorage.removeItem('gh-auth-token')
     window.dispatchEvent(new Event("storage"))
     this.navItems = this.navItems.map(item => item.href === 'logout' ? {label: 'Login', href: 'login'} : item)
@@ -171,17 +186,17 @@ export class VeNav {
   navIcon(item: any) {
     let iconName = ''
     let menuLabel = item.label.toLowerCase()
-    Object.keys(navIcons).forEach(key => {
-      if (menuLabel.indexOf(key) >= 0) iconName = navIcons[key]
+    Object.keys(nav).forEach(key => {
+      if (menuLabel.indexOf(key) >= 0) iconName = nav[key].icon
     })
     return iconName ? iconName : 'link'
   }
 
-
   render() {
     return [
       <div class="nav" style={{backgroundColor: this.background}}>
-        <input class="menu-btn" type="checkbox" id="menu-btn"/>
+      { this.navItems.length > 0 && [
+        <input class="menu-btn" type="checkbox" id="menu-btn"/>,
         <div class="wrapper">
           <label class="menu-icon" htmlFor="menu-btn"><span class="navicon"></span></label>
           <ul class="menu" style={{backgroundColor: this.background || '#444'}}>
@@ -193,6 +208,7 @@ export class VeNav {
           )}
           </ul>
         </div>
+      ]}
       </div>,
       <ve-contact contact={this.contact}></ve-contact>,
       <ve-content-viewer id="help" path="/visual-essays/content/help" format="html"></ve-content-viewer>,

@@ -3,8 +3,6 @@ import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
 import OpenSeadragon from 'openseadragon'
 import OpenSeadragonViewerInputHook from '@openseadragon-imaging/openseadragon-viewerinputhook';
 
-import jwt_decode from 'jwt-decode'
-
 import './openseadragon-curtain-sync'
 
 import debounce from 'lodash.debounce'
@@ -41,14 +39,11 @@ export class ImageViewer {
   @Prop() fit: string
   @Prop({ mutable: true, reflect: true }) alt: string
   @Prop() entities: string
-  @Prop({ mutable: true, reflect: true }) user: string = null
-  @Prop({ mutable: true, reflect: true }) path: string
   @Prop() compare: boolean = false
   @Prop({ mutable: true, reflect: true }) mode: string = 'curtain'
   @Prop() width: string = '100%'
   @Prop() height: string
   @Prop() align: string // 'left', 'center', 'right'
-  @Prop() authToken: string = null
   @Prop() annoBase: string
   @Prop() shoelace: boolean = true
   @Prop() sticky: boolean
@@ -73,32 +68,14 @@ export class ImageViewer {
     this._compareViewerInit()
   }
 
-  @Watch('authToken')
-  authTokenChanged() {
-    // console.log(`authTokenChanged: isDefined=${this.authToken !== null}`)
-    if (this._annotator) this._annotator.setAuthToken(this.authToken)
-    this.showAnnotationsToolbar(this.canAnnotate())
-    this.showAnnotations(this.canAnnotate())
-    this.setAnnoTarget()
-  }
-
   @Watch('annoBase')
   annoBaseChanged() {
-    // console.log(`annoBaseChanged: annoBase=${this.annoBase}`)
     this.setAnnoTarget()
   }
 
   @Watch('_annoTarget')
   _annoTargetChanged() {
-    // console.log(`_annoTargetChanged: _annoTarget=${this._annoTarget}`)
-    if (this._annotator) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
-  }
-
-  @Watch('user')
-  userChanged() {
-    // console.log(`userChanged: user=${this.user}`)
-    this.showAnnotations(this.user !== null && this.authToken !== null)
-    this.setAnnoTarget()
+    console.log(`_annoTargetChanged: _annoTarget=${this._annoTarget}`)
     if (this._annotator) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
   }
 
@@ -144,22 +121,10 @@ export class ImageViewer {
   }
 
   annoTarget(manifest:any) {
-    // let locationPath = location.pathname.split('/').filter(pe => pe).join('/')
-    let locationPath = this.editorIsParent()
-      ? location.hash.length > 1 ? location.hash.slice(1).split('/').filter(pe => pe).join('/') : ''
-      : location.pathname.split('/').filter(pe => pe).join('/')
+    let locationPath = location.pathname.replace(/^\/editor/,'').split('/').filter(pe => pe).slice(0,-1).join('/') 
     let sourceHash = sha256(imageInfo(manifest).id).slice(0,8)
-    // console.log(`annoTarget: annoBase=${this.annoBase} sourceHash=${sourceHash} locationPath=${locationPath} user=${this.user} authToken=${this.authToken}`)
-    return this.annoBase
-      ? `${this.annoBase}/${sourceHash}`
-      : this.authToken
-        ? this.editorIsParent()
-          ? [...[locationPath.split('/')[0]], ...[sourceHash]].join('/')
-          : [...[sha256((jwt_decode(this.authToken) as any).email.toLowerCase()).slice(0,8)], ...[sourceHash]].join('/')
-        : this.user
-          ? locationPath ? `${this.user}/${locationPath}/${sourceHash}` : `${this.user}/${sourceHash}`
-          : locationPath ? `${locationPath}/${sourceHash}` : sourceHash
-
+    console.log(`annoTarget: annoBase=${this.annoBase} sourceHash=${sourceHash} locationPath=${locationPath}`)
+    return `${this.annoBase}/${sourceHash}`
   }
 
   setAnnoTarget() {
@@ -494,11 +459,11 @@ export class ImageViewer {
   }
 
   editorIsParent() {
-    return location.hostname.indexOf('editor') >= 0 || location.port === '5555'
+    return location.hostname.indexOf('editor') >= 0 || location.pathname.indexOf('/editor') === 0 || location.port === '5555'
   }
 
   canAnnotate() {
-    return this.annotatorIsParent() && this.authToken !== null
+    return this.annotatorIsParent() && window.localStorage.getItem('gh-auth-token') !== null
   }
 
   isTouchEnabled() {
@@ -643,7 +608,7 @@ export class ImageViewer {
     this._viewer = OpenSeadragon(osdOptions)
     this.configureScrollBehavior()
 
-    this._annotator = new Annotator(this._viewer, this.el.shadowRoot.querySelector('#toolbar'), this.authToken)
+    this._annotator = new Annotator(this._viewer, this.el.shadowRoot.querySelector('#toolbar'))
     if (this._annoTarget) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
     
     this.showAnnotationsToolbar(this.canAnnotate())
@@ -732,11 +697,10 @@ export class ImageViewer {
       height = 800
       width = height * ratio
     }
-    let url = location.hostname === 'localhost'? 'http://localhost:4444/' : 'https://annotator.juncture-digital.org/'
-    // let url = 'https://annotator.visual-essays.net/'
+    let url = location.hostname === 'localhost'? 'http://localhost:2222/' : 'https://beta.juncture-digital.org/annotator'
     url += `?manifest=${this._current.manifest.id || this._current.manifest['@id']}`
     if (this.annoBase) url += `&anno-base=${this.annoBase}`
-    url += `&auth-token=${this.authToken}`
+    console.log(url)
     this.openWindow(url, `toolbar=yes,location=yes,left=0,top=0,width=${width+depictsPanelWidth},height=${height+200},scrollbars=yes,status=yes`)
   }
 
@@ -852,7 +816,7 @@ export class ImageViewer {
             </sl-tooltip>
           : null
         }
-      </div>,
+      </div>
       { this._annotations.length > 0 &&
       <div>
         {this._annotations.map((anno) =>

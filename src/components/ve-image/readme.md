@@ -12,19 +12,16 @@
 | `align`        | `align`          |             | `string`  | `undefined` |
 | `alt`          | `alt`            |             | `string`  | `undefined` |
 | `annoBase`     | `anno-base`      |             | `string`  | `undefined` |
-| `authToken`    | `auth-token`     |             | `string`  | `null`      |
 | `compare`      | `compare`        |             | `boolean` | `false`     |
 | `entities`     | `entities`       |             | `string`  | `undefined` |
 | `fit`          | `fit`            |             | `string`  | `undefined` |
 | `height`       | `height`         |             | `string`  | `undefined` |
 | `mode`         | `mode`           |             | `string`  | `'curtain'` |
 | `options`      | `options`        |             | `string`  | `undefined` |
-| `path`         | `path`           |             | `string`  | `undefined` |
 | `seq`          | `seq`            |             | `number`  | `undefined` |
 | `shoelace`     | `shoelace`       |             | `boolean` | `true`      |
 | `src`          | `src`            |             | `string`  | `undefined` |
 | `sticky`       | `sticky`         |             | `boolean` | `undefined` |
-| `user`         | `user`           |             | `string`  | `null`      |
 | `width`        | `width`          |             | `string`  | `'100%'`    |
 | `zoomOnScroll` | `zoom-on-scroll` |             | `boolean` | `false`     |
 

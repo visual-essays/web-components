@@ -15,7 +15,7 @@ export namespace Components {
         "getDirList": () => Promise<any[]>;
         "getFile": (path: string) => Promise<any>;
         "mode": string;
-        "putFile": (content: string) => Promise<any>;
+        "putFile": (contentPath: string, content: string) => Promise<any>;
         "repositoryIsWriteable": () => Promise<boolean>;
         "sticky": boolean;
         "updateDirList": () => Promise<void>;
@@ -61,6 +61,7 @@ export namespace Components {
         "searchDomain": string;
         "sticky": boolean;
         "subtitle": string;
+        "url": string;
     }
     interface VeHero {
         "background": string;
@@ -74,19 +75,16 @@ export namespace Components {
         "align": string;
         "alt": string;
         "annoBase": string;
-        "authToken": string;
         "compare": boolean;
         "entities": string;
         "fit": string;
         "height": string;
         "mode": string;
         "options": string;
-        "path": string;
         "seq": number;
         "shoelace": boolean;
         "src": string;
         "sticky": boolean;
-        "user": string;
         "width": string;
         "zoomOnScroll": boolean;
     }
@@ -115,6 +113,7 @@ export namespace Components {
         "background": string;
         "contact": string;
         "position": string;
+        "showHelpWindow": () => Promise<void>;
     }
     interface VeMeta {
         "description": string;
@@ -131,6 +130,7 @@ export namespace Components {
         "searchDomain": string;
         "sticky": boolean;
         "subtitle": string;
+        "url": string;
     }
     interface VeSiteSearch {
         "searchDomain": string;
@@ -378,6 +378,7 @@ declare namespace LocalJSX {
         "searchDomain"?: string;
         "sticky"?: boolean;
         "subtitle"?: string;
+        "url"?: string;
     }
     interface VeHero {
         "background"?: string;
@@ -391,19 +392,16 @@ declare namespace LocalJSX {
         "align"?: string;
         "alt"?: string;
         "annoBase"?: string;
-        "authToken"?: string;
         "compare"?: boolean;
         "entities"?: string;
         "fit"?: string;
         "height"?: string;
         "mode"?: string;
         "options"?: string;
-        "path"?: string;
         "seq"?: number;
         "shoelace"?: boolean;
         "src"?: string;
         "sticky"?: boolean;
-        "user"?: string;
         "width"?: string;
         "zoomOnScroll"?: boolean;
     }
@@ -449,6 +447,7 @@ declare namespace LocalJSX {
         "searchDomain"?: string;
         "sticky"?: boolean;
         "subtitle"?: string;
+        "url"?: string;
     }
     interface VeSiteSearch {
         "searchDomain"?: string;

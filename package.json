@@ -1,6 +1,6 @@
 {
   "name": "visual-essays",
-  "version": "0.3.16",
+  "version": "0.3.21",
   "description": "Visual Essays Web Components",
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",

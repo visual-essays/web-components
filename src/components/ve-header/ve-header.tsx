@@ -18,6 +18,7 @@ export class Header {
   @Prop() label: string
   @Prop() subtitle: string
   @Prop() logo: string
+  @Prop() url: string
   @Prop() contact: string // Email address for Contact Us
   @Prop() searchDomain: string // Domain for site search
 
@@ -69,6 +70,7 @@ export class Header {
         label={this.label}
         subtitle={this.subtitle}
         logo={this.logo}
+        url={this.url}
         sticky={this.sticky}
         search-domain={this.searchDomain}
         contact={this.contact}

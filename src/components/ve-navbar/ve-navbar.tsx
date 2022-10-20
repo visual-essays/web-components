@@ -13,6 +13,7 @@ export class Header {
   @Prop() label: string
   @Prop() background: string
   @Prop() logo: string
+  @Prop() url: string
   @Prop() alpha: number
   @Prop() subtitle: string
   @Prop() contact: string // Email address for Contact Us
@@ -65,7 +66,9 @@ export class Header {
     return [
       <section class="ve-navbar">
         {this.logo
-          ? <img src={this.logo} alt="logo" class="logo"/>
+          ? this.url
+            ? <a href={this.url}><img src={this.logo} alt="logo" class="logo"/></a>
+            : <img src={this.logo} alt="logo" class="logo"/>
           : null
         }
         <div class="title-panel">

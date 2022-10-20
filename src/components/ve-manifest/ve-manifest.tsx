@@ -339,7 +339,7 @@ export class ManifestViewer {
         <div><span class="label">format</span><span class="value" innerHTML={parsed.imageData.format}/></div>
         <div><span class="label">width</span><span class="value" innerHTML={parsed.imageData.width}/></div>
         <div><span class="label">height</span><span class="value" innerHTML={parsed.imageData.height}/></div>
-      </div>,
+      </div>
         
       {parsed.thumbnail 
         ? <div class="thumbnail">

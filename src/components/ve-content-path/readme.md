@@ -43,6 +43,16 @@ Type: `Promise<any>`
 
 
 
+### `putFile(contentPath: string, content: string) => Promise<any>`
+
+
+
+#### Returns
+
+Type: `Promise<any>`
+
+
+
 ### `repositoryIsWriteable() => Promise<boolean>`
 
 

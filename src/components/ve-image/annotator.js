@@ -2,20 +2,17 @@ import * as Annotorious from '@recogito/annotorious-openseadragon'
 import Toolbar from '@recogito/annotorious-toolbar'
 import { sha256 } from '../../utils' 
 
-const ENV = location.host === 'localhost:5555' ? 'DEV' : 'PROD'
+const ENV = location.hostname === 'localhost' ? 'DEV' : 'PROD'
 const annotationsEndpoint = ENV === 'DEV'
 ? 'http://localhost:8000'
-: location.hosthame === 'localhost'
-  ? 'https://api.juncture-digital.org'
-  : `https://editor.${location.hostname.split('.').slice(1).join('.')}`
+: 'https://api.juncture-digital.org'
 
 // console.log(`annotator: ENV=${ENV} annotationsEndpoint=${annotationsEndpoint}`)
 
 export class Annotator {
 
-  constructor(viewer, toolbar, authToken) {
-    this._annotorious = Annotorious.default(viewer, {readOnly: !authToken})
-    this._token = authToken
+  constructor(viewer, toolbar) {
+    this._annotorious = Annotorious.default(viewer, {readOnly: true})
     this._path
     this._target
 
@@ -32,9 +29,8 @@ export class Annotator {
     */
   }
 
-  setAuthToken(authToken) {
-    // console.log(`setAuthToken=${authToken}`)
-    this._token = authToken
+  getAuthToken() {
+    return window.localStorage.getItem('gh-auth-token') || window.localStorage.getItem('gh-unscoped-token')
   }
 
   destroy() {
@@ -48,9 +44,11 @@ export class Annotator {
   async loadAnnotations(path) {
     this._path = path
     let annotations = []
-    let resp = await fetch(`${annotationsEndpoint}/annotations/${this._path}/`, {
+    let url = `${annotationsEndpoint}/annotations/${this._path}/`
+    console.log(`loadAnnotations: url=${url}`)
+    let resp = await fetch(url, {
       headers: {
-        Accept: 'application/ld+json;profile="http://www.w3.org/ns/anno.jsonld'
+        // Accept: 'application/ld+json;profile="http://www.w3.org/ns/anno.jsonld'
       }
     })
     if (resp.ok) {
@@ -59,7 +57,7 @@ export class Annotator {
       annotations = resp.annotations
       this._annotorious.setAnnotations(resp.annotations)
     }
-    // console.log(`loadAnnotations: path=${this._path}`, this.getAnnotations())
+    console.log(`loadAnnotations: path=${this._path}`, this.getAnnotations())
     return annotations
   }
 
@@ -80,8 +78,8 @@ export class Annotator {
       method: 'POST',
       headers: {
         'Content-Type': 'application/ld+json;profile="http://www.w3.org/ns/anno.jsonld',
-        Accept: 'application/ld+json;profile="http://www.w3.org/ns/anno.jsonld',
-        Authorization: `Bearer: ${this._token}`
+        // Accept: 'application/ld+json;profile="http://www.w3.org/ns/anno.jsonld',
+        Authorization: `Token: ${this.getAuthToken()}`
       },
       body: JSON.stringify({annotation: anno, path: this._path})
     })
@@ -99,8 +97,8 @@ export class Annotator {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/ld+json;profile="http://www.w3.org/ns/anno.jsonld',
-        Accept: 'application/ld+json;profile="http://www.w3.org/ns/anno.jsonld',
-        Authorization: `Bearer: ${this._token}`
+        // Accept: 'application/ld+json;profile="http://www.w3.org/ns/anno.jsonld',
+        Authorization: `Token: ${this.getAuthToken()}`
       },
       body: JSON.stringify(anno)
     })
@@ -113,7 +111,7 @@ export class Annotator {
     // console.log('deleteAnnotation', anno)
     let resp = await fetch(`${annotationsEndpoint}/annotation/${this._path}/${anno.id.split('/').pop()}/`, {
       method: 'DELETE',
-      headers: {Authorization: `Bearer: ${this._token}`}
+      Authorization: `Token: ${this.getAuthToken()}`
     })
     if (resp.status !== 204) {
       console.log(`deleteAnnotation: unexpected resp_code=${resp.status}`)
