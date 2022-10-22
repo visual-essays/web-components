@@ -48,7 +48,6 @@ export class VeNav {
   connectedCallback() {
     // console.log(`ve-menu: background=${this.background} position=${this.position}`)
     let code = (new URL(window.location.href)).searchParams.get('code')
-    console.log(`ve-menu: hostname=${window.location.hostname} code=${code}`)
     if (code) {
       window.history.replaceState({}, '', window.location.pathname)
       let isDev = window.location.hostname === 'localhost' || window.location.hostname.indexOf('192.168.') === 0
@@ -87,7 +86,6 @@ export class VeNav {
     })
     .filter(item => {
       let action = item.href ? item.href.split('/').filter(pe => pe).pop().toLowerCase() : 'link'
-      console.log(action, nav[action], nav[action]?.loginRequired, this.isLoggedIn())
       return !nav[action] || !nav[action]?.loginRequired || this.isLoggedIn()
     })
   }
@@ -137,7 +135,6 @@ export class VeNav {
   }
 
   menuItemSelected(item: any) {
-    console.log('menuItemSelected', item)
     let action = item.href ? item.href.split('/').pop().toLowerCase() : null
     if ((action === 'contact') || item.label.toLowerCase().indexOf('contact') === 0 && this.contact) {
       this.showContactForm()
@@ -172,7 +169,6 @@ export class VeNav {
       : clientIds[location.hostname] !== undefined
         ? `https://github.com/login/oauth/authorize?client_id=${clientIds[location.hostname]}&scope=repo&state=juncture&redirect_uri=${location.href}`
         : null
-    console.log(`login: hostname=${hostname} href=${href}`)
     if (href) window.location.href = href
     this.navItems = this.navItems.map(item => item.href === 'login' ? {label: 'Logout', href: 'logout'} : item)
   }

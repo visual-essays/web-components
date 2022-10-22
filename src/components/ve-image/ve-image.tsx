@@ -24,7 +24,6 @@ setBasePath('https://visual-essays.github.io/web-components/src')
 @Component({
   tag: 've-image',
   styleUrl: 've-image.css',
-  // assetsDirs: ['../../assets'],
   shadow: true,
 })
 export class ImageViewer {
@@ -40,12 +39,11 @@ export class ImageViewer {
   @Prop({ mutable: true, reflect: true }) alt: string
   @Prop() entities: string
   @Prop() compare: boolean = false
-  @Prop({ mutable: true, reflect: true }) mode: string = 'curtain'
+  @Prop({ mutable: true, reflect: true }) mode: string = 'default' // default, curtain, sync
   @Prop() width: string = '100%'
   @Prop() height: string
   @Prop() align: string // 'left', 'center', 'right'
   @Prop() annoBase: string
-  @Prop() shoelace: boolean = true
   @Prop() sticky: boolean
   @Prop() zoomOnScroll: boolean = false
 
@@ -236,7 +234,7 @@ export class ImageViewer {
   }
 
   connectedCallback() {
-    // console.log(`ve-image: sticky=${this.sticky} zoomOnScroll=${this.zoomOnScroll}`)
+    console.log(`ve-image: sticky=${this.sticky} zoomOnScroll=${this.zoomOnScroll} compare=${this.compare}`)
     // console.log(`connectedCallback: annoBase=${this.annoBase}`)
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
   }
@@ -540,9 +538,10 @@ export class ImageViewer {
   }
 
   async _compareViewerInit() {
+    console.log('_compareViewerInit')
     this._tileSources = await this._loadTileSources()
     // let tileSources = await this._loadTileSources()
-    if (!this.shoelace) {
+    if (this.mode !== 'default') {
       let osdWrapper = this.el.shadowRoot.querySelector('.viewer')
       let height = osdWrapper.clientHeight
       let container: HTMLElement = this.el.shadowRoot.getElementById('osd')
@@ -577,6 +576,7 @@ export class ImageViewer {
   }
 
   async _osdInit() {
+    console.log('_osdInit')
     let tileSources = await this._loadTileSources()
     // console.log(tileSources)
     let osdElem: HTMLElement = this.el.shadowRoot.querySelector('#osd')
@@ -762,10 +762,10 @@ export class ImageViewer {
               : Math.min(this.el.parentElement.clientHeight, window.innerHeight * .5)
           }
         } else { // orientation = portrait
-          if (this.compare) {
+          if (this.compare && this.mode !== 'sync') {
             height = window.innerHeight * .6 + captionHeight
-            width = Math.round(imageWidth/imageHeight * height)
-          } else if (position === 'full') {
+            width = position === 'full' ? wrapper.clientWidth : Math.round(imageWidth/imageHeight * height)
+          } else if (position === 'full' || this.compare && this.mode === 'sync') {
             width = wrapper.clientWidth
             height = fit === 'contain'
               ? Math.min(Math.round(imageHeight/imageWidth * width + captionHeight), window.innerHeight * .5)
@@ -781,7 +781,7 @@ export class ImageViewer {
 
       }
 
-      console.log(`hostDimensions: compare=${this.compare} orientation=${orientation} position=${position} fit=${fit} elWidth=${elWidth} elHeight=${elHeight} imageWidth=${imageWidth} imageHeight=${imageHeight} width=${width} height=${height}`)
+      console.log(`hostDimensions: compare=${this.compare} mode=${this.mode} orientation=${orientation} position=${position} fit=${fit} elWidth=${elWidth} elHeight=${elHeight} imageWidth=${imageWidth} imageHeight=${imageHeight} width=${width} height=${height}`)
 
       wrapper.style.width = `${width}px`
       if (osd) osd.style.width = `${width}px`
@@ -833,6 +833,7 @@ export class ImageViewer {
   }
 
   renderCurtainViewer() {
+    console.log('renderCurtainViewer')
     return <sl-image-comparer position="50">
       {this._tileSources.map((ts:any, idx:number) =>
         <img style={{}}
@@ -853,7 +854,7 @@ export class ImageViewer {
 
   renderViewer() {
     return <div class="viewer" style={{height: '100%'}}>
-      {this.compare && this.shoelace
+      {this.compare && this.mode === 'default'
         ? this.renderCurtainViewer()
         : this.renderOsdViewer()
       }

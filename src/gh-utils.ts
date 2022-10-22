@@ -6,6 +6,22 @@ export class GithubClient {
       this.authToken = authToken
     }
   
+    // Encoding UTF8 ⇢ base64
+
+    b64EncodeUnicode(str) {
+      return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+          return String.fromCharCode(parseInt(p1, 16))
+      }))
+    }
+
+    // Decoding base64 ⇢ UTF8
+
+    b64DecodeUnicode(str) {
+      return decodeURIComponent(Array.prototype.map.call(atob(str), function(c) {
+          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+      }).join(''))
+    }
+
     user() {
       // console.log(`GithubClient.user`)
       return fetch('https://api.github.com/user' ,{
@@ -53,11 +69,12 @@ export class GithubClient {
       }).then(resp => resp.json())
     }
       
-    async createRepository(acct:string, repo:string, description:string='', auto_init=true): Promise<any> {
-      console.log(`createRepository: acct=${acct} repo=${repo} description=${description}`)
-      let resp = await fetch('https://api.github.com/user/repos', {
-        method: 'Post', 
-        body: JSON.stringify({name:repo, description, auto_init}), 
+    async createRepository({org=null, name, description='', auto_init=true}): Promise<any> {
+      let url = org ? `https://api.github.com/orgs/${org}/repos` : 'https://api.github.com/user/repos'
+      console.log(`createUserRepository: org=${org} name=${name} description=${description} auto_init=${auto_init} url=${url}`)
+      let resp = await fetch(url, {
+        method: 'POST', 
+        body: JSON.stringify({name, description, auto_init}), 
         headers: {Authorization: `Token ${this.authToken}`} 
       })
       return {status:resp.status, statusText:resp.statusText}
@@ -101,7 +118,7 @@ export class GithubClient {
       sha = sha || await this.getSha(acct, repo, path, ref)
       // console.log(`putFile: acct=${acct} repo=${repo} path=${path} ref=${ref} sha=${sha}`)
       // let payload:any = { message: 'API commit', content: btoa(unescape(encodeURIComponent(content))) }
-      let payload:any = { message: 'API commit', content: btoa(content) }
+      let payload:any = { message: 'API commit', content: this.b64EncodeUnicode(content) }
       if (ref) payload.branch = ref
       if (sha) payload.sha = sha
       let resp = await fetch(url, { method: 'PUT', body: JSON.stringify(payload), headers: {Authorization: `Token ${this.authToken}`} })

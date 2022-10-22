@@ -62,7 +62,6 @@ export class ContentPath {
 
   @Watch('isLoggedIn')
   async isLoggedInChanged() {
-    console.log(`isLoggedIn=${this.isLoggedIn}`)
     if (!this.isLoggedIn) {
       this.username = ''
       this.userCanUpdateRepo = false
@@ -77,7 +76,7 @@ export class ContentPath {
       this.getAccounts().then(accts => this.accts = accts)
       this.username = await this.githubClient.user().then(userData => userData.login)
       await this.githubClient.repos(this.username).then(repos => {
-        if (repos.length === 0) this.githubClient.createRepository(this.username, 'essays', 'Juncture visual essays', true)
+        if (repos.length === 0) this.githubClient.createRepository({name:'essays', description:'Juncture visual essays'})
       })
       this.githubClient.isCollaborator(this.acct, this.repo, this.username).then(isCollaborator => this.userCanUpdateRepo = isCollaborator)
     }
@@ -112,7 +111,7 @@ export class ContentPath {
   @Watch('repo')
   repoChanged() {
     this.path = []
-    this.ref = ''
+    this.ref = null
     if (this.repo) {
       if (this.isLoggedIn) {
         this.githubClient.user().then(userData => userData.login)
@@ -161,7 +160,6 @@ export class ContentPath {
   }
 
   parseContentPath() {
-    console.log(`parseContentPath contentPath=${this.contentPath}`)
     if (this.contentPath) {
       let [path, args] = this.contentPath.split(':').pop().split('?')
       let qargs = args ? Object.fromEntries(args.split('&').map(arg => arg.split('='))) : {}
@@ -188,7 +186,6 @@ export class ContentPath {
 
   async getUnscopedToken() {
     let url = `https://api.juncture-digital.org/gh-token`
-    console.log(`getUnscopedToken: url=${url}`)
     let resp = await fetch(url)
     if (resp.ok) {
       let unscopedToken = await resp.text()
@@ -246,7 +243,6 @@ export class ContentPath {
     let [acct, repo] = pathElems.slice(0,2)
     path = pathElems.slice(2).filter(pe => pe).join('/')
     let ref = qargs.ref || this.ref
-    console.log(`putFile: acct=${acct} repo=${repo} path=${path} ref=${ref} content=${content.length}`)
     return this.githubClient.putFile(acct, repo, path, content, ref)
   }
 
@@ -267,7 +263,6 @@ export class ContentPath {
   }
 
   prunePath(idx: number) {
-    console.log('prunePath')
     this.path = idx === 0 ? [] : this.path.slice(0,idx)
   }
 
@@ -280,7 +275,6 @@ export class ContentPath {
         let inputEl = (this.el.shadowRoot.getElementById('add-file-input') as HTMLInputElement)
         let newFilePathElems = [...this.path, ...inputEl.value.split('/').filter(pe => pe)]
         let path = newFilePathElems.join('/')
-        console.log(`addFile: path=${path}`)
         await this.githubClient.putFile(this.acct, this.repo, path, `# ${path.split('/').pop()}`, this.ref)
         this.path = newFilePathElems
         this.hideAddFileDialog()
@@ -309,13 +303,11 @@ export class ContentPath {
       form.addEventListener('submit', async (evt) => {
         evt.preventDefault()
         let inputEl = (this.el.shadowRoot.getElementById('add-repo-input') as HTMLInputElement)
-        let repo = inputEl.value
-        console.log(`addRepo: name=${repo}`)
-        let resp = await this.githubClient.createRepository(this.username, repo)
-        console.log(resp)
+        let name = inputEl.value
+        let resp = await this.githubClient.createRepository({name, org: this.username === this.acct ? null : this.acct })
         if (resp.status === 201) {
           this.getRepositories().then(repos => this.repos = repos)
-          this.repo = repo
+          this.repo = name
         }
         this.hideAddRepoDialog()
       })
@@ -330,7 +322,6 @@ export class ContentPath {
 
   async deleteFile() {
     let toDelete = this.path.join('/')
-    console.log('deleteFile', this.path.join('/'))
     await this.githubClient.deleteFile(this.acct, this.repo, toDelete, this.ref)
     await this.updateDirList()
     this.prunePath(this.path.length-(this.dirList.length === 0 ? 2 : 1))
@@ -338,16 +329,10 @@ export class ContentPath {
     this.hideDeleteFileDialog()
   }
 
-  showAcctDropdown() {
-    console.log('showAcctDropdown');
-    (this.el.shadowRoot.getElementById('acct-dropdown') as any).show()
-  }
-
   summary() {
     return <sl-breadcrumb>
       
-      <sl-tooltip content="Github account" placement="bottom" disabled>
-        <sl-breadcrumb-item id="acct-dropdown" onClick={this.showAcctDropdown.bind(this)}>
+      <sl-breadcrumb-item>
         { this.accts?.length > 1
           ? <sl-dropdown>
               ` <sl-button slot="trigger" pill size="medium" class="folder">
@@ -365,11 +350,9 @@ export class ContentPath {
              <sl-icon slot="prefix" name="github" style={{fontSize: '24px'}}></sl-icon>
             </sl-button>
         }
-        </sl-breadcrumb-item>
-      </sl-tooltip>
+      </sl-breadcrumb-item>
       
-      <sl-tooltip content="Github repository" placement="bottom" disabled>
-        <sl-breadcrumb-item>
+      <sl-breadcrumb-item>
         { this.repos?.length > 1
           ? <sl-dropdown>
               <sl-button slot="trigger" pill size="medium">
@@ -392,48 +375,52 @@ export class ContentPath {
               <sl-icon slot="prefix" name="archive" style={{fontSize: '24px'}}></sl-icon>
             </sl-button>
         }
-        </sl-breadcrumb-item>
-      </sl-tooltip>
+      </sl-breadcrumb-item>
 
-      <sl-tooltip content="Repository branch" placement="bottom" disabled>
-        <sl-breadcrumb-item>
-          { this.branches?.length > 1
-            ? <sl-dropdown>
-                <sl-button slot="trigger" pill size="medium">
-                  {this.ref}
-                  <sl-icon slot="prefix" name="share" style={{fontSize: '24px'}}></sl-icon>
-                </sl-button>
-                <sl-menu> {
-                  this.branches.map(branch => 
-                    <sl-menu-item checked={branch.name === this.ref} onClick={this.branchSelected.bind(this, branch)} innerHTML={branch.name}></sl-menu-item>
-                  )}
-                </sl-menu>
-              </sl-dropdown>
-            : <sl-button pill size="medium">
+      <sl-breadcrumb-item>
+        { this.branches?.length > 1
+          ? <sl-dropdown>
+              <sl-button slot="trigger" pill size="medium">
                 {this.ref}
-                <sl-icon slot="prefix" name="folder2" style={{fontSize: '24px'}}></sl-icon>
+                <sl-icon slot="prefix" name="share" style={{fontSize: '24px'}}></sl-icon>
               </sl-button>
-          }
-        </sl-breadcrumb-item>
-      </sl-tooltip>
+              <sl-menu> {
+                this.branches.map(branch => 
+                  <sl-menu-item checked={branch.name === this.ref} onClick={this.branchSelected.bind(this, branch)} innerHTML={branch.name}></sl-menu-item>
+                )}
+              </sl-menu>
+            </sl-dropdown>
+          : <sl-button pill size="medium">
+              {this.ref}
+              <sl-icon slot="prefix" name="share" style={{fontSize: '24px'}}></sl-icon>
+            </sl-button>
+        }
+      </sl-breadcrumb-item>
 
       { this.path?.length > 0 && this.path.map((pathElem, idx) => 
         <sl-breadcrumb-item>
-          <sl-button pill size="medium" onClick={this.prunePath.bind(this, idx)}>
-            {pathElem}
-            <sl-icon slot="prefix" name="file-earmark" style={{fontSize: '24px'}}></sl-icon>
-          </sl-button>
         
-          { idx === (this.path.length-1) && pathElem.split('.').pop() === 'md' &&
-            <sl-dropdown slot="suffix" skidding="-50">
-              <sl-icon-button slot="trigger" name="caret-down" label="File actions"></sl-icon-button>
-              <sl-menu>
-                <sl-menu-item onClick={() => this.fileToDelete = pathElem}>Delete file<sl-icon slot="prefix" name="trash"></sl-icon></sl-menu-item>
-              </sl-menu>
-            </sl-dropdown>
+          { idx === (this.path.length-1) && pathElem.split('.').pop() === 'md'
+            ? [
+                <sl-button pill size="medium" onClick={this.prunePath.bind(this, idx)}>
+                  {pathElem}
+                  <sl-icon slot="prefix" name="filetype-md" style={{fontSize: '24px'}}></sl-icon>
+                </sl-button>,
+                <sl-dropdown slot="suffix">
+                  <sl-icon-button slot="trigger" name="caret-down" label="File actions"></sl-icon-button>
+                  <sl-menu>
+                    <sl-menu-item onClick={() => this.fileToDelete = pathElem}>Delete file<sl-icon slot="prefix" name="trash"></sl-icon></sl-menu-item>
+                  </sl-menu>
+                </sl-dropdown>
+              ]
+            : <sl-button pill size="medium" onClick={this.prunePath.bind(this, idx)}>
+                {pathElem}
+                <sl-icon slot="prefix" name="folder2" style={{fontSize: '24px'}}></sl-icon>
+              </sl-button>
           }
 
-        </sl-breadcrumb-item> 
+        </sl-breadcrumb-item>
+
       )}
 
     </sl-breadcrumb>
@@ -461,12 +448,13 @@ export class ContentPath {
     return [
       <section class="content-path">
         {this.summary()}
+        { this.dirList.length > 0 && <sl-divider></sl-divider> }
         {this.clicakbleChildren()}
       </section>,
       
       <sl-dialog id="add-repo-dialog" label="Add Repository">
         <form id="add-repo-form" class="input-validation-pattern">
-          <sl-input autofocus autocomplete="off" required id="add-repo-input" placeholder="Enter name" pattern="^\([A-z0-9\-_])+$"></sl-input>
+          <sl-input autofocus autocomplete="off" required id="add-repo-input" placeholder="Enter name" pattern="^[A-z0-9\-_]+$"></sl-input>
           <br />
           <sl-button onClick={this.hideAddRepoDialog.bind(this)}>Cancel</sl-button>
           <sl-button type="submit" variant="primary">Add</sl-button>
