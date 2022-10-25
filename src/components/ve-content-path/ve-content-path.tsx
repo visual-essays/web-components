@@ -42,6 +42,7 @@ export class ContentPath {
   @Element() el: HTMLElement
 
   @Event({ bubbles: true, composed: true }) contentPathChanged: EventEmitter<any>
+  @Event({ bubbles: true, composed: true }) addMediaResource: EventEmitter<any>
 
   @State() username: string = ''
   @State() authToken: string
@@ -274,6 +275,8 @@ export class ContentPath {
         evt.preventDefault()
         let inputEl = (this.el.shadowRoot.getElementById('add-file-input') as HTMLInputElement)
         let newFilePathElems = [...this.path, ...inputEl.value.split('/').filter(pe => pe)]
+        if (newFilePathElems[newFilePathElems.length-1].indexOf('.') > 0) newFilePathElems[newFilePathElems.length-1] = newFilePathElems[newFilePathElems.length-1].replace(/readme\.md/,'README.md')
+        else newFilePathElems.push('README.md')
         let path = newFilePathElems.join('/')
         await this.githubClient.putFile(this.acct, this.repo, path, `# ${path.split('/').pop()}`, this.ref)
         this.path = newFilePathElems
@@ -329,8 +332,18 @@ export class ContentPath {
     this.hideDeleteFileDialog()
   }
 
+  dirItems() {
+    return this.dirList.filter(item => item.type === 'dir' || (item.name.split('.').pop() === 'md' && this.mode === 'essays'))
+  }
+
+  emitAddEvent(evt) {
+    console.log('addMediaResource')
+    this.addMediaResource.emit(evt)
+  }
+
   summary() {
-    return <sl-breadcrumb>
+    return <div class="breadcrumb">
+      <sl-breadcrumb>
       
       <sl-breadcrumb-item>
         { this.accts?.length > 1
@@ -424,22 +437,33 @@ export class ContentPath {
       )}
 
     </sl-breadcrumb>
+    { this.mode === 'media' && this.addItem() }
+    </div>
+  }
+
+  addItem() {
+    return <sl-tooltip content={`Add ${this.mode === 'media' ? 'resource' : 'file'}`} placement="bottom">
+      <sl-button 
+        variant="default" 
+        size={ this.mode === 'media' ? 'medium' : 'small' }
+        class="add-item" 
+        name={`Add ${this.mode === 'media' ? 'resource' : 'file'}`} 
+        circle 
+        onClick={this.mode === 'essays' ? this.showAddFileDialog.bind(this) : this.emitAddEvent.bind(this)}
+      >
+      <sl-icon name="plus-lg" label="Add file"></sl-icon>
+      </sl-button>
+    </sl-tooltip>
   }
 
   clicakbleChildren() {
     return <div class="dirs">
-      {this.dirList.filter(item => item.type === 'dir' || item.name.split('.').pop() === 'md').map(item => 
+      {this.dirItems().map(item => 
         <sl-button innerHTML={item.name} onClick={this.appendPath.bind(this, item)} pill size="small" class={item.type}>
           <sl-icon slot="prefix" name={item.type === 'dir' ? 'folder2' : 'file-earmark'}></sl-icon>
         </sl-button>
       )}
-      { this.path && (this.path.length === 0 || (this.path[this.path.length-1].split('.').pop() !== 'md')) &&
-        <sl-tooltip content="Add File">
-          <sl-button variant="default" size="small" class="add-file" name="Add file" circle onClick={this.showAddFileDialog.bind(this)}>
-            <sl-icon name="plus-lg" label="Add file"></sl-icon>
-          </sl-button>
-        </sl-tooltip>
-      }
+      { this.path && (this.path.length === 0 || (this.path[this.path.length-1].split('.').pop() !== 'md')) && this.mode === 'essays' && this.addItem() }
     </div>
   }
   
@@ -447,9 +471,9 @@ export class ContentPath {
   render() {
     return [
       <section class="content-path">
-        {this.summary()}
-        { this.dirList.length > 0 && <sl-divider></sl-divider> }
-        {this.clicakbleChildren()}
+        { this.summary() }
+        { this.dirItems().length > 0 && <sl-divider></sl-divider> }
+        { this.dirItems().length > 0 && this.clicakbleChildren() }
       </section>,
       
       <sl-dialog id="add-repo-dialog" label="Add Repository">
@@ -463,11 +487,11 @@ export class ContentPath {
     
       <sl-dialog id="add-file-dialog" label="Add File">
         <form id="add-file-form" class="input-validation-pattern">
-          <sl-input autofocus autocomplete="off" required id="add-file-input" placeholder="Enter file path" pattern="^\/?([A-z0-9-_+]+\/)*([A-z0-9\-]+\.(md|json))$"></sl-input>
+          <sl-input autofocus autocomplete="off" required id="add-file-input" placeholder="Enter file path" pattern="^\/?([A-z0-9-_+]+\/)*([A-z0-9\-]+(\.(css|md|json|yaml|yml))?)$"></sl-input>
           <br />
           <sl-button onClick={this.hideAddFileDialog.bind(this)}>Cancel</sl-button>
           <sl-button type="reset" variant="default">Reset</sl-button>
-          <sl-button type="submit" variant="primary">Submit</sl-button>
+          <sl-button type="submit" variant="primary">Add</sl-button>
         </form>
       </sl-dialog>,
 

@@ -35,7 +35,7 @@ export class ImageGallery {
   @Watch('metadata')
   async metadataChanged() {
     this.location = this.getMetadataValue('location')
-    this.zoom = parseFloat(this.getMetadataValue('zoom') || '18')
+    this.zoom = parseFloat(this.getMetadataValue('zoom') || '7')
     this.overlay = this.getMetadataValue('allmapsId')
   }
 

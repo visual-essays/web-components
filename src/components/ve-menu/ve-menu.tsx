@@ -73,7 +73,8 @@ export class VeNav {
   getNavItems() {
     this.navItems = Array.from(this.el.querySelectorAll('li')).map(navItem => {
       if (navItem.firstChild.nodeName === 'A') {
-        return {label: navItem.firstChild.textContent, href: (navItem.firstChild as HTMLLinkElement).href}
+        let linkEl = navItem.firstChild as HTMLLinkElement
+        return {label: linkEl.textContent, href:linkEl.href, newWindow: linkEl.getAttribute('target') === '_blank' }
       } else {
         let text = navItem.firstChild.textContent
         if (text.toLowerCase() === 'auth') {
@@ -134,6 +135,7 @@ export class VeNav {
     markdownDialog.show = !markdownDialog.show
   }
 
+  @State() externalWindow: any
   menuItemSelected(item: any) {
     let action = item.href ? item.href.split('/').pop().toLowerCase() : null
     if ((action === 'contact') || item.label.toLowerCase().indexOf('contact') === 0 && this.contact) {
@@ -148,7 +150,12 @@ export class VeNav {
     } else if (action === 'markdown') {
       this.showMarkdownDialog()
     } else if (item.href) {
-      location.href = item.href
+      if (item.newWindow) {
+        if (this.externalWindow) { this.externalWindow.close() }
+        this.externalWindow = window.open(item.href, '_blank', 'toolbar=yes,location=yes,left=0,top=0,width=1000,height=1200,scrollbars=yes,status=yes')
+      } else {
+        location.href = item.href
+      }
     }
     (this.el.shadowRoot.getElementById('menu-btn') as HTMLInputElement).checked = false
   }

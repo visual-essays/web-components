@@ -9,7 +9,7 @@ export class GithubClient {
     // Encoding UTF8 ⇢ base64
 
     b64EncodeUnicode(str) {
-      return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(match, p1) {
+      return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function(_, p1) {
           return String.fromCharCode(parseInt(p1, 16))
       }))
     }
@@ -113,12 +113,15 @@ export class GithubClient {
       return sha
     }
 
-    async putFile(acct:string, repo:string, path:string, content:any, ref:string, sha:string=''): Promise<any> {
+    async putFile(acct:string, repo:string, path:string, content:any, ref:string, isBinaryString=false, sha:string=''): Promise<any> {
       let url = `https://api.github.com/repos/${acct}/${repo}/contents/${path}`
       sha = sha || await this.getSha(acct, repo, path, ref)
-      // console.log(`putFile: acct=${acct} repo=${repo} path=${path} ref=${ref} sha=${sha}`)
+      console.log(`putFile: acct=${acct} repo=${repo} path=${path} ref=${ref} sha=${sha} isBinaryString=${isBinaryString}`)
       // let payload:any = { message: 'API commit', content: btoa(unescape(encodeURIComponent(content))) }
-      let payload:any = { message: 'API commit', content: this.b64EncodeUnicode(content) }
+      let payload:any = { 
+        message: 'API commit', 
+        content: isBinaryString ? btoa(content) : this.b64EncodeUnicode(content) 
+      }
       if (ref) payload.branch = ref
       if (sha) payload.sha = sha
       let resp = await fetch(url, { method: 'PUT', body: JSON.stringify(payload), headers: {Authorization: `Token ${this.authToken}`} })

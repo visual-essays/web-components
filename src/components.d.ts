@@ -6,6 +6,10 @@
  */
 import { HTMLStencilElement, JSXBase } from "@stencil/core/internal";
 export namespace Components {
+    interface VeAddMediaResourceDialog {
+        "contentPath": string;
+        "show": boolean;
+    }
     interface VeContact {
         "contact": string;
         "show": boolean;
@@ -173,6 +177,12 @@ export interface VeWikidataSearchCustomEvent<T> extends CustomEvent<T> {
     target: HTMLVeWikidataSearchElement;
 }
 declare global {
+    interface HTMLVeAddMediaResourceDialogElement extends Components.VeAddMediaResourceDialog, HTMLStencilElement {
+    }
+    var HTMLVeAddMediaResourceDialogElement: {
+        prototype: HTMLVeAddMediaResourceDialogElement;
+        new (): HTMLVeAddMediaResourceDialogElement;
+    };
     interface HTMLVeContactElement extends Components.VeContact, HTMLStencilElement {
     }
     var HTMLVeContactElement: {
@@ -300,6 +310,7 @@ declare global {
         new (): HTMLVeWikidataSearchElement;
     };
     interface HTMLElementTagNameMap {
+        "ve-add-media-resource-dialog": HTMLVeAddMediaResourceDialogElement;
         "ve-contact": HTMLVeContactElement;
         "ve-content-path": HTMLVeContentPathElement;
         "ve-content-viewer": HTMLVeContentViewerElement;
@@ -324,6 +335,10 @@ declare global {
     }
 }
 declare namespace LocalJSX {
+    interface VeAddMediaResourceDialog {
+        "contentPath"?: string;
+        "show"?: boolean;
+    }
     interface VeContact {
         "contact"?: string;
         "show"?: boolean;
@@ -331,6 +346,7 @@ declare namespace LocalJSX {
     interface VeContentPath {
         "contentPath"?: string;
         "mode"?: string;
+        "onAddMediaResource"?: (event: VeContentPathCustomEvent<any>) => void;
         "onContentPathChanged"?: (event: VeContentPathCustomEvent<any>) => void;
         "sticky"?: boolean;
     }
@@ -469,6 +485,7 @@ declare namespace LocalJSX {
         "onEntity-selected"?: (event: VeWikidataSearchCustomEvent<any>) => void;
     }
     interface IntrinsicElements {
+        "ve-add-media-resource-dialog": VeAddMediaResourceDialog;
         "ve-contact": VeContact;
         "ve-content-path": VeContentPath;
         "ve-content-viewer": VeContentViewer;
@@ -496,6 +513,7 @@ export { LocalJSX as JSX };
 declare module "@stencil/core" {
     export namespace JSX {
         interface IntrinsicElements {
+            "ve-add-media-resource-dialog": LocalJSX.VeAddMediaResourceDialog & JSXBase.HTMLAttributes<HTMLVeAddMediaResourceDialogElement>;
             "ve-contact": LocalJSX.VeContact & JSXBase.HTMLAttributes<HTMLVeContactElement>;
             "ve-content-path": LocalJSX.VeContentPath & JSXBase.HTMLAttributes<HTMLVeContentPathElement>;
             "ve-content-viewer": LocalJSX.VeContentViewer & JSXBase.HTMLAttributes<HTMLVeContentViewerElement>;

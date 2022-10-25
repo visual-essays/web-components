@@ -179,9 +179,9 @@ export class DepictsDialog {
             : ''
           }
           <div style={{display: 'flex', flexDirection: 'column', padding: '0px'}}>
-            <div innerHTML={this.label} style={{padding: '0 12px', fontSize:'1.2em', fontWeight:'bold'}}></div>
+            <div innerHTML={this.label} style={{padding: '0 12px', fontSize:'1.2rem', fontWeight:'bold'}}></div>
             { this.summary
-              ? <div innerHTML={this.summary}></div>
+              ? <div innerHTML={this.summary} style={{padding: '0 12px', fontSize:'1rem'}}></div>
               : null
             }
           </div>

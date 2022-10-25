@@ -16,10 +16,9 @@
 | `entities`     | `entities`       |             | `string`  | `undefined` |
 | `fit`          | `fit`            |             | `string`  | `undefined` |
 | `height`       | `height`         |             | `string`  | `undefined` |
-| `mode`         | `mode`           |             | `string`  | `'curtain'` |
+| `mode`         | `mode`           |             | `string`  | `'default'` |
 | `options`      | `options`        |             | `string`  | `undefined` |
 | `seq`          | `seq`            |             | `number`  | `undefined` |
-| `shoelace`     | `shoelace`       |             | `boolean` | `true`      |
 | `src`          | `src`            |             | `string`  | `undefined` |
 | `sticky`       | `sticky`         |             | `boolean` | `undefined` |
 | `width`        | `width`          |             | `string`  | `'100%'`    |

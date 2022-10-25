@@ -15,50 +15,17 @@
 
     <main>
       
-      <!--
-      <ve-header 
-        label="Kent Maps Online"
-        subtitle="A Subtitle"
-        background="gh:kent-map/images/Kent_Maps.jpg" 
-        contact="ron.snyder@ithaka.org" 
-        search-domain="kent-maps.online"
-        sticky>
-        <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/about">About</a></li>
-          <li>Contact Us</li>
-        </ul>
-      </ve-header>
-      -->
+      <ve-add-media-resource-dialog show="false"></ve-add-media-resource-dialog>
 
-      <ve-content-path sticky="true"></ve-content-path>
-
-      <div style="height:100vh;"></div>
-
-      <!--
-      <ve-footer style="background-color:white;color:#fff;">
-        <ul>
-          <li><img src="https://raw.githubusercontent.com/kent-map/kent/main/images/Centre_for_Kent_History_and_Heritage_logo_1.jpg"></li>
-          <li><a href="https://twitter.com/KentMaps1"><img src="https://raw.githubusercontent.com/kent-map/kent/main/images/twitter.png"></a></li>
-          <li><a href="https://dofe.kent-maps.online"><img src="https://raw.githubusercontent.com/kent-map/kent/main/images/dofe-logo.png" alt="DoE participants' showcase"></a></li>
-          <li class="push">A collaboration between: <img src="https://raw.githubusercontent.com/kent-map/kent/main/dickens/images/CCCU-logo-2colour.svg"> <a href="https://labs.jstor.org"><img src="https://raw.githubusercontent.com/kent-map/kent/main/images/labs.jpg"></a></li>
-        </ul>
-      </ve-footer>
-      -->
+      <button>Show</button>
 
     </main>
 
     <script>
-
-      document.querySelector('ve-content-path').addEventListener('contentPathChanged', async (evt) => {
-        let contentPath = evt.detail
-        let filePath = contentPath.split(':').pop().split('?')[0].split('/').slice(2).join('/')
-        console.log(`contentPath=${contentPath} filePath=${filePath}`)
-        if (filePath.indexOf('.md') === filePath.length-3) {
-          console.log(await evt.target.getFile(filePath))
-        }
+      document.querySelector('button').addEventListener('click', () => {
+        let dialog = document.querySelector('ve-add-media-resource-dialog')
+        dialog.setAttribute('show', dialog.getAttribute('show') === 'true' ? 'false' : 'true')
       })
-
     </script>
 
   </body>

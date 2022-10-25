@@ -45,7 +45,6 @@ export class Annotator {
     this._path = path
     let annotations = []
     let url = `${annotationsEndpoint}/annotations/${this._path}/`
-    console.log(`loadAnnotations: url=${url}`)
     let resp = await fetch(url, {
       headers: {
         // Accept: 'application/ld+json;profile="http://www.w3.org/ns/anno.jsonld'
@@ -57,7 +56,6 @@ export class Annotator {
       annotations = resp.annotations
       this._annotorious.setAnnotations(resp.annotations)
     }
-    console.log(`loadAnnotations: path=${this._path}`, this.getAnnotations())
     return annotations
   }
 

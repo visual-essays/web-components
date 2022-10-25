@@ -20,7 +20,7 @@ export class ImageCard {
 
   @State() _manifest: any
   @Watch('_manifest')
-  async manifestChanged() {
+  _manifestChanged() {
     if (this._manifest) this.metadata = this.getMetadata()
   }
 
@@ -38,7 +38,9 @@ export class ImageCard {
   }
 
   async componentDidUpdate() {
-    if (this.manifest !== this._manifest.id) this._manifest = await getManifest(this.manifest)
+    if (decodeURIComponent(this.manifest) !== this._manifest.id) {
+      this._manifest = await getManifest(this.manifest)
+    }
   }
 
   getMetadataValue(label): string {
@@ -81,6 +83,12 @@ export class ImageCard {
     dragEvent.dataTransfer?.setData('text/uri-list', `${manifest.id}?manifest=${manifest.id}`)
   }
 
+  copyTextToClipboard(text:string, evt:PointerEvent) {
+    evt.stopPropagation()
+    console.log('copyTextToClipboard', text, evt)
+    if (navigator.clipboard) navigator.clipboard.writeText(text)
+  }
+
   render() {
     return [
       this._manifest
@@ -112,13 +120,12 @@ export class ImageCard {
             </div>
           }
           <div class="card-links">
-            <a href={`${this._manifest.id}`} target="_blank"><img src="https://visual-essays.github.io/web-app/static/iiif.png" alt="IIIF manifest icon"/></a>
+            <sl-tooltip content="Copy IIIF Manifest URL">
+              <img onClick={this.copyTextToClipboard.bind(this, this._manifest.id)} src="https://visual-essays.github.io/web-app/static/iiif.png" alt="IIIF manifest icon"/>
+            </sl-tooltip>
             {this.location && <sl-tooltip content="Show location on map">
               <sl-icon name="map-fill" style={{cursor: 'pointer'}} onClick={this.imageSelected.bind(this, 'map')}></sl-icon>
             </sl-tooltip>}
-            <sl-tooltip content="Refresh metadata">
-              <a href={`${this._manifest.id}?refresh=true`} target="_blank"><sl-icon name="arrow-clockwise" style={{paddingTop:'3px'}}></sl-icon></a>
-            </sl-tooltip>
           </div>
           { false && this._manifest.summary && <div class="card-abstract" innerHTML={summary(this._manifest)}></div> }
         </div>

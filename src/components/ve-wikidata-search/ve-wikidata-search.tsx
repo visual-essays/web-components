@@ -1,5 +1,10 @@
 import { Component, Element, Event, EventEmitter, Prop, State, h, Watch } from '@stencil/core';
 
+import '@shoelace-style/shoelace/dist/components/button/button.js'
+import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
+import '@shoelace-style/shoelace/dist/components/menu/menu.js'
+import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
+
 @Component({
   tag: 've-wikidata-search',
   styleUrl: 've-wikidata-search.css',
@@ -146,4 +151,6 @@ export class WikidataSearch {
     </div>
     ]
   }
+
+
 }

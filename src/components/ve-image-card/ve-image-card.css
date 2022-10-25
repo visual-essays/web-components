@@ -59,6 +59,7 @@
 }
 .card-links img {
   height: 24px;
+  cursor: pointer;
 }
 .card-links sl-icon {
   font-size: 20px;

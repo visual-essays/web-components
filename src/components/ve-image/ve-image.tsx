@@ -73,7 +73,6 @@ export class ImageViewer {
 
   @Watch('_annoTarget')
   _annoTargetChanged() {
-    console.log(`_annoTargetChanged: _annoTarget=${this._annoTarget}`)
     if (this._annotator) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
   }
 
@@ -119,9 +118,8 @@ export class ImageViewer {
   }
 
   annoTarget(manifest:any) {
-    let locationPath = location.pathname.replace(/^\/editor/,'').split('/').filter(pe => pe).slice(0,-1).join('/') 
+    // let locationPath = location.pathname.replace(/^\/editor/,'').split('/').filter(pe => pe).slice(0,-1).join('/') 
     let sourceHash = sha256(imageInfo(manifest).id).slice(0,8)
-    console.log(`annoTarget: annoBase=${this.annoBase} sourceHash=${sourceHash} locationPath=${locationPath}`)
     return `${this.annoBase}/${sourceHash}`
   }
 
@@ -223,7 +221,6 @@ export class ImageViewer {
       const callback = (mutationsList) => {
         for (let mutation of mutationsList) {
           if (mutation.type === 'childList' || mutation.type === 'characterData') {
-            // console.log(`slot change: mutation.type=${mutation.type}`)
             this.buildImagesList()
           }
         }
@@ -234,8 +231,7 @@ export class ImageViewer {
   }
 
   connectedCallback() {
-    console.log(`ve-image: sticky=${this.sticky} zoomOnScroll=${this.zoomOnScroll} compare=${this.compare}`)
-    // console.log(`connectedCallback: annoBase=${this.annoBase}`)
+    // console.log(`ve-image: sticky=${this.sticky} zoomOnScroll=${this.zoomOnScroll} compare=${this.compare}`)
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
   }
 
@@ -324,81 +320,6 @@ export class ImageViewer {
     return el.clientWidth * .45
   }
 
-  _setHostDimensionsSav(imageData: any = null) {
-    let wrapper = this.el.shadowRoot.getElementById('wrapper')
-    let captionEl = this.el.shadowRoot.getElementById('caption')
-    let captionHeight = captionEl ? captionEl.clientHeight : 32
-    let osd = this.el.shadowRoot.getElementById('osd')
-
-    let elWidth = this.el.clientWidth || this.el.parentElement.clientWidth
-    // let elWidth = this._findWidth()
-    // let elWidth = this.el.clientWidth
-    // let elHeight = this.el.clientHeight || this.el.parentElement.clientHeight
-    let elHeight = this.el.clientHeight
-    let parentOffset = this.el.offsetTop - this.el.parentElement.offsetTop
-
-
-    let requestedWidth = this.width
-      ? this.width.indexOf('px') > 0
-        ? parseInt(this.width.slice(0,-2))
-        : Math.round(elWidth * (parseFloat(this.width.slice(0,-1))/100))
-      : null
-    let requestedHeight = this.height
-      ? this.height.indexOf('px') > 0
-        ? parseInt(this.height.slice(0,-2))
-        : Math.round((elHeight - parentOffset) * parseFloat(this.height.slice(0,-1))/100)
-      : null
-    let imageWidth = imageData ? imageData.width : null
-    let imageHeight = imageData ? imageData.height : null
-    // console.log(`ve-image.setHostDimensions: elWidth=${elWidth} elHeight=${elHeight} parentOffset=${parentOffset} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} imageWidth=${imageWidth} imageHeight=${imageHeight}`)
-    
-    let width, height
-    if (requestedWidth) {
-      width = requestedWidth
-      height = requestedHeight
-        ? requestedHeight
-        : imageData
-          ? elHeight
-            ? Math.min(elHeight, Math.round(imageHeight/imageWidth * requestedWidth)) + captionHeight 
-            : Math.round(imageHeight/imageWidth * requestedWidth) + captionHeight // height scaled to width
-          : requestedWidth
-    } else if (requestedHeight) {
-      height = requestedHeight
-      width = Math.min(
-        elWidth,
-        imageData
-          ? Math.round(imageWidth/imageHeight * (requestedHeight - captionHeight)) // width scaled to height
-          : requestedWidth
-        )
-    } else {
-      if (elHeight === null) {
-        height = elHeight
-        width = Math.min(
-          elWidth,
-          imageData
-            ? Math.round(imageWidth/imageHeight * (requestedHeight - captionHeight)) // width scaled to height
-            : requestedWidth || elWidth
-          )
-      } else {
-        width = elWidth
-        height = Math.round(imageHeight/imageWidth * elWidth + captionHeight) // height scaled to width
-      }
-    }
-
-    console.log(`ve-image.setHostDimensions: width=${width} height=${height} caption=${captionHeight}`)
-    // osd.style.width = `${width}px`
-    wrapper.style.width =  `${width}px`
-    wrapper.style.height = `${height}px`
-    osd.style.width = '100%'
-    osd.style.height = `${height - captionHeight}px`
-    // this.el.style.width = '100%'
-    this.el.style.height = `${height}px`
-    if (this.align) {
-      if (this.align === 'center') this.el.style.margin = 'auto'
-      else this.el.style.float = this.align
-    }
-  }
-
   async _tileSource(imgUrl: any, options: any) {
     let tileSource
     if (imgUrl.indexOf('/info.json') > 0) {
@@ -477,7 +398,7 @@ export class ImageViewer {
   }
 
   configureScrollBehavior() {
-    console.log(`configureScrollBehavior: isMobile=${isMobile()} isTouchEnabled=${this.isTouchEnabled()} zoomOnScroll=${this.zoomOnScroll} isFullPage=${this._viewer.isFullPage()}`)
+    // console.log(`configureScrollBehavior: isMobile=${isMobile()} isTouchEnabled=${this.isTouchEnabled()} zoomOnScroll=${this.zoomOnScroll} isFullPage=${this._viewer.isFullPage()}`)
     /* This is intended to provide touch-based scrolling of OSD images in mobile mode.  Pan/zoom is
     disabled to permit scrolling.  The technique for doing this is as described in this
     OSD Github issue - https://github.com/openseadragon/openseadragon/issues/1791#issuecomment-1000045888
@@ -538,7 +459,6 @@ export class ImageViewer {
   }
 
   async _compareViewerInit() {
-    console.log('_compareViewerInit')
     this._tileSources = await this._loadTileSources()
     // let tileSources = await this._loadTileSources()
     if (this.mode !== 'default') {
@@ -576,9 +496,7 @@ export class ImageViewer {
   }
 
   async _osdInit() {
-    console.log('_osdInit')
     let tileSources = await this._loadTileSources()
-    // console.log(tileSources)
     let osdElem: HTMLElement = this.el.shadowRoot.querySelector('#osd')
     const osdOptions: OpenSeadragon.Options = {
       element: osdElem,
@@ -588,8 +506,6 @@ export class ImageViewer {
       minZoomImageRatio: 0.2,
       maxZoomPixelRatio: 5,
       showRotationControl: true,
-      // homeFillsViewer: this.fit === 'cover',
-      //animationTime: 100,
       showHomeControl: true,
       showZoomControl: true,
       showFullPageControl: true,
@@ -639,6 +555,7 @@ export class ImageViewer {
     // console.log(`positionImage immediately=${immediately}`, this._current)
     setTimeout(() => {
       if (this._current.options.region !== 'full') {
+        console.log(this._current.options.region, immediately)
         this.setRegion(this._current.options.region, immediately)
       } else {
         let imageData = imageInfo(this._current.manifest)
@@ -689,7 +606,7 @@ export class ImageViewer {
     let width, height
     let imgInfo = imageInfo(this._current.manifest)
     let ratio = imgInfo.width / imgInfo.height
-    let depictsPanelWidth = 300
+    // let depictsPanelWidth = 300
     if (ratio < 0) {
       width = 800
       height = width * ratio
@@ -697,11 +614,11 @@ export class ImageViewer {
       height = 800
       width = height * ratio
     }
-    let url = location.hostname === 'localhost'? 'http://localhost:2222/' : 'https://beta.juncture-digital.org/annotator'
+    let url = location.hostname === 'localhost'? 'http://localhost:8080/annotator/' : 'https://beta.juncture-digital.org/annotator'
     url += `?manifest=${this._current.manifest.id || this._current.manifest['@id']}`
     if (this.annoBase) url += `&anno-base=${this.annoBase}`
-    console.log(url)
-    this.openWindow(url, `toolbar=yes,location=yes,left=0,top=0,width=${width+depictsPanelWidth},height=${height+200},scrollbars=yes,status=yes`)
+    // this.openWindow(url, `toolbar=yes,location=yes,left=0,top=0,width=${width+depictsPanelWidth},height=${height+200},scrollbars=yes,status=yes`)
+    this.openWindow(url, `toolbar=yes,location=yes,left=0,top=0,width=1200,height=1000,scrollbars=yes,status=yes`)
   }
 
   openWindow(url, options) {
@@ -775,6 +692,7 @@ export class ImageViewer {
             height = fit === 'contain'
               ? Math.round(imageHeight/imageWidth * width + captionHeight)
               : window.innerHeight * .5
+            height = Math.round(imageHeight/imageWidth * width + captionHeight)
             this.el.classList.add(position === 'left' ? 'left' : 'right')
           }
         }
@@ -833,7 +751,6 @@ export class ImageViewer {
   }
 
   renderCurtainViewer() {
-    console.log('renderCurtainViewer')
     return <sl-image-comparer position="50">
       {this._tileSources.map((ts:any, idx:number) =>
         <img style={{}}

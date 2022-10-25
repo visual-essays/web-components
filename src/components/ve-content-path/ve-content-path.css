@@ -102,7 +102,7 @@ sl-button.dir::part(base) {
 sl-button.file::part(base) {
 }
 
-sl-button.add-file::part(base) {
+sl-button.add-item::part(base) {
   background-color: #eee;
   color: black;
 }
@@ -121,4 +121,14 @@ sl-icon-button.delete::part(base) {
 
 sl-menu {
   text-align: left;
+}
+
+sl-breadcrumb {
+  display: inline-block;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 24px;
 }
