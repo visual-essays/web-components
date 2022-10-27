@@ -191,6 +191,11 @@ section.no-offset:target:before {
 }
 
 /***************** tabs start *****************/
+
+.tabs {
+  min-height: 100vh;
+}
+
 input { display: none; }
 input + label { display: inline-block }
 input ~ .tab { visibility: hidden }
@@ -227,6 +232,9 @@ h1 {margin-bottom: 32px;}
   width: 100%;
   height: 100%;
   padding: 1rem 0;
+}
+.tab p {
+  height: 100%;
 }
 /***************** tabs end *****************/
 
