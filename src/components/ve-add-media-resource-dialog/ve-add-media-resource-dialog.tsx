@@ -19,16 +19,17 @@ import SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog.js'
 })
 export class AddMediaResourceDialog {
   @Prop({ mutable: true, reflect: true }) show: boolean = false
-  @Prop() contentPath: string
+  @Prop({ mutable: true, reflect: true }) contentPath: string
 
   @Element() el: HTMLElement
 
 
   @State() authToken: string
   @State() githubClient: any
-  @State() acct: string = 'rsnyder'
-  @State() repo: string = 'media'
-  @State() ref: string = 'main'
+  @State() acct: string
+  @State() repo: string
+  @State() ref: string
+  @State() pathElems: string[] = []
   @State() dialog: any
   @State() file: File
   @State() fileName: string
@@ -59,10 +60,23 @@ export class AddMediaResourceDialog {
     this.authToken = window.localStorage.getItem('gh-auth-token') || window.localStorage.getItem('gh-unscoped-token')
   }
 
+  @Watch('contentPath')
+  parseContentPath() {
+    let [path, args] = this.contentPath.split(':').pop().split('?')
+    let qargs = args ? Object.fromEntries(args.split('&').map(arg => arg.split('='))) : {}
+    let pathElems = path.split('/').filter(pe => pe)
+    if (pathElems.length > 0) this.acct = pathElems[0]
+    if (pathElems.length > 1) this.repo = pathElems[1]
+    if (pathElems.length > 2) this.pathElems = pathElems.slice(2)
+    if (qargs.ref) this.ref = qargs.ref || 'main'
+  }
+
   componentDidLoad() {
+    this.parseContentPath()
     this.dialog = this.el.shadowRoot.getElementById('add-media-resource-dialog') as SlDialog
     this.form = this.el.shadowRoot.getElementById('add-media-resource-form') as HTMLFormElement
     this.folder = this.el.shadowRoot.getElementById('resource-folder') as SlInput;
+    this.folder.value = this.pathElems.join('/')
     this.name = this.el.shadowRoot.getElementById('resource-name') as SlInput;
     this.summary = this.el.shadowRoot.getElementById('resource-summary') as SlInput;
     this.image = this.el.shadowRoot.getElementById('img') as HTMLImageElement

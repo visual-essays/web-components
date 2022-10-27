@@ -60,6 +60,10 @@ section.no-offset:target:before {
   display: none;
 }
 
+.ve-component {
+  z-index: 2;
+}
+
 .ve-component.sticky + div.footnote, 
 .ve-component.sticky ~ div.footnote {
   width: 100%;

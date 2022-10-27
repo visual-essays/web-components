@@ -59,6 +59,7 @@ export class Video {
 
   initialize() {
     this.startTimes = this.getStartTimes()
+    console.log(this.startTimes)
     if (this.isYouTube) this.initializeYouTubePlayer()
     else if (this.isVimeo) this.initializeVimeoPlayer()
     else this.initializeSelfHostedPlayer()
@@ -76,8 +77,9 @@ export class Video {
       // console.log(`ve-video: isMuted=${this.isMuted} isPlaying=${this.isPlaying}`)
       if (this.isPlaying && this.sticky && !playerScrolledToTop) {
         // scroll player to top
-        console.log(`player.scrollTo`)
-        window.scrollTo(0, playerEl.getBoundingClientRect().top + window.scrollY - top())
+        let y = playerEl.getBoundingClientRect().top + window.scrollY - top()
+        // console.log(`player.scrollTo`, y)
+        window.scrollTo(0, y)
         // playerScrolledToTop = true
       }
 
@@ -87,7 +89,7 @@ export class Video {
           if (this.startTimes[time]) {
             // scroll paragraph into active region
             let bcr = this.startTimes[time].getBoundingClientRect()
-            console.log(`elem.scrollTo`)
+            console.log(`elem.scrollTo`, bcr)
             window.scrollTo(0, bcr.top + window.scrollY - playerEl.getBoundingClientRect().bottom)
           }
         })

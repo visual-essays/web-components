@@ -1,4 +1,4 @@
-import { Component, Element, Method, Prop, State, h } from '@stencil/core';
+import { Component, Element, Method, Prop, State, Watch, h } from '@stencil/core';
 
 import '@shoelace-style/shoelace/dist/components/icon/icon.js'
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
@@ -41,11 +41,43 @@ export class VeNav {
 
   @Element() el: HTMLElement
 
+  @State() isLoggedIn: boolean = false
+  @State() originalNavItems: any = []
   @State() navItems: any = []
+
+  @Watch('originalNavItems')
+  originalNavItemsChanged() {
+    this.navItems = this.originalNavItems
+      .filter(item => {
+        let action = item.href ? item.href.split('/').filter(pe => pe).pop().toLowerCase() : 'link'
+        return !nav[action] || !nav[action]?.loginRequired || this.isLoggedIn
+      })
+      .map(item =>
+        item.label === 'Login' || item.label === 'Logout'
+          ?{ label:  this.isLoggedIn ? 'Logout' : 'Login', href:  this.isLoggedIn ? 'logout' : 'login'}
+          : item
+      )
+  }
+
+  @Watch('isLoggedIn')
+  isLoggedInChanged() {
+    console.log(`isLoggedIn=${this.isLoggedIn}`)
+    this.navItems = this.originalNavItems
+      .filter(item => {
+        let action = item.href ? item.href.split('/').filter(pe => pe).pop().toLowerCase() : 'link'
+        return !nav[action] || !nav[action]?.loginRequired || this.isLoggedIn
+      })
+      .map(item =>
+        item.label === 'Login' || item.label === 'Logout'
+          ?{ label:  this.isLoggedIn ? 'Logout' : 'Login', href:  this.isLoggedIn ? 'logout' : 'login'}
+          : item
+      )
+  }
 
   @State() contentPath: string = '/visual-essays/content'
 
   connectedCallback() {
+    this.isLoggedIn = this.ghAuthToken() !== null
     // console.log(`ve-menu: background=${this.background} position=${this.position}`)
     let code = (new URL(window.location.href)).searchParams.get('code')
     if (code) {
@@ -58,6 +90,7 @@ export class VeNav {
         .then(resp => resp.text())
         .then(authToken => {
           if (authToken) {
+            this.isLoggedIn = true
             localStorage.setItem('gh-auth-token', authToken)
             window.dispatchEvent(new Event('storage'))
           }
@@ -71,23 +104,18 @@ export class VeNav {
   }
 
   getNavItems() {
-    this.navItems = Array.from(this.el.querySelectorAll('li')).map(navItem => {
+    this.originalNavItems = Array.from(this.el.querySelectorAll('li')).map(navItem => {
       if (navItem.firstChild.nodeName === 'A') {
         let linkEl = navItem.firstChild as HTMLLinkElement
         return {label: linkEl.textContent, href:linkEl.href, newWindow: linkEl.getAttribute('target') === '_blank' }
       } else {
         let text = navItem.firstChild.textContent
         if (text.toLowerCase() === 'auth') {
-          let isLoggedIn = this.isLoggedIn()
-          return {label: isLoggedIn ? 'Logout' : 'Login', href: isLoggedIn ? 'logout' : 'login'}
+          return {label:  this.isLoggedIn ? 'Logout' : 'Login', href:  this.isLoggedIn ? 'logout' : 'login'}
         } else {
           return {label: text}
         }
       }
-    })
-    .filter(item => {
-      let action = item.href ? item.href.split('/').filter(pe => pe).pop().toLowerCase() : 'link'
-      return !nav[action] || !nav[action]?.loginRequired || this.isLoggedIn()
     })
   }
 
@@ -164,10 +192,6 @@ export class VeNav {
     return localStorage.getItem('gh-auth-token')
   }
 
-  isLoggedIn() {
-    return this.ghAuthToken() !== null
-  }
-
   login() {
     let hostname = (new URL(window.location.href)).hostname
     let isDev = hostname === 'localhost' || hostname.indexOf('192.168.') === 0
@@ -177,13 +201,12 @@ export class VeNav {
         ? `https://github.com/login/oauth/authorize?client_id=${clientIds[location.hostname]}&scope=repo&state=juncture&redirect_uri=${location.href}`
         : null
     if (href) window.location.href = href
-    this.navItems = this.navItems.map(item => item.href === 'login' ? {label: 'Logout', href: 'logout'} : item)
   }
 
   logout() {
     localStorage.removeItem('gh-auth-token')
     window.dispatchEvent(new Event("storage"))
-    this.navItems = this.navItems.map(item => item.href === 'logout' ? {label: 'Login', href: 'login'} : item)
+    this.isLoggedIn = false
   }
 
   navIcon(item: any) {
