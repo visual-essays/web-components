@@ -23,7 +23,6 @@ export class AddMediaResourceDialog {
 
   @Element() el: HTMLElement
 
-
   @State() authToken: string
   @State() githubClient: any
   @State() acct: string
@@ -46,7 +45,6 @@ export class AddMediaResourceDialog {
   @Watch('authToken')
   authTokenChanged() {
     console.log('authTokenChanged')
-    // this.isLoggedIn = window.localStorage.getItem('gh-auth-token') !== null
     this.githubClient = new GithubClient(this.authToken)
   }
 
@@ -56,8 +54,16 @@ export class AddMediaResourceDialog {
     else this.hideDialog()
   }
 
+  @Watch('file')
+  fileChanged() {
+    if (this.file?.name) {
+      setTimeout(() => this.name.focus(), 10)
+    }
+  }
+
   connectedCallback() {
     this.authToken = window.localStorage.getItem('gh-auth-token') || window.localStorage.getItem('gh-unscoped-token')
+    this.parseContentPath()
   }
 
   @Watch('contentPath')
@@ -72,7 +78,6 @@ export class AddMediaResourceDialog {
   }
 
   componentDidLoad() {
-    this.parseContentPath()
     this.dialog = this.el.shadowRoot.getElementById('add-media-resource-dialog') as SlDialog
     this.form = this.el.shadowRoot.getElementById('add-media-resource-form') as HTMLFormElement
     this.folder = this.el.shadowRoot.getElementById('resource-folder') as SlInput;
@@ -90,9 +95,8 @@ export class AddMediaResourceDialog {
   }
 
   hideDialog() {
-    this.folder.value = '';
+    this.folder.value = this.pathElems.join('/');
     this.name.value = '';
-    this.folder.value = '';
     this.file = null
     this.filePicker.value = ''
     this.dialog.hide()
@@ -137,7 +141,7 @@ export class AddMediaResourceDialog {
     let {latitude, longitude} = await exifr.gps(this.image.src)
     let tags = await exifr.parse(this.image.src, true)
     let data:any = {}
-    if (latitude) data.location = `${latitude},${longitude}`
+    if (latitude) data.location = `${latitude.toFixed(7)},${longitude.toFixed(7)}`
     if (orientation) data.orientation = orientation
     if (tags.CreateDate) data.created = tags.CreateDate.toISOString()
     return data

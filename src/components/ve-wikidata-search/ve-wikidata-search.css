@@ -45,7 +45,7 @@ textarea:focus, input:focus{
 .autocomplete__input {
   display: block;
   width: 100%;
-  min-width: 240px;
+  min-width: 220px;
   height: 100%;
   border: none;
   padding-left: 0.5rem;

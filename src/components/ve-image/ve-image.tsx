@@ -685,8 +685,9 @@ export class ImageViewer {
           } else if (position === 'full' || this.compare && this.mode === 'sync') {
             width = wrapper.clientWidth
             height = fit === 'contain'
-              ? Math.min(Math.round(imageHeight/imageWidth * width + captionHeight), window.innerHeight * .5)
-              : window.innerHeight * .5
+              // ? Math.min(Math.round(imageHeight/imageWidth * width + captionHeight), window.innerHeight * .5)
+              ? Math.min(Math.round(imageHeight/imageWidth * width + captionHeight), window.innerHeight)
+              : window.innerHeight
           } else {
             width = wrapper.clientWidth * .5 - 6
             height = fit === 'contain'

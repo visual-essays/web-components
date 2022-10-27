@@ -348,7 +348,7 @@ export class ContentPath {
       <sl-breadcrumb-item>
         { this.accts?.length > 1
           ? <sl-dropdown>
-              ` <sl-button slot="trigger" pill size="medium" class="folder">
+              <sl-button slot="trigger" pill size="medium" class="folder">
                   {this.acct}
                   <sl-icon slot="prefix" name="github" style={{fontSize: '24px'}}></sl-icon>
                 </sl-button>
