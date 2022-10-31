@@ -1,4 +1,4 @@
-import { Component, Element, Prop, State, h } from '@stencil/core';
+import { Component, Element, Prop, h } from '@stencil/core';
 
 @Component({
   tag: 've-navbar',
@@ -22,13 +22,6 @@ export class Header {
   @Prop() offset: number = 0
 
   @Prop() searchDomain: string // Domain for site search
-  
-  @State() navItems: any = []
-
-  @State() navEl: HTMLUListElement
-
-  connectedCallback() {
-  }
 
   componentWillLoad() {
     // console.log(`ve-navbar: sticky=${this.sticky} height=${this.height}`)
@@ -52,17 +45,12 @@ export class Header {
       }
       titleEl.innerText = this.label
     }
-    this.navEl = this.el.querySelector('ul') as HTMLUListElement
-    this.navItems = Array.from(this.el.querySelectorAll('li')).map(navItem =>
-      navItem.firstChild.nodeName === 'A'
-        ? {label: navItem.firstChild.textContent, href: (navItem.firstChild as HTMLLinkElement).href}
-        : {label: navItem.firstChild.textContent}
-    )
-    while (this.el.firstChild)
-      this.el.removeChild(this.el.firstChild)
+
+    // while (this.el.firstChild) this.el.removeChild(this.el.firstChild)
   }
 
   render() {
+    let navEl = this.el.querySelector('ul') as HTMLUListElement
     return [
       <section class="ve-navbar">
         {this.logo
@@ -80,9 +68,9 @@ export class Header {
             <ve-site-search search-domain={this.searchDomain}></ve-site-search>
           }
           <ve-menu background={this.background} position="right" contact={this.contact}>
-            { this.navEl
+            { navEl
               ? <ul>
-                { Array.from(this.navEl.querySelectorAll('li')).map(li => 
+                { Array.from(navEl.querySelectorAll('li')).map(li => 
                   <li innerHTML={li.innerHTML}></li>
                 ) }
                 </ul>

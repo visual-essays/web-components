@@ -54,7 +54,10 @@ export class Annotator {
       resp = await resp.json()
       this._target = resp.target
       annotations = resp.annotations
-      this._annotorious.setAnnotations(resp.annotations)
+      if (annotations.length > 0) {
+        console.log(`Adding ${annotations.length} annotations`)
+        this._annotorious.setAnnotations(resp.annotations)
+      }
     }
     return annotations
   }

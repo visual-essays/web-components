@@ -179,7 +179,7 @@ export class AddMediaResourceDialog {
 
           <div class="fields">
             <sl-input autocomplete="off" id="resource-folder" placeholder="Folder" pattern="^[A-z0-9\-_]+$"></sl-input>
-            <sl-input autofocus autocomplete="off" required id="resource-name" placeholder="Name" pattern="^[A-z0-9\-_ ]+$"></sl-input>
+            <sl-input autocomplete="off" required id="resource-name" placeholder="Name" pattern="^[A-z0-9\-_ ]+$"></sl-input>
             <sl-input autocomplete="off" id="resource-summary" placeholder="Summary"></sl-input>
           </div>
 

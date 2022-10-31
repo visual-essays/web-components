@@ -9,7 +9,7 @@
 
 | Property       | Attribute       | Description | Type      | Default     |
 | -------------- | --------------- | ----------- | --------- | ----------- |
-| `background`   | `background`    |             | `string`  | `'#777'`    |
+| `background`   | `background`    |             | `string`  | `'#555'`    |
 | `contact`      | `contact`       |             | `string`  | `undefined` |
 | `height`       | `height`        |             | `number`  | `undefined` |
 | `label`        | `label`         |             | `string`  | `undefined` |

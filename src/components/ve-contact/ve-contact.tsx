@@ -1,4 +1,4 @@
-import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
+import { Component, Element, Prop, Watch, h } from '@stencil/core';
 
 import '@shoelace-style/shoelace/dist/components/alert/alert.js'
 import '@shoelace-style/shoelace/dist/components/button/button.js'
@@ -32,13 +32,13 @@ export class Header {
     else this.hideContactForm()
   }
 
-  @State() contactDialog: any
-  @State() from: HTMLInputElement
-  @State() emailAlert: any
-  @State() message: HTMLTextAreaElement
-  @State() noMessageAlert: any
+  contactDialog: any
+  from: HTMLInputElement
+  emailAlert: any
+  message: HTMLTextAreaElement
+  noMessageAlert: any
 
-  componentDidLoad() {  
+  componentDidLoad() {
     this.contactDialog = this.el.shadowRoot.querySelector('.contact-dialog')
     this.from = this.el.shadowRoot.getElementById('from') as HTMLInputElement
     this.message = this.el.shadowRoot.getElementById('message') as HTMLTextAreaElement
@@ -87,7 +87,7 @@ export class Header {
   render() {
     return [
       <sl-dialog label="Contact Us" class="contact-dialog">
-        <sl-input id="from" autofocus type="email" label="Email address"></sl-input>
+        <sl-input id="from" type="email" label="Email address"></sl-input>
         <sl-alert id="bad-email-alert" variant="danger">
           <sl-icon slot="icon" name="exclamation-octagon"></sl-icon>
           <strong>Invalid email address</strong><br />Please fix and resubmit

@@ -18,7 +18,7 @@
 | `height`       | `height`         |             | `string`  | `undefined` |
 | `mode`         | `mode`           |             | `string`  | `'default'` |
 | `options`      | `options`        |             | `string`  | `undefined` |
-| `seq`          | `seq`            |             | `number`  | `undefined` |
+| `seq`          | `seq`            |             | `number`  | `1`         |
 | `src`          | `src`            |             | `string`  | `undefined` |
 | `sticky`       | `sticky`         |             | `boolean` | `undefined` |
 | `width`        | `width`          |             | `string`  | `'100%'`    |

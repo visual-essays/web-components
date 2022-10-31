@@ -61,7 +61,6 @@ export class VeNav {
 
   @Watch('isLoggedIn')
   isLoggedInChanged() {
-    console.log(`isLoggedIn=${this.isLoggedIn}`)
     this.navItems = this.originalNavItems
       .filter(item => {
         let action = item.href ? item.href.split('/').filter(pe => pe).pop().toLowerCase() : 'link'
@@ -77,6 +76,8 @@ export class VeNav {
   @State() contentPath: string = '/visual-essays/content'
 
   connectedCallback() {
+    this.getNavItems()
+
     this.isLoggedIn = this.ghAuthToken() !== null
     // console.log(`ve-menu: background=${this.background} position=${this.position}`)
     let code = (new URL(window.location.href)).searchParams.get('code')

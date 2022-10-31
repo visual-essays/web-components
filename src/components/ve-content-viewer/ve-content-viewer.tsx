@@ -23,9 +23,9 @@ export class ContentViewer {
 
   @Element() el: HTMLElement;
 
-  @State() dialog: any
+  dialog: any
+  contentEl: HTMLElement
   @State() html: string
-  @State() contentEl: HTMLElement
   
   connectedCallback() {
   }

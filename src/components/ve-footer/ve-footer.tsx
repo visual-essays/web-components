@@ -13,7 +13,7 @@ export class Footer {
 
   @State() footerElems: HTMLElement[] = []
 
-  componentDidLoad() {
+  componentWillLoad() {
     if (this.sticky) this.setSticky()
     this.footerElems = Array.from(this.el.querySelectorAll('li'))
     while (this.el.firstChild) this.el.removeChild(this.el.firstChild)

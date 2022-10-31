@@ -24,9 +24,10 @@ export class Header {
 
   @Prop() sticky: boolean
 
-  @Prop() background: string = '#777'
+  @Prop() background: string = '#555'
   @Prop() options: string
-  @Prop() height: number
+  @Prop({ mutable: true }) height: number
+
   @Prop() position: string = 'center' // center, top, bottom
   
   @State() navItems: any = []

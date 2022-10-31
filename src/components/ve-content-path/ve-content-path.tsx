@@ -32,8 +32,10 @@ export class ContentPath {
   @Watch('_contentPath')
   _contentPathChanged(path) {
     this.contentPath = path
-    console.log(`contentPath=${this.contentPath}`)
-    this.contentPathChanged.emit(this.contentPath)
+    if (this.el.getAttribute('content-path')) {
+      console.log(`contentPath=${path}`)
+      this.contentPathChanged.emit(path)
+    }
   }
 
   @Prop() sticky: boolean
@@ -478,7 +480,7 @@ export class ContentPath {
       
       <sl-dialog id="add-repo-dialog" label="Add Repository">
         <form id="add-repo-form" class="input-validation-pattern">
-          <sl-input autofocus autocomplete="off" required id="add-repo-input" placeholder="Enter name" pattern="^[A-z0-9\-_]+$"></sl-input>
+          <sl-input autocomplete="off" required id="add-repo-input" placeholder="Enter name" pattern="^[A-z0-9\-_]+$"></sl-input>
           <br />
           <sl-button onClick={this.hideAddRepoDialog.bind(this)}>Cancel</sl-button>
           <sl-button type="submit" variant="primary">Add</sl-button>
@@ -487,7 +489,7 @@ export class ContentPath {
     
       <sl-dialog id="add-file-dialog" label="Add File">
         <form id="add-file-form" class="input-validation-pattern">
-          <sl-input autofocus autocomplete="off" required id="add-file-input" placeholder="Enter file path" pattern="^\/?([A-z0-9-_+]+\/)*([A-z0-9\-]+(\.(css|md|json|yaml|yml))?)$"></sl-input>
+          <sl-input autocomplete="off" required id="add-file-input" placeholder="Enter file path" pattern="^\/?([A-z0-9-_+]+\/)*([A-z0-9\-]+(\.(css|md|json|yaml|yml))?)$"></sl-input>
           <br />
           <sl-button onClick={this.hideAddFileDialog.bind(this)}>Cancel</sl-button>
           <sl-button type="reset" variant="default">Reset</sl-button>

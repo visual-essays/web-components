@@ -33,7 +33,7 @@ export class ImageViewer {
     this.buildImagesList()
   }
 
-  @Prop() seq: number
+  @Prop() seq: number = 1
   @Prop() options: string
   @Prop() fit: string
   @Prop({ mutable: true, reflect: true }) alt: string
@@ -73,16 +73,18 @@ export class ImageViewer {
 
   @Watch('_annoTarget')
   _annoTargetChanged() {
+    // console.log(`_annoTargetChanged=${this._annoTarget}`)
     if (this._annotator) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
   }
 
   @State() _images: any[] = []
   @Watch('_images')
   async _imagesChanged() {
+    // console.log('_imagesChanged', this._images)
     this._selectedIdx = 0
     this._current = this._images.length > 0 ? this._images[0] : null
     if (this._current) {
-      this._setHostDimensions(imageInfo(this._current.manifest), this._current.fit)
+      this._setHostDimensions(imageInfo(this._current.manifest, this._current.seq), this._current.fit)
       if (this._viewer) {
         if (!this.compare) this._viewer.open(await this._loadTileSources())
       } else {
@@ -94,7 +96,10 @@ export class ImageViewer {
   @State() _selectedIdx: number = 0
   @Watch('_selectedIdx')
   _selectedIdxChanged(idx: number) {
-    this._current = this._images.length > idx ? this._images[idx] : null
+    // console.log(`_selectedIdxChanged: ${idx}`)
+    if (this._images.length > idx) this._current = this._images[idx]
+    this._current.seq = idx+1
+    this.setAnnoTarget()
   }
   
   @State() _current: any = null
@@ -102,7 +107,7 @@ export class ImageViewer {
   _currentChanged() {
     this.alt = this._value(this._current.manifest.label).toString()
     this.setAnnoTarget()
-    if (this._annotator) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
+    // if (this._annotator) this._annotator.loadAnnotations(this._annoTarget).then(annos => this._annotations = annos)
   }
 
   @State() _annotations: any[] = []
@@ -113,18 +118,18 @@ export class ImageViewer {
 
   serializedManifests() {
     return encodeURIComponent(JSON.stringify(
-      this.compare ? this._images : [this._images[this._selectedIdx]]
+      this.compare ? this._images : [this._images[this._images.length > this._selectedIdx ? this._selectedIdx : 0]]
     ))
   }
 
-  annoTarget(manifest:any) {
-    // let locationPath = location.pathname.replace(/^\/editor/,'').split('/').filter(pe => pe).slice(0,-1).join('/') 
-    let sourceHash = sha256(imageInfo(manifest).id).slice(0,8)
+  annoTarget(manifest:any, seq:number) {
+    let _imageInfo = imageInfo(manifest, seq)
+    let sourceHash = sha256(_imageInfo.id).slice(0,8)
     return `${this.annoBase}/${sourceHash}`
   }
 
   setAnnoTarget() {
-    if (this._current) this._annoTarget = this.annoTarget(this._current.manifest)
+    if (this._current) this._annoTarget = this.annoTarget(this._current.manifest, this._current.seq)
   }
 
   zoomIn() {
@@ -152,7 +157,7 @@ export class ImageViewer {
 
   parseImageStr(str: string) {
     let params = str.split(/\s/)
-    let parsed: any = {manifest: params[0]}
+    let parsed: any = {manifest: params[0], seq: this.seq}
     params.slice(1).forEach(param => {
       if (isNum(param)) parsed.seq = parseInt(param)
       else if (param.indexOf(',') > 0) parsed.options = parseImageOptions(param)
@@ -171,7 +176,7 @@ export class ImageViewer {
     if (annoRegex.test(found[3])) {
       // let endpoint = location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://api.visual-essays.net'
       let endpoint = 'https://api.visual-essays.net'
-      let annoId = `${endpoint}/annotation/${this.annoTarget(this._images[imgIdx].manifest)}/${found[3]}/`
+      let annoId = `${endpoint}/annotation/${this.annoTarget(this._images[imgIdx].manifest, this._images[imgIdx].seq)}/${found[3]}/`
       let resp = await fetch(annoId)
       if (resp.ok) {
         let anno = await resp.json()
@@ -192,7 +197,7 @@ export class ImageViewer {
   buildImagesList() {
     let images: any[] = []
     if (this.src) {
-      let img: any = {manifest: this.src, options: parseImageOptions(this.options)}
+      let img: any = {manifest: this.src, seq: this.seq, options: parseImageOptions(this.options)}
       img.fit = (this.fit === 'cover' || this.fit === 'contain') ? this.fit : this.fit ? 'custom' : 'contain'
       if (img.fit === 'custom') img.options = parseImageOptions(this.fit)
       images.push(img)
@@ -203,7 +208,7 @@ export class ImageViewer {
 
     // If no manifest defined in src attribute or images list, use most recent entity QID, if available 
     if (images.length === 0 && this._entities.length > 0)
-      images.push({manifest: `wd:${this._entities[0]}`, options: parseImageOptions('')})
+      images.push({manifest: `wd:${this._entities[0]}`, seq: this.seq, options: parseImageOptions('')})
     
     loadManifests(images.map(item => item.manifest))
       .then(manifests => {
@@ -345,13 +350,25 @@ export class ImageViewer {
   }
 
   async _loadTileSources() {
-    let imgUrls: any = this._images.map(item => {
-      let _imageInfo = imageInfo(item.manifest, item.seq)
-      return _imageInfo.service
+    let imgUrls: any
+    if (this._images.length === 1) {
+      let manifest = this._images[0].manifest
+      imgUrls = []
+      for (let i = 0; i < manifest.items.length; i++) {
+        let _imageInfo = imageInfo(manifest, i+1)
+        imgUrls.push(_imageInfo.service
         ? `${(_imageInfo.service[0].id || _imageInfo.service[0]['@id']).replace(/\/info\.json$/,'')}/info.json`
-        : _imageInfo.id
-    })
-    return await Promise.all(imgUrls.map((imgUrl, idx) => this._tileSource(imgUrl, this._images[idx].options )))
+        : _imageInfo.id)
+      }
+    } else {
+      imgUrls = this._images.map(item => {
+        let _imageInfo = imageInfo(item.manifest, item.seq)
+        return _imageInfo.service
+          ? `${(_imageInfo.service[0].id || _imageInfo.service[0]['@id']).replace(/\/info\.json$/,'')}/info.json`
+          : _imageInfo.id
+      })
+    }
+    return await Promise.all(imgUrls.map((imgUrl, idx) => this._tileSource(imgUrl, this._images[idx]?.options )))
   }
 
   _copyTextToClipboard(text: string) {
@@ -552,13 +569,11 @@ export class ImageViewer {
 
   }
   positionImage (immediately: boolean=false) {
-    // console.log(`positionImage immediately=${immediately}`, this._current)
     setTimeout(() => {
       if (this._current.options.region !== 'full') {
-        console.log(this._current.options.region, immediately)
         this.setRegion(this._current.options.region, immediately)
       } else {
-        let imageData = imageInfo(this._current.manifest)
+        let imageData = imageInfo(this._current.manifest, this._current.seq)
         let osdElem = this.el.shadowRoot.getElementById('osd')
         const scaleX = osdElem.clientHeight/imageData.height
         const scaleY = osdElem.clientWidth/imageData.width
@@ -604,7 +619,7 @@ export class ImageViewer {
 
   openAnnotator() {
     let width, height
-    let imgInfo = imageInfo(this._current.manifest)
+    let imgInfo = imageInfo(this._current.manifest, this._current.seq)
     let ratio = imgInfo.width / imgInfo.height
     // let depictsPanelWidth = 300
     if (ratio < 0) {
@@ -616,6 +631,7 @@ export class ImageViewer {
     }
     let url = location.hostname === 'localhost'? 'http://localhost:8080/annotator/' : 'https://beta.juncture-digital.org/annotator'
     url += `?manifest=${this._current.manifest.id || this._current.manifest['@id']}`
+    url += `&seq=${this._current.seq}`
     if (this.annoBase) url += `&anno-base=${this.annoBase}`
     // this.openWindow(url, `toolbar=yes,location=yes,left=0,top=0,width=${width+depictsPanelWidth},height=${height+200},scrollbars=yes,status=yes`)
     this.openWindow(url, `toolbar=yes,location=yes,left=0,top=0,width=1200,height=1000,scrollbars=yes,status=yes`)
@@ -700,7 +716,7 @@ export class ImageViewer {
 
       }
 
-      console.log(`hostDimensions: compare=${this.compare} mode=${this.mode} orientation=${orientation} position=${position} fit=${fit} elWidth=${elWidth} elHeight=${elHeight} imageWidth=${imageWidth} imageHeight=${imageHeight} width=${width} height=${height}`)
+      console.log(`ve-image: ${this._current.manifest.id} seq=${this._current.seq} compare=${this.compare} mode=${this.mode} orientation=${orientation} position=${position} fit=${fit} elWidth=${elWidth} elHeight=${elHeight} imageWidth=${imageWidth} imageHeight=${imageHeight} width=${width} height=${height}`)
 
       wrapper.style.width = `${width}px`
       if (osd) osd.style.width = `${width}px`
@@ -710,6 +726,7 @@ export class ImageViewer {
 
       outer.style.height = `${height}px`
 
+      /*
       if (osd) {
         osd.addEventListener('click', (evt:PointerEvent) => {
           console.log('image clicked', evt)
@@ -717,6 +734,8 @@ export class ImageViewer {
           // this._viewer.setFullScreen(true)
         })
       }
+      */
+
     }
   }
 
