@@ -194,8 +194,8 @@ export class MapViewer {
 
   render() {
       return [
-        <div class="wrapper">
-          <div id="map"></div>
+        <div class="" style={{height: '500px'}}>
+          <div id="map" style={{height: '500px'}}></div>
         </div>,
         this.allmapsLayer && <input id="opacity-slider" type="range" min="0" max="1" step="0.02" value="1" onInput={this.updateOpacity.bind(this)}></input>
       ]

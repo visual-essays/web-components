@@ -1,6 +1,6 @@
-import { Component, Element, Prop, State, h } from '@stencil/core';
+import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
 
-import { isURL } from '../../utils'
+import { isURL, getEntity } from '../../utils'
 
 const manifestShorthandRegex = /^\w+:/
 const navbarHeight = 80
@@ -21,10 +21,12 @@ export class Header {
   @Prop() url: string
   @Prop() contact: string // Email address for Contact Us
   @Prop() searchDomain: string // Domain for site search
+  @Prop() entities: string
 
   @Prop() sticky: boolean
 
-  @Prop() background: string = '#555'
+  @Prop({ mutable: true, reflect: true }) background:string = '#555'
+
   @Prop() options: string
   @Prop({ mutable: true }) height: number
 
@@ -35,11 +37,32 @@ export class Header {
 
   @State() navEl: HTMLUListElement
 
+  @State() _entities: string[] = []
+  @State() entity: any
+
+  @Watch('_entities')
+  async _entitiesChanged() {
+    if (this._entities.length > 0) {
+      this.entity = await getEntity(this._entities[0])
+      if (this.entity) {
+        if (this.entity.pageBanner) {
+          this.background = `https://iiif.juncture-digital.org/wc:${decodeURIComponent(this.entity.pageBanner.split('/Special:FilePath/').pop()).replace(/\s/,'_')}/manifest.json`
+          console.log(this.background)
+        }
+      }
+    }
+  }
+
   isManifestShorthand(s:string) {
     return manifestShorthandRegex.test(s) 
   }
 
+  connectedCallback() {
+    this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
+  }
+
   componentWillLoad() {
+
     // console.log(`ve-header: sticky=${this.sticky}`)
     this.backgroundIsImage = isURL(this.background) || this.isManifestShorthand(this.background)
     if (!this.height) this.height = this.backgroundIsImage ? heroHeight : navbarHeight

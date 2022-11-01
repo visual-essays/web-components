@@ -57,6 +57,7 @@ export namespace Components {
     interface VeHeader {
         "background": string;
         "contact": string;
+        "entities": string;
         "height": number;
         "label": string;
         "logo": string;
@@ -388,6 +389,7 @@ declare namespace LocalJSX {
     interface VeHeader {
         "background"?: string;
         "contact"?: string;
+        "entities"?: string;
         "height"?: number;
         "label"?: string;
         "logo"?: string;

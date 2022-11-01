@@ -11,6 +11,7 @@
 | -------------- | --------------- | ----------- | --------- | ----------- |
 | `background`   | `background`    |             | `string`  | `'#555'`    |
 | `contact`      | `contact`       |             | `string`  | `undefined` |
+| `entities`     | `entities`      |             | `string`  | `undefined` |
 | `height`       | `height`        |             | `number`  | `undefined` |
 | `label`        | `label`         |             | `string`  | `undefined` |
 | `logo`         | `logo`          |             | `string`  | `undefined` |

@@ -45,6 +45,10 @@ ve-header > ul {
   display: none;
 }
 
+ve-map {
+  height: 500px;
+}
+
 ve-footer {
   clear: both;
 }

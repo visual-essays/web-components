@@ -97,7 +97,7 @@ export class ImageViewer {
   _selectedIdxChanged(idx: number) {
     // console.log(`_selectedIdxChanged: ${idx}`)
     if (this._images.length > idx) this._current = this._images[idx]
-    this._current.seq = idx+1
+    if (this._images.length === 1) this._current.seq = idx+1
     this.setAnnoTarget()
   }
   
@@ -574,7 +574,7 @@ export class ImageViewer {
       if (this._current.options.region !== 'full') {
         this.setRegion(this._current.options.region, immediately)
       } else {
-        let imageData = imageInfo(this._current.manifest, this._current.seq)
+        let imageData = imageInfo(this._current.manifest, this._current.seq )
         let osdElem = this.el.shadowRoot.getElementById('osd')
         const scaleX = osdElem.clientHeight/imageData.height
         const scaleY = osdElem.clientWidth/imageData.width
@@ -683,14 +683,15 @@ export class ImageViewer {
       } else {
 
         if (orientation === 'landscape') {
-          if (this.compare) {
+          if (this.compare && !this.sync) {
             width = wrapper.clientWidth
             height = Math.round(imageHeight/imageWidth * width)
-          } else if (position === 'full') {
+          } else if (position === 'full' || this.sync) {
             height = window.innerHeight * .5
             width = fit === 'contain'
               ? Math.round(imageWidth/imageHeight * (height - captionHeight)) // width scaled to height
               : wrapper.clientWidth
+            this.el.classList.add('full')
           } else {
             width = wrapper.clientWidth
             height = fit === 'contain'
@@ -701,7 +702,7 @@ export class ImageViewer {
           if (this.compare && !this.sync) {
             height = window.innerHeight * .6 + captionHeight
             width = position === 'full' ? wrapper.clientWidth : Math.round(imageWidth/imageHeight * height)
-          } else if (position === 'full' || this.compare && this.sync) {
+          } else if (position === 'full' || this.sync) {
             width = elWidth
             height = fit === 'contain'
               // ? Math.min(Math.round(imageHeight/imageWidth * width + captionHeight), window.innerHeight * .5)

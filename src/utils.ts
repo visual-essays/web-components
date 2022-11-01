@@ -125,6 +125,7 @@ function _findItems(toMatch: object, current: any, found: object[] = []) {
 }
 
 export function imageInfo(manifest:any, seq=1) {
+  // console.log(`imageInfo: seq=${seq}`, manifest)
   return findItem({type:'Annotation', motivation:'painting'}, manifest, seq).body
 }
 

@@ -89,6 +89,11 @@ export class ImageCard {
     if (navigator.clipboard) navigator.clipboard.writeText(text)
   }
 
+  refreshMetadata(manifestId:string, evt:PointerEvent) {
+    evt.stopPropagation()
+    fetch(`${manifestId}?refresh=true`)
+  }
+
   render() {
     return [
       this._manifest
@@ -126,6 +131,9 @@ export class ImageCard {
             {this.location && <sl-tooltip content="Show location on map">
               <sl-icon name="map-fill" style={{cursor: 'pointer'}} onClick={this.imageSelected.bind(this, 'map')}></sl-icon>
             </sl-tooltip>}
+            <sl-tooltip content="Refresh metadata">
+              <sl-icon name="arrow-clockwise" style={{cursor: 'pointer'}} onClick={this.refreshMetadata.bind(this, this._manifest.id)}></sl-icon>
+            </sl-tooltip>
           </div>
           { false && this._manifest.summary && <div class="card-abstract" innerHTML={summary(this._manifest)}></div> }
         </div>
