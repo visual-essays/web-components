@@ -6,7 +6,8 @@ import OpenSeadragonViewerInputHook from '@openseadragon-imaging/openseadragon-v
 import './openseadragon-curtain-sync'
 
 import debounce from 'lodash.debounce'
-import { loadManifests, imageDataUrl, parseImageOptions, parseRegionString, imageInfo, isMobile, isNum, makeSticky, sha256 } from '../../utils'
+import { imageDataUrl, label, loadManifests, parseImageOptions, parseRegionString, imageInfo, isMobile, isNum, makeSticky, sha256, thumbnail } from '../../utils'
+
 import { Annotator } from './annotator'
 import { parseInt } from 'lodash';
 
@@ -38,8 +39,11 @@ export class ImageViewer {
   @Prop() fit: string
   @Prop({ mutable: true, reflect: true }) alt: string
   @Prop() entities: string
+  @Prop() cards: boolean = false
   @Prop() compare: boolean = false
-  @Prop({ mutable: true, reflect: true }) mode: string = 'default' // default, curtain, sync
+  @Prop() curtain: boolean = false
+  @Prop() grid: boolean = false
+  @Prop() sync: boolean = false
   @Prop() width: string = '100%'
   @Prop() height: string
   @Prop() align: string // 'left', 'center', 'right'
@@ -61,11 +65,6 @@ export class ImageViewer {
   @State() _zoomedIn: any = {}
   @State() _tileSources: any[] = []
 
-  @Watch('mode')
-  compareModeChanged() {
-    this._compareViewerInit()
-  }
-
   @Watch('annoBase')
   annoBaseChanged() {
     this.setAnnoTarget()
@@ -84,11 +83,11 @@ export class ImageViewer {
     this._selectedIdx = 0
     this._current = this._images.length > 0 ? this._images[0] : null
     if (this._current) {
-      this._setHostDimensions(imageInfo(this._current.manifest, this._current.seq), this._current.fit)
+      if (!this.grid) this._setHostDimensions(imageInfo(this._current.manifest, this._current.seq), this._current.fit)
       if (this._viewer) {
         if (!this.compare) this._viewer.open(await this._loadTileSources())
       } else {
-        this.compare ? this._compareViewerInit() : this._osdInit()
+        if (!this.grid) this.compare ? this._compareViewerInit() : this._osdInit()
       }
     }
   }
@@ -276,8 +275,10 @@ export class ImageViewer {
   }
 
   addResizeObserver() {
-    const resizeObserver = new ResizeObserver(() => this._setHostDimensions())
-    resizeObserver.observe(this.el.shadowRoot.getElementById('wrapper'))
+    if (!this.grid) {
+      const resizeObserver = new ResizeObserver(() => this._setHostDimensions())
+      resizeObserver.observe(this.el.shadowRoot.getElementById('wrapper'))
+    }
   }
 
   componentDidLoad() {
@@ -478,7 +479,7 @@ export class ImageViewer {
   async _compareViewerInit() {
     this._tileSources = await this._loadTileSources()
     // let tileSources = await this._loadTileSources()
-    if (this.mode !== 'default') {
+    if (this.sync || this.curtain) {
       let osdWrapper = this.el.shadowRoot.querySelector('.viewer')
       let height = osdWrapper.clientHeight
       let container: HTMLElement = this.el.shadowRoot.getElementById('osd')
@@ -490,7 +491,7 @@ export class ImageViewer {
       container.style.height = `${height}px`
       osdWrapper.appendChild(container)
       this._viewer = new (window as any).CurtainSyncViewer({
-        mode: this.mode, // 'sync' or 'curtain'
+        mode: this.sync ? 'sync' : 'curtain',
         container,
         images: this._tileSources.map((tileSource, idx) => ({ key: `item-${idx}`, tileSource, shown: true })),
         osdOptions: { // OpenSeaDragon options
@@ -652,7 +653,9 @@ export class ImageViewer {
     let classes = Array.from(this.el.classList)
     let position = classes.find(cls => cls === 'right' || cls === 'left' || cls === 'full')
 
-    let elWidth = this.el.clientWidth || this.el.parentElement.clientWidth
+    // console.log(this.el.clientWidth, this.el.parentElement.clientWidth)
+    // let elWidth = this.el.clientWidth || this.el.parentElement.clientWidth
+    let elWidth = Math.max(this.el.clientWidth, this.el.parentElement.clientWidth)
     let elHeight = this.el.clientHeight || this.el.parentElement.clientHeight
 
     let imageWidth = imageData ? imageData.width : null
@@ -695,17 +698,19 @@ export class ImageViewer {
               : Math.min(this.el.parentElement.clientHeight, window.innerHeight * .5)
           }
         } else { // orientation = portrait
-          if (this.compare && this.mode !== 'sync') {
+          if (this.compare && !this.sync) {
             height = window.innerHeight * .6 + captionHeight
             width = position === 'full' ? wrapper.clientWidth : Math.round(imageWidth/imageHeight * height)
-          } else if (position === 'full' || this.compare && this.mode === 'sync') {
-            width = wrapper.clientWidth
+          } else if (position === 'full' || this.compare && this.sync) {
+            width = elWidth
             height = fit === 'contain'
               // ? Math.min(Math.round(imageHeight/imageWidth * width + captionHeight), window.innerHeight * .5)
-              ? Math.min(Math.round(imageHeight/imageWidth * width + captionHeight), window.innerHeight)
+              // ? Math.min(Math.round(imageHeight/imageWidth * width + captionHeight), window.innerHeight) 
+              ? Math.round(imageHeight/imageWidth * width + captionHeight)
               : window.innerHeight
+            this.el.classList.add('full')
           } else {
-            width = wrapper.clientWidth * .5 - 6
+            width = wrapper.clientWidth
             height = fit === 'contain'
               ? Math.round(imageHeight/imageWidth * width + captionHeight)
               : window.innerHeight * .5
@@ -716,7 +721,7 @@ export class ImageViewer {
 
       }
 
-      console.log(`ve-image: ${this._current.manifest.id} seq=${this._current.seq} compare=${this.compare} mode=${this.mode} orientation=${orientation} position=${position} fit=${fit} elWidth=${elWidth} elHeight=${elHeight} imageWidth=${imageWidth} imageHeight=${imageHeight} width=${width} height=${height}`)
+      console.log(`ve-image: ${this._current.manifest.id} seq=${this._current.seq} compare=${this.compare} curtain=${this.curtain} sync=${this.sync} orientation=${orientation} position=${position} fit=${fit} elWidth=${elWidth} elHeight=${elHeight} imageWidth=${imageWidth} imageHeight=${imageHeight} width=${width} height=${height}`)
 
       wrapper.style.width = `${width}px`
       if (osd) osd.style.width = `${width}px`
@@ -791,7 +796,7 @@ export class ImageViewer {
 
   renderViewer() {
     return <div class="viewer" style={{height: '100%'}}>
-      {this.compare && this.mode === 'default'
+      {this.compare && !this.sync && !this.curtain
         ? this.renderCurtainViewer()
         : this.renderOsdViewer()
       }
@@ -831,7 +836,23 @@ export class ImageViewer {
     return <span id="coords" class="viewport-coords" onClick={this._copyTextToClipboard.bind(this, this._viewportBounds)}>{this._viewportBounds}</span>
   }
 
-  render() {
+  renderThumbnails() {
+    return <section class="ve-image-grid">
+      { 
+        this._images.map(item => item.manifest).map(manifest => <img src={thumbnail(manifest)} alt={label(manifest)}/>) 
+      }
+      </section>
+  }
+
+  renderAsCards() {
+    return [
+      <section class="cards">
+        { this._images.map(item => item.manifest.id).map(manifest => <ve-image-card manifest={manifest}></ve-image-card>) }
+      </section>
+    ]
+  }
+
+  renderAsViewer() {
     return <div style={{width: '100%', padding:'6px 0', backgroundColor: '#fff'}}>
       <div id="outer">
         <div id="toolbar"></div>
@@ -844,4 +865,13 @@ export class ImageViewer {
       </div>
     </div>
   }
+
+  render() {
+    return this.grid
+      ? this.cards
+        ? this.renderAsCards()
+        : this.renderThumbnails()
+      : this.renderAsViewer()
+  }
+
 }

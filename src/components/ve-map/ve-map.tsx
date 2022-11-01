@@ -2,6 +2,7 @@ import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
 
 import L from 'leaflet'
 import 'leaflet.control.opacity'
+// import { indexOf } from 'lodash';
 
 import { isQID, getEntity } from '../../utils'
 
@@ -27,12 +28,38 @@ export class MapViewer {
   @State() _entities: string[] = []
 
   @State() _markers: any[] = []
+  @State() _layerObjs: any[] = []
+  @State() _layers: L.TileLayer[] = []
 
   @Watch('center')
   async centerChanged() {
     console.log('map.centerChanged', this.center)
   }
 
+  @Watch('_layerObjs')
+  async _layerObjsChanged() {
+    console.log('map._layerObjs', this._layerObjs)
+    this._layers = this._layerObjs.map(ls => {
+      if (ls.allmaps) {
+        this.allmapsLayer = L.tileLayer(`https://allmaps.xyz/maps/${ls.allmaps}/{z}/{x}/{y}.png`, { maxZoom: 19, attribution: 'Allmaps' })
+        return this.allmapsLayer
+      } else {
+        this._markers.push()
+      }
+    })
+  }
+
+  @Watch('_layers')
+  async _layersChanged() {
+    if (this.map) this._layers.forEach(layer => layer.addTo(this.map))
+   }
+
+  @Watch('map')
+   async mapChanged() {
+     this._layers.forEach(layer => layer.addTo(this.map))
+     if (this.allmapsLayer) this.opacitySlider = this.el.shadowRoot.getElementById('opacity-slider') as HTMLInputElement
+  }
+ 
   connectedCallback() {
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
     if (this.cards) {
@@ -48,6 +75,8 @@ export class MapViewer {
         })
       }
     }
+    this.getLayerStrings()
+    this.listenForSlotChanges()
   }
 
   componentDidLoad() {
@@ -55,6 +84,32 @@ export class MapViewer {
     if (this.sticky) this.el.classList.add('sticky')
     const resizeObserver = new ResizeObserver(() => this.initMap())
     resizeObserver.observe(this.el.shadowRoot.getElementById('map'))
+  }
+
+  _toObj(s:string) {
+    let tokens = []
+    s.match(/[^\s"']+|"([^"]*)"/gmi).forEach(token => {
+      if (tokens.length > 0 && tokens[tokens.length-1].indexOf('=') === tokens[tokens.length-1].length-1) tokens[tokens.length-1] = `${tokens[tokens.length-1]}${token}`
+      else tokens.push(token)
+    })
+    // console.log(tokens)
+    return Object.fromEntries(tokens.map(token => token.indexOf('=') > 0 ? token : `${token}=true`).map(kvp => kvp.split('=')))
+  }
+
+  getLayerStrings() {
+    this._layerObjs = Array.from(this.el.querySelectorAll('li')).map(item => this._toObj(item.firstChild.textContent))
+  }
+
+  listenForSlotChanges() {
+    const callback = (mutationsList) => {
+      for (let mutation of mutationsList) {
+        if (mutation.type === 'childList' && Array.from(mutation.target.classList).indexOf('hydrated') >= 0) {
+          this.getLayerStrings ()       
+        }
+      }
+    }
+    const observer = new MutationObserver(callback);
+    observer.observe(this.el, { childList: true, subtree: true, characterData: true })
   }
 
   async coordsFromEntity(qid: string) {
@@ -65,7 +120,6 @@ export class MapViewer {
 
   async initMap() {
     // console.log('initMap', this.el.parentElement.clientHeight)
-    console.log(this.el.parentElement)
     let center: L.LatLng
     if (this.center) {
       center = await this.latLng(this.center)
@@ -97,12 +151,14 @@ export class MapViewer {
     this.map.on('zoomend', (e) => this.getLatLngZoom(e))
     this.map.on('moveend', (e) => this.getLatLngZoom(e))
 
+    /*
     if (this.overlay) {
       this.opacitySlider = this.el.shadowRoot.getElementById('opacity-slider') as HTMLInputElement
       this.allmapsLayer = L.tileLayer(`https://allmaps.xyz/maps/${this.overlay}/{z}/{x}/{y}.png`, {
         maxZoom: 19, attribution: 'Allmaps'
       }).addTo(this.map)
     }
+    */
 
     const myIcon = L.icon({iconUrl: 'https://unpkg.com/leaflet@1.8.0/dist/images/marker-icon.png'})
     
@@ -141,9 +197,7 @@ export class MapViewer {
         <div class="wrapper">
           <div id="map"></div>
         </div>,
-        this.overlay
-          ? <input id="opacity-slider" type="range" min="0" max="1" step="0.02" value="1" onInput={this.updateOpacity.bind(this)}></input>
-          : null
+        this.allmapsLayer && <input id="opacity-slider" type="range" min="0" max="1" step="0.02" value="1" onInput={this.updateOpacity.bind(this)}></input>
       ]
     }
 }

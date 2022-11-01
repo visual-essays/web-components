@@ -79,15 +79,18 @@ export namespace Components {
         "align": string;
         "alt": string;
         "annoBase": string;
+        "cards": boolean;
         "compare": boolean;
+        "curtain": boolean;
         "entities": string;
         "fit": string;
+        "grid": boolean;
         "height": string;
-        "mode": string;
         "options": string;
         "seq": number;
         "src": string;
         "sticky": boolean;
+        "sync": boolean;
         "width": string;
         "zoomOnScroll": boolean;
     }
@@ -407,15 +410,18 @@ declare namespace LocalJSX {
         "align"?: string;
         "alt"?: string;
         "annoBase"?: string;
+        "cards"?: boolean;
         "compare"?: boolean;
+        "curtain"?: boolean;
         "entities"?: string;
         "fit"?: string;
+        "grid"?: boolean;
         "height"?: string;
-        "mode"?: string;
         "options"?: string;
         "seq"?: number;
         "src"?: string;
         "sticky"?: boolean;
+        "sync"?: boolean;
         "width"?: string;
         "zoomOnScroll"?: boolean;
     }

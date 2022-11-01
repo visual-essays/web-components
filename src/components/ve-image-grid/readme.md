@@ -27,6 +27,7 @@ graph TD;
   ve-image-grid --> ve-map
   ve-image-grid --> ve-image
   ve-image --> ve-manifest
+  ve-image --> ve-image-card
   style ve-image-grid fill:#f9f,stroke:#333,stroke-width:4px
 ```
 
