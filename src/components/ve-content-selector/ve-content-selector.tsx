@@ -8,6 +8,7 @@ import '@shoelace-style/shoelace/dist/components/breadcrumb/breadcrumb.js'
 import '@shoelace-style/shoelace/dist/components/breadcrumb-item/breadcrumb-item.js'
 import '@shoelace-style/shoelace/dist/components/button/button.js'
 import '@shoelace-style/shoelace/dist/components/details/details.js'
+import '@shoelace-style/shoelace/dist/components/drawer/drawer.js'
 import '@shoelace-style/shoelace/dist/components/divider/divider.js'
 import '@shoelace-style/shoelace/dist/components/dialog/dialog.js'
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
@@ -16,16 +17,17 @@ import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js'
 import '@shoelace-style/shoelace/dist/components/menu/menu.js'
 import '@shoelace-style/shoelace/dist/components/menu-item/menu-item.js'
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js'
+import SLDrawer from '@shoelace-style/shoelace/dist/components/drawer/drawer.js';
 
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
 setBasePath('https://visual-essays.github.io/web-components/src')
 
 @Component({
-  tag: 've-content-path',
-  styleUrl: 've-content-path.css',
+  tag: 've-content-selector',
+  styleUrl: 've-content-selector.css',
   shadow: true,
 })
-export class ContentPath {
+export class ContentSelector {
   @Prop({ mutable: true, reflect: true }) contentPath: string
   
   @State() _contentPath: string
@@ -45,6 +47,8 @@ export class ContentPath {
 
   @Event({ bubbles: true, composed: true }) contentPathChanged: EventEmitter<any>
   @Event({ bubbles: true, composed: true }) addMediaResource: EventEmitter<any>
+
+  drawer: SLDrawer
 
   @State() username: string = ''
   @State() authToken: string
@@ -152,6 +156,7 @@ export class ContentPath {
   @State() dirList: any[] = []
 
   async connectedCallback() {
+    console.log('ve-content-selector')
     this.getAuthToken()
     window.addEventListener('storage', () => {
       this.getAuthToken()
@@ -160,6 +165,10 @@ export class ContentPath {
 
   componentWillLoad() {
     if (this.sticky) makeSticky(this.el)
+  }
+
+  componentDidLoad() {
+    this.drawer = this.el.shadowRoot.querySelector('.drawer-contained')
   }
 
   parseContentPath() {
@@ -262,10 +271,12 @@ export class ContentPath {
   }
 
   appendPath(item: any) {
+    this.drawer.hide()
     this.path = [...this.path, item.name]
   }
 
   prunePath(idx: number) {
+    this.drawer.hide()
     this.path = idx === 0 ? [] : this.path.slice(0,idx)
   }
 
@@ -343,104 +354,9 @@ export class ContentPath {
     this.addMediaResource.emit(evt)
   }
 
-  summary() {
-    return <div class="breadcrumb">
-      <sl-breadcrumb>
-      
-      <sl-breadcrumb-item>
-        { this.accts?.length > 1
-          ? <sl-dropdown>
-              <sl-button slot="trigger" pill size="medium" class="folder">
-                  {this.acct}
-                  <sl-icon slot="prefix" name="github" style={{fontSize: '24px'}}></sl-icon>
-                </sl-button>
-              <sl-menu> {
-                this.accts.map(acct => 
-                  <sl-menu-item checked={acct.login === this.acct} onClick={this.accountSelected.bind(this, acct)} innerHTML={acct.login}></sl-menu-item>
-                )}
-              </sl-menu>
-            </sl-dropdown>
-          : <sl-button slot="trigger" pill size="medium" class="folder">
-              {this.acct}
-             <sl-icon slot="prefix" name="github" style={{fontSize: '24px'}}></sl-icon>
-            </sl-button>
-        }
-      </sl-breadcrumb-item>
-      
-      <sl-breadcrumb-item>
-        { this.repos?.length > 1
-          ? <sl-dropdown>
-              <sl-button slot="trigger" pill size="medium">
-                  {this.repo}
-                  <sl-icon slot="prefix" name="archive" style={{fontSize: '24px'}}></sl-icon>
-                </sl-button>
-                <sl-menu> {
-                  this.repos.map(repo => 
-                    <sl-menu-item checked={repo.name === this.repo} onClick={this.repoSelected.bind(this, repo)} innerHTML={repo.name}></sl-menu-item>
-                  )}
-                  <sl-divider></sl-divider>
-                  <sl-menu-item class="add-repo" onClick={this.showAddRepoDialog.bind(this)}>
-                    <sl-icon slot="prefix" name="plus-lg"></sl-icon>
-                    New repository
-                  </sl-menu-item>
-                </sl-menu>
-              </sl-dropdown>
-          : <sl-button slot="trigger" pill size="medium">
-              {this.repo}
-              <sl-icon slot="prefix" name="archive" style={{fontSize: '24px'}}></sl-icon>
-            </sl-button>
-        }
-      </sl-breadcrumb-item>
-
-      <sl-breadcrumb-item>
-        { this.branches?.length > 1
-          ? <sl-dropdown>
-              <sl-button slot="trigger" pill size="medium">
-                {this.ref}
-                <sl-icon slot="prefix" name="share" style={{fontSize: '24px'}}></sl-icon>
-              </sl-button>
-              <sl-menu> {
-                this.branches.map(branch => 
-                  <sl-menu-item checked={branch.name === this.ref} onClick={this.branchSelected.bind(this, branch)} innerHTML={branch.name}></sl-menu-item>
-                )}
-              </sl-menu>
-            </sl-dropdown>
-          : <sl-button pill size="medium">
-              {this.ref}
-              <sl-icon slot="prefix" name="share" style={{fontSize: '24px'}}></sl-icon>
-            </sl-button>
-        }
-      </sl-breadcrumb-item>
-
-      { this.path?.length > 0 && this.path.map((pathElem, idx) => 
-        <sl-breadcrumb-item>
-        
-          { idx === (this.path.length-1) && pathElem.split('.').pop() === 'md'
-            ? [
-                <sl-button pill size="medium" onClick={this.prunePath.bind(this, idx)}>
-                  {pathElem}
-                  <sl-icon slot="prefix" name="filetype-md" style={{fontSize: '24px'}}></sl-icon>
-                </sl-button>,
-                <sl-dropdown slot="suffix">
-                  <sl-icon-button slot="trigger" name="caret-down" label="File actions"></sl-icon-button>
-                  <sl-menu>
-                    <sl-menu-item onClick={() => this.fileToDelete = pathElem}>Delete file<sl-icon slot="prefix" name="trash"></sl-icon></sl-menu-item>
-                  </sl-menu>
-                </sl-dropdown>
-              ]
-            : <sl-button pill size="medium" onClick={this.prunePath.bind(this, idx)}>
-                {pathElem}
-                <sl-icon slot="prefix" name="folder2" style={{fontSize: '24px'}}></sl-icon>
-              </sl-button>
-          }
-
-        </sl-breadcrumb-item>
-
-      )}
-
-    </sl-breadcrumb>
-    { this.mode === 'media' && this.addItem() }
-    </div>
+  toggleDrawer() {
+    if (this.drawer.open) this.drawer.hide()
+    else this.drawer.show()
   }
 
   addItem() {
@@ -469,13 +385,138 @@ export class ContentPath {
     </div>
   }
   
+  acctSelector() {
+    return this.accts?.length > 1
+      ? <sl-dropdown hoist>
+          <sl-button slot="trigger" pill size="medium" class="folder">
+              {this.acct}
+              <sl-icon slot="prefix" name="github" style={{fontSize: '24px'}}></sl-icon>
+            </sl-button>
+          <sl-menu> {
+            this.accts.map(acct => 
+              <sl-menu-item checked={acct.login === this.acct} onClick={this.accountSelected.bind(this, acct)} innerHTML={acct.login}></sl-menu-item>
+            )}
+          </sl-menu>
+        </sl-dropdown>
+
+      : <sl-button slot="trigger" pill size="medium" class="folder">
+          {this.acct}
+          <sl-icon slot="prefix" name="github" style={{fontSize: '24px'}}></sl-icon>
+        </sl-button>
+  }
+
+  repoSelector() {
+    return this.repos?.length > 1
+      ? <sl-dropdown hoist>
+          <sl-button slot="trigger" pill size="medium">
+              {this.repo}
+              <sl-icon slot="prefix" name="archive" style={{fontSize: '24px'}}></sl-icon>
+            </sl-button>
+            <sl-menu> {
+              this.repos.map(repo => 
+                <sl-menu-item checked={repo.name === this.repo} onClick={this.repoSelected.bind(this, repo)} innerHTML={repo.name}></sl-menu-item>
+              )}
+              <sl-divider></sl-divider>
+              <sl-menu-item class="add-repo" onClick={this.showAddRepoDialog.bind(this)}>
+                <sl-icon slot="prefix" name="plus-lg"></sl-icon>
+                New repository
+              </sl-menu-item>
+            </sl-menu>
+          </sl-dropdown>
+      : <sl-button slot="trigger" pill size="medium">
+          {this.repo}
+          <sl-icon slot="prefix" name="archive" style={{fontSize: '24px'}}></sl-icon>
+        </sl-button>
+  }
+
+  branchSelector() {
+    return this.branches?.length > 1
+    ? <sl-dropdown>
+        <sl-button slot="trigger" pill size="medium">
+          {this.ref}
+          <sl-icon slot="prefix" name="share" style={{fontSize: '24px'}}></sl-icon>
+        </sl-button>
+        <sl-menu> {
+          this.branches.map(branch => 
+            <sl-menu-item checked={branch.name === this.ref} onClick={this.branchSelected.bind(this, branch)} innerHTML={branch.name}></sl-menu-item>
+          )}
+        </sl-menu>
+      </sl-dropdown>
+    : <sl-button pill size="medium">
+        {this.ref}
+        <sl-icon slot="prefix" name="share" style={{fontSize: '24px'}}></sl-icon>
+      </sl-button>
+  }
+
+  pathSelector() {
+    return <div class="breadcrumb">
+      <sl-breadcrumb>
+        <sl-breadcrumb-item>
+          <sl-button pill size="medium" onClick={this.prunePath.bind(this, 0)}>/
+            <sl-icon slot="prefix" name="folder2" style={{fontSize: '24px'}}></sl-icon>
+          </sl-button>          
+        </sl-breadcrumb-item>
+
+      { this.path?.length > 0 && this.path.map((pathElem, idx) => 
+        <sl-breadcrumb-item>
+        
+          { idx === (this.path.length-1) && pathElem.split('.').pop() === 'md'
+            ? [
+                <sl-button pill size="medium" onClick={this.prunePath.bind(this, idx+1)}>
+                  {pathElem}
+                  <sl-icon slot="prefix" name="filetype-md" style={{fontSize: '24px'}}></sl-icon>
+                </sl-button>,
+                <sl-dropdown slot="suffix">
+                  <sl-icon-button slot="trigger" name="caret-down" label="File actions"></sl-icon-button>
+                  <sl-menu>
+                    <sl-menu-item onClick={() => this.fileToDelete = pathElem}>Delete file<sl-icon slot="prefix" name="trash"></sl-icon></sl-menu-item>
+                  </sl-menu>
+                </sl-dropdown>
+              ]
+            : <sl-button pill size="medium" onClick={this.prunePath.bind(this, idx+1)}>
+                {pathElem}
+                <sl-icon slot="prefix" name="folder2" style={{fontSize: '24px'}}></sl-icon>
+              </sl-button>
+          }
+
+        </sl-breadcrumb-item>
+
+      )}
+
+    </sl-breadcrumb>
+    { this.mode === 'media' && this.addItem() }
+    </div>
+  }
+
+  rootFolder() {
+    return    
+  }
+
+  workspace() {
+    return <div class="workspace">
+      <sl-button pill size="medium"  onCLick={this.toggleDrawer.bind(this)}>
+        <sl-icon slot="prefix" name="github" style={{fontSize: '24px'}}></sl-icon>
+      </sl-button>
+      <div class="ws-path">   
+        { this.pathSelector() }
+        <sl-drawer noHeader label="Workspace" placement="start" contained class="drawer-contained" style={{'--size': '100%'}}>
+          <span>Select workspace</span><sl-icon name="chevron-double-right" style={{fontSize: '24px'}}></sl-icon>
+          { this.acctSelector() }
+          { this.repoSelector() }
+          { this.branchSelector() }
+        </sl-drawer>
+      </div>
+
+    </div>
+  }
 
   render() {
     return [
-      <section class="content-path">
-        { this.summary() }
+      <section class="content-path" style={{position: 'relative'}}>
+        { this.workspace() }
         { this.dirItems().length > 0 && <sl-divider></sl-divider> }
         { this.dirItems().length > 0 && this.clicakbleChildren() }
+
       </section>,
       
       <sl-dialog id="add-repo-dialog" label="Add Repository">
@@ -501,7 +542,9 @@ export class ContentPath {
         <div>Delete file <span innerHTML={this.fileToDelete}></span>?</div>
         <sl-button slot="footer" onClick={this.hideDeleteFileDialog.bind(this)}>Cancel</sl-button>
         <sl-button slot="footer" variant="primary" onClick={this.deleteFile.bind(this)}>Confirm</sl-button>
-      </sl-dialog>
+      </sl-dialog>,
+
+
     ]
   }
   

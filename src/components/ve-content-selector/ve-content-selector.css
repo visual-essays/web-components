@@ -10,6 +10,21 @@
   background-color: white;
 }
 
+.workspace {
+  display: flex;
+  border: 1px solid red;
+}
+.ws-path {
+  position: relative;
+  display: flex;
+  align-items: center;
+  border: 1px solid blue;
+  width: 100%;
+}
+sl-drawer::part(body) {
+  padding: 0;
+}
+
 .values {
   display: flex;
   flex-direction: column;

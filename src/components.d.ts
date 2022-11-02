@@ -14,7 +14,7 @@ export namespace Components {
         "contact": string;
         "show": boolean;
     }
-    interface VeContentPath {
+    interface VeContentSelector {
         "contentPath": string;
         "getDirList": () => Promise<any[]>;
         "getFile": (path: string) => Promise<any>;
@@ -160,9 +160,9 @@ export namespace Components {
         "language": string;
     }
 }
-export interface VeContentPathCustomEvent<T> extends CustomEvent<T> {
+export interface VeContentSelectorCustomEvent<T> extends CustomEvent<T> {
     detail: T;
-    target: HTMLVeContentPathElement;
+    target: HTMLVeContentSelectorElement;
 }
 export interface VeDepictsCustomEvent<T> extends CustomEvent<T> {
     detail: T;
@@ -193,11 +193,11 @@ declare global {
         prototype: HTMLVeContactElement;
         new (): HTMLVeContactElement;
     };
-    interface HTMLVeContentPathElement extends Components.VeContentPath, HTMLStencilElement {
+    interface HTMLVeContentSelectorElement extends Components.VeContentSelector, HTMLStencilElement {
     }
-    var HTMLVeContentPathElement: {
-        prototype: HTMLVeContentPathElement;
-        new (): HTMLVeContentPathElement;
+    var HTMLVeContentSelectorElement: {
+        prototype: HTMLVeContentSelectorElement;
+        new (): HTMLVeContentSelectorElement;
     };
     interface HTMLVeContentViewerElement extends Components.VeContentViewer, HTMLStencilElement {
     }
@@ -316,7 +316,7 @@ declare global {
     interface HTMLElementTagNameMap {
         "ve-add-media-resource-dialog": HTMLVeAddMediaResourceDialogElement;
         "ve-contact": HTMLVeContactElement;
-        "ve-content-path": HTMLVeContentPathElement;
+        "ve-content-selector": HTMLVeContentSelectorElement;
         "ve-content-viewer": HTMLVeContentViewerElement;
         "ve-depicts": HTMLVeDepictsElement;
         "ve-depicts-dialog": HTMLVeDepictsDialogElement;
@@ -347,11 +347,11 @@ declare namespace LocalJSX {
         "contact"?: string;
         "show"?: boolean;
     }
-    interface VeContentPath {
+    interface VeContentSelector {
         "contentPath"?: string;
         "mode"?: string;
-        "onAddMediaResource"?: (event: VeContentPathCustomEvent<any>) => void;
-        "onContentPathChanged"?: (event: VeContentPathCustomEvent<any>) => void;
+        "onAddMediaResource"?: (event: VeContentSelectorCustomEvent<any>) => void;
+        "onContentPathChanged"?: (event: VeContentSelectorCustomEvent<any>) => void;
         "sticky"?: boolean;
     }
     interface VeContentViewer {
@@ -495,7 +495,7 @@ declare namespace LocalJSX {
     interface IntrinsicElements {
         "ve-add-media-resource-dialog": VeAddMediaResourceDialog;
         "ve-contact": VeContact;
-        "ve-content-path": VeContentPath;
+        "ve-content-selector": VeContentSelector;
         "ve-content-viewer": VeContentViewer;
         "ve-depicts": VeDepicts;
         "ve-depicts-dialog": VeDepictsDialog;
@@ -523,7 +523,7 @@ declare module "@stencil/core" {
         interface IntrinsicElements {
             "ve-add-media-resource-dialog": LocalJSX.VeAddMediaResourceDialog & JSXBase.HTMLAttributes<HTMLVeAddMediaResourceDialogElement>;
             "ve-contact": LocalJSX.VeContact & JSXBase.HTMLAttributes<HTMLVeContactElement>;
-            "ve-content-path": LocalJSX.VeContentPath & JSXBase.HTMLAttributes<HTMLVeContentPathElement>;
+            "ve-content-selector": LocalJSX.VeContentSelector & JSXBase.HTMLAttributes<HTMLVeContentSelectorElement>;
             "ve-content-viewer": LocalJSX.VeContentViewer & JSXBase.HTMLAttributes<HTMLVeContentViewerElement>;
             "ve-depicts": LocalJSX.VeDepicts & JSXBase.HTMLAttributes<HTMLVeDepictsElement>;
             "ve-depicts-dialog": LocalJSX.VeDepictsDialog & JSXBase.HTMLAttributes<HTMLVeDepictsDialogElement>;
