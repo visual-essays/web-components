@@ -156,7 +156,6 @@ export class ContentSelector {
   @State() dirList: any[] = []
 
   async connectedCallback() {
-    console.log('ve-content-selector')
     this.getAuthToken()
     window.addEventListener('storage', () => {
       this.getAuthToken()
@@ -168,7 +167,7 @@ export class ContentSelector {
   }
 
   componentDidLoad() {
-    this.drawer = this.el.shadowRoot.querySelector('.drawer-contained')
+    this.drawer = this.el.shadowRoot.querySelector('.workspace-selector')
   }
 
   parseContentPath() {
@@ -387,7 +386,7 @@ export class ContentSelector {
   
   acctSelector() {
     return this.accts?.length > 1
-      ? <sl-dropdown hoist>
+      ? <sl-dropdown>
           <sl-button slot="trigger" pill size="medium" class="folder">
               {this.acct}
               <sl-icon slot="prefix" name="github" style={{fontSize: '24px'}}></sl-icon>
@@ -407,7 +406,7 @@ export class ContentSelector {
 
   repoSelector() {
     return this.repos?.length > 1
-      ? <sl-dropdown hoist>
+      ? <sl-dropdown>
           <sl-button slot="trigger" pill size="medium">
               {this.repo}
               <sl-icon slot="prefix" name="archive" style={{fontSize: '24px'}}></sl-icon>
@@ -449,7 +448,7 @@ export class ContentSelector {
   }
 
   pathSelector() {
-    return <div class="breadcrumb">
+    return <div class="breadcrumbs">
       <sl-breadcrumb>
         <sl-breadcrumb-item>
           <sl-button pill size="medium" onClick={this.prunePath.bind(this, 0)}>/
@@ -499,11 +498,13 @@ export class ContentSelector {
       </sl-button>
       <div class="ws-path">   
         { this.pathSelector() }
-        <sl-drawer noHeader label="Workspace" placement="start" contained class="drawer-contained" style={{'--size': '100%'}}>
-          <span>Select workspace</span><sl-icon name="chevron-double-right" style={{fontSize: '24px'}}></sl-icon>
-          { this.acctSelector() }
-          { this.repoSelector() }
-          { this.branchSelector() }
+        <sl-drawer noHeader label="Workspace" placement="bottom" contained class="workspace-selector" style={{'--size': '100%'}}>
+          <div>Select workspace</div><sl-icon name="chevron-double-right" style={{fontSize: '24px'}}></sl-icon>
+          <div class="selectors">
+            { this.acctSelector() }
+            { this.repoSelector() }
+            { this.branchSelector() }
+          </div>
         </sl-drawer>
       </div>
 
@@ -543,7 +544,6 @@ export class ContentSelector {
         <sl-button slot="footer" onClick={this.hideDeleteFileDialog.bind(this)}>Cancel</sl-button>
         <sl-button slot="footer" variant="primary" onClick={this.deleteFile.bind(this)}>Confirm</sl-button>
       </sl-dialog>,
-
 
     ]
   }

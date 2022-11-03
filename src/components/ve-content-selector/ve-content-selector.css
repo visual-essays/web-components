@@ -5,26 +5,49 @@
   font-family: Roboto, sans-serif;
   width: 100%;
   border: 1px solid #444;
-  padding: 12px;
+  padding: 6px;
   z-index: 9;
   background-color: white;
 }
 
 .workspace {
   display: flex;
-  border: 1px solid red;
+  align-items: center;
+}
+.workspace-selector {
+  display: flex;
+  gap: 12px;
+}
+.workspace-selector div {
+  display: inline-flex;
+  position: relative;
+  padding-left: 6px;
+  font-size: 1rem;
+}
+.selectors {
+  display: flex;
+  gap: 6px;
 }
 .ws-path {
   position: relative;
   display: flex;
   align-items: center;
-  border: 1px solid blue;
   width: 100%;
+  height: 100%;
+  margin: 3px;
 }
-sl-drawer::part(body) {
+.workspace-selector > sl-icon {
+  vertical-align: middle;
+  padding-right: 6px;
+}
+sl-drawer::part(base), sl-drawer::part(panel), sl-drawer::part(body) {
   padding: 0;
+  overflow: visible;
 }
 
+sl-divider {
+  margin: 6px;
+}
 .values {
   display: flex;
   flex-direction: column;
@@ -74,15 +97,6 @@ sl-icon-button::part(base) {
   display: flex;
   flex-direction: column;
   /* gap: 12px; */
-}
-
-.breadcrumbs {
-  display: flex;
-  align-items: flex-start;
-  gap: 18px;
-}
-
-.breadcrumbs sl-icon-button::part(base) {
 }
 
 sl-icon-button {
@@ -142,8 +156,9 @@ sl-breadcrumb {
   display: inline-block;
 }
 
-.breadcrumb {
+.breadcrumbs {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 12px;
+  padding-left: 12px;;
 }

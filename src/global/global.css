@@ -68,10 +68,6 @@ section.no-offset:target:before {
   display: none;
 }
 
-.ve-component {
-  z-index: 2;
-}
-
 .ve-component.sticky + div.footnote, 
 .ve-component.sticky ~ div.footnote {
   width: 100%;
@@ -112,21 +108,26 @@ section.no-offset:target:before {
 
   .ve-component {
     z-index: 2;
-    width: 50%;
+    border: 1px solid red;
   }
 
   .full {
     width: 100%;
+    margin: auto;
+  }
+
+  .left, .right {
+    width: 50%;
   }
 
   .right {
     float: right;
-    padding-left: 6px;
+    margin-left: 12px;
   }
 
   .left {
     float: left;
-    padding-right: 6px;
+    margin-right: 6px;
   }
 
   .sticky.right + section, 
@@ -205,7 +206,11 @@ section.no-offset:target:before {
 /***************** tabs start *****************/
 
 .tabs {
-  min-height: 100vh;
+  /* height: 100%; */
+}
+
+.tabs label {
+  margin-bottom: 0;
 }
 
 input { display: none; }
