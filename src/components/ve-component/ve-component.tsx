@@ -61,31 +61,28 @@ export class VeComponent {
       this.el.classList.add(this.position)
       // console.log(`width=${this.width} height=${this.height} hwRatio=${hwRatio} position=${this.position} orientation=${orientation}`)
       
+      let width, height
       if (this.width) {
-        this.el.style.width = this.width
-        if (!this.height) {
-          let width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
-          this.height = `${Math.round(width * hwRatio)}px`
-          this.el.style.height = this.height
-        }
+        width = parseInt(this.width.slice(0,-2))
+        height = this.height ? parseInt(this.height.slice(0,-2)) : Math.round(width * hwRatio)
       } else if (this.height) {
-        this.el.style.height = this.height
-        if (!this.width) {
-          let height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2))
-          this.width = `${Math.round(height / hwRatio)}px`
-          this.el.style.width = this.width
-        }
+        height = parseInt(this.height.slice(0,-2))
+        width = this.width ? parseInt(this.width.slice(0,-2)) : Math.round(height / hwRatio)
       } else if (this.position === 'full') {
-        let height = parseInt(window.getComputedStyle(this.el).width.slice(0,-2)) * .5
-        let width = Math.round(height / hwRatio)
-        this.height = this.height || `${height}px`
-        this.width = `${width}px`
+        height = parseInt(window.getComputedStyle(this.el).width.slice(0,-2)) * .5
+        width = Math.round(height / hwRatio)
       } else { // position is 'left' or 'right'
-        let width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
-        let height = Math.round(width * hwRatio)
-        this.width = `${width}px`
-        this.height = this.height || `${height}px`
+        width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
+        height = Math.round(width * hwRatio)
       }
+      // height += 32
+      this.width = `${width}px`
+      this.height = `${height}px`
+      this.el.style.width = this.width
+      this.el.style.height = this.height
+
+      this._setHostDimensions()
+
       let tileSource = img.service
         ? `${(img.service[0].id || img.service[0]['@id']).replace(/\/info\.json$/,'')}/info.json`
         : { url: img.id, type: 'image', buildPyramid: true }
@@ -159,15 +156,6 @@ export class VeComponent {
         if (!this.imageViewer.isFullPage() && !event.originalEvent.ctrlKey) {
           event.preventDefaultAction = true
           event.stopHandlers = true
-          // display meta key warning
-          /*
-          if (instructions.className == 'hidden') {
-            instructions.className = 'visible'
-            setTimeout(() => instructions.className = 'hidden', 1000)
-          }
-          */
-        } else {
-          // if (instructions.className == 'visible') instructions.className = 'hidden'
         }
         return true
       }}

@@ -1,6 +1,12 @@
+* { box-sizing: border-box; }
+
 :host {
-  position: relative;
-  width: 100%;
+	display: flex;
+	align-content: center;
+	justify-content: center;
+	position: relative;
+	font-family: Roboto, sans-serif;
+	background-color: white;
 }
 
 #wrapper {
@@ -30,11 +36,11 @@
   align-items: center;
 }
 
-.hidden {
+.instructions-hidden {
   visibility: hidden;
 }
 
-.visible {
+.instructions-visible {
   visibility: visible;
 }
 
@@ -44,32 +50,6 @@ sl-image-comparer {
 
 sl-image-comparer img {
   /* width: 100%; */
-}
-
-:host, ve-image {
-  box-sizing: border-box;
-  max-width: 100%;
-  /* position: relative; */
-  display: flex;
-  flex-direction: column;
-  /*
-  float: right;
-  */
-}
-* { box-sizing: border-box; }
-ve-image-toolbar {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  /*visibility: hidden;
-  opacity: 0;*/
-  transition: all 1s ease-out;
-}
-
-:host(:hover) ve-image-toolbar {
-  visibility: visible;
-  opacity: 1;
-  transition: all 0.3s ease-in;
 }
 
 #menu-icon, #annotations-icon {
@@ -150,12 +130,6 @@ h3 {
   text-decoration: underline;
 }
 
-#osd {
-  width: 100%;
-  height: 100%;
-  z-index: 3;
-}
-
 .a9s-toolbar, .a9s-annotationlayer {
   display: none;
 }
@@ -218,6 +192,7 @@ h3 {
   align-items: center;
   justify-items: center;
   padding: 12px 12px 24px 12px;
+  width: 100%
   /* clear: both; */
 }
 
@@ -237,6 +212,7 @@ h3 {
   column-gap: 1rem;
   /* margin-bottom: 48px; */
   padding: 0;
+  width: 100%;
 }
 
 /* Laptops and Desktops */

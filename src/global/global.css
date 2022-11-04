@@ -11,26 +11,36 @@ body {
 section.sticky {
   position: sticky;
   top: 0;
+  z-index: 3;
+  background-color: white;
+}
+
+section.sticky .ve-component {
+  margin-bottom: 20px;
 }
 
 section {
   width: 100%;
   position: relative;
+  clear: both;
+}
+
+.noclear {
+  clear: none;
 }
 
 .drop-shadow {
   box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
 }
 
-.visible {
+.component-visible {
   visibility: visible;
   opacity: 1;
   transition: opacity .5s linear;
 }
-.hidden {
+.component-hidden {
   visibility: hidden;
   opacity: 0;
-  transition: visibility 0s .5s, opacity .5s linear;
 }
 .hide {
   display: none;
@@ -166,6 +176,13 @@ section.no-offset:target:before {
     padding-left: 9px;
   }
   
+  .ve-component.sticky + section, 
+  .ve-component.sticky ~ section,
+  section.sticky + section, 
+  section.sticky ~ section {
+    clear: none;
+  }
+
   .ve-component.sticky.left.text-left + section, 
   .ve-component.sticky.left.text-left ~ section {
     margin-left: 0;
@@ -444,7 +461,7 @@ p, li {
 }
 
 p {
-  margin:1em 0;
+  margin: 0 0 1rem 0;
 }
 
 img {

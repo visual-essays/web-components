@@ -44,7 +44,7 @@ export class ImageViewer {
   @Prop() curtain: boolean = false
   @Prop() grid: boolean = false
   @Prop() sync: boolean = false
-  @Prop() width: string = '100%'
+  @Prop() width: string
   @Prop() height: string
   @Prop() align: string // 'left', 'center', 'right'
   @Prop() annoBase: string
@@ -64,6 +64,7 @@ export class ImageViewer {
   @State() _annotatorWindow: any = null
   @State() _zoomedIn: any = {}
   @State() _tileSources: any[] = []
+  @State() position: string
 
   @Watch('annoBase')
   annoBaseChanged() {
@@ -83,11 +84,58 @@ export class ImageViewer {
     this._selectedIdx = 0
     this._current = this._images.length > 0 ? this._images[0] : null
     if (this._current) {
-      if (!this.grid) this._setHostDimensions(imageInfo(this._current.manifest, this._current.seq), this._current.fit)
+      // if (!this.grid) this._setHostDimensions(imageInfo(this._current.manifest, this._current.seq), this._current.fit)
+      
       if (this._viewer) {
         if (!this.compare) this._viewer.open(await this._loadTileSources())
       } else {
         if (!this.grid) this.compare ? this._compareViewerInit() : this._osdInit()
+
+        let img = await imageInfo(this._current.manifest, this._current.seq)
+        let hwRatio = img.height/img.width
+        let orientation = img.height > img.width ? 'portrait' : 'landscape'
+        if (!this.position) this.position = orientation === 'landscape' ? 'full' : 'right'
+        this.el.classList.add(this.position)
+        console.log(`width=${this.width} height=${this.height} hwRatio=${hwRatio} position=${this.position} orientation=${orientation}`)
+        
+        let width, height
+        if (this.grid) {
+          width = this.width
+            ? parseInt(this.width.slice(0,-2))
+            : parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
+          height = this.height
+            ? parseInt(this.height.slice(0,-2))
+            : '100%'
+        } else if (this.position === 'full') {
+          let elWidth = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
+          height = this.height
+            ? parseInt(this.height.slice(0,-2))
+            : this.width
+              ? Math.round(parseInt(window.getComputedStyle(this.el).width.slice(0,-2)) * hwRatio)
+              : elWidth * .5
+          width = this.width
+            ? elWidth
+            : Math.min(Math.round(height / hwRatio) * (this.sync ? 2 : 1), elWidth)
+        } else if (this.width) {
+          width = parseInt(this.width.slice(0,-2))
+          height = this.height ? parseInt(this.height.slice(0,-2)) : Math.round(width * hwRatio)
+        } else if (this.height) {
+          height = parseInt(this.height.slice(0,-2))
+          width = this.width ? parseInt(this.width.slice(0,-2)) : Math.round(height / hwRatio)
+        } else { // position is 'left' or 'right'
+          width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
+          height = Math.round(width * hwRatio)
+        }
+        if (this.width && this.height) this._current.fit = 'cover'
+        height += 32
+        // console.log(width, height)
+        this.width = `${width}px`
+        this.height = `${height}px`
+        this.el.style.width = this.width
+        this.el.style.height = this.height
+        
+        this._setHostDimensions()
+
       }
     }
   }
@@ -236,13 +284,25 @@ export class ImageViewer {
 
   connectedCallback() {
     // console.log(`ve-image: sticky=${this.sticky} zoomOnScroll=${this.zoomOnScroll} compare=${this.compare}`)
+    let parent: HTMLElement = this.el.parentElement
+    if (parent.tagName === 'SECTION' && parent.classList.contains('sticky')) {
+      this.position = 'full'
+      this.width = '100%'
+    } else {
+      this.position = this.el.classList.contains('full')
+        ? 'full'
+        : this.el.classList.contains('left')
+          ? 'left'
+          : this.el.classList.contains('right') ? 'right' : null
+    }
+    this.el.classList.add('ve-component')
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
   }
 
   async componentWillLoad() {
     this.buildImagesList()
   }
-  
+
   findVeImage(el: HTMLSpanElement) {
     let sib = el.previousSibling
     while (sib) {
@@ -280,18 +340,18 @@ export class ImageViewer {
       resizeObserver.observe(this.el.shadowRoot.getElementById('wrapper'))
     }
   }
-
   componentDidLoad() {
-    // this.addResizeObserver()
-    this.el.classList.add('ve-component')
+    this.el.classList.add('component-hidden')
     if (this.sticky) makeSticky(this.el)
-    if (Array.from(this.el.parentElement.classList).indexOf('sticky') >= 0) {
-      makeSticky(this.el.parentElement)
-    }
-
-    // if (this._images.length > 0) this._setHostDimensions()
     this.listenForSlotChanges()
+    setTimeout(() => {
+      this.el.classList.remove('component-hidden')
+      this.el.classList.add('component-visible')
+    }, 10)
 
+  }
+
+  addInteractionHandlers() {
     Array.from(document.querySelectorAll('[enter],[exit]')).forEach((el:HTMLElement) => {
       let veImage = this.findVeImage(el)
       if (veImage) this.addMutationObserver(el)
@@ -315,7 +375,6 @@ export class ImageViewer {
         }
       }
     })
-
   }
 
   _findWidth() {
@@ -436,12 +495,12 @@ export class ImageViewer {
             event.preventDefaultAction = true
             event.stopHandlers = true
             // display meta key warning
-            if (instructions.className == 'hidden') {
-              instructions.className = 'visible'
-              setTimeout(() => instructions.className = 'hidden', 1000)
+            if (instructions.className == 'instructions-hidden') {
+              instructions.className = 'instructions-visible'
+              setTimeout(() => instructions.className = 'instructions-hidden', 1000)
             }
           } else {
-            if (instructions.className == 'visible') instructions.className = 'hidden'
+            if (instructions.className == 'instructions-visible') instructions.className = 'instructions-hidden'
           }
           return true
         }}
@@ -456,12 +515,12 @@ export class ImageViewer {
           if (!this._viewer.isFullPage() && this.isTouchEnabled()) {
             event.preventDefaultAction = true
             event.stopHandlers = true
-            if (instructions.className == 'hidden') {
-              instructions.className = 'visible'
-              setTimeout(() => instructions.className = 'hidden', 1000)
+            if (instructions.className == 'instructions-hidden') {
+              instructions.className = 'instructions-visible'
+              setTimeout(() => instructions.className = 'instructions-hidden', 1000)
             }
           } else {
-            if (instructions.className == 'visible') instructions.className = 'hidden';
+            if (instructions.className == 'instructions-visible') instructions.className = 'instructions-hidden';
           }
           return true
         }}
@@ -520,6 +579,7 @@ export class ImageViewer {
       element: osdElem,
       tileSources,
       prefixUrl: 'https://openseadragon.github.io/openseadragon/images/',
+      // homeFillsViewer: true,
       showNavigationControl: true,
       minZoomImageRatio: 0.2,
       maxZoomPixelRatio: 5,
@@ -570,6 +630,7 @@ export class ImageViewer {
 
   }
   positionImage (immediately: boolean=false) {
+    // console.log(`positionImage: fit=${this._current.fit} region=${this._current.options.region}`)
     setTimeout(() => {
       if (this._current.options.region !== 'full') {
         this.setRegion(this._current.options.region, immediately)
@@ -644,7 +705,7 @@ export class ImageViewer {
     this._annotatorWindow = window.open(url, '_blank', options)
   }
 
-  _setHostDimensions(imageData: any = null, fit: string = 'contain') {
+  _setHostDimensionsOld(imageData: any = null, fit: string = 'contain') {
     let outer = this.el.shadowRoot.getElementById('outer')
     let wrapper = this.el.shadowRoot.getElementById('wrapper')
     let captionEl = this.el.shadowRoot.getElementById('caption')
@@ -745,6 +806,22 @@ export class ImageViewer {
     }
   }
 
+  _setHostDimensions() {
+    let content: HTMLElement = this.el.shadowRoot.querySelector('.content')
+    content.style.width = this.width ? this.width : '100%'
+    if (this.height) {
+      this.el.style.height = this.height
+      content.style.height = '100%'
+    } else {
+      content.style.height = this.position === 'full'
+        ? `${parseInt(window.getComputedStyle(content).width.slice(0,-2)) * .5}px`
+        : window.getComputedStyle(content).width // set height equal to width
+    }
+    let elWidth = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
+    let elHeight = parseInt(window.getComputedStyle(content).height.slice(0,-2))
+    console.log(`ve-content: elWidth=${elWidth} elHeight=${elHeight} requestedWidth=${this.width} requestedHeight=${this.height}`)
+  }
+
   renderAnnotations() {
     return  <div>
       <div class="annotations-heading">
@@ -790,13 +867,13 @@ export class ImageViewer {
 
   renderOsdViewer() {
     return [
-      <div id="osd"></div>,
-      <div id="instructions" class="hidden">use ctrl + scroll or 2 fingers to zoom image.</div>
+      <div id="osd" style={{height:'100%'}}></div>,
+      <div id="instructions" class="instructions-hidden">use ctrl + scroll or 2 fingers to zoom image.</div>
     ]
   }
 
   renderViewer() {
-    return <div class="viewer" style={{height: '100%'}}>
+    return <div class="viewer" style={{height:'calc(100% - 32px)'}}>
       {this.compare && !this.sync && !this.curtain
         ? this.renderCurtainViewer()
         : this.renderOsdViewer()
@@ -853,10 +930,9 @@ export class ImageViewer {
     ]
   }
 
-  renderAsViewer() {
+  renderAsViewerOld() {
     return <div style={{width: '100%', padding:'6px 0', backgroundColor: '#fff'}}>
       <div id="outer">
-        <div id="toolbar"></div>
         <div id="wrapper" style={{width: this.width}}>
           { this.renderViewer() }
           { !this.compare && this.renderViewportCoords()}
@@ -867,8 +943,17 @@ export class ImageViewer {
     </div>
   }
 
+  renderAsViewer() {
+    return <div class="content">
+      { this.renderViewer() }
+      { !this.compare && this.renderViewportCoords()}
+      { this.width && this.renderCaption() }
+      <div id="image-info-popup"></div>
+    </div>
+  }
+
   render() {
-    return this.grid
+    return this.width && this.height && this.grid
       ? this.cards
         ? this.renderAsCards()
         : this.renderThumbnails()
