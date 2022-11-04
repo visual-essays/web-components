@@ -1,5 +1,6 @@
 import { Component, Element, Prop, State, h } from '@stencil/core';
 import OpenSeadragon from 'openseadragon'
+import OpenSeadragonViewerInputHook from '@openseadragon-imaging/openseadragon-viewerinputhook';
 import L from 'leaflet'
 import YouTubePlayer from 'youtube-player'
 
@@ -50,6 +51,7 @@ export class VeComponent {
 
   async componentDidLoad() {
     if (this.sticky) makeSticky(this.el)
+
     if (this.image) {
       this.osdInit()
       let img = await getManifest(this.image).then(manifest => imageInfo(manifest))
@@ -90,9 +92,11 @@ export class VeComponent {
         
       this._setHostDimensions()
       this.imageViewer.open(tileSource)
+
     } else if (this.map) {
       this._setHostDimensions()
       this.mapInit()
+
     } else if (this.video) {
       if (this.video.indexOf('http') === 0) {
         let videoUrl = new URL(this.video)
@@ -150,6 +154,24 @@ export class VeComponent {
       minZoomImageRatio: 0.2,
       maxZoomPixelRatio: 5
     })
+    new OpenSeadragonViewerInputHook({ viewer: this.imageViewer, hooks: [
+      {tracker: 'viewer', handler: 'scrollHandler', hookHandler: (event) => {
+        if (!this.imageViewer.isFullPage() && !event.originalEvent.ctrlKey) {
+          event.preventDefaultAction = true
+          event.stopHandlers = true
+          // display meta key warning
+          /*
+          if (instructions.className == 'hidden') {
+            instructions.className = 'visible'
+            setTimeout(() => instructions.className = 'hidden', 1000)
+          }
+          */
+        } else {
+          // if (instructions.className == 'visible') instructions.className = 'hidden'
+        }
+        return true
+      }}
+    ]})
   }
 
   mapInit() {
@@ -158,6 +180,7 @@ export class VeComponent {
     this.mapViewer = L.map(this.el.shadowRoot.getElementById('map'), {
       center, 
       zoom: this.zoom,
+      scrollWheelZoom: false,
       layers: [
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19, attribution: '© OpenStreetMap'
