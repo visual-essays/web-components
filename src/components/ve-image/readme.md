@@ -24,7 +24,7 @@
 | `src`          | `src`            |             | `string`  | `undefined` |
 | `sticky`       | `sticky`         |             | `boolean` | `undefined` |
 | `sync`         | `sync`           |             | `boolean` | `false`     |
-| `width`        | `width`          |             | `string`  | `'100%'`    |
+| `width`        | `width`          |             | `string`  | `undefined` |
 | `zoomOnScroll` | `zoom-on-scroll` |             | `boolean` | `false`     |
 
 

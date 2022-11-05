@@ -127,7 +127,7 @@ export class ImageViewer {
           height = Math.round(width * hwRatio)
         }
         if (this.width && this.height) this._current.fit = 'cover'
-        height += 32
+        height += 42
         // console.log(width, height)
         this.width = `${width}px`
         this.height = `${height}px`
@@ -341,14 +341,9 @@ export class ImageViewer {
     }
   }
   componentDidLoad() {
-    this.el.classList.add('component-hidden')
     if (this.sticky) makeSticky(this.el)
     this.listenForSlotChanges()
-    setTimeout(() => {
-      this.el.classList.remove('component-hidden')
-      this.el.classList.add('component-visible')
-    }, 10)
-
+    this.addInteractionHandlers()
   }
 
   addInteractionHandlers() {
@@ -483,7 +478,7 @@ export class ImageViewer {
     Annotorious plugin (requires 3.0).  As a result, the current configuration is pinned 
     to OSD 2.4.2 and annotorious 2.6.0
     */
-    let instructions = this.el.shadowRoot.getElementById('instructions')
+    // let instructions = this.el.shadowRoot.getElementById('instructions')
     const canvas: any = this.el.shadowRoot.querySelector('.openseadragon-canvas')
     canvas.style.touchAction = 'pan-y'
 
@@ -495,44 +490,48 @@ export class ImageViewer {
             event.preventDefaultAction = true
             event.stopHandlers = true
             // display meta key warning
+            /*
             if (instructions.className == 'instructions-hidden') {
               instructions.className = 'instructions-visible'
               setTimeout(() => instructions.className = 'instructions-hidden', 1000)
             }
+            */
           } else {
-            if (instructions.className == 'instructions-visible') instructions.className = 'instructions-hidden'
+            // if (instructions.className == 'instructions-visible') instructions.className = 'instructions-hidden'
           }
           return true
         }}
       ]})
     }
 
-      // Inhibits panning using drag
-      new OpenSeadragonViewerInputHook({ viewer: this._viewer, hooks: [
-        {tracker: 'viewer', handler: 'dragHandler', hookHandler: (event) => {
-          // if mobile disable drag event 
-          // pinch event handles panning with 2 fingers
-          if (!this._viewer.isFullPage() && this.isTouchEnabled()) {
-            event.preventDefaultAction = true
-            event.stopHandlers = true
-            if (instructions.className == 'instructions-hidden') {
-              instructions.className = 'instructions-visible'
-              setTimeout(() => instructions.className = 'instructions-hidden', 1000)
-            }
-          } else {
-            if (instructions.className == 'instructions-visible') instructions.className = 'instructions-hidden';
-          }
-          return true
-        }}
-      ]})
-
-      new OpenSeadragonViewerInputHook({ viewer: this._viewer, hooks: [
-        {tracker: 'viewer', handler: 'dragEndHandler', hookHandler: (event) => {
+    /*
+    // Inhibits panning using drag
+    new OpenSeadragonViewerInputHook({ viewer: this._viewer, hooks: [
+      {tracker: 'viewer', handler: 'dragHandler', hookHandler: (event) => {
+        // if mobile disable drag event 
+        // pinch event handles panning with 2 fingers
+        if (!this._viewer.isFullPage() && this.isTouchEnabled()) {
           event.preventDefaultAction = true
           event.stopHandlers = true
-        }}
-      ]})
-  
+          if (instructions.className == 'instructions-hidden') {
+            instructions.className = 'instructions-visible'
+            setTimeout(() => instructions.className = 'instructions-hidden', 1000)
+          }
+        } else {
+          if (instructions.className == 'instructions-visible') instructions.className = 'instructions-hidden';
+        }
+        return true
+      }}
+    ]})
+
+    new OpenSeadragonViewerInputHook({ viewer: this._viewer, hooks: [
+      {tracker: 'viewer', handler: 'dragEndHandler', hookHandler: (event) => {
+        event.preventDefaultAction = true
+        event.stopHandlers = true
+      }}
+    ]})
+    */
+
   }
 
   async _compareViewerInit() {
@@ -581,8 +580,8 @@ export class ImageViewer {
       prefixUrl: 'https://openseadragon.github.io/openseadragon/images/',
       // homeFillsViewer: true,
       showNavigationControl: true,
-      minZoomImageRatio: 0.2,
-      maxZoomPixelRatio: 5,
+      minZoomImageRatio: 1,
+      maxZoomPixelRatio: 10,
       showRotationControl: true,
       showHomeControl: true,
       showZoomControl: true,
@@ -590,10 +589,13 @@ export class ImageViewer {
       showNavigator: false,
       sequenceMode: true,
       showReferenceStrip: true,
-      //visibilityRatio: 1.0,
-      //animationTime: 2,
-      springStiffness: 2,
-      //constrainDuringPan: true
+      
+      animationTime: 0.5,
+      springStiffness: 10,
+      
+      visibilityRatio: 1.0,
+      constrainDuringPan: true
+      
     }
 
     // console.log(`homeFillsViewer=${osdConfig.homeFillsViewer}`)
@@ -809,6 +811,7 @@ export class ImageViewer {
   _setHostDimensions() {
     let content: HTMLElement = this.el.shadowRoot.querySelector('.content')
     content.style.width = this.width ? this.width : '100%'
+    this.el.style.width = this.position === 'full' ? '100%' : this.width
     if (this.height) {
       this.el.style.height = this.height
       content.style.height = '100%'

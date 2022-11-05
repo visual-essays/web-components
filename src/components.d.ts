@@ -122,9 +122,11 @@ export namespace Components {
         "cards": string;
         "center": string;
         "entities": string;
+        "height": string;
         "marker": string;
         "overlay": string;
         "sticky": boolean;
+        "width": string;
         "zoom": number;
     }
     interface VeMenu {
@@ -473,9 +475,11 @@ declare namespace LocalJSX {
         "cards"?: string;
         "center"?: string;
         "entities"?: string;
+        "height"?: string;
         "marker"?: string;
         "overlay"?: string;
         "sticky"?: boolean;
+        "width"?: string;
         "zoom"?: number;
     }
     interface VeMenu {

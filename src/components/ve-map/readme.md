@@ -12,10 +12,12 @@
 | `cards`    | `cards`    |             | `string`  | `undefined` |
 | `center`   | `center`   |             | `string`  | `undefined` |
 | `entities` | `entities` |             | `string`  | `undefined` |
+| `height`   | `height`   |             | `string`  | `undefined` |
 | `marker`   | `marker`   |             | `string`  | `undefined` |
 | `overlay`  | `overlay`  |             | `string`  | `undefined` |
 | `sticky`   | `sticky`   |             | `boolean` | `undefined` |
-| `zoom`     | `zoom`     |             | `number`  | `undefined` |
+| `width`    | `width`    |             | `string`  | `undefined` |
+| `zoom`     | `zoom`     |             | `number`  | `10`        |
 
 
 ## Dependencies
