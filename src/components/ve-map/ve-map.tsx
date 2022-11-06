@@ -24,7 +24,7 @@ export class MapViewer {
 
   @Element() el: HTMLElement;
 
-  @State() position: string
+  position: string
 
   @State() map: L.Map
   @State() allmapsLayer: L.TileLayer

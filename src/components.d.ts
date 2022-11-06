@@ -162,12 +162,14 @@ export namespace Components {
         "autoplay": boolean;
         "caption": string;
         "end": string;
+        "height": string;
         "loop": boolean;
         "muted": boolean;
         "poster": string;
         "src": string;
         "start": string;
         "sticky": boolean;
+        "width": string;
     }
     interface VeWikidataSearch {
         "language": string;
@@ -514,12 +516,14 @@ declare namespace LocalJSX {
         "autoplay"?: boolean;
         "caption"?: string;
         "end"?: string;
+        "height"?: string;
         "loop"?: boolean;
         "muted"?: boolean;
         "poster"?: string;
         "src"?: string;
         "start"?: string;
         "sticky"?: boolean;
+        "width"?: string;
     }
     interface VeWikidataSearch {
         "language"?: string;
