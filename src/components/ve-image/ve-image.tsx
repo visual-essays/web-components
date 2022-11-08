@@ -6,7 +6,7 @@ import OpenSeadragonViewerInputHook from '@openseadragon-imaging/openseadragon-v
 import './openseadragon-curtain-sync'
 
 import debounce from 'lodash.debounce'
-import { imageDataUrl, label, loadManifests, parseImageOptions, parseRegionString, imageInfo, isMobile, isNum, makeSticky, sha256, thumbnail } from '../../utils'
+import { imageDataUrl, label, loadManifests, parseImageOptions, parseRegionString, imageInfo, isNum, makeSticky, sha256, thumbnail } from '../../utils'
 
 import { Annotator } from './annotator'
 import { parseInt } from 'lodash';
@@ -50,6 +50,10 @@ export class ImageViewer {
   @Prop() annoBase: string
   @Prop() sticky: boolean
   @Prop() zoomOnScroll: boolean = false
+  // @Prop() position: string
+  @Prop({ mutable: true, reflect: true }) right: boolean = false
+  @Prop({ mutable: true, reflect: true }) left: boolean = false
+  @Prop({ mutable: true, reflect: true }) full: boolean = false
 
   @Element() el: HTMLElement;
 
@@ -64,7 +68,6 @@ export class ImageViewer {
   @State() _annotatorWindow: any = null
   @State() _zoomedIn: any = {}
   @State() _tileSources: any[] = []
-  @State() position: string
 
   @Watch('annoBase')
   annoBaseChanged() {
@@ -80,23 +83,35 @@ export class ImageViewer {
   @State() _images: any[] = []
   @Watch('_images')
   async _imagesChanged() {
-    // console.log('_imagesChanged', this._images)
-    this._selectedIdx = 0
+    console.log('_imagesChanged', this._images)
     this._current = this._images.length > 0 ? this._images[0] : null
+    this._selectedIdx = this._current ? this._current.seq - 1 : 0
     if (this._current) {
-      // if (!this.grid) this._setHostDimensions(imageInfo(this._current.manifest, this._current.seq), this._current.fit)
       
       if (this._viewer) {
-        if (!this.compare) this._viewer.open(await this._loadTileSources())
+        if (!this.compare) {
+          console.log(`loadTileSources: idx=${this._current.seq}`)
+          this._viewer.open(await this._loadTileSources(), this._current.seq)
+        }
       } else {
         if (!this.grid) this.compare ? this._compareViewerInit() : this._osdInit()
 
         let img = await imageInfo(this._current.manifest, this._current.seq)
         let hwRatio = img.height/img.width
         let orientation = img.height > img.width ? 'portrait' : 'landscape'
-        if (!this.position) this.position = orientation === 'landscape' ? 'full' : 'right'
-        this.el.classList.add(this.position)
-        console.log(`width=${this.width} height=${this.height} hwRatio=${hwRatio} position=${this.position} orientation=${orientation}`)
+
+        let position = this.right ? 'right' : this.left ? 'left' : this.full ? 'full' : null
+        if (!position) {
+          if (orientation === 'landscape') {
+            position = 'full'
+            this.full = true
+          } else {
+            position = 'right'
+            this.right = true
+          }
+        }
+
+        console.log(`width=${this.width} height=${this.height} hwRatio=${hwRatio} position=${position} orientation=${orientation}`)
         
         let width, height
         if (this.grid) {
@@ -106,36 +121,50 @@ export class ImageViewer {
           height = this.height
             ? parseInt(this.height.slice(0,-2))
             : '100%'
-        } else if (this.position === 'full') {
-          let elWidth = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
-          height = this.height
-            ? parseInt(this.height.slice(0,-2))
-            : this.width
-              ? Math.round(parseInt(window.getComputedStyle(this.el).width.slice(0,-2)) * hwRatio)
-              : elWidth * .5
-          width = this.width
-            ? elWidth
-            : Math.min(Math.round(height / hwRatio) * (this.sync ? 2 : 1), elWidth)
-        } else if (this.width) {
-          width = parseInt(this.width.slice(0,-2))
-          height = this.height ? parseInt(this.height.slice(0,-2)) : Math.round(width * hwRatio)
-        } else if (this.height) {
-          height = parseInt(this.height.slice(0,-2))
-          width = this.width ? parseInt(this.width.slice(0,-2)) : Math.round(height / hwRatio)
-        } else { // position is 'left' or 'right'
-          width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
-          height = Math.round(width * hwRatio)
-        }
-        if (this.width && this.height) this._current.fit = 'cover'
-        height += 42
-        // console.log(width, height)
-        this.width = `${width}px`
-        this.height = `${height}px`
-        this.el.style.width = this.width
-        this.el.style.height = this.height
         
-        this._setHostDimensions()
+        } else if (this.full) {
+          this.el.style.width = this.width || '100%'
+          let elWidth = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
+          if (this.sticky) {
+            let maxHeight = Math.round(window.innerHeight * .4)
+            width = elWidth
+            height = width * hwRatio
+            if (height > maxHeight) {
+              height = maxHeight
+              width = height / hwRatio
+            }
+          } else {
+            width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
+            this.el.style.height = this.height || `${Math.round(width * hwRatio)}px`
+            height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2))
+          }     
+        } else {
+          this.el.style.float = this.right ? 'right' : 'left'
+          if (this.right) this.el.style.marginLeft = '12px'
+          else this.el.style.marginRight = '12px'
+          
+          this.el.style.width = this.width || '50%'
+          width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
+          this.el.style.height = this.height || `${Math.round(width * hwRatio)}px`
+          height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2))
+        }
 
+        if (this.sticky) this.el.style.paddingTop = '6px'
+        if (!this.fit && (this.width || this.height)) this._current.fit = 'cover'
+        height += 32
+
+        // this.width = `${width}px`
+        // this.height = `${height}px`
+        // this.el.style.width = `${width}px`
+        // this.el.style.width = '100%'
+        this.el.style.height = `${height}px`
+        
+        let content: HTMLElement = this.el.shadowRoot.querySelector('.content')
+        content.style.width = `${width}px`
+        content.style.height = `${height}px`
+
+        // content.style.width = '100%'
+        // content.style.height = '100%'
       }
     }
   }
@@ -199,7 +228,10 @@ export class ImageViewer {
   }
   
   setRegion(region: string, immediately:boolean=false) {
-    this._viewer.viewport.fitBounds(parseRegionString(region, this._viewer), immediately)
+    console.log(`setRegion: region=${region} immediately=${immediately}`)
+    setTimeout(() =>
+      this._viewer.viewport.fitBounds(parseRegionString(region, this._viewer), immediately)
+    ,200)
   }
 
   parseImageStr(str: string) {
@@ -217,7 +249,8 @@ export class ImageViewer {
   async zoomto(arg: string) {
     const found = arg?.match(/^(\d+:|\d+$)?(pct:)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})$/)
     if (!found) return
-    let imgIdx = found[1] ? parseInt(found[1].replace(/:$/,''))-1 : 0
+    let seq = found[1] ? parseInt(found[1].replace(/:$/,'')) : 1
+    let imgIdx = seq - 1
     let region
     let annoRegex = new RegExp('[0-9a-f]{8}')
     if (annoRegex.test(found[3])) {
@@ -236,9 +269,10 @@ export class ImageViewer {
     } else {
       region = found[2] ? `${found[2]}${found[3]}` : found[3]
     }
-    // console.log(`zoomto: imgIdx=${imgIdx} region=${region}`)
-    if (imgIdx) this._viewer.goToPage(imgIdx)
-    if (region) setTimeout(() => { this.setRegion(region, false) }, 100)
+    console.log(`zoomto: seq=${seq} current=${this._current.seq} region=${region}`)
+    this._current.options.region = region
+    if (seq === this._current.seq) this.positionImage(false)
+    else this._viewer.goToPage(imgIdx)
   }
 
   buildImagesList() {
@@ -283,17 +317,11 @@ export class ImageViewer {
   }
 
   connectedCallback() {
-    // console.log(`ve-image: sticky=${this.sticky} zoomOnScroll=${this.zoomOnScroll} compare=${this.compare}`)
+    console.log(`ve-image: sticky=${this.sticky} zoomOnScroll=${this.zoomOnScroll} compare=${this.compare}`)
     let parent: HTMLElement = this.el.parentElement
     if (parent.tagName === 'SECTION' && parent.classList.contains('sticky')) {
-      this.position = 'full'
+      this.full = true
       this.width = '100%'
-    } else {
-      this.position = this.el.classList.contains('full')
-        ? 'full'
-        : this.el.classList.contains('left')
-          ? 'left'
-          : this.el.classList.contains('right') ? 'right' : null
     }
     this.el.classList.add('ve-component')
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
@@ -334,12 +362,6 @@ export class ImageViewer {
     observer.observe(el, {attributes: true})
   }
 
-  addResizeObserver() {
-    if (!this.grid) {
-      const resizeObserver = new ResizeObserver(() => this._setHostDimensions())
-      resizeObserver.observe(this.el.shadowRoot.getElementById('wrapper'))
-    }
-  }
   componentDidLoad() {
     if (this.sticky) makeSticky(this.el)
     this.listenForSlotChanges()
@@ -572,11 +594,13 @@ export class ImageViewer {
   }
 
   async _osdInit() {
+    console.log(`osdInit:`, this._current.seq, this._selectedIdx)
     let tileSources = await this._loadTileSources()
     let osdElem: HTMLElement = this.el.shadowRoot.querySelector('#osd')
     const osdOptions: OpenSeadragon.Options = {
       element: osdElem,
       tileSources,
+      initialPage: this._selectedIdx,
       prefixUrl: 'https://openseadragon.github.io/openseadragon/images/',
       // homeFillsViewer: true,
       showNavigationControl: true,
@@ -610,13 +634,18 @@ export class ImageViewer {
     this.showAnnotationsToolbar(this.canAnnotate())
     this.showAnnotations(this.canAnnotate())
 
-    this._viewer.addHandler('home', (e) => this.positionImage(e.immediately))
+    // this._viewer.addHandler('home', (e) => this.positionImage(e.immediately))
     this._viewer.addHandler('page', (e) => this._selectedIdx = e.page)
 
     // Reposition image in viewport after transition back from full screen mode
     this._viewer.addHandler('resize', () => setTimeout(() => this._viewer.viewport.goHome(true), 10))
 
-    this._viewer.world.addHandler('add-item', () => this.positionImage(true))
+    this._viewer.world.addHandler('add-item', () => {
+      console.log('add-item')
+      //if (this._current.seq - 1 !== this._selectedIdx)
+        // setTimeout(() => {this._viewer.goToPage(this._current.seq - 1); this.positionImage(true)}, 10)
+        this.positionImage(true)
+    })
     this._viewer.addHandler('viewport-change', debounce(() => {
       this._viewportBounds = this._getViewportBounds()
     }, 100))
@@ -632,10 +661,12 @@ export class ImageViewer {
 
   }
   positionImage (immediately: boolean=false) {
-    // console.log(`positionImage: fit=${this._current.fit} region=${this._current.options.region}`)
+    console.log(`positionImage: immediately=${immediately} fit=${this._current.fit} region=${this._current.options.region}`)
     setTimeout(() => {
       if (this._current.options.region !== 'full') {
-        this.setRegion(this._current.options.region, immediately)
+        let region = this._current.options.region
+        this._current.options.region = 'full'
+        this.setRegion(region, immediately)
       } else {
         let imageData = imageInfo(this._current.manifest, this._current.seq )
         let osdElem = this.el.shadowRoot.getElementById('osd')
@@ -705,124 +736,6 @@ export class ImageViewer {
     if (this._annotatorWindow) { this._annotatorWindow.close() }
     if (options === undefined) options = 'toolbar=yes,location=yes,left=0,top=0,width=1000,height=1200,scrollbars=yes,status=yes'
     this._annotatorWindow = window.open(url, '_blank', options)
-  }
-
-  _setHostDimensionsOld(imageData: any = null, fit: string = 'contain') {
-    let outer = this.el.shadowRoot.getElementById('outer')
-    let wrapper = this.el.shadowRoot.getElementById('wrapper')
-    let captionEl = this.el.shadowRoot.getElementById('caption')
-    let captionHeight = captionEl ? captionEl.clientHeight : 32
-    let osd = this.el.shadowRoot.getElementById('osd')
-    let classes = Array.from(this.el.classList)
-    let position = classes.find(cls => cls === 'right' || cls === 'left' || cls === 'full')
-
-    // console.log(this.el.clientWidth, this.el.parentElement.clientWidth)
-    // let elWidth = this.el.clientWidth || this.el.parentElement.clientWidth
-    let elWidth = Math.max(this.el.clientWidth, this.el.parentElement.clientWidth)
-    let elHeight = this.el.clientHeight || this.el.parentElement.clientHeight
-
-    let imageWidth = imageData ? imageData.width : null
-    let imageHeight = imageData ? imageData.height : null
-
-    if (imageWidth) {
-      let orientation = imageHeight > imageWidth ? 'portrait' : 'landscape'
-      let width, height
-
-      if (isMobile()) {
-
-        if (fit === 'cover') {
-          width = elWidth
-          height = window.innerHeight * .4
-        } else { // fit === contain
-          if (orientation === 'landscape') {
-            width = wrapper.clientWidth
-            height = Math.round(imageHeight/imageWidth * width + captionHeight)
-          } else { // orientation = portrait
-            height = window.innerHeight * .4
-            width = Math.round(imageWidth/imageHeight * (height - captionHeight))
-          }
-        }
-
-      } else {
-
-        if (orientation === 'landscape') {
-          if (this.compare && !this.sync) {
-            width = wrapper.clientWidth
-            height = Math.round(imageHeight/imageWidth * width)
-          } else if (position === 'full' || this.sync) {
-            height = window.innerHeight * .5
-            width = fit === 'contain'
-              ? Math.round(imageWidth/imageHeight * (height - captionHeight)) // width scaled to height
-              : wrapper.clientWidth
-            this.el.classList.add('full')
-          } else {
-            width = wrapper.clientWidth
-            height = fit === 'contain'
-              ? Math.round(imageHeight/imageWidth * width + captionHeight)
-              : Math.min(this.el.parentElement.clientHeight, window.innerHeight * .5)
-          }
-        } else { // orientation = portrait
-          if (this.compare && !this.sync) {
-            height = window.innerHeight * .6 + captionHeight
-            width = position === 'full' ? wrapper.clientWidth : Math.round(imageWidth/imageHeight * height)
-          } else if (position === 'full' || this.sync) {
-            width = elWidth
-            height = fit === 'contain'
-              // ? Math.min(Math.round(imageHeight/imageWidth * width + captionHeight), window.innerHeight * .5)
-              // ? Math.min(Math.round(imageHeight/imageWidth * width + captionHeight), window.innerHeight) 
-              ? Math.round(imageHeight/imageWidth * width + captionHeight)
-              : window.innerHeight
-            this.el.classList.add('full')
-          } else {
-            width = wrapper.clientWidth
-            height = fit === 'contain'
-              ? Math.round(imageHeight/imageWidth * width + captionHeight)
-              : window.innerHeight * .5
-            height = Math.round(imageHeight/imageWidth * width + captionHeight)
-            this.el.classList.add(position === 'left' ? 'left' : 'right')
-          }
-        }
-
-      }
-
-      console.log(`ve-image: ${this._current.manifest.id} seq=${this._current.seq} compare=${this.compare} curtain=${this.curtain} sync=${this.sync} orientation=${orientation} position=${position} fit=${fit} elWidth=${elWidth} elHeight=${elHeight} imageWidth=${imageWidth} imageHeight=${imageHeight} width=${width} height=${height}`)
-
-      wrapper.style.width = `${width}px`
-      if (osd) osd.style.width = `${width}px`
-    
-      wrapper.style.height = `${height - captionHeight}px`
-      if (osd) osd.style.height = `${height - captionHeight}px`
-
-      outer.style.height = `${height}px`
-
-      /*
-      if (osd) {
-        osd.addEventListener('click', (evt:PointerEvent) => {
-          console.log('image clicked', evt)
-          // evt.preventDefault()
-          // this._viewer.setFullScreen(true)
-        })
-      }
-      */
-
-    }
-  }
-
-  _setHostDimensions() {
-    let content: HTMLElement = this.el.shadowRoot.querySelector('.content')
-    content.style.width = this.width ? this.width : '100%'
-    this.el.style.width = this.position === 'full' ? '100%' : this.width
-    if (this.height) {
-      this.el.style.height = this.height
-      content.style.height = '100%'
-    } else {
-      content.style.height = this.position === 'full'
-        ? `${parseInt(window.getComputedStyle(content).width.slice(0,-2)) * .5}px`
-        : window.getComputedStyle(content).width // set height equal to width
-    }
-    let elWidth = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
-    let elHeight = parseInt(window.getComputedStyle(content).height.slice(0,-2))
-    console.log(`ve-content: elWidth=${elWidth} elHeight=${elHeight} requestedWidth=${this.width} requestedHeight=${this.height}`)
   }
 
   renderAnnotations() {
@@ -933,24 +846,11 @@ export class ImageViewer {
     ]
   }
 
-  renderAsViewerOld() {
-    return <div style={{width: '100%', padding:'6px 0', backgroundColor: '#fff'}}>
-      <div id="outer">
-        <div id="wrapper" style={{width: this.width}}>
-          { this.renderViewer() }
-          { !this.compare && this.renderViewportCoords()}
-          { this.renderCaption() }
-          <div id="image-info-popup"></div>
-        </div>
-      </div>
-    </div>
-  }
-
   renderAsViewer() {
     return <div class="content">
       { this.renderViewer() }
       { !this.compare && this.renderViewportCoords()}
-      { this.width && this.renderCaption() }
+      { this.renderCaption() }
       <div id="image-info-popup"></div>
     </div>
   }

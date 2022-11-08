@@ -96,9 +96,12 @@ export namespace Components {
         "curtain": boolean;
         "entities": string;
         "fit": string;
+        "full": boolean;
         "grid": boolean;
         "height": string;
+        "left": boolean;
         "options": string;
+        "right": boolean;
         "seq": number;
         "src": string;
         "sticky": boolean;
@@ -450,9 +453,12 @@ declare namespace LocalJSX {
         "curtain"?: boolean;
         "entities"?: string;
         "fit"?: string;
+        "full"?: boolean;
         "grid"?: boolean;
         "height"?: string;
+        "left"?: boolean;
         "options"?: string;
+        "right"?: boolean;
         "seq"?: number;
         "src"?: string;
         "sticky"?: boolean;

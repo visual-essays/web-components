@@ -17,9 +17,12 @@
 | `curtain`      | `curtain`        |             | `boolean` | `false`     |
 | `entities`     | `entities`       |             | `string`  | `undefined` |
 | `fit`          | `fit`            |             | `string`  | `undefined` |
+| `full`         | `full`           |             | `boolean` | `false`     |
 | `grid`         | `grid`           |             | `boolean` | `false`     |
 | `height`       | `height`         |             | `string`  | `undefined` |
+| `left`         | `left`           |             | `boolean` | `false`     |
 | `options`      | `options`        |             | `string`  | `undefined` |
+| `right`        | `right`          |             | `boolean` | `false`     |
 | `seq`          | `seq`            |             | `number`  | `1`         |
 | `src`          | `src`            |             | `string`  | `undefined` |
 | `sticky`       | `sticky`         |             | `boolean` | `undefined` |

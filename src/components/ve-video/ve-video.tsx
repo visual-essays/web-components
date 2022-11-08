@@ -78,13 +78,17 @@ export class Video {
       
       let width, height
       if (this.position === 'full') {
-        this.el.style.width = this.width || '100%'
         let elWidth = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
         if (this.sticky) {
-          let maxHeight = Math.round(document.body.clientHeight * .4)
-          height = Math.min(Math.round(elWidth / hwRatio), maxHeight)
-          width = height / hwRatio
+          let maxHeight = Math.round(window.innerHeight * .4)
+          width = elWidth
+          height = width * hwRatio
+          if (height > maxHeight) {
+            height = maxHeight
+            width = height / hwRatio
+          }
         } else {
+          this.el.style.width = this.width || '100%'
           width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
           height = Math.round(width * hwRatio)
         }
@@ -98,6 +102,8 @@ export class Video {
         width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
         height = Math.round(width * hwRatio)
       }
+      // console.log(this.position, this.sticky, hwRatio, width, height)
+
       this._width = `${width}px`
       this._height = `${height}px`
       
@@ -141,7 +147,7 @@ export class Video {
       if (this.isPlaying && this.sticky && !playerScrolledToTop) {
         // scroll player to top
         let y = playerEl.getBoundingClientRect().top + window.scrollY - top()
-        console.log(`player.scrollTo`, y)
+        // console.log(`player.scrollTo`, y)
         window.scrollTo(0, y)
         // playerScrolledToTop = true
       }
@@ -153,7 +159,7 @@ export class Video {
           if (this.startTimes[time]) {
             // scroll paragraph into active region
             let bcr = this.startTimes[time].getBoundingClientRect()
-            console.log(`elem.scrollTo`, bcr.top)
+            // console.log(`elem.scrollTo`, bcr.top)
             window.scrollTo(0, bcr.top + window.scrollY - playerEl.getBoundingClientRect().bottom)
           }
         })
@@ -176,7 +182,9 @@ export class Video {
         videoId: this.videoId,
         playerVars
       })
-    this.player.on('ready', () => {})
+    this.player.on('ready', () => {
+      // this.seekTo(this.start, this.autoplay ? this.end : this.start)
+    })
     this.monitor()
   }
 
@@ -233,7 +241,7 @@ export class Video {
   getStartTimes() {
     return Object.fromEntries(
       Array.from(document.querySelectorAll('p[data-start]'))
-        .map((el:HTMLElement) => [parseInt(el.dataset.start), el])
+        .map((el:HTMLElement) => [this.hmsToSeconds(el.dataset.start), el])
     )
   }
 
@@ -256,6 +264,12 @@ export class Video {
             let start = attributes[0]
             let end = attributes.length > 1 ? attributes[1].replace(' ', '') : '-1'
             this.seekTo(start, end)
+            let bcr = this.startTimes[this.hmsToSeconds(start)].getBoundingClientRect()
+            
+            // console.log(`elem.scrollTo`, bcr.top)
+            let playerEl = document.querySelector('ve-video')
+            window.scrollTo(0, bcr.top + window.scrollY - playerEl.getBoundingClientRect().bottom)
+
           }
         }, 200))
       }
@@ -264,7 +278,7 @@ export class Video {
   }
 
   hmsToSeconds(str:string) {
-    var p = str.split(':').map(pe => parseInt(pe, 10))
+    var p = str.split(':').slice(0,3).map(pe => parseInt(pe, 10))
     let secs = 0, m = 1
     while (p.length > 0) {
       secs += m * p.pop()
@@ -401,14 +415,19 @@ export class Video {
 
   _setHostDimensions() {
     let content: HTMLElement = this.el.shadowRoot.querySelector('.content')
-    if (this.position === 'full') this.el.style.width = '100%'
+    if (this.position === 'full' && !this.sticky) this.el.style.width = '100%'
     content.style.width = this._width ? this._width : '100%'
     
     if (this._height) {
-      this.el.style.height = this._height
-      content.style.height = '100%'
+      if (this.sticky) {
+        this.el.style.height = `${parseInt(this._height.slice(0,-2)) + 17}px`
+        content.style.height = 'calc(100% - 12px)'
+      } else {
+        this.el.style.height = this._height
+        content.style.height = '100%'
+      }
     } else {
-      let maxHeight = Math.round(document.body.clientHeight * .4)
+      let maxHeight = Math.round(window.innerHeight * .4)
       content.style.height = this.position === 'full'
         ? `${maxHeight}px`
         : window.getComputedStyle(content).width // set height equal to width

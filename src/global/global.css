@@ -8,15 +8,15 @@ body {
 
 .clear { clear: both; }
 
+.sticky {
+  padding-top: 6px;
+}
+
 section.sticky {
   position: sticky;
   top: 0;
   z-index: 3;
   background-color: white;
-}
-
-section.sticky .ve-component {
-  margin-bottom: 20px;
 }
 
 section {
@@ -107,7 +107,8 @@ section.no-offset:target:before {
     font-size: 1.3rem;
     line-height: 1.4;
     padding: 0;
-    max-width: 1000px;
+    max-width: 1600px;
+    padding: 0 34px;
     margin: auto;
   }
 
