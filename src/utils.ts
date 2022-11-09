@@ -129,43 +129,50 @@ export function imageInfo(manifest:any, seq=1) {
   return findItem({type:'Annotation', motivation:'painting'}, manifest, seq).body
 }
 
+const _manifestCache:any = {}
 export async function loadManifests(manifestUrls: string[], refresh: boolean=false) {
-  let requests: any = manifestUrls
-    .map(manifestId =>
-      manifestId.indexOf('http') === 0
-        ? manifestId
-        : `${iiifServer}/${manifestId}/manifest.json`
-    )
-    .map(manifestUrl => {
-      if (refresh && ['localhost', 'iiif.juncture-digital.org'].includes(new URL(manifestUrl).hostname)) {
-        manifestUrl += '?refresh'
-      }
-      /*
-      return fetch(manifestUrl,
-        ['localhost', 'iiif.juncture-digital.org'].includes(new URL(manifestUrl).hostname)
-          ? {headers: {'X-Requested-From': window.location.href}}
-          : {}
+  let toGet = manifestUrls.filter(url => !_manifestCache[url])
+  // console.log(`loadManifests: toGet=${toGet.length}`)
+  if (toGet.length > 0) {
+    let requests: any = toGet
+      .map(manifestId =>
+        manifestId.indexOf('http') === 0
+          ? manifestId
+          : `${iiifServer}/${manifestId}/manifest.json`
       )
-      */
-      return fetch(manifestUrl)
-    })
-  let responses = await Promise.all(requests)
-  let manifests = await Promise.all(responses.map((resp:any) => resp.json()))
-  requests = manifests
-    .filter(manifest => !Array.isArray(manifest['@context']) && parseFloat(manifest['@context'].split('/').slice(-2,-1).pop()) < 3)
-    .map(manifest => fetch('https://api.juncture-digital.org/prezi2to3/', {
-      method: 'POST', 
-      body: JSON.stringify(manifest)
-    }))
-  if (requests.length > 0) {
-    responses = await Promise.all(requests)
-    let convertedManifests = await Promise.all(responses.map((resp:any) => resp.json()))
-    for (let i = 0; i < manifests.length; i++) {
-      let found = convertedManifests.find(manifest => manifest['@id'] === manifests[i].id)
-      if (found) manifests[i] = found
+      .map(manifestUrl => {
+        if (refresh && ['localhost', 'iiif.juncture-digital.org'].includes(new URL(manifestUrl).hostname)) {
+          manifestUrl += '?refresh'
+        }
+        /*
+        return fetch(manifestUrl,
+          ['localhost', 'iiif.juncture-digital.org'].includes(new URL(manifestUrl).hostname)
+            ? {headers: {'X-Requested-From': window.location.href}}
+            : {}
+        )
+        */
+        return fetch(manifestUrl)
+      })
+    let responses = await Promise.all(requests)
+    let manifests = await Promise.all(responses.map((resp:any) => resp.json()))
+    requests = manifests
+      .filter(manifest => !Array.isArray(manifest['@context']) && parseFloat(manifest['@context'].split('/').slice(-2,-1).pop()) < 3)
+      .map(manifest => fetch('https://api.juncture-digital.org/prezi2to3/', {
+        method: 'POST', 
+        body: JSON.stringify(manifest)
+      }))
+    if (requests.length > 0) {
+      responses = await Promise.all(requests)
+      let convertedManifests = await Promise.all(responses.map((resp:any) => resp.json()))
+      for (let i = 0; i < manifests.length; i++) {
+        let found = convertedManifests.find(manifest => manifest['@id'] === manifests[i].id)
+        if (found) manifests[i] = found
+      }
     }
+    manifests.forEach(manifest => _manifestCache[manifest.id] = manifest)
+    return manifests
   }
-  return manifests
+  return manifestUrls.map(url => _manifestCache[url])
 }
 
 export async function imgUrlFromManifest(manifestUrl: string, forceImage = false) {

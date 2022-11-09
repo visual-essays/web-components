@@ -78,7 +78,6 @@ export class MapViewer {
     console.log(`width=${this.width} height=${this.height} position=${position} sticky=${this.sticky}`)
     
     const floatMargin = 12
-    const captionHeight = this.caption ? 32 : 0
 
     let width, height
     if (this.full) { // Full-width layout
@@ -104,9 +103,7 @@ export class MapViewer {
       width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
       height = width
     }
-    console.log(width, height)
-    // this.el.style.height = `${height + 12}px`
-    this.el.style.height = `${height + captionHeight + 18}px`
+    this.el.style.height = `${height + 12}px`
 
     if (this.sticky) this.el.style.paddingTop = '6px'
     

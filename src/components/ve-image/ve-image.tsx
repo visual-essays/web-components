@@ -12,11 +12,14 @@ import { Annotator } from './annotator'
 import { parseInt } from 'lodash';
 
 import '@shoelace-style/shoelace/dist/components/badge/badge.js'
+import '@shoelace-style/shoelace/dist/components/dialog/dialog.js'
 import '@shoelace-style/shoelace/dist/components/drawer/drawer.js'
 import '@shoelace-style/shoelace/dist/components/icon-button/icon-button.js'
 import '@shoelace-style/shoelace/dist/components/icon/icon.js'
 import '@shoelace-style/shoelace/dist/components/image-comparer/image-comparer.js'
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js'
+
+import SLDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
 
 import { setBasePath } from '@shoelace-style/shoelace/dist/utilities/base-path.js'
 // setBasePath(location.hostname === 'localhost' ? 'http://localhost:3333' : 'https://visual-essays.github.io/web-components/src')
@@ -50,6 +53,7 @@ export class ImageViewer {
   @Prop() annoBase: string
   @Prop() sticky: boolean
   @Prop() zoomOnScroll: boolean = false
+  @Prop() caption: string
   // @Prop() position: string
   @Prop({ mutable: true, reflect: true }) right: boolean = false
   @Prop({ mutable: true, reflect: true }) left: boolean = false
@@ -69,6 +73,12 @@ export class ImageViewer {
   @State() _zoomedIn: any = {}
   @State() _tileSources: any[] = []
   @State() _ready: boolean = false
+  @State() _selected: any
+  @State() _dialogWidth: string
+  @State() _dialogHeight: string
+
+  _width: number
+  _height: number
 
   @Watch('annoBase')
   annoBaseChanged() {
@@ -96,77 +106,84 @@ export class ImageViewer {
         }
       } else {
         if (!this.grid) this.compare ? this._compareViewerInit() : this._osdInit()
+      }
+      this.doLayout()
+    }
+  }
 
-        let img = await imageInfo(this._current.manifest, this._current.seq)
-        let hwRatio = img.height/img.width
-        let orientation = img.height > img.width ? 'portrait' : 'landscape'
+  async doLayout() {
+    let img = await imageInfo(this._current.manifest, this._current.seq)
+    let hwRatio = Number((img.height/img.width).toFixed(4))
+    let orientation = img.height > img.width ? 'portrait' : 'landscape'
 
-        let position = this.right ? 'right' : this.left ? 'left' : this.full ? 'full' : null
-        if (!position) {
-          if (orientation === 'landscape') {
-            position = 'full'
-            this.full = true
-          } else {
-            position = 'right'
-            this.right = true
-          }
-        }
-
-        console.log(`width=${this.width} height=${this.height} hwRatio=${hwRatio} position=${position} orientation=${orientation}`)
-        
-        const floatMargin = 12
-        const captionHeight = 32
-
-        let width, height
-        
-        if (this.grid) { // Multi-image grid layout
-          width = this.width
-            ? parseInt(this.width.slice(0,-2))
-            : parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
-          height = this.height ? parseInt(this.height.slice(0,-2)) : '100%'
-        
-        } else if (this.full) { // Single-image full-width layout
-          this.el.classList.add('full')
-          this.el.style.width = this.width || '100%'
-          let elWidth = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
-          if (this.sticky) {
-            let maxHeight = Math.round(window.innerHeight * .4)
-            width = elWidth
-            height = width * hwRatio
-            if (height > maxHeight) {
-              height = maxHeight
-              width = height / hwRatio
-            }
-          } else {
-            width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
-            this.el.style.height = this.height || `${Math.round(width * hwRatio)}px`
-            height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2))
-          }     
-          this.el.style.width = '100%'
-
-        } else { // Single-image half-width layout
-          this.el.style.float = this.right ? 'right' : 'left'
-          this.el.classList.add(this.right ? 'right' : 'left')
-          this.el.style.width = this.width || '50%'
-          width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
-          this.el.style.height = this.height || `${Math.round((width-floatMargin) * hwRatio)}px`
-          height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2))
-        }
-
-        this.el.style.height = `${height + captionHeight + 12}px`
-
-        if (this.sticky) this.el.style.paddingTop = '6px'
-        if (!this.fit && (this.width || this.height)) this._current.fit = 'cover'
-        
-        let content: HTMLElement = this.el.shadowRoot.querySelector('.content')
-        if (this.left) content.style.marginRight = `${floatMargin}px`
-        else if (this.right) content.style.marginLeft = `${floatMargin}px`
-        content.style.width = `${width}px`
-        content.style.height = `${height + captionHeight}px`
-
-        this._ready = true
+    let position = this.right ? 'right' : this.left ? 'left' : this.full ? 'full' : null
+    if (!position) {
+      if (orientation === 'landscape') {
+        position = 'full'
+        this.full = true
+      } else {
+        position = 'right'
+        this.right = true
       }
     }
+
+    console.log(`ve-image.doLayout: width=${this.width} height=${this.height} hwRatio=${hwRatio} position=${position} orientation=${orientation} img.width=${img.width} img.height=${img.height} hwRatio=${hwRatio}`)
+    
+    const floatSideMargin = 12
+    const captionHeight = this.grid ? 0 : 32
+    const marginBottom = 6
+    const stickyPaddingTop = 6
+    
+    if (this.grid) { // Multi-image grid layout
+      this.el.style.width = this.width || '100%'
+      let elWidth = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
+      this._width = elWidth
+      this.el.style.height = this.height || '100%'
+      this._height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2))
+    
+    } else if (this.full) { // Single-image full-width layout
+      this.el.classList.add('full')
+      this.el.style.width = this.width || '100%'
+      let elWidth = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
+      if (this.sticky) {
+        let maxHeight = Math.round(window.innerHeight * .4)
+        this._width = elWidth
+        this._height = this._width * hwRatio
+        if (this._height > maxHeight) {
+          this._height = maxHeight
+          this._width = this._height / hwRatio
+        }
+      } else {
+        this._width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
+        this.el.style.height = this.height || `${Math.round(this._width * hwRatio)}px`
+        this._height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2))
+      }     
+      this.el.style.width = '100%'
+
+    } else { // Single-image half-width layout
+      this.el.style.float = this.right ? 'right' : 'left'
+      this.el.classList.add(this.right ? 'right' : 'left')
+      this.el.style.width = this.width || '50%'
+      this._width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2)) - floatSideMargin
+      this.el.style.height = this.height || `${Math.round(this._width * hwRatio)}px`
+      this._height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2))
+    }
+
+    // console.log(`width=${this._width} height=${this._height} hwRatio=${this._height}`)
+    if (!this.grid) this.el.style.height = `${this._height + captionHeight + marginBottom}px`
+
+    if (this.sticky) this.el.style.paddingTop = `${stickyPaddingTop}px`
+    if (!this.fit && (this.width || this.height)) this._current.fit = 'cover'
+    
+    let content: HTMLElement = this.el.shadowRoot.querySelector('.content')
+    if (content) {
+      if (this.left) content.style.marginRight = `${floatSideMargin}px`
+      else if (this.right) content.style.marginLeft = `${floatSideMargin}px`
+      content.style.width = `${this._width}px`
+      content.style.height = `${this._height + captionHeight}px`
+    }
+
+    this._ready = true
   }
 
   @State() _selectedIdx: number = 0
@@ -288,7 +305,7 @@ export class ImageViewer {
     if (images.length === 0 && this._entities.length > 0)
       images.push({manifest: `wd:${this._entities[0]}`, seq: this.seq, options: parseImageOptions('')})
     
-    loadManifests(images.map(item => item.manifest))
+      if (images.length > 0) loadManifests(images.map(item => item.manifest))
       .then(manifests => {
         manifests.forEach((manifest, idx) => {
           images[idx].manifest = manifest
@@ -314,7 +331,6 @@ export class ImageViewer {
   }
 
   connectedCallback() {
-    // console.log(`ve-image: sticky=${this.sticky} zoomOnScroll=${this.zoomOnScroll} compare=${this.compare}`)
     let parent: HTMLElement = this.el.parentElement
     if (parent.tagName === 'SECTION' && parent.classList.contains('sticky')) {
       this.full = true
@@ -670,7 +686,7 @@ export class ImageViewer {
   openAnnotator() {
     let width, height
     let imgInfo = imageInfo(this._current.manifest, this._current.seq)
-    let ratio = imgInfo.width / imgInfo.height
+    let ratio = Number((imgInfo.width / imgInfo.height).toFixed(4))
     // let depictsPanelWidth = 300
     if (ratio < 0) {
       width = 800
@@ -691,6 +707,32 @@ export class ImageViewer {
     if (this._annotatorWindow) { this._annotatorWindow.close() }
     if (options === undefined) options = 'toolbar=yes,location=yes,left=0,top=0,width=1000,height=1200,scrollbars=yes,status=yes'
     this._annotatorWindow = window.open(url, '_blank', options)
+  }
+
+  showImageDialog(manifest) {
+    const landscapeWidth = window.innerWidth >= 768 ? window.innerWidth *.7 : window.innerWidth
+    const portraitWidth = window.innerWidth >= 768 ? window.innerWidth *.5 : window.innerWidth
+    this._selected = manifest
+    let _imageInfo = imageInfo(manifest)
+    let hwRatio = _imageInfo.height/_imageInfo.width
+    let orientation = hwRatio < 1 ? 'landscape' : 'portrait'
+    this._dialogWidth = orientation === 'landscape' ? `${landscapeWidth}px` : `${portraitWidth}px`
+    
+    this._dialogHeight = orientation === 'landscape'
+      ? `${Math.round(landscapeWidth * hwRatio + 32)}px`
+      : `${Math.round(portraitWidth * hwRatio + 32)}px`
+    let dialog = this.el.shadowRoot.getElementById('image-dialog') as SLDialog
+    dialog.style.height = this._dialogHeight
+    dialog.panel.style.height = this._dialogHeight
+    
+    if (!dialog.onclick) {
+      dialog.onclick = function () { }
+      dialog.addEventListener('sl-show', () => {
+        dialog.panel.style.width = this._dialogWidth
+        dialog.panel.style.height = this._dialogHeight
+      })
+    }
+    setTimeout(() => dialog.show(), 200)
   }
 
   renderAnnotations() {
@@ -759,7 +801,7 @@ export class ImageViewer {
 
   renderCaption() {
     return <div id="caption">
-      <sl-tooltip content={`${this._infoPanelIsOpen ? 'Close' : 'Open'} image info panel`} disabled={this.isTouchEnabled()}>
+      <sl-tooltip content={`${this._infoPanelIsOpen ? 'Close' : 'Open'} image info panel`} placement="top-start" disabled={this.isTouchEnabled()}>
         <sl-icon-button onClick={this.toggleMenu.bind(this)} id="menu-icon" name="three-dots-vertical" label="Open image info panel"></sl-icon-button>
       </sl-tooltip>
       {!this.compare && this._annotations.length > 0
@@ -785,11 +827,21 @@ export class ImageViewer {
   }
 
   renderThumbnails() {
-    return <section class="ve-image-grid">
-      { 
-        this._images.map(item => item.manifest).map(manifest => <img src={thumbnail(manifest)} alt={label(manifest)}/>) 
-      }
-      </section>
+    return [
+      <section class="ve-image-grid">
+        <div class="images">
+          { this._images.map(item => item.manifest).map(manifest => 
+            <sl-tooltip content={label(manifest)}>
+              <img src={thumbnail(manifest)} alt={label(manifest)} onClick={this.showImageDialog.bind(this, manifest)}/>
+            </sl-tooltip>
+          )}
+        </div>
+        {this.caption && <div class="caption" innerHTML={this.caption}></div>}
+      </section>,
+      <sl-dialog id="image-dialog" no-header>
+        <ve-image src={this._selected?.id} full zoom-on-scroll width={this._dialogWidth}></ve-image>
+      </sl-dialog>
+    ]
   }
 
   renderAsCards() {
@@ -810,7 +862,7 @@ export class ImageViewer {
   }
 
   render() {
-    return this.width && this.height && this.grid
+    return this.grid
       ? this.cards
         ? this.renderAsCards()
         : this.renderThumbnails()

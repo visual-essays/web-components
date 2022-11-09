@@ -42,7 +42,7 @@ export class Annotator {
   }
 
   async loadAnnotations(path) {
-    console.log(`loadAnnotations: ${path}`)
+    // console.log(`loadAnnotations: ${path}`)
     this._path = path
     let annotations = []
     let url = `${annotationsEndpoint}/annotations/${this._path}/`
