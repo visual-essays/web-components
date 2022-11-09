@@ -4,7 +4,7 @@ import L from 'leaflet'
 import 'leaflet.control.opacity'
 // import { indexOf } from 'lodash';
 
-import { isQID, getEntity } from '../../utils'
+import { isQID, getEntity, makeSticky } from '../../utils'
 
 @Component({
   tag: 've-map',
@@ -16,9 +16,13 @@ export class MapViewer {
   @Prop({ mutable: true, reflect: true }) zoom: number = 10
   @Prop({ mutable: true, reflect: true }) center: string
   @Prop({ mutable: true, reflect: true }) marker: string
-  @Prop({ mutable: true, reflect: true }) width: string
-  @Prop({ mutable: true, reflect: true }) height: string
+  @Prop({ mutable: true, reflect: true }) caption: string
+  @Prop() width: string
+  @Prop() height: string
   @Prop() sticky: boolean
+  @Prop() full: boolean
+  @Prop() left: boolean
+  @Prop() right: boolean
   @Prop() entities: string
   @Prop() cards: string
 
@@ -64,13 +68,56 @@ export class MapViewer {
      if (this.allmapsLayer) this.opacitySlider = this.el.shadowRoot.getElementById('opacity-slider') as HTMLInputElement
   }
  
+  doLayout() {
+    let position = this.right ? 'right' : this.left ? 'left' : this.full ? 'full' : null
+    if (!position) {
+      position = 'full'
+      this.full = true
+    }
+
+    console.log(`width=${this.width} height=${this.height} position=${position} sticky=${this.sticky}`)
+    
+    const floatMargin = 12
+    const captionHeight = this.caption ? 32 : 0
+
+    let width, height
+    if (this.full) { // Full-width layout
+      this.el.classList.add('full')
+      this.el.style.width = this.width || '100%'
+      let elWidth = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
+      // console.log(`elWidth=${elWidth}`)
+      if (this.sticky) {
+        let maxHeight = Math.round(window.innerHeight * .4)
+        // console.log(`maxHeight=${maxHeight}`)
+        width = elWidth
+        height = width > maxHeight ? maxHeight : width
+      } else {
+        width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
+        height = width
+      }     
+      this.el.style.width = '100%'
+
+    } else { // Half-width layout
+      this.el.style.float = this.right ? 'right' : 'left'
+      this.el.classList.add(this.right ? 'right' : 'left')
+      this.el.style.width = this.width || '50%'
+      width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
+      height = width
+    }
+    console.log(width, height)
+    // this.el.style.height = `${height + 12}px`
+    this.el.style.height = `${height + captionHeight + 18}px`
+
+    if (this.sticky) this.el.style.paddingTop = '6px'
+    
+    let content: HTMLElement = this.el.shadowRoot.querySelector('.content')
+    if (this.left) content.style.marginRight = `${floatMargin}px`
+    else if (this.right) content.style.marginLeft = `${floatMargin}px`
+    content.style.width = `${width}px`
+    content.style.height = `${height}px`
+  }
+
   connectedCallback() {
-    this.position = this.el.classList.contains('full')
-      ? 'full'
-      : this.el.classList.contains('left')
-        ? 'left'
-        : this.el.classList.contains('right') ? 'right' : 'full'
-    this.el.classList.add(this.position)
     this.el.classList.add('ve-component')
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
     if (this.cards) {
@@ -91,13 +138,12 @@ export class MapViewer {
   }
 
   componentDidLoad() {
-    if (this.sticky) this.el.classList.add('sticky')
+    this.doLayout()
+    if (this.sticky) makeSticky(this.el)
     const resizeObserver = new ResizeObserver(() => {
-      this._setHostDimensions()
       this.initMap()
     })
     resizeObserver.observe(this.el.shadowRoot.getElementById('map'))
-    this._setHostDimensions()
     this.initMap()
   }
 
@@ -208,26 +254,19 @@ export class MapViewer {
     this.allmapsLayer.setOpacity(parseFloat(this.opacitySlider.value))
   }
 
-  _setHostDimensions() {
-    let content: HTMLElement = this.el.shadowRoot.querySelector('.content')
-    content.style.width = this.width ? this.width : '100%'
-    if (this.height) {
-      this.el.style.height = this.height
-      content.style.height = '100%'
-    } else {
-      content.style.height = this.position === 'full'
-        ? `${parseInt(window.getComputedStyle(this.el).width.slice(0,-2)) * .5}px`
-        : window.getComputedStyle(content).width // set height equal to width
-    }
-    let elWidth = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
-    let elHeight = parseInt(window.getComputedStyle(content).height.slice(0,-2))
-    console.log(`ve-map: position=${this.position} elWidth=${elWidth} elHeight=${elHeight} requestedWidth=${this.width} requestedHeight=${this.height}`)
+  renderMap() {
+    return <div id="map" style={{width: '100%', height: '100%'}}></div>
+  }
+
+  renderCaption() {
+    return <div id="caption" innerHTML={this.caption}></div>
   }
 
   render() {
       return [
         <div class="content">
-          <div id="map" style={{width: '100%', height: '100%'}}></div>
+          {this.renderMap()}
+          {this.caption && this.renderCaption()}
         </div>,
         this.allmapsLayer && <input id="opacity-slider" type="range" min="0" max="1" step="0.02" value="1" onInput={this.updateOpacity.bind(this)}></input>
       ]

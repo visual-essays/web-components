@@ -122,12 +122,16 @@ export namespace Components {
         "src": string;
     }
     interface VeMap {
+        "caption": string;
         "cards": string;
         "center": string;
         "entities": string;
+        "full": boolean;
         "height": string;
+        "left": boolean;
         "marker": string;
         "overlay": string;
+        "right": boolean;
         "sticky": boolean;
         "width": string;
         "zoom": number;
@@ -165,10 +169,13 @@ export namespace Components {
         "autoplay": boolean;
         "caption": string;
         "end": string;
+        "full": boolean;
         "height": string;
+        "left": boolean;
         "loop": boolean;
         "muted": boolean;
         "poster": string;
+        "right": boolean;
         "src": string;
         "start": string;
         "sticky": boolean;
@@ -480,12 +487,16 @@ declare namespace LocalJSX {
         "src"?: string;
     }
     interface VeMap {
+        "caption"?: string;
         "cards"?: string;
         "center"?: string;
         "entities"?: string;
+        "full"?: boolean;
         "height"?: string;
+        "left"?: boolean;
         "marker"?: string;
         "overlay"?: string;
+        "right"?: boolean;
         "sticky"?: boolean;
         "width"?: string;
         "zoom"?: number;
@@ -522,10 +533,13 @@ declare namespace LocalJSX {
         "autoplay"?: boolean;
         "caption"?: string;
         "end"?: string;
+        "full"?: boolean;
         "height"?: string;
+        "left"?: boolean;
         "loop"?: boolean;
         "muted"?: boolean;
         "poster"?: string;
+        "right"?: boolean;
         "src"?: string;
         "start"?: string;
         "sticky"?: boolean;

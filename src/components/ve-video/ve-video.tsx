@@ -7,9 +7,9 @@ import YouTubePlayer from 'youtube-player'
 const youtubeDomains = new Set(['youtube.com', 'youtube.co.uk', 'youtu.be'])
 const vimeoDomains = new Set(['vimeo.com'])
 
-const youtubeHwRatio = 360/640
-const vimeoHwRatio = 240/426
-const defaultRatio = 480/854
+const youtubeHwRatio = .5625
+const vimeoHwRatio = .5625
+const defaultRatio = .5625
 
 @Component({
   tag: 've-video',
@@ -27,7 +27,10 @@ export class Video {
   @Prop() poster: string
   @Prop() width: string
   @Prop() height: string
-  @Prop() sticky: boolean = false
+  @Prop() sticky: boolean
+  @Prop() full: boolean
+  @Prop() left: boolean
+  @Prop() right: boolean
 
   @Element() el: HTMLElement;
 
@@ -47,8 +50,12 @@ export class Video {
   player: any
   position: string
   startTimes: any
-  _width: string
-  _height: string
+  _width: number
+  _height: number
+ 
+  randomInteger(min, max) {
+    return Math.floor(Math.random() * (max - min + 1) + min)
+  }
 
   connectedCallback() {
     this.position = this.el.classList.contains('full')
@@ -65,64 +72,80 @@ export class Video {
     this.parseSource()
   }
 
-  componentDidLoad() {
-    // console.log(`ve-video.componentDidLoad: sticky=${this.sticky}`)
-    if (this.sticky) makeSticky(this.el)
+  doLayout() {
+    let position = this.right ? 'right' : this.left ? 'left' : this.full ? 'full' : null
+    if (!position) {
+      position = 'full'
+      this.full = true
+    }
 
-    if (this.src.indexOf('http') === 0) {
+    console.log(`width=${this.width} height=${this.height} position=${position} sticky=${this.sticky}`)
+    
+    const floatSideMargin = 12
+
     let hwRatio = this.isYouTube
-      ? youtubeHwRatio
-      : this.isVimeo
-        ? vimeoHwRatio
-        : defaultRatio
-      
-      let width, height
-      if (this.position === 'full') {
-        let elWidth = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
-        if (this.sticky) {
-          let maxHeight = Math.round(window.innerHeight * .4)
-          width = elWidth
-          height = width * hwRatio
-          if (height > maxHeight) {
-            height = maxHeight
-            width = height / hwRatio
-          }
-        } else {
-          this.el.style.width = this.width || '100%'
-          width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
-          height = Math.round(width * hwRatio)
-        }
-      } else if (this.width) {
-        width = parseInt(this.width.slice(0,-2))
-        height = this.height ? parseInt(this.height.slice(0,-2)) : Math.round(width * hwRatio)
-      } else if (this.height) {
-        height = parseInt(this.height.slice(0,-2))
-        width = this.width ? parseInt(this.width.slice(0,-2)) : Math.round(height / hwRatio)
-      } else {
-        width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
-        height = Math.round(width * hwRatio)
-      }
-      // console.log(this.position, this.sticky, hwRatio, width, height)
+    ? youtubeHwRatio
+    : this.isVimeo
+      ? vimeoHwRatio
+      : defaultRatio
 
-      this._width = `${width}px`
-      this._height = `${height}px`
-      
-      if (this.isYouTube) {
-        let playerEl = this.el.shadowRoot.getElementById('youtube-placeholder')
-        playerEl.style.width = this._width
-        playerEl.style.height = this._height
-      }
-  
-      this.initialize()
-      if (this.isHTML5) {
-        this.player.addEventListener('loadedmetadata', (evt) => {
-          this._width = `${evt.path[0].clientWidth}px`
-          this._height = `${evt.path[0].clientHeight}px`
-          this._setHostDimensions()
-        })
+    // let width, height
+    
+    if (this.full) { // Full-width layout
+      this.el.classList.add('full')
+      this.el.style.width = this.width || '100%'
+      this._width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
+      console.log(`elWidth=${this._width}`)
+      if (this.sticky) {
+        let maxHeight = Math.round(window.innerHeight * .4)
+        console.log(`maxHeight=${maxHeight}`)
+        this._height = Math.round(this._width * hwRatio)
+        if (this._height > maxHeight) {
+          this._height = maxHeight
+          this._width = Math.round(this._height / hwRatio)
+        }
       } else {
-        this._setHostDimensions()
-      }
+        this.el.style.height = this.height || `${Math.round(this._width * hwRatio)}px`
+        this._height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2))
+      }     
+      this.el.style.width = '100%'
+  
+    } else { // Half-width layout
+      this.el.style.float = this.right ? 'right' : 'left'
+      this.el.classList.add(this.right ? 'right' : 'left')
+      this.el.style.width = this.width || '50%'
+      this._width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2)) - floatSideMargin
+      this._height = this._width * hwRatio
+    }
+    this.setPosition()
+  }
+
+  setPosition() {
+    // console.log(`ve-video setPosition" width=${this._width} height=${this._height}`)
+    const captionHeight = this.caption ? 32 : 0
+    const floatSideMargin = 12
+    const bottomMargin = 10
+    this.el.style.height = `${this._height + captionHeight + bottomMargin}px`
+    if (this.sticky) this.el.style.paddingTop = '6px'
+    let content: HTMLElement = this.el.shadowRoot.querySelector('.content')
+    if (this.left) content.style.marginRight = `${floatSideMargin}px`
+    else if (this.right) content.style.marginLeft = `${floatSideMargin}px`
+    content.style.width = `${this._width}px`
+    content.style.height = `${this._height}px`
+  }
+
+  componentDidLoad() {
+    if (this.sticky) makeSticky(this.el)
+    this.doLayout()
+    this.initialize()
+
+    if (this.isHTML5) {
+      this.player.addEventListener('loadedmetadata', (evt) => {
+        this._width = evt.path[0].clientWidth
+        this._height = evt.path[0].clientHeight
+        this.setPosition()
+      })
+
     }
 
   }
@@ -144,7 +167,8 @@ export class Video {
       this.isPlaying = await this.getIsPlaying()
 
       // console.log(`ve-video: isMuted=${this.isMuted} isPlaying=${this.isPlaying}`)
-      if (this.isPlaying && this.sticky && !playerScrolledToTop) {
+      
+      if (this.isPlaying && this.sticky && this.startTimes.length > 0 && !playerScrolledToTop ) {
         // scroll player to top
         let y = playerEl.getBoundingClientRect().top + window.scrollY - top()
         // console.log(`player.scrollTo`, y)
@@ -169,6 +193,10 @@ export class Video {
   }
 
   initializeYouTubePlayer() {
+    // console.log(`initializeYouTubePlayer: width=${this._width} height=${this._height}`)
+    let playerEl = this.el.shadowRoot.getElementById('youtube-placeholder')
+    playerEl.style.width = `${this._width}px`
+    playerEl.style.height = `${this._height}px`
     let playerVars = {
       color: 'white',
       rel: 0,
@@ -178,7 +206,7 @@ export class Video {
       start: this.start
     }
     this.player = YouTubePlayer(
-      this.el.shadowRoot.getElementById('youtube-placeholder'), {
+      playerEl, {
         videoId: this.videoId,
         playerVars
       })
@@ -189,10 +217,14 @@ export class Video {
   }
 
   initializeVimeoPlayer() {
+    // console.log(`initializeVimeoPlayer: width=${this._width} height=${this._height}`)
     let playerEl = this.el.shadowRoot.getElementById('ve-video-vimeo')
+    playerEl.style.width = `${this._width}px`
+    playerEl.style.height = `${this._height}px`
     this.player = new VimeoPlayer(playerEl, {
       id: this.videoId,
-      width: parseInt(this._width.slice(0,-2))
+      width: this._width,
+      height: this._height
     })
     this.player.on('loaded', () => {
       if (this.startSecs > 0) this.seekTo(this.start, this.autoplay ? this.end : this.start)
@@ -413,43 +445,18 @@ export class Video {
     } 
   }
 
-  _setHostDimensions() {
-    let content: HTMLElement = this.el.shadowRoot.querySelector('.content')
-    if (this.position === 'full' && !this.sticky) this.el.style.width = '100%'
-    content.style.width = this._width ? this._width : '100%'
-    
-    if (this._height) {
-      if (this.sticky) {
-        this.el.style.height = `${parseInt(this._height.slice(0,-2)) + 17}px`
-        content.style.height = 'calc(100% - 12px)'
-      } else {
-        this.el.style.height = this._height
-        content.style.height = '100%'
-      }
-    } else {
-      let maxHeight = Math.round(window.innerHeight * .4)
-      content.style.height = this.position === 'full'
-        ? `${maxHeight}px`
-        : window.getComputedStyle(content).width // set height equal to width
-    }
-    let elWidth = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
-    let elHeight = parseInt(window.getComputedStyle(content).height.slice(0,-2))
-    let type = this.isYouTube ? 'YouTube' : this.isVimeo ? 'Vimeo' : 'HTML5'
-    console.log(`ve-video: type=${type} position=${this.position} elWidth=${elWidth} elHeight=${elHeight} requestedWidth=${this.width} requestedHeight=${this.height}`)
-  }
-
   renderCaption() {
     return <div id="caption" innerHTML={this.caption}>
     </div>
   }
 
   renderYouTubePlayer() {
-    return [<div id="youtube-placeholder" style={{width:this._width, height:this._height}}></div>]
+    return [<div id="youtube-placeholder"></div>]
   }
 
   renderVimeoPlayer() {
     return [
-      <div id="ve-video-vimeo" data-vimeo-playsinline="true" style={{width:this._width, height:this._height}}></div>
+      <div id="ve-video-vimeo" data-vimeo-playsinline="true"></div>
     ]
   }
 
@@ -507,13 +514,14 @@ export class Video {
   */
 
   renderPlayer() {
-    return [
-      this.isYouTube
-      ? this.renderYouTubePlayer()
-      : this.isVimeo
-        ? this.renderVimeoPlayer()
-        : this.renderHTML5Player()
-    ]
+    return <div id="video-player">
+      { this.isYouTube
+        ? this.renderYouTubePlayer()
+        : this.isVimeo
+          ? this.renderVimeoPlayer()
+          : this.renderHTML5Player()
+      }
+      </div>
   }
 
   render() {

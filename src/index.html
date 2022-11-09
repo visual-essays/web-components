@@ -16,6 +16,38 @@
         margin-block-start: 24px;
         -webkit-font-smoothing: antialiased;
       }
+      .sticky.right + section, 
+      .sticky.right ~ section,
+      .sticky.right + div, 
+      .sticky.right ~ div,
+      .sticky.right + p, 
+      .sticky.right ~ p,
+      .sticky.right + ol, 
+      .sticky.right ~ ol
+      .sticky.right + ul, 
+      .sticky.right ~ ul,
+      .sticky.right + blockquote, 
+      .sticky.right ~ blockquote {
+        width: 50%;
+        margin-left: 0;
+        padding-right: 9px;
+      }
+    
+      .ve-component.sticky.left + section, 
+      .ve-component.sticky.left ~ section,
+      .ve-component.sticky.left + div, 
+      .ve-component.sticky.left ~ div,
+      .ve-component.sticky.left + p, 
+      .ve-component.sticky.left ~ p,
+      .ve-component.sticky.left + ol, 
+      .ve-component.sticky.left ~ ol
+      .ve-component.sticky.left + ul, 
+      .ve-component.sticky.left ~ ul,
+      .ve-component.sticky.left + blockquote, 
+      .ve-component.sticky.left ~ blockquote {
+        margin-left: 50%;
+        padding-left: 9px;
+      }
     </style>
   </head>
   <body>
@@ -25,9 +57,17 @@
       <div>
 
         <p>Welcome to WordPress. This is your first post. Edit or delete it, then start writing!</p>
-        <ve-image src="https://iiif.juncture-digital.org/gh:rsnyder/media/michigan-up/Arched_Rock/manifest.json"
-          right
-        ></ve-image>
+        
+        <ve-video sticky src="https://www.youtube.com/watch?v=i7knB3VtAqY" caption="Video Caption"></ve-video>
+        
+        <!-- 
+        <ve-video right sticky src="https://www.youtube.com/watch?v=i7knB3VtAqY" caption="Video Caption"></ve-video>
+        <ve-video sticky src="https://vimeo.com/737854276" caption="Video Caption"></ve-video>
+        <ve-video src="https://raw.githubusercontent.com/kent-map/images/main/videos/Dickens_Museum.mp4" caption="Video Caption"></ve-video>
+        <ve-video sticky src="https://upload.wikimedia.org/wikipedia/commons/7/72/The_Mystery_of_the_Leaping_Fish_(1916).webm" caption="Video Caption"></ve-video>
+
+        <ve-map sticky right center="42.2795,-83.74665" caption="Map Caption"></ve-map>
+        -->
 
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Morbi enim nunc faucibus a pellentesque sit amet porttitor eget. Urna porttitor rhoncus dolor purus non. Eget aliquet nibh praesent tristique. Aliquam etiam erat velit scelerisque. Quam pellentesque nec nam aliquam sem et. Viverra nibh cras pulvinar mattis nunc. Scelerisque eleifend donec pretium vulputate sapien nec sagittis aliquam. Aliquam ut porttitor leo a diam. Nunc consequat interdum varius sit amet mattis vulputate enim nulla. Quam lacus suspendisse faucibus interdum posuere lorem ipsum. Interdum velit euismod in pellentesque massa. Ut sem nulla pharetra diam sit.</p>
         <p>Morbi non arcu risus <mark zoom="2206,1535,505,379">quis</mark>varius quam quisque. Morbi tristique senectus et netus et. Aliquet eget sit amet tellus cras adipiscing enim eu. Blandit volutpat maecenas volutpat blandit aliquam etiam erat. Tincidunt ornare massa eget egestas purus viverra. Metus aliquam eleifend mi in nulla posuere. Nullam ac tortor vitae purus faucibus ornare suspendisse. Orci phasellus egestas tellus rutrum tellus pellentesque eu tincidunt. Ultrices sagittis orci a scelerisque purus semper eget duis. Etiam dignissim diam quis enim lobortis scelerisque. Diam ut venenatis tellus in. Nunc aliquet bibendum enim facilisis gravida neque convallis a. Euismod quis viverra nibh cras pulvinar mattis. Tempor id eu nisl nunc mi ipsum faucibus vitae aliquet. Nibh praesent tristique magna sit amet purus gravida. Turpis egestas sed tempus urna et. Est ante in nibh mauris cursus mattis molestie a. Urna nunc id cursus metus. Lobortis feugiat vivamus at augue eget arcu dictum. Neque gravida in fermentum et sollicitudin ac orci.</p>

@@ -8,15 +8,12 @@ body {
 
 .clear { clear: both; }
 
-.sticky {
-  padding-top: 6px;
-}
-
 section.sticky {
   position: sticky;
   top: 0;
   z-index: 3;
   background-color: white;
+  padding-top: 6px;
 }
 
 section {
@@ -48,10 +45,6 @@ section {
 
 ve-header > ul {
   display: none;
-}
-
-ve-map {
-  height: 500px;
 }
 
 ve-footer {
@@ -107,7 +100,7 @@ section.no-offset:target:before {
     font-size: 1.3rem;
     line-height: 1.4;
     padding: 0;
-    max-width: 1600px;
+    max-width: 1000px;
     padding: 0 34px;
     margin: auto;
   }
@@ -116,6 +109,7 @@ section.no-offset:target:before {
     z-index: 2;
   }
 
+  /*
   .full {
     width: 100%;
     margin: auto;
@@ -135,6 +129,7 @@ section.no-offset:target:before {
     float: left;
     margin-right: 6px;
   }
+  */
 
   .sticky.right + section, 
   .sticky.right ~ section,

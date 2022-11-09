@@ -68,6 +68,7 @@ export class ImageViewer {
   @State() _annotatorWindow: any = null
   @State() _zoomedIn: any = {}
   @State() _tileSources: any[] = []
+  @State() _ready: boolean = false
 
   @Watch('annoBase')
   annoBaseChanged() {
@@ -83,14 +84,14 @@ export class ImageViewer {
   @State() _images: any[] = []
   @Watch('_images')
   async _imagesChanged() {
-    console.log('_imagesChanged', this._images)
+    // console.log('_imagesChanged', this._images)
     this._current = this._images.length > 0 ? this._images[0] : null
     this._selectedIdx = this._current ? this._current.seq - 1 : 0
     if (this._current) {
       
       if (this._viewer) {
         if (!this.compare) {
-          console.log(`loadTileSources: idx=${this._current.seq}`)
+          // console.log(`loadTileSources: idx=${this._current.seq}`)
           this._viewer.open(await this._loadTileSources(), this._current.seq)
         }
       } else {
@@ -113,16 +114,19 @@ export class ImageViewer {
 
         console.log(`width=${this.width} height=${this.height} hwRatio=${hwRatio} position=${position} orientation=${orientation}`)
         
+        const floatMargin = 12
+        const captionHeight = 32
+
         let width, height
-        if (this.grid) {
+        
+        if (this.grid) { // Multi-image grid layout
           width = this.width
             ? parseInt(this.width.slice(0,-2))
             : parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
-          height = this.height
-            ? parseInt(this.height.slice(0,-2))
-            : '100%'
+          height = this.height ? parseInt(this.height.slice(0,-2)) : '100%'
         
-        } else if (this.full) {
+        } else if (this.full) { // Single-image full-width layout
+          this.el.classList.add('full')
           this.el.style.width = this.width || '100%'
           let elWidth = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
           if (this.sticky) {
@@ -138,33 +142,29 @@ export class ImageViewer {
             this.el.style.height = this.height || `${Math.round(width * hwRatio)}px`
             height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2))
           }     
-        } else {
+          this.el.style.width = '100%'
+
+        } else { // Single-image half-width layout
           this.el.style.float = this.right ? 'right' : 'left'
-          if (this.right) this.el.style.marginLeft = '12px'
-          else this.el.style.marginRight = '12px'
-          
+          this.el.classList.add(this.right ? 'right' : 'left')
           this.el.style.width = this.width || '50%'
           width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
-          this.el.style.height = this.height || `${Math.round(width * hwRatio)}px`
+          this.el.style.height = this.height || `${Math.round((width-floatMargin) * hwRatio)}px`
           height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2))
         }
 
+        this.el.style.height = `${height + captionHeight + 12}px`
+
         if (this.sticky) this.el.style.paddingTop = '6px'
         if (!this.fit && (this.width || this.height)) this._current.fit = 'cover'
-        height += 32
-
-        // this.width = `${width}px`
-        // this.height = `${height}px`
-        // this.el.style.width = `${width}px`
-        // this.el.style.width = '100%'
-        this.el.style.height = `${height}px`
         
         let content: HTMLElement = this.el.shadowRoot.querySelector('.content')
+        if (this.left) content.style.marginRight = `${floatMargin}px`
+        else if (this.right) content.style.marginLeft = `${floatMargin}px`
         content.style.width = `${width}px`
-        content.style.height = `${height}px`
+        content.style.height = `${height + captionHeight}px`
 
-        // content.style.width = '100%'
-        // content.style.height = '100%'
+        this._ready = true
       }
     }
   }
@@ -228,10 +228,7 @@ export class ImageViewer {
   }
   
   setRegion(region: string, immediately:boolean=false) {
-    console.log(`setRegion: region=${region} immediately=${immediately}`)
-    setTimeout(() =>
-      this._viewer.viewport.fitBounds(parseRegionString(region, this._viewer), immediately)
-    ,200)
+    setTimeout(() => this._viewer.viewport.fitBounds(parseRegionString(region, this._viewer), immediately) ,200)
   }
 
   parseImageStr(str: string) {
@@ -317,7 +314,7 @@ export class ImageViewer {
   }
 
   connectedCallback() {
-    console.log(`ve-image: sticky=${this.sticky} zoomOnScroll=${this.zoomOnScroll} compare=${this.compare}`)
+    // console.log(`ve-image: sticky=${this.sticky} zoomOnScroll=${this.zoomOnScroll} compare=${this.compare}`)
     let parent: HTMLElement = this.el.parentElement
     if (parent.tagName === 'SECTION' && parent.classList.contains('sticky')) {
       this.full = true
@@ -500,7 +497,6 @@ export class ImageViewer {
     Annotorious plugin (requires 3.0).  As a result, the current configuration is pinned 
     to OSD 2.4.2 and annotorious 2.6.0
     */
-    // let instructions = this.el.shadowRoot.getElementById('instructions')
     const canvas: any = this.el.shadowRoot.querySelector('.openseadragon-canvas')
     canvas.style.touchAction = 'pan-y'
 
@@ -511,49 +507,11 @@ export class ImageViewer {
           if (!this._viewer.isFullPage() && !event.originalEvent.ctrlKey) {
             event.preventDefaultAction = true
             event.stopHandlers = true
-            // display meta key warning
-            /*
-            if (instructions.className == 'instructions-hidden') {
-              instructions.className = 'instructions-visible'
-              setTimeout(() => instructions.className = 'instructions-hidden', 1000)
-            }
-            */
-          } else {
-            // if (instructions.className == 'instructions-visible') instructions.className = 'instructions-hidden'
           }
           return true
         }}
       ]})
     }
-
-    /*
-    // Inhibits panning using drag
-    new OpenSeadragonViewerInputHook({ viewer: this._viewer, hooks: [
-      {tracker: 'viewer', handler: 'dragHandler', hookHandler: (event) => {
-        // if mobile disable drag event 
-        // pinch event handles panning with 2 fingers
-        if (!this._viewer.isFullPage() && this.isTouchEnabled()) {
-          event.preventDefaultAction = true
-          event.stopHandlers = true
-          if (instructions.className == 'instructions-hidden') {
-            instructions.className = 'instructions-visible'
-            setTimeout(() => instructions.className = 'instructions-hidden', 1000)
-          }
-        } else {
-          if (instructions.className == 'instructions-visible') instructions.className = 'instructions-hidden';
-        }
-        return true
-      }}
-    ]})
-
-    new OpenSeadragonViewerInputHook({ viewer: this._viewer, hooks: [
-      {tracker: 'viewer', handler: 'dragEndHandler', hookHandler: (event) => {
-        event.preventDefaultAction = true
-        event.stopHandlers = true
-      }}
-    ]})
-    */
-
   }
 
   async _compareViewerInit() {
@@ -594,7 +552,6 @@ export class ImageViewer {
   }
 
   async _osdInit() {
-    console.log(`osdInit:`, this._current.seq, this._selectedIdx)
     let tileSources = await this._loadTileSources()
     let osdElem: HTMLElement = this.el.shadowRoot.querySelector('#osd')
     const osdOptions: OpenSeadragon.Options = {
@@ -641,9 +598,7 @@ export class ImageViewer {
     this._viewer.addHandler('resize', () => setTimeout(() => this._viewer.viewport.goHome(true), 10))
 
     this._viewer.world.addHandler('add-item', () => {
-      console.log('add-item')
-      //if (this._current.seq - 1 !== this._selectedIdx)
-        // setTimeout(() => {this._viewer.goToPage(this._current.seq - 1); this.positionImage(true)}, 10)
+      //if (this._current.seq - 1 !== this._selectedIdx) setTimeout(() => {this._viewer.goToPage(this._current.seq - 1); this.positionImage(true)}, 10)
         this.positionImage(true)
     })
     this._viewer.addHandler('viewport-change', debounce(() => {
@@ -661,7 +616,7 @@ export class ImageViewer {
 
   }
   positionImage (immediately: boolean=false) {
-    console.log(`positionImage: immediately=${immediately} fit=${this._current.fit} region=${this._current.options.region}`)
+    // console.log(`positionImage: immediately=${immediately} fit=${this._current.fit} region=${this._current.options.region}`)
     setTimeout(() => {
       if (this._current.options.region !== 'full') {
         let region = this._current.options.region
@@ -784,12 +739,11 @@ export class ImageViewer {
   renderOsdViewer() {
     return [
       <div id="osd" style={{height:'100%'}}></div>,
-      <div id="instructions" class="instructions-hidden">use ctrl + scroll or 2 fingers to zoom image.</div>
     ]
   }
 
   renderViewer() {
-    return <div class="viewer" style={{height:'calc(100% - 32px)'}}>
+    return <div class="viewer" style={{position:'relative', height:'calc(100% - 32px)'}}>
       {this.compare && !this.sync && !this.curtain
         ? this.renderCurtainViewer()
         : this.renderOsdViewer()
@@ -850,7 +804,7 @@ export class ImageViewer {
     return <div class="content">
       { this.renderViewer() }
       { !this.compare && this.renderViewportCoords()}
-      { this.renderCaption() }
+      { this._ready && this.renderCaption() }
       <div id="image-info-popup"></div>
     </div>
   }
