@@ -45,7 +45,7 @@ export class Header {
   @State() _imgUrl: any
   @Watch('_imgUrl')
   async _imgUrlChanged(imgUrl: any) {
-    this.el.style.backgroundImage = `url('${imgUrl}')`
+    this.el.style.backgroundImage = `url("${imgUrl}")`
     this.el.style.backgroundPosition = this.position
   }
 

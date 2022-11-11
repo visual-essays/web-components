@@ -6,7 +6,7 @@
 	justify-content: center;
 	position: relative;
 	font-family: Roboto, sans-serif;
-	background-color: white;
+	background-color: inherit;
   /* padding-bottom: 10px; */
   margin: auto;
 }
@@ -22,6 +22,10 @@ sl-image-comparer {
 #menu-icon, #annotations-icon {
   position: relative;
   cursor: pointer;
+}
+
+sl-dialog#image-dialog::part(body) {
+  padding: 0;
 }
 
 /* IIIF Manifest Drawer */
@@ -161,7 +165,7 @@ h3 {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   grid-gap: 12px;
-  align-items: center;
+  align-items: flex-start;
   justify-items: center;
   padding: 12px 0;
   width: 100%
@@ -183,7 +187,7 @@ h3 {
 .ve-image-grid .images img {
   border: 1px solid #ccc;
   box-shadow: 2px 2px 6px 0px  rgba(0,0,0,0.3);
-  width: 240px;
+  /* width: 240px; */
   max-width: 100%;
 }
 
@@ -199,12 +203,24 @@ h3 {
   width: 100%;
 }
 
+
 /* Laptops and Desktops */
 @media (min-width: 768px) {
+
+  .ve-image-grid .images.col2 {
+    grid-template-columns: auto auto;
+  }
+
+  .ve-image-grid .images.col3 {
+    grid-template-columns: auto auto auto;
+  }
+  
   .ve-image-grid .images {
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   }
-  
+  .ve-image-grid .images {
+    grid-template-columns: repeat(auto-fill)
+  }
   .ve-image-grid .images > * {
     border: 1px solid #ccc;
     box-shadow: 2px 2px 6px 0px  rgba(0,0,0,0.3);
@@ -308,7 +324,7 @@ svg.a9s-annotationlayer .a9s-annotation .a9s-inner  {
 
   --sl-border-radius-medium: 0.25rem;
 
-  --sl-overlay-background-color: hsl(240 3.8% 46.1% / 60%);
+  --sl-overlay-background-color: hsl(240 3.8% 46.1% / 75%);
 
   --sl-input-border-radius-medium: var(--sl-border-radius-medium);
   --sl-tooltip-border-radius: var(--sl-border-radius-medium);

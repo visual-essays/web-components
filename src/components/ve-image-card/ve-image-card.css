@@ -70,7 +70,7 @@
 
 .card-abstract{  /* abstract */
   grid-area: 5 / 1 / 6 / 2;
-  align-self: flex-end;
+  align-self: flex-start;
   height: 110px;
   line-height: 1.4;
   font-size: 0.9em;

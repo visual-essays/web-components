@@ -127,7 +127,7 @@ export class ImageViewer {
       }
     }
 
-    console.log(`ve-image.doLayout: width=${this.width} height=${this.height} hwRatio=${hwRatio} position=${position} orientation=${orientation} img.width=${img.width} img.height=${img.height} hwRatio=${hwRatio}`)
+    console.log(`ve-image.doLayout: width=${this.width} height=${this.height} hwRatio=${hwRatio} position=${position} orientation=${orientation} compare=${this.compare} zoomOnScroll=${this.zoomOnScroll} img.width=${img.width} img.height=${img.height} hwRatio=${hwRatio}`)
     
     const floatSideMargin = 12
     const captionHeight = this.grid ? 0 : 32
@@ -136,27 +136,24 @@ export class ImageViewer {
     
     if (this.grid) { // Multi-image grid layout
       this.el.style.width = this.width || '100%'
-      let elWidth = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
-      this._width = elWidth
+      this._width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
       this.el.style.height = this.height || '100%'
-      this._height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2))
-    
+      this._height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2)) || (orientation === 'portrait' ? Math.round(this._width * hwRatio) : Math.round(this._width / hwRatio))
+
     } else if (this.full) { // Single-image full-width layout
       this.el.classList.add('full')
       this.el.style.width = this.width || '100%'
-      let elWidth = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
+      this._width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
       if (this.sticky) {
         let maxHeight = Math.round(window.innerHeight * .4)
-        this._width = elWidth
         this._height = this._width * hwRatio
         if (this._height > maxHeight) {
           this._height = maxHeight
           this._width = this._height / hwRatio
         }
       } else {
-        this._width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
         this.el.style.height = this.height || `${Math.round(this._width * hwRatio)}px`
-        this._height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2))
+        this._height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2)) ||( orientation === 'portrait' ? Math.round(this._width * hwRatio) : Math.round(this._width / hwRatio))
       }     
       this.el.style.width = '100%'
 
@@ -166,10 +163,10 @@ export class ImageViewer {
       this.el.style.width = this.width || '50%'
       this._width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2)) - floatSideMargin
       this.el.style.height = this.height || `${Math.round(this._width * hwRatio)}px`
-      this._height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2))
+      this._height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2)) || (orientation === 'portrait' ? Math.round(this._width * hwRatio) : Math.round(this._width / hwRatio))
     }
 
-    // console.log(`width=${this._width} height=${this._height} hwRatio=${this._height}`)
+    // console.log(`width=${this._width} height=${this._height} hwRatio=${ Number((this._height/this._width).toFixed(4))}`)
     if (!this.grid) this.el.style.height = `${this._height + captionHeight + marginBottom}px`
 
     if (this.sticky) this.el.style.paddingTop = `${stickyPaddingTop}px`
@@ -513,8 +510,8 @@ export class ImageViewer {
     Annotorious plugin (requires 3.0).  As a result, the current configuration is pinned 
     to OSD 2.4.2 and annotorious 2.6.0
     */
-    const canvas: any = this.el.shadowRoot.querySelector('.openseadragon-canvas')
-    canvas.style.touchAction = 'pan-y'
+    //const canvas: any = this.el.shadowRoot.querySelector('.openseadragon-canvas')
+    //canvas.style.touchAction = 'pan-y'
 
     if (!this.zoomOnScroll) {
 
@@ -731,7 +728,12 @@ export class ImageViewer {
         dialog.panel.style.width = this._dialogWidth
         dialog.panel.style.height = this._dialogHeight
       })
+      dialog.addEventListener('sl-hide', () => {
+        this.el.style.zIndex = '3'
+      })
+
     }
+    this.el.style.zIndex = '4'
     setTimeout(() => dialog.show(), 200)
   }
 
@@ -829,9 +831,9 @@ export class ImageViewer {
   renderThumbnails() {
     return [
       <section class="ve-image-grid">
-        <div class="images">
+        <div class={`images ${Array.from(this.el.classList).find(cls => cls.indexOf('col') === 0) || ''}`}>
           { this._images.map(item => item.manifest).map(manifest => 
-            <sl-tooltip content={label(manifest)}>
+            <sl-tooltip content={label(manifest)} disabled={this.isTouchEnabled()}>
               <img src={thumbnail(manifest)} alt={label(manifest)} onClick={this.showImageDialog.bind(this, manifest)}/>
             </sl-tooltip>
           )}
@@ -839,7 +841,7 @@ export class ImageViewer {
         {this.caption && <div class="caption" innerHTML={this.caption}></div>}
       </section>,
       <sl-dialog id="image-dialog" no-header>
-        <ve-image src={this._selected?.id} full zoom-on-scroll width={this._dialogWidth}></ve-image>
+        <ve-image src={this._selected?.id} full zoom-on-scroll width={this._dialogWidth} fit="cover"></ve-image>
       </sl-dialog>
     ]
   }
