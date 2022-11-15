@@ -171,7 +171,7 @@ h3 {
   width: 100%
 }
 
-.ve-image-grid .caption {
+.ve-image-grid > .caption {
 	display: flex;
 	align-items: center;
 	font-family: sans-serif;
@@ -208,11 +208,11 @@ h3 {
 @media (min-width: 768px) {
 
   .ve-image-grid .images.col2 {
-    grid-template-columns: auto auto;
+    grid-template-columns: 1fr 1fr;
   }
 
   .ve-image-grid .images.col3 {
-    grid-template-columns: auto auto auto;
+    grid-template-columns: 1fr 1fr 1fr;
   }
   
   .ve-image-grid .images {
@@ -268,6 +268,24 @@ h3 {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   border-radius: 3px;
   overflow-y: scroll;
+}
+
+.thumbnail {
+  display: flex;
+  flex-direction: column;
+}
+.thumbnail > div {
+  font-family: sans-serif;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 6px;
+  height: 32px;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1rem;
 }
 
 #caption {

@@ -23,6 +23,7 @@
 | `height`       | `height`         |             | `string`  | `undefined` |
 | `left`         | `left`           |             | `boolean` | `false`     |
 | `options`      | `options`        |             | `string`  | `undefined` |
+| `position`     | `position`       |             | `string`  | `undefined` |
 | `right`        | `right`          |             | `boolean` | `false`     |
 | `seq`          | `seq`            |             | `number`  | `1`         |
 | `src`          | `src`            |             | `string`  | `undefined` |

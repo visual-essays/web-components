@@ -56,6 +56,7 @@ export class Header {
   }
 
   connectedCallback() {
+    // console.log(`ve-hero: sticky=${this.sticky} position=${this.position}`)
     this.imageOptions = parseImageOptions(this.options)
     getManifest(this.background).then(manifest => this._manifest = manifest)
     this.el.style.height = `${this.height}px`

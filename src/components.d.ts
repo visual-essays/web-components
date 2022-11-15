@@ -62,6 +62,9 @@ export namespace Components {
         "language": string;
         "sticky": boolean;
     }
+    interface VeEntityCard {
+        "qid": string;
+    }
     interface VeFooter {
         "sticky": boolean;
     }
@@ -102,6 +105,7 @@ export namespace Components {
         "height": string;
         "left": boolean;
         "options": string;
+        "position": string;
         "right": boolean;
         "seq": number;
         "src": string;
@@ -255,6 +259,12 @@ declare global {
         prototype: HTMLVeEntitiesElement;
         new (): HTMLVeEntitiesElement;
     };
+    interface HTMLVeEntityCardElement extends Components.VeEntityCard, HTMLStencilElement {
+    }
+    var HTMLVeEntityCardElement: {
+        prototype: HTMLVeEntityCardElement;
+        new (): HTMLVeEntityCardElement;
+    };
     interface HTMLVeFooterElement extends Components.VeFooter, HTMLStencilElement {
     }
     var HTMLVeFooterElement: {
@@ -354,6 +364,7 @@ declare global {
         "ve-depicts": HTMLVeDepictsElement;
         "ve-depicts-dialog": HTMLVeDepictsDialogElement;
         "ve-entities": HTMLVeEntitiesElement;
+        "ve-entity-card": HTMLVeEntityCardElement;
         "ve-footer": HTMLVeFooterElement;
         "ve-header": HTMLVeHeaderElement;
         "ve-hero": HTMLVeHeroElement;
@@ -427,6 +438,9 @@ declare namespace LocalJSX {
         "language"?: string;
         "sticky"?: boolean;
     }
+    interface VeEntityCard {
+        "qid"?: string;
+    }
     interface VeFooter {
         "sticky"?: boolean;
     }
@@ -467,6 +481,7 @@ declare namespace LocalJSX {
         "height"?: string;
         "left"?: boolean;
         "options"?: string;
+        "position"?: string;
         "right"?: boolean;
         "seq"?: number;
         "src"?: string;
@@ -560,6 +575,7 @@ declare namespace LocalJSX {
         "ve-depicts": VeDepicts;
         "ve-depicts-dialog": VeDepictsDialog;
         "ve-entities": VeEntities;
+        "ve-entity-card": VeEntityCard;
         "ve-footer": VeFooter;
         "ve-header": VeHeader;
         "ve-hero": VeHero;
@@ -589,6 +605,7 @@ declare module "@stencil/core" {
             "ve-depicts": LocalJSX.VeDepicts & JSXBase.HTMLAttributes<HTMLVeDepictsElement>;
             "ve-depicts-dialog": LocalJSX.VeDepictsDialog & JSXBase.HTMLAttributes<HTMLVeDepictsDialogElement>;
             "ve-entities": LocalJSX.VeEntities & JSXBase.HTMLAttributes<HTMLVeEntitiesElement>;
+            "ve-entity-card": LocalJSX.VeEntityCard & JSXBase.HTMLAttributes<HTMLVeEntityCardElement>;
             "ve-footer": LocalJSX.VeFooter & JSXBase.HTMLAttributes<HTMLVeFooterElement>;
             "ve-header": LocalJSX.VeHeader & JSXBase.HTMLAttributes<HTMLVeHeaderElement>;
             "ve-hero": LocalJSX.VeHero & JSXBase.HTMLAttributes<HTMLVeHeroElement>;

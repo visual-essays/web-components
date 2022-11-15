@@ -6,7 +6,7 @@ import OpenSeadragonViewerInputHook from '@openseadragon-imaging/openseadragon-v
 import './openseadragon-curtain-sync'
 
 import debounce from 'lodash.debounce'
-import { imageDataUrl, label, loadManifests, parseImageOptions, parseRegionString, imageInfo, isNum, makeSticky, sha256, thumbnail } from '../../utils'
+import { imageDataUrl, label, loadManifests, parseImageOptions, parseRegionString, imageInfo, makeSticky, sha256, thumbnail } from '../../utils'
 
 import { Annotator } from './annotator'
 import { parseInt } from 'lodash';
@@ -41,6 +41,7 @@ export class ImageViewer {
   @Prop() options: string
   @Prop() fit: string
   @Prop({ mutable: true, reflect: true }) alt: string
+  @Prop({ mutable: true, reflect: true }) position: string
   @Prop() entities: string
   @Prop() cards: boolean = false
   @Prop() compare: boolean = false
@@ -54,10 +55,9 @@ export class ImageViewer {
   @Prop() sticky: boolean
   @Prop() zoomOnScroll: boolean = false
   @Prop() caption: string
-  // @Prop() position: string
-  @Prop({ mutable: true, reflect: true }) right: boolean = false
-  @Prop({ mutable: true, reflect: true }) left: boolean = false
-  @Prop({ mutable: true, reflect: true }) full: boolean = false
+  @Prop() right: boolean = false
+  @Prop() left: boolean = false
+  @Prop() full: boolean = false
 
   @Element() el: HTMLElement;
 
@@ -79,6 +79,19 @@ export class ImageViewer {
 
   _width: number
   _height: number
+  _resizeObserver: any
+
+  _debounce: any = null
+  resizeHandler() {
+    if (this._debounce !== null) {
+      clearTimeout(this._debounce)
+      this._debounce = null
+    }
+    this._debounce = window.setTimeout(() => {
+      this._debounce = null
+      this.doLayout()
+    }, 500)
+  }
 
   @Watch('annoBase')
   annoBaseChanged() {
@@ -112,22 +125,20 @@ export class ImageViewer {
   }
 
   async doLayout() {
+    if (!this._resizeObserver) {
+      this._resizeObserver = new ResizeObserver(() => this.resizeHandler())
+      this._resizeObserver.observe(document.body)
+    }
+
     let img = await imageInfo(this._current.manifest, this._current.seq)
     let hwRatio = Number((img.height/img.width).toFixed(4))
     let orientation = img.height > img.width ? 'portrait' : 'landscape'
 
-    let position = this.right ? 'right' : this.left ? 'left' : this.full ? 'full' : null
-    if (!position) {
-      if (orientation === 'landscape') {
-        position = 'full'
-        this.full = true
-      } else {
-        position = 'right'
-        this.right = true
-      }
-    }
+    this.position = this.position
+      ? this.position
+      : this.right ? 'right' : this.left ? 'left' : this.full ? 'full' : 'default'
 
-    console.log(`ve-image.doLayout: width=${this.width} height=${this.height} hwRatio=${hwRatio} position=${position} orientation=${orientation} compare=${this.compare} zoomOnScroll=${this.zoomOnScroll} img.width=${img.width} img.height=${img.height} hwRatio=${hwRatio}`)
+    console.log(`ve-image.doLayout: width=${this.width} height=${this.height} hwRatio=${hwRatio} position=${this.position} orientation=${orientation} compare=${this.compare} zoomOnScroll=${this.zoomOnScroll} img.width=${img.width} img.height=${img.height} hwRatio=${hwRatio}`)
     
     const floatSideMargin = 12
     const captionHeight = this.grid ? 0 : 32
@@ -135,31 +146,52 @@ export class ImageViewer {
     const stickyPaddingTop = 6
     
     if (this.grid) { // Multi-image grid layout
+
       this.el.style.width = this.width || '100%'
       this._width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
       this.el.style.height = this.height || '100%'
       this._height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2)) || (orientation === 'portrait' ? Math.round(this._width * hwRatio) : Math.round(this._width / hwRatio))
 
-    } else if (this.full) { // Single-image full-width layout
+    } else if (this.position === 'full' || this.position === 'default') { // Single-image full-width layout
+
       this.el.classList.add('full')
       this.el.style.width = this.width || '100%'
       this._width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
-      if (this.sticky) {
-        let maxHeight = Math.round(window.innerHeight * .4)
-        this._height = this._width * hwRatio
-        if (this._height > maxHeight) {
-          this._height = maxHeight
-          this._width = this._height / hwRatio
-        }
-      } else {
+      
+      if (this.position === 'full') { // use full width
+        
         this.el.style.height = this.height || `${Math.round(this._width * hwRatio)}px`
-        this._height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2)) ||( orientation === 'portrait' ? Math.round(this._width * hwRatio) : Math.round(this._width / hwRatio))
+        this._height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2)) || (orientation === 'portrait' ? Math.round(this._width * hwRatio) : Math.round(this._width / hwRatio))  
+      
+      } else { 
+        
+        if (this.height) {
+          this.el.style.height = this.height
+          this._height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2)) || (orientation === 'portrait' ? Math.round(this._width * hwRatio) : Math.round(this._width / hwRatio))  
+
+        } else {
+          if (this.width) {
+          this._height = this._width * hwRatio
+          this.el.style.height = `${this._height}px`
+
+          } else { // default, calculate and restrict max height to 40% of window
+            this._height = this._width * hwRatio
+            let maxHeight = Math.round(window.innerHeight * .4)
+            if (this._height > maxHeight) {
+              this._height = maxHeight
+              this._width = this._height / hwRatio
+            }
+          }
+        }
+
       }     
       this.el.style.width = '100%'
 
     } else { // Single-image half-width layout
-      this.el.style.float = this.right ? 'right' : 'left'
-      this.el.classList.add(this.right ? 'right' : 'left')
+      if (this.position === 'right' || this.position === 'left') {
+        this.el.classList.add(this.position)
+        this.el.style.float = this.position
+      }
       this.el.style.width = this.width || '50%'
       this._width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2)) - floatSideMargin
       this.el.style.height = this.height || `${Math.round(this._width * hwRatio)}px`
@@ -174,8 +206,8 @@ export class ImageViewer {
     
     let content: HTMLElement = this.el.shadowRoot.querySelector('.content')
     if (content) {
-      if (this.left) content.style.marginRight = `${floatSideMargin}px`
-      else if (this.right) content.style.marginLeft = `${floatSideMargin}px`
+      if (this.position === 'left') content.style.marginRight = `${floatSideMargin}px`
+      else if (this.position === 'right') content.style.marginLeft = `${floatSideMargin}px`
       content.style.width = `${this._width}px`
       content.style.height = `${this._height + captionHeight}px`
     }
@@ -245,20 +277,50 @@ export class ImageViewer {
     setTimeout(() => this._viewer.viewport.fitBounds(parseRegionString(region, this._viewer), immediately) ,200)
   }
 
-  parseImageStr(str: string) {
-    let params = str.split(/\s/)
-    let parsed: any = {manifest: params[0], seq: this.seq}
-    params.slice(1).forEach(param => {
-      if (isNum(param)) parsed.seq = parseInt(param)
-      else if (param.indexOf(',') > 0) parsed.options = parseImageOptions(param)
-      else if (param === 'cover' || param === 'contain') parsed.fit = param
+  _isIiifArgs(str:string) {
+    return /^\d+,\d+,\d+,\d+\b|^pct:[0-9.]+,[0-9.]+,[0-9.]+,[0-9.]+$/.test(str)
+  }
+
+  _isInt(str:string) {
+    return /^[0-9]+$/.test(str)
+  }
+
+  _toObj(s:string) {
+    let tokens = []
+    s = s.replace(/“/,'"').replace(/”/,'"').replace(/’/,"'")
+    s.match(/[^\s"]+|"([^"]*)"/gmi).forEach(token => {
+      if (tokens.length > 0 && tokens[tokens.length-1].indexOf('=') === tokens[tokens.length-1].length-1) tokens[tokens.length-1] = `${tokens[tokens.length-1]}${token}`
+      else tokens.push(token)
     })
-    if (!parsed.options) parsed.options = parseImageOptions('')
+    let obj:any = {seq: 1, options: parseImageOptions('')}
+    for (let i = 0; i < tokens.length; i++) {
+      let token = tokens[i]
+      if (i === 0) {
+        obj.manifest = decodeURIComponent(token)
+      } else if (token.indexOf('=') > 0) {
+        let split = token.split('+')
+        obj[split[0]] = split[1]
+      } else if (this._isInt(token)) {
+        obj.seq = parseInt(token)
+      } else if (this._isIiifArgs(token)) {
+        obj.options = parseImageOptions(token)
+      } else if (token === 'cover' || token === 'contain') {
+        obj.fit = token
+      } else {
+        obj.caption = token[0] === '"' && token[token.length-1] === '"' ? token.slice(1,-1) : token
+      }
+    }
+    return obj
+  }
+
+  parseImageStr(str: string) {
+    let parsed = this._toObj(str)
+    console.log(parsed)
     return parsed
   }
 
   async zoomto(arg: string) {
-    const found = arg?.match(/^(\d+:|\d+$)?(pct:)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})$/)
+    const found = arg?.match(/^(\d+)?(:|:pct:|pct:)?([0-9.]+,[0-9.]+,[0-9.]+,\d+|[a-f0-9.]{8})?$/)
     if (!found) return
     let seq = found[1] ? parseInt(found[1].replace(/:$/,'')) : 1
     let imgIdx = seq - 1
@@ -281,9 +343,12 @@ export class ImageViewer {
       region = found[2] ? `${found[2]}${found[3]}` : found[3]
     }
     console.log(`zoomto: seq=${seq} current=${this._current.seq} region=${region}`)
-    this._current.options.region = region
-    if (seq === this._current.seq) this.positionImage(false)
-    else this._viewer.goToPage(imgIdx)
+    if (region) this._current.options.region = region
+    this._viewer.goToPage(imgIdx)
+    this.positionImage(false)
+
+    // if (seq === this._current.seq) this.positionImage(false)
+    // else this._viewer.goToPage(imgIdx)
   }
 
   buildImagesList() {
@@ -330,7 +395,7 @@ export class ImageViewer {
   connectedCallback() {
     let parent: HTMLElement = this.el.parentElement
     if (parent.tagName === 'SECTION' && parent.classList.contains('sticky')) {
-      this.full = true
+      this.position = 'full'
       this.width = '100%'
     }
     this.el.classList.add('ve-component')
@@ -387,15 +452,16 @@ export class ImageViewer {
     Array.from(document.querySelectorAll('mark')).forEach(mark => {
       for (let idx=0; idx < mark.attributes.length; idx++) {
         let attr = mark.attributes.item(idx)
-        if (/^(\d+:|\d+$)?(pct:)?(\d+,\d+,\d+,\d+|[a-f0-9]{8})$/.test(attr.value)) {
+        if (/^(\d+)?(:|:pct:|pct:)?([0-9.]+,[0-9.]+,[0-9.]+,\d+|[a-f0-9.]{8})?$/.test(attr.value)) {
           let veImage = this.findVeImage(mark.parentElement)
           if (veImage) {
             this._zoomedIn[attr.value] = false
             mark.classList.add('zoom')
             mark.addEventListener('click', () => setTimeout(() => {
-              this._zoomedIn[attr.value] = !this._zoomedIn[attr.value]
-              if (this._zoomedIn[attr.value]) this.zoomto(attr.value)
-              else this.goHome(false)
+              // this._zoomedIn[attr.value] = !this._zoomedIn[attr.value]
+              // if (this._zoomedIn[attr.value]) this.zoomto(attr.value)
+              // else this.goHome(false)
+              this.zoomto(attr.value)
             }, 200))
           }
           break
@@ -832,9 +898,12 @@ export class ImageViewer {
     return [
       <section class="ve-image-grid">
         <div class={`images ${Array.from(this.el.classList).find(cls => cls.indexOf('col') === 0) || ''}`}>
-          { this._images.map(item => item.manifest).map(manifest => 
-            <sl-tooltip content={label(manifest)} disabled={this.isTouchEnabled()}>
-              <img src={thumbnail(manifest)} alt={label(manifest)} onClick={this.showImageDialog.bind(this, manifest)}/>
+          { this._images.map(item => 
+            <sl-tooltip content={item.caption || label(item.manifest)} disabled={this.isTouchEnabled()}>
+              <div class="thumbnail">
+                <img src={thumbnail(item.manifest)} alt={label(item.manifest)} onClick={this.showImageDialog.bind(this, item.manifest)}/>
+                { item.caption && <div innerHTML={item.caption}></div> }
+              </div>
             </sl-tooltip>
           )}
         </div>

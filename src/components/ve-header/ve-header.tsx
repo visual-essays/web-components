@@ -62,8 +62,7 @@ export class Header {
   }
 
   componentWillLoad() {
-
-    // console.log(`ve-header: sticky=${this.sticky}`)
+    // console.log(`ve-header: position=${this.position} sticky=${this.sticky}`)
     this.backgroundIsImage = isURL(this.background) || this.isManifestShorthand(this.background)
     if (!this.height) this.height = this.backgroundIsImage ? heroHeight : navbarHeight
     this.el.style.height = `${this.height}px`

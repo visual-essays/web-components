@@ -2,7 +2,34 @@ import OpenSeadragon from 'openseadragon'
 import { sha256 as __sha256 } from 'js-sha256'
 import __md5 from 'js-md5'
 
-console.log('wc.utils')
+import tippy from 'tippy.js';
+// import 'tippy.js/dist/tippy.css'
+// import 'tippy.js/themes/light-border.css'
+
+let entities
+export function initTippy() {
+  let _entities = Array.from(document.querySelectorAll('mark')).filter(el =>
+    Array.from(el.attributes).find(attr => attr.name.toLowerCase() === 'qid' || isQID(attr.value))
+  )
+  if (!entities && _entities.length > 0) {
+    entities = _entities
+    console.log(`initTippy: entities=${entities.length}`)
+    tippy(entities, {
+      theme: 'light-border',
+      interactive: true,
+      allowHTML: true,
+      delay: [null, null],
+      onShow: (instance) => {
+        let qid = Array.from(instance.reference.attributes)
+          .filter(attr => attr.name.toLowerCase() === 'qid' || isQID(attr.value))
+          .map(attr => attr.value)
+          .flat().join()
+        if (qid)
+          instance.setContent(`<ve-entity-card qid="${qid}" style="width:600px;"></ve-entity-card>`)
+      }
+    })
+  }
+}
 
 // const iiifServer = location.hostname === 'localhost' ? 'http://localhost:8088' : 'https://iiif.juncture-digital.org'
 export const iiifServer = 'https://iiif.juncture-digital.org'
@@ -88,6 +115,7 @@ export function top() {
 }
 
 function findStickyElems() {
+  initTippy()
   let stickyElems = Array.from(document.querySelectorAll('.sticky'))
     // .filter(el => el.localName.toLowerCase() !== 've-content-selector')
   
@@ -175,7 +203,7 @@ export async function getManifest(manifestId: string, refresh: boolean=false) {
 
 export async function prezi2to3(manifest: any) {
   /* Converts IIIF v2 manifest to v3 */
-  let resp = await fetch('https://api.visual-essays.net/prezi2to3/', {
+  let resp = await fetch('https://iiif.visual-essays.net/prezi2to3/', {
     method: 'POST', 
     body: JSON.stringify(manifest)
   })
@@ -207,6 +235,7 @@ export function imageInfo(manifest:any, seq=1) {
 
 const _manifestCache:any = {}
 export async function loadManifests(manifestUrls: string[], refresh: boolean=false) {
+  console.log(manifestUrls)
   let toGet = manifestUrls.filter(url => !_manifestCache[url])
   // console.log(`loadManifests: toGet=${toGet.length}`)
   if (toGet.length > 0) {
@@ -233,7 +262,7 @@ export async function loadManifests(manifestUrls: string[], refresh: boolean=fal
     let manifests = await Promise.all(responses.map((resp:any) => resp.json()))
     requests = manifests
       .filter(manifest => !Array.isArray(manifest['@context']) && parseFloat(manifest['@context'].split('/').slice(-2,-1).pop()) < 3)
-      .map(manifest => fetch('https://api.juncture-digital.org/prezi2to3/', {
+      .map(manifest => fetch('https://iiif.juncture-digital.org/prezi2to3/', {
         method: 'POST', 
         body: JSON.stringify(manifest)
       }))
@@ -416,6 +445,23 @@ export function isQID(s: string) {
 export async function getEntity(qid: string, language: string = 'en') {
   let entities = await getEntityData([qid], language)
   return entities[qid]
+}
+
+let summaryText = {}
+export async function getSummaryText(qid: string, language='en') {
+  // console.log(`getSummaryText: qid=${qid} language=${language}`)
+  if (!summaryText[language]) summaryText[language] = {}
+  if (!summaryText[language][qid] && entityData[qid] && entityData[qid].wikipedia) {
+    let wikiUrl = entityData[qid].wikipedia
+    let page: number = wikiUrl.replace(/\/w\//, '/wiki').split('/wiki/').pop()
+    let url = `https://${language}.wikipedia.org/api/rest_v1/page/summary/${page}`
+    let resp: any = await fetch(url)
+    if (resp.ok) {
+      resp = await resp.json()
+      summaryText[language][qid] = resp['extract_html'] || resp['extract']
+      return summaryText[language][qid]
+    }
+  }
 }
 
 export async function getDepictedEntities(hash: string) {

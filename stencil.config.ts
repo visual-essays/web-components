@@ -4,6 +4,7 @@ import nodePolyfills from 'rollup-plugin-node-polyfills';
 export const config: Config = {
   namespace: 'visual-essays',
   globalStyle: 'src/global/global.css',
+  globalScript: 'src/global/global.ts',
   rollupPlugins: {
     after: [
       nodePolyfills(),

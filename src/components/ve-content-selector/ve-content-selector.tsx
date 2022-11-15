@@ -85,7 +85,9 @@ export class ContentSelector {
       await this.githubClient.repos(this.username).then(repos => {
         if (repos.length === 0) this.githubClient.createRepository({name:'essays', description:'Juncture visual essays'})
       })
-      this.githubClient.isCollaborator(this.acct, this.repo, this.username).then(isCollaborator => this.userCanUpdateRepo = isCollaborator)
+      if (this.acct && this.repo && this.username) {
+        this.githubClient.isCollaborator(this.acct, this.repo, this.username).then(isCollaborator => this.userCanUpdateRepo = isCollaborator)
+      }
     }
   }
 
