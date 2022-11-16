@@ -46,13 +46,14 @@ export class MapViewer {
 
   @Watch('_layerObjs')
   async _layerObjsChanged() {
-    // console.log('map._layerObjs', this._layerObjs)
+    console.log('map._layerObjs', this._layerObjs)
     this._layers = this._layerObjs.map(ls => {
+      console.log(ls)
       if (ls.allmaps) {
         this.allmapsLayer = L.tileLayer(`https://allmaps.xyz/maps/${ls.allmaps}/{z}/{x}/{y}.png`, { maxZoom: 19, attribution: 'Allmaps' })
         return this.allmapsLayer
-      } else {
-        this._markers.push()
+      } else if (ls.marker) {
+        this._markers.push({coords:ls.marker.split(',').map(s => parseFloat(s.trim()))})
       }
     })
   }
@@ -64,6 +65,7 @@ export class MapViewer {
 
   @Watch('map')
    async mapChanged() {
+    console.log(this._layers)
      this._layers.forEach(layer => layer.addTo(this.map))
      if (this.allmapsLayer) this.opacitySlider = this.el.shadowRoot.getElementById('opacity-slider') as HTMLInputElement
   }
@@ -225,6 +227,7 @@ export class MapViewer {
       L.marker(await this.latLng(this.marker), {icon: myIcon}).addTo(this.map)
     }
 
+    console.log(this._markers)
     this._markers.forEach(marker => {
       let m = L.marker(marker.coords, {icon: myIcon}).addTo(this.map)
       m.bindPopup(`<div class="card">${marker.card}</div>`)

@@ -106,6 +106,10 @@
   -webkit-hyphens: auto;
   hyphens: auto;
   color: #444;
+  cursor: copy;
+}
+.md-value:hover {
+  text-decoration: underline;
 }
 
 .md-label::after {

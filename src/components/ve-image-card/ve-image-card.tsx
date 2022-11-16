@@ -97,7 +97,7 @@ export class ImageCard {
   render() {
     return [
       this._manifest
-        ? <div class="card" draggable={true} onDragStart={this.onCardDrag.bind(this, this._manifest)} onClick={this.imageSelected.bind(this, 'image')}>
+        ? <div class="card" draggable={true} onDragStart={this.onCardDrag.bind(this, this._manifest)}>
           <div class="card-title" innerHTML={label(this._manifest)}></div>
           <div class="card-image" 
             style={{
@@ -106,6 +106,7 @@ export class ImageCard {
               backgroundSize: 'contain',
               backgroundPosition: 'center'
             }}
+            onClick={this.imageSelected.bind(this, 'image')}
           ></div>
           { this.metadata && 
             <div class="card-metadata">
@@ -113,10 +114,10 @@ export class ImageCard {
                 <li>
                   <span class="md-label" innerHTML={md.label}></span>
                   { md.value.length === 1
-                    ? <span class="md-value" innerHTML={md.value[0]}></span>
+                    ? <span class="md-value" innerHTML={md.value[0]} onClick={this.copyTextToClipboard.bind(this, md.value[0])}></span>
                     : <ul>
                       {md.value.map(val =>
-                        <li><span class="md-value" innerHTML={val}></span></li>
+                        <li><span class="md-value" innerHTML={val} onClick={this.copyTextToClipboard.bind(this, val)}></span></li>
                       )}
                       </ul>
                   }

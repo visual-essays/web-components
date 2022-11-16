@@ -13,7 +13,7 @@ export function initTippy() {
   )
   if (!entities && _entities.length > 0) {
     entities = _entities
-    console.log(`initTippy: entities=${entities.length}`)
+    // console.log(`initTippy: entities=${entities.length}`)
     tippy(entities, {
       theme: 'light-border',
       interactive: true,
@@ -235,16 +235,16 @@ export function imageInfo(manifest:any, seq=1) {
 
 const _manifestCache:any = {}
 export async function loadManifests(manifestUrls: string[], refresh: boolean=false) {
-  console.log(manifestUrls)
-  let toGet = manifestUrls.filter(url => !_manifestCache[url])
+  let _manifestUrls = manifestUrls
+  .map(manifestId =>
+    manifestId.indexOf('http') === 0
+      ? manifestId
+      : `${iiifServer}/${manifestId}/manifest.json`
+  )
+  let toGet = _manifestUrls.filter(url => !_manifestCache[url])
   // console.log(`loadManifests: toGet=${toGet.length}`)
   if (toGet.length > 0) {
     let requests: any = toGet
-      .map(manifestId =>
-        manifestId.indexOf('http') === 0
-          ? manifestId
-          : `${iiifServer}/${manifestId}/manifest.json`
-      )
       .map(manifestUrl => {
         if (refresh && ['localhost', 'iiif.juncture-digital.org'].includes(new URL(manifestUrl).hostname)) {
           manifestUrl += '?refresh'
@@ -277,7 +277,7 @@ export async function loadManifests(manifestUrls: string[], refresh: boolean=fal
     manifests.forEach(manifest => _manifestCache[manifest.id] = manifest)
     return manifests
   }
-  return manifestUrls.map(url => _manifestCache[url])
+  return _manifestUrls.map(url => _manifestCache[url])
 }
 
 export async function imgUrlFromManifest(manifestUrl: string, forceImage = false) {
