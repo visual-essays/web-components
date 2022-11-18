@@ -80,7 +80,6 @@ export class ImageViewer {
   _width: number
   _height: number
   _resizeObserver: any
-  _resizeCtr: number = 0
 
   _debounce: any = null
   resizeHandler() {
@@ -88,13 +87,10 @@ export class ImageViewer {
       clearTimeout(this._debounce)
       this._debounce = null
     }
-    this._resizeCtr += 1
-    if (this._resizeCtr > 1) {
-      this._debounce = window.setTimeout(() => {
-        this._debounce = null
-        // this.doLayout()
-      }, 500)
-    }
+    this._debounce = window.setTimeout(() => {
+      this._debounce = null
+      // this.doLayout()
+    }, 500)
   }
 
   @Watch('annoBase')
@@ -131,7 +127,7 @@ export class ImageViewer {
   async doLayout() {
     if (!this._resizeObserver) {
       this._resizeObserver = new ResizeObserver(() => this.resizeHandler())
-      this._resizeObserver.observe(document.body, { box : 'border-box' })
+      this._resizeObserver.observe(document.body)
     }
 
     let img = await imageInfo(this._current.manifest, this._current.seq)
@@ -142,7 +138,7 @@ export class ImageViewer {
       ? this.position
       : this.right ? 'right' : this.left ? 'left' : this.full ? 'full' : 'default'
 
-    console.log(`ve-image.doLayout: width=${this.width} height=${this.height} hwRatio=${hwRatio} position=${this.position} orientation=${orientation} fit=${this.fit} compare=${this.compare} zoomOnScroll=${this.zoomOnScroll} img.width=${img.width} img.height=${img.height} hwRatio=${hwRatio}`)
+    console.log(`ve-image.doLayout: width=${this.width} height=${this.height} hwRatio=${hwRatio} position=${this.position} orientation=${orientation} compare=${this.compare} zoomOnScroll=${this.zoomOnScroll} img.width=${img.width} img.height=${img.height} hwRatio=${hwRatio}`)
     
     const floatSideMargin = 12
     const captionHeight = this.grid ? 0 : 32
@@ -166,7 +162,7 @@ export class ImageViewer {
         
         this.el.style.height = this.height || `${Math.round(this._width * hwRatio)}px`
         this._height = parseInt(window.getComputedStyle(this.el).height.slice(0,-2)) || (orientation === 'portrait' ? Math.round(this._width * hwRatio) : Math.round(this._width / hwRatio))  
-        this._height -= (captionHeight + 10)
+      
       } else { 
         
         if (this.height) {
@@ -205,7 +201,6 @@ export class ImageViewer {
     // console.log(`width=${this._width} height=${this._height} hwRatio=${ Number((this._height/this._width).toFixed(4))}`)
     if (!this.grid) this.el.style.height = `${this._height + captionHeight + marginBottom}px`
 
-
     if (this.sticky) this.el.style.paddingTop = `${stickyPaddingTop}px`
     if (!this.fit && (this.width || this.height)) this._current.fit = 'cover'
     
@@ -216,7 +211,7 @@ export class ImageViewer {
       content.style.width = `${this._width}px`
       content.style.height = `${this._height + captionHeight}px`
     }
-    this._ready = true    
+    this._ready = true
   }
 
   @State() _selectedIdx: number = 0
@@ -302,7 +297,7 @@ export class ImageViewer {
       if (i === 0) {
         obj.manifest = decodeURIComponent(token)
       } else if (token.indexOf('=') > 0) {
-        let split = token.split('+')
+        let split = token.split('=')
         obj[split[0]] = split[1]
       } else if (this._isInt(token)) {
         obj.seq = parseInt(token)
@@ -372,11 +367,11 @@ export class ImageViewer {
     if (images.length > 0) loadManifests(images.map(item => item.manifest))
       .then(manifests => {
         manifests.forEach((manifest, idx) => {
-          images[idx].manifest = manifest
-          images[idx].manifestId = (images[idx].manifest.id || images[idx].manifest['@id']).split('/').slice(-2)[0]
-        })
-        this._images = images
+        images[idx].manifest = manifest
+        images[idx].manifestId = (images[idx].manifest.id || images[idx].manifest['@id']).split('/').slice(-2)[0]
       })
+      this._images = images
+    })
   }
 
   listenForSlotChanges() {
@@ -404,7 +399,7 @@ export class ImageViewer {
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
   }
 
-  async componentWillLoad() {
+  componentWillLoad() {
     this.buildImagesList()
   }
 
@@ -606,7 +601,6 @@ export class ImageViewer {
       }
       container = document.createElement('div')
       container.id = 'osd'
-      // container.style.height = `${height}px`
       container.style.height = '100%'
       osdWrapper.appendChild(container)
       this._viewer = new (window as any).CurtainSyncViewer({
@@ -620,7 +614,7 @@ export class ImageViewer {
           homeFillsViewer: true,
           prefixUrl: 'https://openseadragon.github.io/openseadragon/images/',
           zoomPerClick: 2,
-          visibilityRatio: 1.0,
+          visibilityRatio: 1,
           wrapHorizontal: false,
           constrainDuringPan: true,
           minZoomImageRatio: 1.35,  
@@ -697,7 +691,7 @@ export class ImageViewer {
 
   }
   positionImage (immediately: boolean=false) {
-    console.log(`positionImage: immediately=${immediately} fit=${this._current.fit} region=${this._current.options.region}`)
+    // console.log(`positionImage: immediately=${immediately} fit=${this._current.fit} region=${this._current.options.region}`)
     setTimeout(() => {
       if (this._current.options.region !== 'full') {
         let region = this._current.options.region

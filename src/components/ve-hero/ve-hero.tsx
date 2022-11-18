@@ -56,6 +56,10 @@ export class Header {
   }
 
   connectedCallback() {
+
+  }
+
+  componentWillLoad() {
     // console.log(`ve-hero: sticky=${this.sticky} position=${this.position}`)
     this.imageOptions = parseImageOptions(this.options)
     getManifest(this.background).then(manifest => this._manifest = manifest)
@@ -63,10 +67,6 @@ export class Header {
     if (this.sticky) this.el.style.position = 'sticky'
     if (this.top) this.el.style.top = `-${this.top}px`
   }
-
-  componentWillLoad() {}
-
-  componentDidLoad() {}
 
   _showInfoPopup() {
     let popup: HTMLElement = this.el.shadowRoot.querySelector('#image-info-popup')

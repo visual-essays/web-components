@@ -1,10 +1,20 @@
 import { Component, Element, Prop, State, Watch, h } from '@stencil/core';
 
-import L from 'leaflet'
+import L, { LatLng } from 'leaflet'
 import 'leaflet.control.opacity'
 // import { indexOf } from 'lodash';
 
 import { isQID, getEntity, makeSticky } from '../../utils'
+
+const markerIconTemplate = {
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-icon.png',
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-icon-2x.png',
+  iconSize:    [25, 41],
+  iconAnchor:  [12, 41],
+  popupAnchor: [1, -34],
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+  shadowSize:  [41, 41]
+}
 
 @Component({
   tag: 've-map',
@@ -31,13 +41,12 @@ export class MapViewer {
   position: string
 
   @State() map: L.Map
-  @State() allmapsLayer: L.TileLayer
   @State() opacitySlider: HTMLInputElement
   @State() _entities: string[] = []
 
-  @State() _markers: any[] = []
+
   @State() _layerObjs: any[] = []
-  @State() _layers: L.TileLayer[] = []
+  @State() _layers: any = {tileLayers:[], geoJsonLayers:[]}
 
   @Watch('center')
   async centerChanged() {
@@ -46,43 +55,53 @@ export class MapViewer {
 
   @Watch('_layerObjs')
   async _layerObjsChanged() {
-    console.log('map._layerObjs', this._layerObjs)
-    this._layers = this._layerObjs.map(ls => {
-      console.log(ls)
+    let _layerObjs = await Promise.all(this._layerObjs)
+    
+    let layers: any = {}
+
+    let locations = _layerObjs.filter(item => item.coords || item.qid)
+    let _geoJsonLayers = []
+    if (locations.length > 0) _geoJsonLayers.push(this.toGeoJSON(locations))
+    layers.geoJsonLayers = _geoJsonLayers
+    
+    layers.tileLayers = _layerObjs.map(ls => {
       if (ls.allmaps) {
-        this.allmapsLayer = L.tileLayer(`https://allmaps.xyz/maps/${ls.allmaps}/{z}/{x}/{y}.png`, { maxZoom: 19, attribution: 'Allmaps' })
-        return this.allmapsLayer
-      } else if (ls.marker) {
-        this._markers.push({coords:ls.marker.split(',').map(s => parseFloat(s.trim()))})
+        return L.tileLayer(`https://allmaps.xyz/maps/${ls.allmaps}/{z}/{x}/{y}.png`, { maxZoom: 19, attribution: 'Allmaps' })
       }
-    })
+    }).filter(layer => layer)
+
+    this._layers = layers
+
   }
 
   @Watch('_layers')
-  async _layersChanged() {
-    if (this.map) this._layers.forEach(layer => layer.addTo(this.map))
-   }
+  _layersChanged() {
+    this.updateMap()
+  }
 
   @Watch('map')
-   async mapChanged() {
-    console.log(this._layers)
-     this._layers.forEach(layer => layer.addTo(this.map))
-     if (this.allmapsLayer) this.opacitySlider = this.el.shadowRoot.getElementById('opacity-slider') as HTMLInputElement
+   mapChanged() {
+      this.updateMap()
+  }
+
+  updateMap() {
+    if (this.map) {
+      this._layers.tileLayers.forEach(layer => layer.addTo(this.map))
+      this._layers.geoJsonLayers.forEach(layer => layer.addTo(this.map))
+      this.opacitySlider = this._layers.tileLayers.length > 0 ? this.el.shadowRoot.getElementById('opacity-slider') as HTMLInputElement : null
+    }
   }
  
   doLayout() {
     let position = this.right ? 'right' : this.left ? 'left' : this.full ? 'full' : null
-    if (!position) {
-      position = 'full'
-      this.full = true
-    }
+    if (!position)  position = 'full'
 
-    console.log(`width=${this.width} height=${this.height} position=${position} sticky=${this.sticky}`)
+    console.log(`ve-map: width=${this.width} height=${this.height} position=${position} sticky=${this.sticky}`)
     
     const floatMargin = 12
 
     let width, height
-    if (this.full) { // Full-width layout
+    if (position === 'full') { // Full-width layout
       this.el.classList.add('full')
       this.el.style.width = this.width || '100%'
       let elWidth = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
@@ -99,8 +118,8 @@ export class MapViewer {
       this.el.style.width = '100%'
 
     } else { // Half-width layout
-      this.el.style.float = this.right ? 'right' : 'left'
-      this.el.classList.add(this.right ? 'right' : 'left')
+      this.el.style.float = position
+      this.el.classList.add(position)
       this.el.style.width = this.width || '50%'
       width = parseInt(window.getComputedStyle(this.el).width.slice(0,-2))
       height = width
@@ -110,27 +129,32 @@ export class MapViewer {
     if (this.sticky) this.el.style.paddingTop = '6px'
     
     let content: HTMLElement = this.el.shadowRoot.querySelector('.content')
-    if (this.left) content.style.marginRight = `${floatMargin}px`
-    else if (this.right) content.style.marginLeft = `${floatMargin}px`
+    if (position === 'left') content.style.marginRight = `${floatMargin}px`
+    else if (position === 'right') content.style.marginLeft = `${floatMargin}px`
     content.style.width = `${width}px`
     content.style.height = `${height}px`
   }
 
-  connectedCallback() {
+  componentWillLoad() {
     this.el.classList.add('ve-component')
     this._entities = this.entities ? this.entities.split(/\s+/).filter(qid => qid) : []
     if (this.cards) {
+      let locations: any[] = []
       let cardsEl = document.getElementById(this.cards)
       if (cardsEl) {
-        cardsEl.querySelectorAll('.card').forEach(card => {
-          let coords = Array.from(card.querySelectorAll('li'))
+        cardsEl.querySelectorAll('.card').forEach(async card => {
+          let coords:string = Array.from(card.querySelectorAll('li'))
             .filter(li => li.innerHTML.trim().indexOf('coords:') === 0)
             .map(coordsEl => coordsEl.innerHTML.split(':')[1].trim())
-            .map(coordsStr => coordsStr.split(',').map(s => parseFloat(s.trim())))
             .pop()
-          if (coords) this._markers.push({coords, card: card.innerHTML})
+          if (coords) {
+            let metadataUl = card.querySelector('ul.card-metadata')
+            if (metadataUl) metadataUl.parentElement.removeChild(metadataUl)
+            locations.push({coords: this.latLng(coords), caption: card.innerHTML})
+          }
         })
       }
+      this._layerObjs = locations
     }
     this.getLayerStrings()
     this.listenForSlotChanges()
@@ -146,14 +170,45 @@ export class MapViewer {
     this.initMap()
   }
 
-  _toObj(s:string) {
+  _isCoords(str:string) {
+    return /^[+-]?\d+(.\d*|\d*),{1}[+-]?\d+(.\d*|\d*)$/.test(str)
+  }
+
+  _isZoom(str:string) {
+    return /^\d{1,2}(\.\d{1})?$/.test(str)
+  }
+
+  _isInt(str:string) {
+    return /^[0-9]+$/.test(str)
+  }
+
+  async _toObj(s:string) {
     let tokens = []
-    s.match(/[^\s"']+|"([^"]*)"/gmi).forEach(token => {
+    s = s.replace(/“/,'"').replace(/”/,'"').replace(/’/,"'")
+    s.match(/[^\s"]+|"([^"]*)"/gmi).forEach(token => {
       if (tokens.length > 0 && tokens[tokens.length-1].indexOf('=') === tokens[tokens.length-1].length-1) tokens[tokens.length-1] = `${tokens[tokens.length-1]}${token}`
       else tokens.push(token)
     })
-    // console.log(tokens)
-    return Object.fromEntries(tokens.map(token => token.indexOf('=') > 0 ? token : `${token}=true`).map(kvp => kvp.split('=')))
+    let obj:any = {}
+    for (let i = 0; i < tokens.length; i++) {
+      let token = tokens[i]
+      if (token.indexOf('=') > 0) {
+        let split = token.split('=')
+        obj[split[0]] = split[1]
+      } else if (this._isZoom(token)) {
+        obj.zoom = parseInt(token)
+      } else if (this._isCoords(token)) {
+        obj.coords = this.latLng(token)
+      } else if (isQID(token)) {
+        obj.qid = token
+        let entity = await getEntity(token)
+        obj.coords = this.latLng(entity.coords)
+        obj.caption = entity.label
+      } else {
+        obj.caption = token[0] === '"' && token[token.length-1] === '"' ? token.slice(1,-1) : token
+      }
+    }
+    return obj
   }
 
   getLayerStrings() {
@@ -172,26 +227,24 @@ export class MapViewer {
     observer.observe(this.el, { childList: true, subtree: true, characterData: true })
   }
 
-  async coordsFromEntity(qid: string) {
-    let entity = await getEntity(qid)
-    let [lat, lng] = entity.coords.split(',').map(val => parseFloat(val.trim()))
-    return new L.LatLng(lat, lng)
-  }
-
   async initMap() {
-    // console.log('initMap', this.el.parentElement.clientHeight)
     let center: L.LatLng
     if (this.center) {
-      center = await this.latLng(this.center)
+      if (isQID(this.center)) {
+        let entity = await getEntity(this.center)
+        center = this.latLng(entity.coords)
+      } else {
+        center = this.latLng(this.center)
+      }
     } else if (this.entities) {
-      center = await this.coordsFromEntity(this._entities[0])
+      let entity = await getEntity(this._entities[0])
+      center = this.latLng(entity.coords)
       this.zoom = 9
     } else {
       center = new L.LatLng(0, 0)
       this.zoom = 6
     }
 
-    // console.log(`center=${center} zoom=${this.zoom}`)
     if (this.map) {
       this.map.off()
       this.map.remove()
@@ -212,26 +265,6 @@ export class MapViewer {
     this.map.on('zoomend', (e) => this.getLatLngZoom(e))
     this.map.on('moveend', (e) => this.getLatLngZoom(e))
 
-    /*
-    if (this.overlay) {
-      this.opacitySlider = this.el.shadowRoot.getElementById('opacity-slider') as HTMLInputElement
-      this.allmapsLayer = L.tileLayer(`https://allmaps.xyz/maps/${this.overlay}/{z}/{x}/{y}.png`, {
-        maxZoom: 19, attribution: 'Allmaps'
-      }).addTo(this.map)
-    }
-    */
-
-    const myIcon = L.icon({iconUrl: 'https://unpkg.com/leaflet@1.8.0/dist/images/marker-icon.png'})
-    
-    if (this.marker) {
-      L.marker(await this.latLng(this.marker), {icon: myIcon}).addTo(this.map)
-    }
-
-    console.log(this._markers)
-    this._markers.forEach(marker => {
-      let m = L.marker(marker.coords, {icon: myIcon}).addTo(this.map)
-      m.bindPopup(`<div class="card">${marker.card}</div>`)
-    })
   }
 
   getLatLngZoom(e) {
@@ -241,17 +274,39 @@ export class MapViewer {
     return resp
   }
 
-  async latLng(pos:string) {
-    if (isQID(pos)) {
-      return await this.coordsFromEntity(this.center)
-    } else {
-      let [lat, lng] = this.center.split(',').map(val => parseFloat(val.trim()))
-      return new L.LatLng(lat, lng)
-    }
+  latLng(coordsStr:string) {
+    let [lat, lng] = coordsStr.split(',').map(val => parseFloat(val.trim()))
+    return new LatLng(lat, lng)
+  }
+
+  toGeoJSON(locations:any[]): L.GeoJSON {
+    const data: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] }
+    locations.filter(location => location.coords)
+      .forEach(location => {
+        data.features.push({
+          type: 'Feature',
+          properties: location,
+          geometry: { type: 'Point', coordinates: [location.coords.lng, location.coords.lat] }
+        })
+      })
+
+  
+    const geoJSON = L.geoJSON(data, {
+      pointToLayer: (feature, latlng) => {
+        let iconOptions:any = {...markerIconTemplate}
+        if (feature.properties.icon) iconOptions.iconUrl = feature.properties.icon
+        if (feature.properties.shadowUrl)  iconOptions.shadowUrl = feature.properties.shadowUrl
+        if (feature.properties.iconRetinaUrl)  iconOptions.iconRetinaUrl = feature.properties.iconRetinaUrl
+        return L.marker(latlng, { icon: new L.Icon(iconOptions) })
+      },
+      onEachFeature: (feature, layer) => layer.bindPopup(feature.properties.caption)
+    })
+    
+    return geoJSON
   }
 
   updateOpacity() {
-    this.allmapsLayer.setOpacity(parseFloat(this.opacitySlider.value))
+    this._layers.tileLayers[0].setOpacity(parseFloat(this.opacitySlider.value))
   }
 
   renderMap() {
@@ -268,7 +323,7 @@ export class MapViewer {
           {this.renderMap()}
           {this.caption && this.renderCaption()}
         </div>,
-        this.allmapsLayer && <input id="opacity-slider" type="range" min="0" max="1" step="0.02" value="1" onInput={this.updateOpacity.bind(this)}></input>
+        <input id="opacity-slider" type="range" min="0" max="1" step="0.02" value="1" onInput={this.updateOpacity.bind(this)}></input>
       ]
     }
 }

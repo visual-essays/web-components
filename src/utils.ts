@@ -7,13 +7,14 @@ import tippy from 'tippy.js';
 // import 'tippy.js/themes/light-border.css'
 
 let entities
-export function initTippy() {
+export function initTippy(force=false) {
+  if (force) entities = null
   let _entities = Array.from(document.querySelectorAll('mark')).filter(el =>
     Array.from(el.attributes).find(attr => attr.name.toLowerCase() === 'qid' || isQID(attr.value))
   )
   if (!entities && _entities.length > 0) {
     entities = _entities
-    // console.log(`initTippy: entities=${entities.length}`)
+    console.log(`initTippy: entities=${entities.length}`)
     tippy(entities, {
       theme: 'light-border',
       interactive: true,
@@ -243,6 +244,7 @@ export async function loadManifests(manifestUrls: string[], refresh: boolean=fal
   )
   let toGet = _manifestUrls.filter(url => !_manifestCache[url])
   // console.log(`loadManifests: toGet=${toGet.length}`)
+
   if (toGet.length > 0) {
     let requests: any = toGet
       .map(manifestUrl => {
@@ -275,9 +277,10 @@ export async function loadManifests(manifestUrls: string[], refresh: boolean=fal
       }
     }
     manifests.forEach(manifest => _manifestCache[manifest.id] = manifest)
-    return manifests
+    return _manifestUrls.map(url => _manifestCache[url])
+  } else {
+    return _manifestUrls.map(url => _manifestCache[url])
   }
-  return _manifestUrls.map(url => _manifestCache[url])
 }
 
 export async function imgUrlFromManifest(manifestUrl: string, forceImage = false) {
@@ -451,6 +454,7 @@ let summaryText = {}
 export async function getSummaryText(qid: string, language='en') {
   // console.log(`getSummaryText: qid=${qid} language=${language}`)
   if (!summaryText[language]) summaryText[language] = {}
+  
   if (!summaryText[language][qid] && entityData[qid] && entityData[qid].wikipedia) {
     let wikiUrl = entityData[qid].wikipedia
     let page: number = wikiUrl.replace(/\/w\//, '/wiki').split('/wiki/').pop()
@@ -459,8 +463,10 @@ export async function getSummaryText(qid: string, language='en') {
     if (resp.ok) {
       resp = await resp.json()
       summaryText[language][qid] = resp['extract_html'] || resp['extract']
-      return summaryText[language][qid]
     }
+    return summaryText[language][qid]
+  } else {
+    return summaryText[language][qid]
   }
 }
 
