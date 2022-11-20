@@ -141,6 +141,32 @@ export namespace Components {
         "width": string;
         "zoom": number;
     }
+    interface VeMedia {
+        "alt": string;
+        "annoBase": string;
+        "autostart": boolean;
+        "cards": boolean;
+        "compare": boolean;
+        "curtain": boolean;
+        "end": string;
+        "entities": string;
+        "fit": string;
+        "full": boolean;
+        "grid": boolean;
+        "height": string;
+        "left": boolean;
+        "manifest": string;
+        "muted": boolean;
+        "options": string;
+        "position": string;
+        "right": boolean;
+        "seq": number;
+        "start": string;
+        "sticky": boolean;
+        "sync": boolean;
+        "width": string;
+        "zoomOnScroll": boolean;
+    }
     interface VeMenu {
         "background": string;
         "contact": string;
@@ -313,6 +339,12 @@ declare global {
         prototype: HTMLVeMapElement;
         new (): HTMLVeMapElement;
     };
+    interface HTMLVeMediaElement extends Components.VeMedia, HTMLStencilElement {
+    }
+    var HTMLVeMediaElement: {
+        prototype: HTMLVeMediaElement;
+        new (): HTMLVeMediaElement;
+    };
     interface HTMLVeMenuElement extends Components.VeMenu, HTMLStencilElement {
     }
     var HTMLVeMenuElement: {
@@ -373,6 +405,7 @@ declare global {
         "ve-image-grid": HTMLVeImageGridElement;
         "ve-manifest": HTMLVeManifestElement;
         "ve-map": HTMLVeMapElement;
+        "ve-media": HTMLVeMediaElement;
         "ve-menu": HTMLVeMenuElement;
         "ve-meta": HTMLVeMetaElement;
         "ve-navbar": HTMLVeNavbarElement;
@@ -518,6 +551,32 @@ declare namespace LocalJSX {
         "width"?: string;
         "zoom"?: number;
     }
+    interface VeMedia {
+        "alt"?: string;
+        "annoBase"?: string;
+        "autostart"?: boolean;
+        "cards"?: boolean;
+        "compare"?: boolean;
+        "curtain"?: boolean;
+        "end"?: string;
+        "entities"?: string;
+        "fit"?: string;
+        "full"?: boolean;
+        "grid"?: boolean;
+        "height"?: string;
+        "left"?: boolean;
+        "manifest"?: string;
+        "muted"?: boolean;
+        "options"?: string;
+        "position"?: string;
+        "right"?: boolean;
+        "seq"?: number;
+        "start"?: string;
+        "sticky"?: boolean;
+        "sync"?: boolean;
+        "width"?: string;
+        "zoomOnScroll"?: boolean;
+    }
     interface VeMenu {
         "background"?: string;
         "contact"?: string;
@@ -584,6 +643,7 @@ declare namespace LocalJSX {
         "ve-image-grid": VeImageGrid;
         "ve-manifest": VeManifest;
         "ve-map": VeMap;
+        "ve-media": VeMedia;
         "ve-menu": VeMenu;
         "ve-meta": VeMeta;
         "ve-navbar": VeNavbar;
@@ -614,6 +674,7 @@ declare module "@stencil/core" {
             "ve-image-grid": LocalJSX.VeImageGrid & JSXBase.HTMLAttributes<HTMLVeImageGridElement>;
             "ve-manifest": LocalJSX.VeManifest & JSXBase.HTMLAttributes<HTMLVeManifestElement>;
             "ve-map": LocalJSX.VeMap & JSXBase.HTMLAttributes<HTMLVeMapElement>;
+            "ve-media": LocalJSX.VeMedia & JSXBase.HTMLAttributes<HTMLVeMediaElement>;
             "ve-menu": LocalJSX.VeMenu & JSXBase.HTMLAttributes<HTMLVeMenuElement>;
             "ve-meta": LocalJSX.VeMeta & JSXBase.HTMLAttributes<HTMLVeMetaElement>;
             "ve-navbar": LocalJSX.VeNavbar & JSXBase.HTMLAttributes<HTMLVeNavbarElement>;

@@ -32,7 +32,9 @@
 
 #opacity-slider {
 	position: absolute;
-	bottom: 10px;
+	bottom: 15px;
+	left: 15px;
+	width: 33%;
 	z-index: 1000;
 }
 

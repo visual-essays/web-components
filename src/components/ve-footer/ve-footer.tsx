@@ -16,6 +16,7 @@ export class Footer {
   componentWillLoad() {
     if (this.sticky) this.setSticky()
     this.footerElems = Array.from(this.el.querySelectorAll('li'))
+    this.el.querySelector('ul').style.display = 'none'
     while (this.el.firstChild) this.el.removeChild(this.el.firstChild)
   }
 
@@ -40,7 +41,10 @@ export class Footer {
   }
 
   render() {
-    return this.footerElems.map(el => <div class={el.className} style={this.styleToObj(el.getAttribute('style'))} innerHTML={el.innerHTML}></div>)
+    return [
+      this.footerElems.map(el => <div class={el.className} style={this.styleToObj(el.getAttribute('style'))} innerHTML={el.innerHTML}></div>),
+      <ve-content-viewer path="/rsnyder/essays" format="markdown" show={true}></ve-content-viewer>
+    ]
   }
 
 }

@@ -16,6 +16,10 @@ section.sticky {
   padding-top: 6px;
 }
 
+ve-footer ul {
+  display: none;
+}
+
 section {
   width: 100%;
   position: relative;

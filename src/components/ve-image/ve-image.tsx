@@ -318,9 +318,9 @@ export class ImageViewer {
   }
 
   async zoomto(arg: string) {
-    const found = arg?.match(/^(\d+)?(:|:pct:|pct:)?([0-9.]+,[0-9.]+,[0-9.]+,\d+|[a-f0-9.]{8})?$/)
+    const found = arg?.match(/^\d\b|((\d+):)?([\d.]+,[\d.]+,[\d.]+,[\d.]+|pct:[\d.]+,[\d.]+,[\d.]+,[\d.]+|[0-9a-f]{8}?)$/)
     if (!found) return
-    let seq = found[1] ? parseInt(found[1].replace(/:$/,'')) : 1
+    let seq = found[1] ? parseInt(found[2].replace(/:$/,'')) : 1
     let imgIdx = seq - 1
     let region
     let annoRegex = new RegExp('[0-9a-f]{8}')
@@ -340,7 +340,7 @@ export class ImageViewer {
     } else {
       region = found[2] ? `${found[2]}${found[3]}` : found[3]
     }
-    // console.log(`zoomto: seq=${seq} current=${this._current.seq} region=${region}`)
+    console.log(`zoomto: seq=${seq} current=${this._current.seq} region=${region}`)
     if (region) this._current.options.region = region
     this._viewer.goToPage(imgIdx)
     this.positionImage(false)
@@ -449,7 +449,7 @@ export class ImageViewer {
     Array.from(document.querySelectorAll('mark')).forEach(mark => {
       for (let idx=0; idx < mark.attributes.length; idx++) {
         let attr = mark.attributes.item(idx)
-        if (/^(\d+)?(:|:pct:|pct:)?([0-9.]+,[0-9.]+,[0-9.]+,\d+|[a-f0-9.]{8})?$/.test(attr.value)) {
+        if (/^\d\b|((\d+):)?([\d.]+,[\d.]+,[\d.]+,[\d.]+|pct:[\d.]+,[\d.]+,[\d.]+,[\d.]+|[0-9a-f]{8}?)$/.test(attr.value)) {
           let veImage = this.findVeImage(mark.parentElement)
           if (veImage) {
             this._zoomedIn[attr.value] = false

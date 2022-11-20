@@ -317,7 +317,7 @@ export class Video {
       m *= 60
     }
     return secs
-}
+  }
 
   addMutationObserver(el: HTMLElement) {
     let prevClassState = el.classList.contains('active')
@@ -390,7 +390,7 @@ export class Video {
 
   seekTo(start:string, end:string) {
     let startSecs = this.hmsToSeconds(start)
-    let endSecs = this.hmsToSeconds(end)
+    let endSecs = this.hmsToSeconds(end) + 1
     // console.log(`seekTo: start=${startSecs} end=${endSecs} isMuted=${this.isMuted} forceMuteOnPlay=${this.forceMuteOnPlay}`)
     
     // clear delayed pause

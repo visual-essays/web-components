@@ -5,6 +5,9 @@ import '@shoelace-style/shoelace/dist/components/dialog/dialog.js'
 
 import hljs from 'highlight.js'
 
+const isDev = window.location.hostname == 'localhost'
+const apiEndpoint = isDev ? 'http://localhost:8000' : 'https://api.juncture-digital.org'
+
 @Component({
   tag: 've-content-viewer',
   styleUrl: 've-content-viewer.css',
@@ -31,12 +34,14 @@ export class ContentViewer {
   }
 
   componentWillLoad() {
+    console.log('componentWillLoad', this.show)
   }
 
   componentDidLoad() {
     this.dialog = this.el.shadowRoot.getElementById('dialog')
     this.dialog.addEventListener('sl-hide', () => this.show = false)
     this.addContentObserver()
+    if (this.show) this.showDialog()
   }
 
   addContentObserver() {
@@ -58,13 +63,14 @@ export class ContentViewer {
   }
 
   getHtml() {
-    let url = `https://api.juncture-digital.org/html${this.path}`
+    let url = `${apiEndpoint}/html${this.path}`
     fetch(url).then(resp => resp.text()).then(html => this.html = html)
   }
 
   getMarkdown() {
-    let url = `https://api.juncture-digital.org/markdown${this.path}`
+    let url = `${apiEndpoint}/markdown${this.path}`
     fetch(url).then(resp => resp.text()).then(markdown => {
+      console.log(markdown)
       // this.html = hljs.highlight(markdown, {language: 'markdown'}).value
       let blocks = `\n${markdown}\n`.match(/^\n((?:\n|.)*?)\n$/gm).map(block => block.trim()).filter(block => block)
       this.html = blocks.map((block:string) => {
@@ -78,6 +84,7 @@ export class ContentViewer {
   }
 
   getContent() {
+    console.log('getContent')
     if (this.format === 'html') this.getHtml()
     else if (this.format === 'markdown') this.getMarkdown()
   }
