@@ -45,6 +45,7 @@ ve-media > ul {
   margin: 6px 6px 6px 0;
 }
 
+/*
 .mirador66 {
   padding: 0 !important;
 }
@@ -52,6 +53,7 @@ ve-media > ul {
 .mirador67, .mirador53 {
   background-color: white !important;
 }
+*/
 
 .mirador-wrapper, .compare-wrapper {
   position: relative;
@@ -90,7 +92,7 @@ ve-media > ul {
 
 .grid-wrapper .images {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(245px, 1fr));
   grid-gap: 12px;
   align-items: flex-start;
   justify-items: center;

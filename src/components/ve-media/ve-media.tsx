@@ -10,6 +10,7 @@ import './mirador.min.js'
 import { defaults } from './config.js'
 
 import { imageInfo, isTouchEnabled, label, loadManifests, makeSticky, parseImageOptions, parseRegionString, thumbnail } from '../../utils'
+import OpenSeadragon from 'openseadragon'
 
 const Mirador:any = (window as any).Mirador
 
@@ -48,8 +49,6 @@ export class VeMirador {
 
   // Display multiple images in compare mode
   @Prop() compare: boolean = false
-  // @Prop() curtain: boolean = false
-  // @Prop() sync: boolean = false
 
   @Prop({ mutable: true, reflect: true }) autostart: boolean = false
   @Prop({ mutable: true, reflect: true }) start: string
@@ -61,7 +60,7 @@ export class VeMirador {
   @State() id: string
   @State() osd: OpenSeadragon.Viewer = null
   @State() mediaPlayer: HTMLMediaElement
-  @State() osdReady: boolean = false
+  @State() miradorReady: boolean = false
   @State() mediaType: string = null // image, audio, video
   sourceDimensions: any = {}
   computedDimensions: any
@@ -80,6 +79,8 @@ export class VeMirador {
   startTimes: any = {}
   timeoutId: any = null
   forceMuteOnPlay: boolean = true
+
+  doInit: boolean = true
 
   // used in grid and compare modes
   @State() imageList: any[] = []
@@ -118,8 +119,8 @@ export class VeMirador {
 
     this.wrapperEl?.parentElement.replaceChild(newWrapperEl, this.wrapperEl)
     this.miradorEl = newMiradorEl
-
-    this.wrapperEl = null
+    this.miradorReady = false
+    this.doInit = true
   }
 
   @Watch('imageList')
@@ -127,6 +128,7 @@ export class VeMirador {
     if (imageList.length > 0) {
       this.sourceDimensions = {x: imageList[0].info.width, y: imageList[0].info.height}
       this.id = `${this.compare ? 'compare' : 'grid'}-${uuidv4().split('-')[0]}`
+      this.mediaType = this.compare ? 'image-compare' : 'image-grid'
     }
   }
 
@@ -136,40 +138,45 @@ export class VeMirador {
   }
 
   @Watch('osd')
-  onOsdFound() {
-    if (this.osd) {
-      this.osdReady = false
-      this.osd.world.addHandler('add-item', () => this.addItemHandler())
+  onOsdFound(osd) {
+    if (osd) {
+      this.mediaType = 'image'
+      let tiledImage = this.osd.world.getItemAt(0)
+      if (tiledImage.getFullyLoaded()) {
+        this.sourceDimensions = tiledImage.source.dimensions
+        this.miradorReady = true
+      } else {
+        tiledImage.addHandler('fully-loaded-change', (evt) => {
+          if (evt.fullyLoaded) {
+            this.sourceDimensions = tiledImage.source.dimensions
+            this.miradorReady = true
+          }
+        })
+      }
       this.osd.addHandler('viewport-change', () => this.getViewportBounds())
     }
   }
 
-  addItemHandler() {
-    let tiledImage = this.osd.world.getItemAt(0)
-    this.sourceDimensions = tiledImage.source.dimensions
-    tiledImage.addHandler('fully-loaded-change', (evt) => {
-      // if (evt.fullyLoaded)this.osdReady = true
-      if (evt.fullyLoaded) setTimeout(() => this.osdReady = true, 20)
-    })
-  }
-
   @Watch('mediaPlayer')
-  onMediaPlayerFound() {
-    this.mediaPlayer.addEventListener(this.mediaType === 'video' ? 'loadeddata' : 'loadedmetadata', () => {
-      this.sourceDimensions = this.mediaType === 'video'
-        ? {x: (this.mediaPlayer as HTMLVideoElement).videoWidth, y: (this.mediaPlayer as HTMLVideoElement).videoHeight}
-        : {x: this.mediaPlayer.clientWidth, y: this.mediaPlayer.clientHeight}
-      this.doLayout()
-      this.monitor()
-      if (this.autostart) this.seekTo(this.start || '0', this.end || `${this.mediaPlayer.duration}`)
-    })
+  onMediaPlayerFound(mediaPlayer) {
+    if (mediaPlayer) {
+      this.mediaPlayer.addEventListener(this.mediaType === 'video' ? 'loadeddata' : 'loadedmetadata', () => {
+        this.sourceDimensions = this.mediaType === 'video'
+          ? {x: (this.mediaPlayer as HTMLVideoElement).videoWidth, y: (this.mediaPlayer as HTMLVideoElement).videoHeight}
+          : {x: this.mediaPlayer.clientWidth, y: this.mediaPlayer.clientHeight}
+        this.doLayout()
+        this.monitor()
+        if (this.autostart) this.seekTo(this.start || '0', this.end || `${this.mediaPlayer.duration}`)
+        this.miradorReady = true
+      })
+    }
 
   }
 
-  @Watch('osdReady')
-  onOsdReady(isReady) {
+  @Watch('miradorReady')
+  ondMiradorReady(isReady) {
     if (isReady) {
-      this.mediaType = 'image'
+      console.log(`miradorReady: mediaType=${this.mediaType}`, this.sourceDimensions)
       this.doLayout()
     }
   }
@@ -189,7 +196,12 @@ export class VeMirador {
   // componentWillRender() { console.log('componentWillRender') }
 
   componentDidRender() {
-    if (!this.wrapperEl && this.id) this.doOnFirstRender()
+    if (this.doInit && this.id) {
+      this.doInit = false
+      this.doOnFirstRender()
+    }
+
+    // if (!this.wrapperEl && this.id) this.doOnFirstRender()
   }
 
   // componentDidLoad() { console.log('componentDidLoad') }
@@ -198,11 +210,11 @@ export class VeMirador {
 
   doOnFirstRender() {
     this.wrapperEl = document.getElementById(`ve-media-${this.id}`)
-
+    // console.log('doOnFirstRender', this.id, this.wrapperEl)
     if (this.compare || this.grid) {
       this.doLayout()
     } else {
-      this.miradorEl = document.getElementById(`mirador-${this.id}`)
+      this.miradorEl = this.wrapperEl.querySelector(`#mirador-${this.id}`)
       if (this.sticky) makeSticky(this.el)
       // this.doLayout()
 
@@ -223,12 +235,16 @@ export class VeMirador {
               this.mediaPlayer = audioEl
               observer.disconnect()
             }
-          } else {
-            Array.from(document.querySelectorAll('.mirador-osd-container')).forEach(container => {
-              let osdContainer = this.miradorEl.querySelector(`#${container.id}`)
-              if (osdContainer && !this.osd) {
-                this.osd = window['osdInstances'][osdContainer.id.slice(0,-4)]
-                observer.disconnect()
+          } else if (!this.osd) {
+            Array.from(this.wrapperEl.querySelectorAll('.mirador-osd-container')).forEach(miradorOsdContainer => {
+              let osdContainer = this.miradorEl.querySelector(`#${miradorOsdContainer.id}`)
+              if (osdContainer) {
+                let osd: OpenSeadragon.Viewer = window['osdInstances'][osdContainer.id.slice(0,-4)]
+                let tiledImage = osd.world.getItemAt(0)
+                if (tiledImage) {
+                  this.osd = osd
+                  observer.disconnect()
+                }
               }
             })
           }
@@ -281,7 +297,12 @@ export class VeMirador {
 
       el.style.width = requestedWidth || '100%'      
       let width = parseInt(window.getComputedStyle(el).width.slice(0,-2))   
-      el.style.height = requestedHeight || (this.mediaType === 'audio' ? '200px' : `${Math.round(width / hwRatio) + miradorHeaderHeight}px`)
+      el.style.height = requestedHeight || (
+        this.mediaType === 'image-grid'
+          ? '100%'
+          : this.mediaType === 'audio'
+            ? '200px'
+            : `${Math.round(width / hwRatio) + miradorHeaderHeight}px`)
       let height = parseInt(window.getComputedStyle(el).height.slice(0,-2)) || (orientation === 'portrait' ? Math.round(width * hwRatio) : Math.round(width / hwRatio))  
       
       if (this.compare || this.sticky) {
@@ -297,8 +318,13 @@ export class VeMirador {
       el.style.float = position
       el.style.width = requestedWidth || '50%'
       let width = parseInt(window.getComputedStyle(el).width.slice(0,-2))
-      el.style.height = requestedHeight || (this.mediaType === 'audio' ? '200px' :`${Math.round(width / hwRatio + miradorHeaderHeight)}px`)
-
+      el.style.height = requestedHeight || (
+        this.mediaType === 'image-grid'
+          ? '100%'
+          : this.mediaType === 'audio'
+            ? '200px'
+            :`${Math.round(width / hwRatio + miradorHeaderHeight)}px`)
+  
     }
 
     if (!this.fit && (this.height || this.width)) this.fit = 'cover'
@@ -385,7 +411,7 @@ export class VeMirador {
     let targetWidth = this.computedDimensions.x
     let targetHeight = this.computedDimensions.y
     let targetAspectRatio = Number((targetWidth/targetHeight).toFixed(4))
-// 
+
     return this.imageList.map(img => {
       
       const inputWidth = img.info.width
@@ -395,25 +421,23 @@ export class VeMirador {
       let outputWidth = inputWidth
       let outputHeight = inputHeight
 
-
       if (inputImageAspectRatio > targetAspectRatio) {
         outputWidth = Math.round(inputHeight * targetAspectRatio)
         outputHeight = Math.round(outputWidth / targetAspectRatio)
       } else {
-        outputHeight = inputWidth / targetAspectRatio
+        outputHeight = Math.round(inputWidth / targetAspectRatio)
         outputWidth = Math.round(outputHeight * targetAspectRatio)
       }
 
       // console.log(`${inputWidth}x${inputHeight} ${outputWidth}x${outputHeight} ${Number((outputWidth/outputHeight).toFixed(4))}`)
 
-      const outputX = Math.abs((outputWidth - inputWidth) * 0.5)
-      const outputY = Math.abs((outputHeight - inputHeight) * 0.5)
-
+      const outputX = Math.abs(Math.round((outputWidth - inputWidth) * 0.5))
+      const outputY = Math.abs(Math.round((outputHeight - inputHeight) * 0.5))
 
       let region = `${outputX},${outputY},${outputWidth},${outputHeight}`
 
       let imgUrl = `${img.tileSource}/${region}/${targetWidth},${targetHeight}/${img.options.rotation}/${img.options.quality}.${img.options.format}`
-      // console.log(imgUrl)
+
       return imgUrl
     })
   }
@@ -653,7 +677,7 @@ export class VeMirador {
         {this.caption && <div class="caption" innerHTML={this.caption}></div>}
       </div>,
       <sl-dialog id={`image-dialog-${this.id}`} no-header>
-        <ve-media manifest={this.selectedImage?.manifest.id} full zoom-on-scroll width={this.imageDialogWidth} fit="cover"></ve-media>
+        <ve-media manifest={this.selectedImage?.manifest.id} full width={this.imageDialogWidth}></ve-media>
       </sl-dialog>
     ]
   }
@@ -665,7 +689,7 @@ export class VeMirador {
   renderCompareViewer() {
     return <div id={`ve-media-${this.id}`} class="compare-wrapper">
       <sl-image-comparer position="50">
-        {this.scaleImages().map((img:any, idx:number) =>
+        {this.computedDimensions && this.scaleImages().map((img:any, idx:number) =>
           <img style={{}}
             slot={idx === 0 ? 'before' : 'after'}
             src={img}
@@ -684,8 +708,7 @@ export class VeMirador {
   }
 
   render() {
-    return this.computedDimensions &&
-      this.compare
+    return this.compare
         ? this.renderCompareViewer()
         : this.grid
           ? this.renderThumbnails()
