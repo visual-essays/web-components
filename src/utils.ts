@@ -3,8 +3,6 @@ import { sha256 as __sha256 } from 'js-sha256'
 import __md5 from 'js-md5'
 
 import tippy from 'tippy.js';
-// import 'tippy.js/dist/tippy.css'
-// import 'tippy.js/themes/light-border.css'
 
 let entities
 export function initTippy(force=false) {
@@ -231,7 +229,10 @@ function _findItems(toMatch: object, current: any, found: object[] = []) {
 
 export function imageInfo(manifest:any, seq=1) {
   // console.log(`imageInfo: seq=${seq}`, manifest)
-  return findItem({type:'Annotation', motivation:'painting'}, manifest, seq).body
+  let _imageInfo = findItem({type:'Annotation', motivation:'painting'}, manifest, seq).body
+  if (_imageInfo.service) _imageInfo.service = _imageInfo.service
+    .map(svc => ({...svc, ...{id: (svc.id || svc['@id']).replace(/\/info\.json$/,'')}}))
+  return _imageInfo
 }
 
 const _manifestCache:any = {}

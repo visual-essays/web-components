@@ -40,6 +40,7 @@
     "openseadragon": "2.4.2",
     "stencil-click-outside": "^1.8.0",
     "tippy.js": "^6.3.7",
+    "uuid": "^9.0.0",
     "youtube-player": "^5.5.2"
   },
   "devDependencies": {

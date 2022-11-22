@@ -147,7 +147,6 @@ export namespace Components {
         "autostart": boolean;
         "cards": boolean;
         "compare": boolean;
-        "curtain": boolean;
         "end": string;
         "entities": string;
         "fit": string;
@@ -163,9 +162,7 @@ export namespace Components {
         "seq": number;
         "start": string;
         "sticky": boolean;
-        "sync": boolean;
         "width": string;
-        "zoomOnScroll": boolean;
     }
     interface VeMenu {
         "background": string;
@@ -557,7 +554,6 @@ declare namespace LocalJSX {
         "autostart"?: boolean;
         "cards"?: boolean;
         "compare"?: boolean;
-        "curtain"?: boolean;
         "end"?: string;
         "entities"?: string;
         "fit"?: string;
@@ -573,9 +569,7 @@ declare namespace LocalJSX {
         "seq"?: number;
         "start"?: string;
         "sticky"?: boolean;
-        "sync"?: boolean;
         "width"?: string;
-        "zoomOnScroll"?: boolean;
     }
     interface VeMenu {
         "background"?: string;

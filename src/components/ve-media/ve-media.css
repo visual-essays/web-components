@@ -1,5 +1,16 @@
 * { box-sizing: border-box; }
 
+ve-media {
+  /*
+  display: flex;
+  justify-content: center;
+  */
+}
+
+ve-media > ul {
+  display: none;
+}
+
 .ve-mirador {
   position: relative;
   width: 100%;
@@ -37,14 +48,14 @@
   padding: 0 !important;
 }
 
-.mirador67 {
+.mirador67, .mirador53 {
   background-color: white !important;
 }
 
-.mirador-wrapper {
+.mirador-wrapper, .compare-wrapper {
   position: relative;
+  margin: auto;;
   box-shadow: rgba(50, 50, 93, 0.25) 0px 6px 12px -2px, rgba(0, 0, 0, 0.3) 0px 3px 7px -3px;
-
 }
 
 .viewport-coords {
@@ -67,4 +78,43 @@
   opacity: 1;
   transition: all 0.3s ease-in;
   cursor: copy;
+}
+
+:root, :host,
+.sl-theme-light {
+  color-scheme: light;
+
+  --sl-font-mono: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
+  --sl-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --sl-font-serif: Georgia, "Times New Roman", serif;
+  --sl-font-weight-normal: 400;
+  --sl-font-size-small: 0.875rem;
+
+  --sl-line-height-denser: 1;
+
+  --sl-spacing-2x-small: 0.25rem;
+  --sl-spacing-x-small: 0.5rem;
+
+  --sl-color-neutral-0: hsl(0, 0%, 100%);
+  --sl-color-gray-800: hsl(240 3.7% 15.9%);
+  --sl-color-neutral-800: var(--sl-color-gray-800);
+
+  --sl-border-radius-medium: 0.25rem;
+
+  --sl-overlay-background-color: hsl(240 3.8% 46.1% / 75%);
+
+  --sl-input-border-radius-medium: var(--sl-border-radius-medium);
+  --sl-tooltip-border-radius: var(--sl-border-radius-medium);
+  --sl-tooltip-background-color: var(--sl-color-neutral-800);
+  --sl-tooltip-color: var(--sl-color-neutral-0);
+  --sl-tooltip-font-family: var(--sl-font-sans);
+  --sl-tooltip-font-weight: var(--sl-font-weight-normal);
+  --sl-tooltip-font-size: var(--sl-font-size-small);
+  --sl-tooltip-line-height: var(--sl-line-height-dense);
+  --sl-tooltip-padding: var(--sl-spacing-2x-small) var(--sl-spacing-x-small);
+  --sl-tooltip-arrow-size: 6px;
+
+  --sl-z-index-drawer: 700;
+  --sl-z-index-dialog: 800;
+  --sl-z-index-tooltip: 1000;
 }

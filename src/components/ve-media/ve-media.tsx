@@ -1,9 +1,12 @@
 import { Component, Element, Prop, h, State, Watch } from '@stencil/core';
+import {v4 as uuidv4} from 'uuid'
+
+import '@shoelace-style/shoelace/dist/components/image-comparer/image-comparer.js'
 
 import './mirador.min.js'
 import { defaults } from './config.js'
 
-import { md5, makeSticky, parseRegionString } from '../../utils'
+import { imageInfo, loadManifests, makeSticky, parseImageOptions, parseRegionString } from '../../utils'
 
 const Mirador:any = (window as any).Mirador
 
@@ -16,13 +19,13 @@ export class VeMirador {
 
   @Element() el: HTMLElement;
 
-  @Prop() manifest: string
+  @Prop({ mutable: true, reflect: true }) manifest: string
   @Prop({ mutable: true, reflect: true }) seq: number = 1
   @Prop({ mutable: true, reflect: true }) alt: string
 
   @Prop() options: string
-  @Prop() fit: string
-  @Prop() zoomOnScroll: boolean = false
+  @Prop({ mutable: true, reflect: true }) fit: string
+  // @Prop() zoomOnScroll: boolean = false
 
   // Positioning props
   @Prop({ mutable: true, reflect: true }) position: string
@@ -41,8 +44,8 @@ export class VeMirador {
 
   // Display multiple images in compare mode
   @Prop() compare: boolean = false
-  @Prop() curtain: boolean = false
-  @Prop() sync: boolean = false
+  // @Prop() curtain: boolean = false
+  // @Prop() sync: boolean = false
 
   @Prop({ mutable: true, reflect: true }) autostart: boolean = false
   @Prop({ mutable: true, reflect: true }) start: string
@@ -53,15 +56,16 @@ export class VeMirador {
 
   @State() id: string
   @State() osd: OpenSeadragon.Viewer = null
-  @State() videoPlayer: HTMLVideoElement = null
-  @State() audioPlayer: HTMLAudioElement = null
+  @State() mediaPlayer: HTMLMediaElement
   @State() osdReady: boolean = false
-  @State() sourceDimensions: any = {}
+  @State() mediaType: string = null // image, audio, video
+  sourceDimensions: any = {}
+  computedDimensions: any
 
   wrapperEl: HTMLElement = null
   miradorEl: HTMLElement = null
   miradorViewer: any = null
-
+  
   // video and audio player state
   isMuted: boolean = false
   isPlaying: boolean = false
@@ -69,10 +73,8 @@ export class VeMirador {
   timeoutId: any = null
   forceMuteOnPlay: boolean = true
 
-  @Watch('manifest')
-  manifestChanged() {
-    this.id = md5(this.manifest).slice(0,8)
-  }
+  // used in grid and compare modes
+  @State() imageList: any[] = []
 
   @State() viewportBounds
   @State() debounce: any = null
@@ -90,55 +92,66 @@ export class VeMirador {
     }, 500)
   }
 
+  @Watch('imageList')
+  imageListChanged(imageList) {
+    if (imageList.length > 0) {
+      this.sourceDimensions = {x: imageList[0].info.width, y: imageList[0].info.height}
+      this.id = `compare-${uuidv4().split('-')[0]}`
+    }
+  }
+
+  @Watch('mediaType')
+  mediaTypeDefined() {
+    this.addInteractionHandlers()
+  }
+
   @Watch('osd')
   onOsdFound() {
     this.osd.world.addHandler('add-item', () => {
+      let tiledImage = this.osd.world.getItemAt(0)
+      tiledImage.addHandler('fully-loaded-change', (evt) => {
+        if (evt.fullyLoaded) this.osdReady = true
+      })
       this.sourceDimensions = this.osd.world.getItemAt(0).source.dimensions
-      setTimeout(() => this.osdReady = true, 2)
     })
     this.osd.addHandler('viewport-change', () => this.getViewportBounds())
   }
 
-  @Watch('videoPlayer')
-  onvVdeoPlayerFound() {
-    this.videoPlayer.addEventListener('loadeddata', () => {
-      this.sourceDimensions = {x: this.videoPlayer.videoWidth, y: this.videoPlayer.videoHeight}
+  @Watch('mediaPlayer')
+  onMediaPlayerFound() {
+    this.mediaPlayer.addEventListener(this.mediaType === 'video' ? 'loadeddata' : 'loadedmetadata', () => {
+      this.sourceDimensions = this.mediaType === 'video'
+        ? {x: (this.mediaPlayer as HTMLVideoElement).videoWidth, y: (this.mediaPlayer as HTMLVideoElement).videoHeight}
+        : {x: this.mediaPlayer.clientWidth, y: this.mediaPlayer.clientHeight}
+      this.doLayout()
       this.monitor()
-      if (this.autostart) this.seekTo(this.start || '0', this.end || `${this.videoPlayer.duration}`)
+      if (this.autostart) this.seekTo(this.start || '0', this.end || `${this.mediaPlayer.duration}`)
     })
-  }
 
-  @Watch('audioPlayer')
-  onAudioPlayerFound() {
-    this.audioPlayer.addEventListener('loadedmetadata', () => this.sourceDimensions = {x: this.audioPlayer.clientWidth, y: this.audioPlayer.clientHeight})
-  }
-
-  @Watch('sourceDimensions')
-  onSourceDimensionsChanged() {
-    this.doLayout()
   }
 
   @Watch('osdReady')
   onOsdReady() {
-    // console.log('osdReady')
-    this.positionImage(true)
+    this.mediaType = 'image'
+    this.doLayout()
   }
 
-  @Watch('viewportBounds')
-  viewportBoundsChanged() {
-    // console.log(`viewportBounds=${this.viewportBounds}`)
-  }
+  connectedCallback() {}
 
-  connectedCallback() { 
-    this.id = `mirador-${md5(this.manifest).slice(0,8)}`
+  componentWillLoad() { 
     this.el.classList.add('ve-component')
+    if (this.manifest) {
+      if (this.manifest.indexOf('http') !== 0) this.manifest = `https://iiif.juncture-digital.org/${this.manifest}/manifest.json`
+      this.id = `mirador-${uuidv4().split('-')[0]}`
+    } else {
+      this.buildImagesList()
+    }
   }
-
-  // componentWillLoad() { console.log('componentWillLoad') }
+  
   // componentWillRender() { console.log('componentWillRender') }
 
   componentDidRender() {
-    if (!this.miradorEl) this.doOnFirstRender()
+    if (!this.wrapperEl && this.id) this.doOnFirstRender()
   }
 
   // componentDidLoad() { console.log('componentDidLoad') }
@@ -147,86 +160,38 @@ export class VeMirador {
 
   doOnFirstRender() {
     this.wrapperEl = document.getElementById(`ve-media-${this.id}`)
-    this.miradorEl = document.getElementById(`mirador-${this.id}`)
-    if (this.sticky) makeSticky(this.el)
-    this.doLayout()
 
-    // Watch Mirador element to get viewer references
-    const observer = new MutationObserver(() => {
-      let videoEl = this.miradorEl.querySelector('video')
-      if (videoEl) {
-        if (!this.videoPlayer) this.videoPlayer = videoEl
-      } else {
-        let audioEl = this.miradorEl.querySelector('audio')
-        if (audioEl) {
-          if (!this.audioPlayer) this.audioPlayer = audioEl
+    if (this.compare) {
+      this.doLayout()
+    } else {
+      this.miradorEl = document.getElementById(`mirador-${this.id}`)
+      if (this.sticky) makeSticky(this.el)
+      // this.doLayout()
+
+      // Watch Mirador element to get viewer references
+      const observer = new MutationObserver(() => {
+        let videoEl = this.miradorEl.querySelector('video')
+        if (videoEl) {
+          this.mediaType = 'video'
+          if (!this.mediaPlayer) this.mediaPlayer = videoEl
         } else {
-          Array.from(document.querySelectorAll('.mirador-osd-container')).forEach(container => {
-            let osdContainer = this.miradorEl.querySelector(`#${container.id}`)
-            if (osdContainer && !this.osd) this.osd = window['osdInstances'][osdContainer.id.slice(0,-4)]
-          })
+          let audioEl = this.miradorEl.querySelector('audio')
+          if (audioEl) {
+            this.mediaType = 'audio'
+            if (!this.mediaPlayer) this.mediaPlayer = audioEl
+          } else {
+            Array.from(document.querySelectorAll('.mirador-osd-container')).forEach(container => {
+              let osdContainer = this.miradorEl.querySelector(`#${container.id}`)
+              if (osdContainer && !this.osd) {
+                this.osd = window['osdInstances'][osdContainer.id.slice(0,-4)]
+              }
+            })
+          }
         }
-      }
-    })
-    observer.observe(this.miradorEl, { childList: true, subtree: true, attributes: true })
-    this.initMiradorViewer()
-
-    this.addInteractionHandlers()
-  }
-
-  async doLayout() {
-
-    let el = this.wrapperEl
-    let requestedWidth = this.width
-    let requestedHeight = this.height
-
-    let orientation = this.sourceDimensions.y > this.sourceDimensions.x ? 'portrait' : 'landscape'
-    let hwRatio = Number((this.sourceDimensions.x/this.sourceDimensions.y).toFixed(4))
-
-    this.position = this.position ? this.position : this.right ? 'right' : this.left ? 'left' : 'full'
-    this.el.classList.add(this.position)
-
-    let mediaType = this.videoPlayer ? 'video' : this.audioPlayer ? 'audio' : 'image'
-    // console.log(`ve-mirador.doLayout: type=${mediaType} seq=${this.seq} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} hwRatio=${hwRatio} position=${this.position} orientation=${orientation} compare=${this.compare} zoomOnScroll=${this.zoomOnScroll} width=${this.sourceDimensions.x} height=${this.sourceDimensions.y} hwRatio=${hwRatio}`)
-    
-    const miradorHeaderHeight = 50
-    
-    if (this.position === 'full') { // Full-width layout
-
-      el.style.width = requestedWidth || '100%'      
-      let width = parseInt(window.getComputedStyle(el).width.slice(0,-2))   
-      el.style.height = requestedHeight || (mediaType === 'audio' ? '200px' : `${Math.round(width / hwRatio) + miradorHeaderHeight}px`)
-      let height = parseInt(window.getComputedStyle(el).height.slice(0,-2)) || (orientation === 'portrait' ? Math.round(width * hwRatio) : Math.round(width / hwRatio))  
-      
-      if (this.sticky) {
-        let maxHeight = Math.round(window.innerHeight * .4)
-        if (height > maxHeight) {
-          el.style.height = `${maxHeight}px`
-          el.style.width = `${Math.round(height / hwRatio)}px`
-        }
-      }
-
-    } else { // Half-width layout (left or right)
-
-      el.style.float = this.position
-      el.style.width = requestedWidth || '50%'
-      let width = parseInt(window.getComputedStyle(el).width.slice(0,-2))
-      el.style.height = requestedHeight || (mediaType === 'audio' ? '200px' :`${Math.round(width / hwRatio + miradorHeaderHeight)}px`)
-
+      })
+      observer.observe(this.miradorEl, { childList: true, subtree: true, attributes: true })
+      this.initMiradorViewer()
     }
-  }
-
-  positionImage(immediately:boolean=false) {
-    if (this.options) this.setRegion(this.options, immediately)
-    else this.osd.viewport.goHome(immediately)
-  }
-
-  setRegion(region: string, immediately:boolean=false) {
-    this.osd.viewport.fitBounds(parseRegionString(region, this.osd), immediately)
-  }
-
-  copyTextToClipboard(text: string) {
-    if (navigator.clipboard) navigator.clipboard.writeText(text)
   }
 
   initMiradorViewer() {
@@ -240,9 +205,196 @@ export class VeMirador {
       ],
       thumbnailNavigation: {
         displaySettings: false
+      },
+      osdConfig: {
+        visibilityRatio: 1.0,
+        constrainDuringPan: true,
+        minZoomImageRatio: 1,
+        maxZoomPixelRatio: 5
       }
     }}
+    if (this.fit === 'cover') config.osdConfig.homeFillsViewer = true
     this.miradorViewer = Mirador.viewer(config)
+  }
+
+  doLayout() {
+
+    let el = this.wrapperEl
+    // console.log(this.wrapperEl, this.sourceDimensions)
+    let requestedWidth = this.width
+    let requestedHeight = this.height
+
+    let orientation = this.sourceDimensions.y > this.sourceDimensions.x ? 'portrait' : 'landscape'
+    let hwRatio = Number((this.sourceDimensions.x/this.sourceDimensions.y).toFixed(4))
+
+    let position = this.position ? this.position : this.right ? 'right' : this.left ? 'left' : 'full'
+    this.el.classList.add(position)
+
+    const miradorHeaderHeight = this.compare ? 0 : 50
+    
+    if (position === 'full') { // Full-width layout
+
+      el.style.width = requestedWidth || '100%'      
+      let width = parseInt(window.getComputedStyle(el).width.slice(0,-2))   
+      el.style.height = requestedHeight || (this.mediaType === 'audio' ? '200px' : `${Math.round(width / hwRatio) + miradorHeaderHeight}px`)
+      let height = parseInt(window.getComputedStyle(el).height.slice(0,-2)) || (orientation === 'portrait' ? Math.round(width * hwRatio) : Math.round(width / hwRatio))  
+      
+      if (this.compare || this.sticky) {
+        let maxHeight = Math.round(window.innerHeight * .4)
+        if (height > maxHeight) {
+          el.style.height = `${maxHeight}px`
+          el.style.width = `${Math.round(maxHeight * hwRatio)}px`
+        }
+      }
+
+    } else { // Half-width layout (left or right)
+
+      el.style.float = position
+      el.style.width = requestedWidth || '50%'
+      let width = parseInt(window.getComputedStyle(el).width.slice(0,-2))
+      el.style.height = requestedHeight || (this.mediaType === 'audio' ? '200px' :`${Math.round(width / hwRatio + miradorHeaderHeight)}px`)
+
+    }
+
+    if (!this.fit && (this.height || this.width)) this.fit = 'cover'
+
+    let computedWidth =  parseInt(window.getComputedStyle(el).width.slice(0,-2))
+    let computedHeight = parseInt(window.getComputedStyle(el).height.slice(0,-2)) || (orientation === 'portrait' ? Math.round(computedWidth * hwRatio) : Math.round(computedWidth / hwRatio))  
+    this.computedDimensions = {x: computedWidth, y: computedHeight}
+
+    if (this.mediaType === 'image') setTimeout(() => this.positionImage(true), 20)
+
+    console.log(`ve-media.doLayout: type=${this.mediaType} seq=${this.seq} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} hwRatio=${hwRatio} position=${position} orientation=${orientation} compare=${this.compare} width=${this.sourceDimensions.x} height=${this.sourceDimensions.y} hwRatio=${hwRatio} computedWidth=${computedWidth} computedHeight=${computedHeight}`)
+  }
+
+  positionImage(immediately:boolean=false) {
+    if (this.options) this.setRegion(this.options, immediately)
+    else this.osd.viewport.goHome(immediately)
+  }
+
+  setRegion(region: string, immediately:boolean=false) {
+    this.osd.viewport.fitBounds(parseRegionString(region, this.osd), immediately)
+  }
+
+  isIiifArgs(str:string) {
+    return /^\d+,\d+,\d+,\d+\b|^pct:[0-9.]+,[0-9.]+,[0-9.]+,[0-9.]+$/.test(str)
+  }
+
+  isInt(str:string) {
+    return /^[0-9]+$/.test(str)
+  }
+
+  parseImageStr(s:string) {
+    let tokens = []
+    s = s.replace(/“/,'"').replace(/”/,'"').replace(/’/,"'")
+    s.match(/[^\s"]+|"([^"]*)"/gmi).forEach(token => {
+      if (tokens.length > 0 && tokens[tokens.length-1].indexOf('=') === tokens[tokens.length-1].length-1) tokens[tokens.length-1] = `${tokens[tokens.length-1]}${token}`
+      else tokens.push(token)
+    })
+    let obj:any = {seq: 1, options: parseImageOptions('')}
+    for (let i = 0; i < tokens.length; i++) {
+      let token = tokens[i]
+      if (i === 0) {
+        obj.manifest = decodeURIComponent(token)
+        if (obj.manifest.indexOf('http') !== 0) obj.manifest = `https://iiif.juncture-digital.org/${obj.manifest}/manifest.json`
+      } else if (token.indexOf('=') > 0) {
+        let split = token.split('=')
+        obj[split[0]] = split[1]
+      } else if (this.isInt(token)) {
+        obj.seq = parseInt(token)
+      } else if (this.isIiifArgs(token)) {
+        obj.options = parseImageOptions(token)
+      } else if (token === 'cover' || token === 'contain') {
+        obj.fit = token
+      } else {
+        obj.caption = token[0] === '"' && token[token.length-1] === '"' ? token.slice(1,-1) : token
+      }
+    }
+    return obj
+  }
+
+  buildImagesList() {
+    let images = Array.from(this.el.querySelectorAll('li, span')).map(li => this.parseImageStr(li.innerHTML))
+    if (images.length > 0) loadManifests(images.map(item => item.manifest))
+      .then(manifests => {
+        manifests.forEach((manifest, idx) => {
+          let img = images[idx]
+          img.info = imageInfo(manifest, images[idx].seq)
+          img.manifest = manifest
+          img.tileSource = img.info.service[0].id
+          img.url = `${img.tileSource}/${img.options.region}/${img.options.size}/${img.options.rotation}/${img.options.quality}.${img.options.format}`
+      })
+      this.imageList = images
+    })
+  }
+
+  imageUrl({img, width=0, height=0}) {
+    let size = width
+      ? height ? `${width},${height}` : `${width},`
+      : height ? `,${height}` : 'full'
+    let url = `${img.tileSource}/${img.options.region}/${size}/${img.options.rotation}/${img.options.quality}.${img.options.format}`
+    return url
+  }
+
+  scaleImages() {
+    let targetWidth = this.computedDimensions.x
+    let targetHeight = this.computedDimensions.y
+    let targetAspectRatio = Number((targetWidth/targetHeight).toFixed(4))
+// 
+    return this.imageList.map(img => {
+      
+      const inputWidth = img.info.width
+      const inputHeight = img.info.height
+      const inputImageAspectRatio = Number((inputWidth/inputHeight).toFixed(4))
+
+      let outputWidth = inputWidth
+      let outputHeight = inputHeight
+
+
+      if (inputImageAspectRatio > targetAspectRatio) {
+        outputWidth = Math.round(inputHeight * targetAspectRatio)
+        outputHeight = Math.round(outputWidth / targetAspectRatio)
+      } else {
+        outputHeight = inputWidth / targetAspectRatio
+        outputWidth = Math.round(outputHeight * targetAspectRatio)
+      }
+
+      // console.log(`${inputWidth}x${inputHeight} ${outputWidth}x${outputHeight} ${Number((outputWidth/outputHeight).toFixed(4))}`)
+
+      const outputX = Math.abs((outputWidth - inputWidth) * 0.5)
+      const outputY = Math.abs((outputHeight - inputHeight) * 0.5)
+
+
+      let region = `${outputX},${outputY},${outputWidth},${outputHeight}`
+
+      let imgUrl = `${img.tileSource}/${region}/${targetWidth},${targetHeight}/${img.options.rotation}/${img.options.quality}.${img.options.format}`
+      // console.log(imgUrl)
+      return imgUrl
+    })
+  }
+
+  copyTextToClipboard(text: string) {
+    if (navigator.clipboard) navigator.clipboard.writeText(text)
+  }
+
+  isImageZoomTo(attr:Attr) {
+    let name = attr.name.toLowerCase()
+    let value = attr.value
+     if ((name === 'enter' || name === 'exit') && value.indexOf('|') > 0) [name, value] = value.split('|')
+    return ['zoom', 'zoomto'].indexOf(name.toLowerCase()) === 0 || /^((pct:)?[\d.]+,[\d.]+,[\d.]+,[\d.]+)|([0-9a-f]{8})$/.test(value)
+  }
+
+  isPlayMedia(attr:Attr) {
+    let name = attr.name.toLowerCase()
+    let value = attr.value
+    if ((name === 'enter' || name === 'exit') && value.indexOf('|') > 0) [name, value] = value.split('|')
+    return name.toLowerCase() === 'play' || /^([0-9:]+)+,?([0-9:]+)?$/.test(value)
+  }
+
+  isPauseMedia(attr:Attr) {
+    let name = attr.name.toLowerCase()
+    let value = attr.value.toLowerCase()
+    return name === 'pause' || value === 'pause'
   }
 
   addInteractionHandlers() {
@@ -252,23 +404,20 @@ export class VeMirador {
     })
 
     Array.from(document.querySelectorAll('mark')).forEach(mark => {
-      for (let idx=0; idx < mark.attributes.length; idx++) {
-        let attr = mark.attributes.item(idx)
-        if (/^\d\b|((\d+):)?([\d.]+,[\d.]+,[\d.]+,[\d.]+|pct:[\d.]+,[\d.]+,[\d.]+,[\d.]+|[0-9a-f]{8}?)$/.test(attr.value)) {
+      Array.from(mark.attributes).forEach(attr => {
+        if (this.mediaType === 'image' && this.isImageZoomTo(attr) ||
+            (this.mediaType !== 'image' && (this.isPlayMedia(attr) || this.isPauseMedia(attr)))) {
           let veMedia = this.findVeMedia(mark.parentElement)
           if (veMedia) {
-            // this._zoomedIn[attr.value] = false
-            mark.classList.add('zoom')
-            mark.addEventListener('click', () => setTimeout(() => {
-              // this._zoomedIn[attr.value] = !this._zoomedIn[attr.value]
-              // if (this._zoomedIn[attr.value]) this.zoomto(attr.value)
-              // else this.goHome(false)
-              this.zoomto(attr.value)
-            }, 200))
+            mark.classList.add(this.mediaType === 'image' ? 'zoom' : 'play')
+            mark.addEventListener('click', () => {
+              if (this.mediaType === 'image') this.zoomto(attr.value)
+              else if (this.isPlayMedia(attr)) this.playMedia(attr.value)
+              else this.pauseMedia()
+            })
           }
-          break
         }
-      }
+      })
     })
   }
 
@@ -293,8 +442,14 @@ export class VeMirador {
           let currentClassState = (mutation.target as HTMLElement).classList.contains('active')
           if (prevClassState !== currentClassState) {
             prevClassState = currentClassState
-            if (currentClassState) this.zoomto(el.attributes.getNamedItem('enter')?.value)
-            else this.zoomto(el.attributes.getNamedItem('exit')?.value)
+            let attr = el.attributes.getNamedItem(currentClassState ? 'enter' : 'exit')
+            if (attr) {
+              if (this.mediaType === 'image' && this.isImageZoomTo(attr)) this.zoomto(attr.value)
+              if (this.mediaType !== 'image') {
+                if (this.isPlayMedia(attr)) this.playMedia(attr.value)
+                else if (this.isPauseMedia) this.pauseMedia()
+              } 
+            }
           }
         }
       })
@@ -302,67 +457,61 @@ export class VeMirador {
     observer.observe(el, {attributes: true})
   }
 
-  async zoomto(arg: string) {
+  playMedia(arg: string) {
+    arg = arg.replace(/^play\|/i,'')
+    const match = arg.match(/^([0-9:]+)+,?([0-9:]+)?$/)
+    this.seekTo(match[1], match[2])
+  }
+
+  pauseMedia() {
+    this.pause()
+  }
+
+  zoomto(arg: string) {
+    arg = arg.replace(/^zoomto\|/i,'')
     const found = arg?.match(/^\d\b|((\d+):)?([\d.]+,[\d.]+,[\d.]+,[\d.]+|pct:[\d.]+,[\d.]+,[\d.]+,[\d.]+|[0-9a-f]{8}?)$/)
     if (!found) return
-    // let seq = found[1] ? parseInt(found[2].replace(/:$/,'')) : 1
-    // let imgIdx = seq - 1
     let region
     let annoRegex = new RegExp('[0-9a-f]{8}')
     if (annoRegex.test(found[3])) {
-      /*
-      let endpoint = location.hostname === 'localhost' ? 'http://localhost:8000' : 'https://api.juncture-digital.org'
-      let annoId = `${endpoint}/annotation/${this.annoTarget(this._images[imgIdx].manifest, this._images[imgIdx].seq)}/${found[3]}/`
-      let resp = await fetch(annoId)
-      if (resp.ok) {
-        let anno = await resp.json()
-        if (anno) {
-          if (anno) region = anno.target.selector.value.split('=')[1]
-        }
-      }
-      // let anno = this._annotations.find(item => item.id.split('/').pop() === found[2])
-      // if (anno) region = anno.target.selector.value.split('=')[1]
-      */
+      // TODO: add Mirador annotations
     } else {
       region = found[2] ? `${found[2]}${found[3]}` : found[3]
     }
-    // console.log(`zoomto: region=${region}`)
     this.setRegion(region)
-
-    // if (seq === this._current.seq) this.positionImage(false)
-    // else this._viewer.goToPage(imgIdx)
   }
 
+  /******************* Audio/Video Player Methods *******************/
   monitor() {
     setInterval(async () => {
       this.isMuted = this.getIsMuted()
       this.isPlaying = this.getIsPlaying()
-      // if (this.isPlaying) console.log(`ve-media: isMuted=${this.isMuted} isPlaying=${this.isPlaying} currentTime=${this.getCurrentTime()}`)
+      // if (this.isPlaying) console.log(`${this.mediaType}: isMuted=${this.isMuted} isPlaying=${this.isPlaying} currentTime=${this.getCurrentTime()}`)
     }, 1000)
   }
 
   play() {
-    this.videoPlayer.play()
+    this.mediaPlayer.play()
   }
 
   pause() {
-    this.videoPlayer.pause()
+    this.mediaPlayer.pause()
   }
 
   getCurrentTime() {
-    return Math.round(this.videoPlayer.currentTime)
+    return Math.round(this.mediaPlayer.currentTime)
   }
 
   getIsPlaying() {
-    return !(this.videoPlayer.ended || this.videoPlayer.paused)
+    return !(this.mediaPlayer.ended || this.mediaPlayer.paused)
   }
 
   getIsMuted() {
-    return this.videoPlayer.muted
+    return this.mediaPlayer.muted
   }
 
   setMuted(mute:boolean) {
-    this.videoPlayer.muted = mute
+    this.mediaPlayer.muted = mute
   }
 
   hmsToSeconds(str:string) {
@@ -376,8 +525,8 @@ export class VeMirador {
   }
 
   seekTo(start:string, end:string) {
-    let startSecs = this.hmsToSeconds(start)
-    let endSecs = this.hmsToSeconds(end)
+    let startSecs = start ? this.hmsToSeconds(start) : 0
+    let endSecs = end ? this.hmsToSeconds(end) : -1
     // console.log(`seekTo: start=${startSecs} end=${endSecs} isMuted=${this.isMuted} forceMuteOnPlay=${this.forceMuteOnPlay}`)
     
     // clear delayed pause
@@ -391,26 +540,53 @@ export class VeMirador {
 
     setTimeout(() => {
       this.play()
-      this.videoPlayer.currentTime = startSecs
+      this.mediaPlayer.currentTime = startSecs
       if (endSecs >= startSecs) {
         this.timeoutId = setTimeout(() => {
           this.timeoutId = null
-          this.videoPlayer.pause()
+          this.mediaPlayer.pause()
           if (!wasMuted && this.forceMuteOnPlay) this.setMuted(false)
         }, endSecs === startSecs ? 200 : (endSecs-startSecs)*1000)
       }
     }, 200)
   }
 
+  /******************* End Audio/Video Player Methods *******************/
+
+
+  _value(langObj: any, language='en') {
+    return typeof langObj === 'object'
+      ? langObj[language] || langObj.none || langObj[Object.keys(langObj).sort()[0]]
+      : langObj
+  }
+
   renderViewportCoords() {
     return <span id="coords" class="viewport-coords" onClick={this.copyTextToClipboard.bind(this, this.viewportBounds)}>{this.viewportBounds}</span>
   }
 
-  render() {
+  renderCompareViewer() {
+    return <div id={`ve-media-${this.id}`} class="compare-wrapper">
+      <sl-image-comparer position="50">
+        {this.scaleImages().map((img:any, idx:number) =>
+          <img style={{}}
+            slot={idx === 0 ? 'before' : 'after'}
+            src={img}
+            alt={this._value(this.imageList[idx].manifest.label).toString()}
+          />
+        )}
+      </sl-image-comparer>
+    </div>
+  }
+
+  renderMiradorViewer() {
     return <div id={`ve-media-${this.id}`} class="mirador-wrapper">
       <div id={`mirador-${this.id}`} class="ve-mirador"></div>
       { this.viewportBounds && this.renderViewportCoords() }
     </div>
+  }
+
+  render() {
+    return this.compare && this.computedDimensions ? this.renderCompareViewer() : this.renderMiradorViewer()
   }
 
 }
