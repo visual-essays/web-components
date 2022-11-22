@@ -500,6 +500,12 @@ export function isMobile() {
   return ('ontouchstart' in document.documentElement && /mobi/i.test(navigator.userAgent) )
 }
 
+export function isTouchEnabled() {
+  return ( 'ontouchstart' in window ) ||
+         ( navigator.maxTouchPoints > 0 ) ||
+         ( ((navigator as any).msMaxTouchPoints || 0) > 0 )
+}
+
 export function mwImage(mwImg, width) {
   // Converts Wikimedia commons image URL to a thumbnail link
   mwImg = (Array.isArray(mwImg) ? mwImg[0] : mwImg).replace(/Special:FilePath\//, 'File:').split('File:').pop()

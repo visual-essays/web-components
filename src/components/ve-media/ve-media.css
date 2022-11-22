@@ -19,6 +19,7 @@ ve-media > ul {
 
 .mirador-canvas-nav {
   opacity: 0;
+  height: unset !important;
 }
 .mirador-osd-container:hover .mirador-canvas-nav {
   opacity: 1;
@@ -78,6 +79,43 @@ ve-media > ul {
   opacity: 1;
   transition: all 0.3s ease-in;
   cursor: copy;
+}
+
+.grid-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.grid-wrapper .images {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  grid-gap: 12px;
+  align-items: flex-start;
+  justify-items: center;
+  padding: 12px 0;
+  width: 100%
+}
+
+.grid-wrapper > .caption {
+	display: flex;
+	align-items: center;
+	font-family: sans-serif;
+	width: 100%;
+	background: rgba(0, 0, 0, 0.7);
+	color: white;
+	padding: 4px 6px;
+	bottom: 0;
+	height: 32px;
+  margin-top: 6px;
+}
+
+.grid-wrapper .images img {
+  border: 1px solid #ccc;
+  box-shadow: 2px 2px 6px 0px  rgba(0,0,0,0.3);
+  /* width: 240px; */
+  max-width: 100%;
 }
 
 :root, :host,

@@ -2,11 +2,14 @@ import { Component, Element, Prop, h, State, Watch } from '@stencil/core';
 import {v4 as uuidv4} from 'uuid'
 
 import '@shoelace-style/shoelace/dist/components/image-comparer/image-comparer.js'
+import '@shoelace-style/shoelace/dist/components/dialog/dialog.js'
+import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js'
+import SLDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog.js'
 
 import './mirador.min.js'
 import { defaults } from './config.js'
 
-import { imageInfo, loadManifests, makeSticky, parseImageOptions, parseRegionString } from '../../utils'
+import { imageInfo, isTouchEnabled, label, loadManifests, makeSticky, parseImageOptions, parseRegionString, thumbnail } from '../../utils'
 
 const Mirador:any = (window as any).Mirador
 
@@ -22,6 +25,7 @@ export class VeMirador {
   @Prop({ mutable: true, reflect: true }) manifest: string
   @Prop({ mutable: true, reflect: true }) seq: number = 1
   @Prop({ mutable: true, reflect: true }) alt: string
+  @Prop({ mutable: true, reflect: true }) caption: string
 
   @Prop() options: string
   @Prop({ mutable: true, reflect: true }) fit: string
@@ -62,6 +66,10 @@ export class VeMirador {
   sourceDimensions: any = {}
   computedDimensions: any
 
+  @State() selectedImage: any
+  imageDialogWidth: string
+  imageDialogHeight: string
+
   wrapperEl: HTMLElement = null
   miradorEl: HTMLElement = null
   miradorViewer: any = null
@@ -92,11 +100,33 @@ export class VeMirador {
     }, 500)
   }
 
+  @Watch('manifest')
+  manifestChanged() {
+    this.id = `mirador-${uuidv4().split('-')[0]}`
+    if (this.osd) {
+      this.osd.removeAllHandlers('viewport-change')
+      this.osd.world.removeAllHandlers('add-item')
+      this.osd = null
+    }
+    let newWrapperEl = document.createElement('div')
+    newWrapperEl.id = `ve-media-${this.id}`
+    newWrapperEl.classList.add('mirador-wrapper')
+    let newMiradorEl = document.createElement('div')
+    newMiradorEl.id = `mirador-${this.id}`
+    newMiradorEl.classList.add('ve-mirador')
+    newWrapperEl.appendChild(newMiradorEl)
+
+    this.wrapperEl?.parentElement.replaceChild(newWrapperEl, this.wrapperEl)
+    this.miradorEl = newMiradorEl
+
+    this.wrapperEl = null
+  }
+
   @Watch('imageList')
   imageListChanged(imageList) {
     if (imageList.length > 0) {
       this.sourceDimensions = {x: imageList[0].info.width, y: imageList[0].info.height}
-      this.id = `compare-${uuidv4().split('-')[0]}`
+      this.id = `${this.compare ? 'compare' : 'grid'}-${uuidv4().split('-')[0]}`
     }
   }
 
@@ -107,14 +137,20 @@ export class VeMirador {
 
   @Watch('osd')
   onOsdFound() {
-    this.osd.world.addHandler('add-item', () => {
-      let tiledImage = this.osd.world.getItemAt(0)
-      tiledImage.addHandler('fully-loaded-change', (evt) => {
-        if (evt.fullyLoaded) this.osdReady = true
-      })
-      this.sourceDimensions = this.osd.world.getItemAt(0).source.dimensions
+    if (this.osd) {
+      this.osdReady = false
+      this.osd.world.addHandler('add-item', () => this.addItemHandler())
+      this.osd.addHandler('viewport-change', () => this.getViewportBounds())
+    }
+  }
+
+  addItemHandler() {
+    let tiledImage = this.osd.world.getItemAt(0)
+    this.sourceDimensions = tiledImage.source.dimensions
+    tiledImage.addHandler('fully-loaded-change', (evt) => {
+      // if (evt.fullyLoaded)this.osdReady = true
+      if (evt.fullyLoaded) setTimeout(() => this.osdReady = true, 20)
     })
-    this.osd.addHandler('viewport-change', () => this.getViewportBounds())
   }
 
   @Watch('mediaPlayer')
@@ -131,9 +167,11 @@ export class VeMirador {
   }
 
   @Watch('osdReady')
-  onOsdReady() {
-    this.mediaType = 'image'
-    this.doLayout()
+  onOsdReady(isReady) {
+    if (isReady) {
+      this.mediaType = 'image'
+      this.doLayout()
+    }
   }
 
   connectedCallback() {}
@@ -161,7 +199,7 @@ export class VeMirador {
   doOnFirstRender() {
     this.wrapperEl = document.getElementById(`ve-media-${this.id}`)
 
-    if (this.compare) {
+    if (this.compare || this.grid) {
       this.doLayout()
     } else {
       this.miradorEl = document.getElementById(`mirador-${this.id}`)
@@ -173,17 +211,24 @@ export class VeMirador {
         let videoEl = this.miradorEl.querySelector('video')
         if (videoEl) {
           this.mediaType = 'video'
-          if (!this.mediaPlayer) this.mediaPlayer = videoEl
+          if (!this.mediaPlayer) {
+            this.mediaPlayer = videoEl
+            observer.disconnect()
+          }
         } else {
           let audioEl = this.miradorEl.querySelector('audio')
           if (audioEl) {
             this.mediaType = 'audio'
-            if (!this.mediaPlayer) this.mediaPlayer = audioEl
+            if (!this.mediaPlayer) {
+              this.mediaPlayer = audioEl
+              observer.disconnect()
+            }
           } else {
             Array.from(document.querySelectorAll('.mirador-osd-container')).forEach(container => {
               let osdContainer = this.miradorEl.querySelector(`#${container.id}`)
               if (osdContainer && !this.osd) {
                 this.osd = window['osdInstances'][osdContainer.id.slice(0,-4)]
+                observer.disconnect()
               }
             })
           }
@@ -553,11 +598,64 @@ export class VeMirador {
 
   /******************* End Audio/Video Player Methods *******************/
 
+  showImageDialog(selected:any) {
+    console.log('showImageDialog', selected)
+    this.selectedImage = selected
+    const landscapeWidth = window.innerWidth >= 768 ? window.innerWidth *.7 : window.innerWidth
+    const portraitWidth = window.innerWidth >= 768 ? window.innerWidth *.5 : window.innerWidth
+
+    let _imageInfo = imageInfo(selected.manifest)
+    let hwRatio = _imageInfo.height/_imageInfo.width
+    let orientation = hwRatio < 1 ? 'landscape' : 'portrait'
+    this.imageDialogWidth = orientation === 'landscape' ? `${landscapeWidth}px` : `${portraitWidth}px`
+    
+    this.imageDialogHeight = orientation === 'landscape'
+      ? `${Math.round(landscapeWidth * hwRatio + 50)}px`
+      : `${Math.round(portraitWidth * hwRatio + 50)}px`
+    let dialog = document.getElementById(`image-dialog-${this.id}`) as SLDialog
+    dialog.style.height = this.imageDialogHeight
+    dialog.panel.style.height = this.imageDialogHeight
+    
+    if (!dialog.onclick) {
+      dialog.onclick = function () { }
+      dialog.addEventListener('sl-show', () => {
+        dialog.panel.style.width = this.imageDialogWidth
+        dialog.panel.style.height = this.imageDialogHeight
+      })
+      dialog.addEventListener('sl-hide', () => {
+        this.el.style.zIndex = '3'
+      })
+
+    }
+    this.el.style.zIndex = '4'
+    setTimeout(() => dialog.show(), 200)
+  }
 
   _value(langObj: any, language='en') {
     return typeof langObj === 'object'
       ? langObj[language] || langObj.none || langObj[Object.keys(langObj).sort()[0]]
       : langObj
+  }
+
+  renderThumbnails() {
+    return [
+      <div id={`ve-media-${this.id}`} class="grid-wrapper">
+        <div class={`images ${Array.from(this.el.classList).find(cls => cls.indexOf('col') === 0) || ''}`}>
+          { this.imageList.map(img => 
+            <sl-tooltip content={img.caption || label(img.manifest)} disabled={isTouchEnabled()}>
+              <div class="thumbnail">
+                <img src={thumbnail(img.manifest)} alt={label(img.manifest)} onClick={this.showImageDialog.bind(this, img)}/>
+                { img.caption && <div innerHTML={img.caption}></div> }
+              </div>
+            </sl-tooltip>
+          )}
+        </div>
+        {this.caption && <div class="caption" innerHTML={this.caption}></div>}
+      </div>,
+      <sl-dialog id={`image-dialog-${this.id}`} no-header>
+        <ve-media manifest={this.selectedImage?.manifest.id} full zoom-on-scroll width={this.imageDialogWidth} fit="cover"></ve-media>
+      </sl-dialog>
+    ]
   }
 
   renderViewportCoords() {
@@ -586,7 +684,12 @@ export class VeMirador {
   }
 
   render() {
-    return this.compare && this.computedDimensions ? this.renderCompareViewer() : this.renderMiradorViewer()
+    return this.computedDimensions &&
+      this.compare
+        ? this.renderCompareViewer()
+        : this.grid
+          ? this.renderThumbnails()
+          : this.renderMiradorViewer()
   }
 
 }

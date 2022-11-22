@@ -556,7 +556,7 @@ export class ImageViewer {
     return ( 'ontouchstart' in window ) ||
            ( navigator.maxTouchPoints > 0 ) ||
            ( ((navigator as any).msMaxTouchPoints || 0) > 0 )
-}
+  }
 
   _showInfoPopup() {
     let popup: HTMLElement = this.el.shadowRoot.querySelector('#image-info-popup')

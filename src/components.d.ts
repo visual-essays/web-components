@@ -145,6 +145,7 @@ export namespace Components {
         "alt": string;
         "annoBase": string;
         "autostart": boolean;
+        "caption": string;
         "cards": boolean;
         "compare": boolean;
         "end": string;
@@ -552,6 +553,7 @@ declare namespace LocalJSX {
         "alt"?: string;
         "annoBase"?: string;
         "autostart"?: boolean;
+        "caption"?: string;
         "cards"?: boolean;
         "compare"?: boolean;
         "end"?: string;
