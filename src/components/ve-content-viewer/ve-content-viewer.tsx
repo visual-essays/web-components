@@ -34,7 +34,7 @@ export class ContentViewer {
   }
 
   componentWillLoad() {
-    console.log('componentWillLoad', this.show)
+    // console.log('componentWillLoad', this.show)
   }
 
   componentDidLoad() {

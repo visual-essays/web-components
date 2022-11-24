@@ -171,7 +171,7 @@ export class GithubClient {
       for (let i = 0; i < pathElems.length; i++) {
         let resp = await fetch(url, {headers})
         let _dirList: any = resp.ok ? await resp.json() : {}
-        let found = _dirList ? _dirList.tree.find((item:any) => item.path === pathElems[i]) : null
+        let found = _dirList ? _dirList.tree?.find((item:any) => item.path === pathElems[i]) : null
         url = found ? found.url : null
         if (!url) break
       }

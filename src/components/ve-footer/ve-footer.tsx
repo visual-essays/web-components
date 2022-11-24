@@ -43,7 +43,7 @@ export class Footer {
   render() {
     return [
       this.footerElems.map(el => <div class={el.className} style={this.styleToObj(el.getAttribute('style'))} innerHTML={el.innerHTML}></div>),
-      <ve-content-viewer path="/rsnyder/essays" format="markdown" show={true}></ve-content-viewer>
+      <ve-content-viewer path="/rsnyder/essays" format="markdown" show={false}></ve-content-viewer>
     ]
   }
 

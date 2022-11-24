@@ -35,7 +35,7 @@ export class ContentSelector {
   _contentPathChanged(path) {
     this.contentPath = path
     if (this.el.getAttribute('content-path')) {
-      console.log(`contentPath=${path}`)
+      // console.log(`ve-content-selector.contentPath=${path}`)
       this.contentPathChanged.emit(path)
     }
   }
@@ -54,6 +54,7 @@ export class ContentSelector {
   @State() authToken: string
   @State() isLoggedIn: boolean = false
   @State() userCanUpdateRepo: boolean = false
+  useReadme: boolean = true
 
   @State() fileToDelete: string
   @Watch('fileToDelete')
@@ -80,10 +81,11 @@ export class ContentSelector {
   async githubClientChanged() {
     this.parseContentPath()
     if (this.isLoggedIn) {
-      this.getAccounts().then(accts => this.accts = accts)
+      this.accts = await this.getAccounts()
       this.username = await this.githubClient.user().then(userData => userData.login)
       await this.githubClient.repos(this.username).then(repos => {
-        if (repos.length === 0) this.githubClient.createRepository({name:'essays', description:'Juncture visual essays'})
+        if (!repos.find(repo => repo.name === 'essays')) this.githubClient.createRepository({name:'essays', description:'Juncture visual essays'})
+        if (!repos.find(repo => repo.name === 'media')) this.githubClient.createRepository({name:'media', description:'Juncture media'})
       })
       if (this.acct && this.repo && this.username) {
         this.githubClient.isCollaborator(this.acct, this.repo, this.username).then(isCollaborator => this.userCanUpdateRepo = isCollaborator)
@@ -139,38 +141,51 @@ export class ContentSelector {
     this.ref = this.defaultBranch
   }
 
-  @State() ref: string
+  @State() ref: string = null
   @Watch('ref')
   refChanged() {
     if (this.ref && this.path) {
-      this.updateDirList().then(_ => this.setContentPath())
+      if (this.pathIsDirectory) this.updateDirList().then(_ => this.setContentPath())
     }
   }
 
-  @State() path: string[]
+  @State() path: string[] = []
   @Watch('path')
   pathChanged() {
-    if (this.ref) {
-      this.updateDirList().then(_ => this.setContentPath())
-    }
+    // console.log('pathChanged', this.path)
+    if (this.ref) this.updateDirList().then(_ => this.setContentPath())
   }
 
+  @State() pathIsDirectory: boolean = true
+
   @State() dirList: any[] = []
+  @Watch('dirList')
+  dirListChanged() {
+    this.pathIsDirectory = this.path.length === 0 || this.dirList.length > 0 
+  }
+
+  pathIsMarkdownFile() {
+    return this.path.length > 0 && /\.md$/.test(this.path[this.path.length -1])
+  }
 
   async connectedCallback() {
     this.getAuthToken()
-    window.addEventListener('storage', () => {
-      this.getAuthToken()
-    })
+    window.addEventListener('storage', () =>  this.getAuthToken() )
   }
 
   componentWillLoad() {
     if (this.sticky) makeSticky(this.el)
   }
 
+  // componentWillRender() { console.log('componentWillRender') }
+  // componentDidRender() {}
+
   componentDidLoad() {
     this.drawer = this.el.shadowRoot.querySelector('.workspace-selector')
   }
+
+  // componentWillUpdate() { console.log('componenWillUpdate') }
+  // componentDidUpdate() { console.log('componenDidUpdate') }
 
   parseContentPath() {
     if (this.contentPath) {
@@ -186,9 +201,6 @@ export class ContentSelector {
   }
 
   setContentPath() {
-    if (this.mode === 'essays' && this.dirList.length === 1 && this.dirList[0].name.split('.').pop() === 'md') {
-      // this.path = [...this.path, this.dirList[0].name]
-    }
     if (this.acct && this.repo) {
       let contentPath = `gh:${this.acct}/${this.repo}`
       if (this.path.length > 0) contentPath += `/${this.path.join('/')}`
@@ -227,10 +239,19 @@ export class ContentSelector {
 
   @Method()
   async updateDirList() {
+    this.dirList = []
+    // console.log('updateDirList', this.path)
     let dirList = await this.githubClient.dirlist(this.acct, this.repo, this.path.join('/'), this.ref)
+    //if (dirList.length === 0 && this.path.length > 0) dirList = await this.githubClient.dirlist(this.acct, this.repo, this.path.slice(0,-1).join('/'), this.ref)
     let dirs = dirList.filter(item => item.type === 'dir')
     let files = dirList.filter(item => item.type === 'file')
-    this.dirList = [...dirs, ...files]
+
+    if (this.useReadme && files.find(file => file.name === 'README.md') && dirs.length === 0) {
+      this.path = [...this.path, `README.md`]
+    } else {
+      this.dirList = [...dirs, ...files]
+    }
+
   }
 
   @Method()
@@ -273,11 +294,18 @@ export class ContentSelector {
 
   appendPath(item: any) {
     this.drawer.hide()
-    this.path = [...this.path, item.name]
+    this.useReadme = true
+    let newPath = [...this.path]
+    if (!this.pathIsDirectory) newPath = newPath.slice(0,-1)
+    if (newPath.length === 0 || newPath[newPath.length-1] !== item.name) newPath = [...newPath, item.name]
+    // console.log('appendPath', this.path, this.pathIsDirectory, newPath)
+    this.path = newPath
   }
 
   prunePath(idx: number) {
     this.drawer.hide()
+    // this.useReadme = idx === this.path.length - 2
+    this.useReadme = false
     this.path = idx === 0 ? [] : this.path.slice(0,idx)
   }
 
@@ -351,7 +379,7 @@ export class ContentSelector {
   }
 
   emitAddEvent(evt) {
-    console.log('addMediaResource')
+    // console.log('addMediaResource')
     this.addMediaResource.emit(evt)
   }
 
@@ -377,7 +405,7 @@ export class ContentSelector {
 
   clicakbleChildren() {
     return <div class="dirs">
-      {this.dirItems().map(item => 
+      {this.dirList.map(item => 
         <sl-button innerHTML={item.name} onClick={this.appendPath.bind(this, item)} pill size="small" class={item.type}>
           <sl-icon slot="prefix" name={item.type === 'dir' ? 'folder2' : 'file-earmark'}></sl-icon>
         </sl-button>
@@ -495,13 +523,15 @@ export class ContentSelector {
 
   workspace() {
     return <div class="workspace">
-      <sl-button pill size="medium"  onCLick={this.toggleDrawer.bind(this)}>
-        <sl-icon slot="prefix" name="github" style={{fontSize: '24px'}}></sl-icon>
-      </sl-button>
+      <sl-tooltip content={`${this.acct}: ${this.repo} (${this.ref})`} placement="bottom">
+        <sl-button pill size="medium"  onCLick={this.toggleDrawer.bind(this)}>
+          <sl-icon slot="prefix" name="github" style={{fontSize: '24px'}}></sl-icon>
+        </sl-button>
+      </sl-tooltip>
       <div class="ws-path">   
         { this.pathSelector() }
         <sl-drawer noHeader label="Workspace" placement="bottom" contained class="workspace-selector" style={{'--size': '100%'}}>
-          <div>Select workspace</div><sl-icon name="chevron-double-right" style={{fontSize: '24px'}}></sl-icon>
+            <div class="github-select">Select GitHub Repository</div><sl-icon name="chevron-double-right" style={{fontSize: '24px'}}></sl-icon>
           <div class="selectors">
             { this.acctSelector() }
             { this.repoSelector() }
@@ -517,9 +547,8 @@ export class ContentSelector {
     return [
       <section class="content-path" style={{position: 'relative'}}>
         { this.workspace() }
-        { this.dirItems().length > 0 && <sl-divider></sl-divider> }
-        { this.dirItems().length > 0 && this.clicakbleChildren() }
-
+        { this.dirList.length > 0 && <sl-divider></sl-divider> }
+        { this.dirList.length > 0 && this.clicakbleChildren() }
       </section>,
       
       <sl-dialog id="add-repo-dialog" label="Add Repository">

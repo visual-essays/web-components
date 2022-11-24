@@ -11,6 +11,10 @@ ve-media > ul {
   display: none;
 }
 
+sl-dialog .mirador-canvas-nav {
+  display: none;
+}
+
 .ve-mirador {
   position: relative;
   width: 100%;

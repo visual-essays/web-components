@@ -18,11 +18,13 @@
 
 ### Used by
 
+ - [ve-footer](../ve-footer)
  - [ve-menu](../ve-menu)
 
 ### Graph
 ```mermaid
 graph TD;
+  ve-footer --> ve-content-viewer
   ve-menu --> ve-content-viewer
   style ve-content-viewer fill:#f9f,stroke:#333,stroke-width:4px
 ```

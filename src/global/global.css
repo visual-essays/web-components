@@ -121,6 +121,7 @@ section.no-offset:target:before {
     z-index: 3;
   }
 
+  /*
   .full {
     width: 100%;
     margin: auto;
@@ -140,7 +141,8 @@ section.no-offset:target:before {
     float: left;
     margin-right: 6px;
   }
-
+  */
+  
   .sticky.right + section, 
   .sticky.right ~ section,
   .sticky.right + div, 

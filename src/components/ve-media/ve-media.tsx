@@ -81,6 +81,8 @@ export class VeMirador {
   forceMuteOnPlay: boolean = true
 
   doInit: boolean = true
+  observer: MutationObserver
+  osdContainer: HTMLElement
 
   // used in grid and compare modes
   @State() imageList: any[] = []
@@ -153,6 +155,7 @@ export class VeMirador {
           }
         })
       }
+      this.miradorViewer.render()
       this.osd.addHandler('viewport-change', () => this.getViewportBounds())
     }
   }
@@ -176,6 +179,8 @@ export class VeMirador {
   @Watch('miradorReady')
   ondMiradorReady(isReady) {
     if (isReady) {
+      this.observer.disconnect()
+      this.osdContainer = null
       console.log(`miradorReady: mediaType=${this.mediaType}`, this.sourceDimensions)
       this.doLayout()
     }
@@ -219,38 +224,38 @@ export class VeMirador {
       // this.doLayout()
 
       // Watch Mirador element to get viewer references
-      const observer = new MutationObserver(() => {
+      this. observer = new MutationObserver(() => {
         let videoEl = this.miradorEl.querySelector('video')
         if (videoEl) {
           this.mediaType = 'video'
-          if (!this.mediaPlayer) {
-            this.mediaPlayer = videoEl
-            observer.disconnect()
-          }
+          if (!this.mediaPlayer) this.mediaPlayer = videoEl
         } else {
           let audioEl = this.miradorEl.querySelector('audio')
           if (audioEl) {
             this.mediaType = 'audio'
-            if (!this.mediaPlayer) {
-              this.mediaPlayer = audioEl
-              observer.disconnect()
-            }
-          } else if (!this.osd) {
-            Array.from(this.wrapperEl.querySelectorAll('.mirador-osd-container')).forEach(miradorOsdContainer => {
-              let osdContainer = this.miradorEl.querySelector(`#${miradorOsdContainer.id}`)
-              if (osdContainer) {
-                let osd: OpenSeadragon.Viewer = window['osdInstances'][osdContainer.id.slice(0,-4)]
-                let tiledImage = osd.world.getItemAt(0)
-                if (tiledImage) {
-                  this.osd = osd
-                  observer.disconnect()
+            if (!this.mediaPlayer) this.mediaPlayer = audioEl
+          } else {
+            if (!this.osdContainer) {
+              Array.from(this.wrapperEl.querySelectorAll('.mirador-osd-container')).forEach(miradorOsdContainer => {
+                this.osdContainer = this.miradorEl.querySelector(`#${miradorOsdContainer.id}`)
+                if (this.osdContainer) {
+                  let osd: OpenSeadragon.Viewer = window['osdInstances'][this.osdContainer.id.slice(0,-4)]
+                  let tiledImage = osd.world.getItemAt(0)
+                  if (tiledImage) {
+                    if (tiledImage.getFullyLoaded()) this.osd = osd
+                    else tiledImage.addHandler('fully-loaded-change', (evt) => { if (evt.fullyLoaded) this.osd = osd })
+                  } osd.world.addHandler('add-item', () => {
+                    let tiledImage = osd.world.getItemAt(0)
+                    if (tiledImage.getFullyLoaded()) this.osd = osd
+                    else tiledImage.addHandler('fully-loaded-change', (evt) => { if (evt.fullyLoaded) this.osd = osd })
+                  })
                 }
-              }
-            })
+              })
+            }
           }
         }
       })
-      observer.observe(this.miradorEl, { childList: true, subtree: true, attributes: true })
+      this.observer.observe(this.miradorEl, { childList: true, subtree: true, attributes: true })
       this.initMiradorViewer()
     }
   }
@@ -271,7 +276,15 @@ export class VeMirador {
         visibilityRatio: 1.0,
         constrainDuringPan: true,
         minZoomImageRatio: 1,
-        maxZoomPixelRatio: 5
+        maxZoomPixelRatio: 5,
+        prefixUrl: 'https://openseadragon.github.io/openseadragon/images/',
+        showNavigationControl: true,
+        showRotationControl: true,
+        showHomeControl: true,
+        showZoomControl: true,
+        sequenceMode: true,
+
+  
       }
     }}
     if (this.fit === 'cover') config.osdConfig.homeFillsViewer = true
@@ -333,9 +346,9 @@ export class VeMirador {
     let computedHeight = parseInt(window.getComputedStyle(el).height.slice(0,-2)) || (orientation === 'portrait' ? Math.round(computedWidth * hwRatio) : Math.round(computedWidth / hwRatio))  
     this.computedDimensions = {x: computedWidth, y: computedHeight}
 
-    if (this.mediaType === 'image') setTimeout(() => this.positionImage(true), 20)
+    if (this.mediaType === 'image') setTimeout(() => this.positionImage(true), 100)
 
-    console.log(`ve-media.doLayout: type=${this.mediaType} seq=${this.seq} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} hwRatio=${hwRatio} position=${position} orientation=${orientation} compare=${this.compare} width=${this.sourceDimensions.x} height=${this.sourceDimensions.y} hwRatio=${hwRatio} computedWidth=${computedWidth} computedHeight=${computedHeight}`)
+    // console.log(`ve-media.doLayout: type=${this.mediaType} seq=${this.seq} requestedWidth=${requestedWidth} requestedHeight=${requestedHeight} hwRatio=${hwRatio} position=${position} orientation=${orientation} compare=${this.compare} width=${this.sourceDimensions.x} height=${this.sourceDimensions.y} hwRatio=${hwRatio} computedWidth=${computedWidth} computedHeight=${computedHeight}`)
   }
 
   positionImage(immediately:boolean=false) {
@@ -624,7 +637,10 @@ export class VeMirador {
 
   showImageDialog(selected:any) {
     console.log('showImageDialog', selected)
+    let dialog = document.getElementById(`image-dialog-${this.id}`) as SLDialog
+
     this.selectedImage = selected
+    
     const landscapeWidth = window.innerWidth >= 768 ? window.innerWidth *.7 : window.innerWidth
     const portraitWidth = window.innerWidth >= 768 ? window.innerWidth *.5 : window.innerWidth
 
@@ -636,7 +652,7 @@ export class VeMirador {
     this.imageDialogHeight = orientation === 'landscape'
       ? `${Math.round(landscapeWidth * hwRatio + 50)}px`
       : `${Math.round(portraitWidth * hwRatio + 50)}px`
-    let dialog = document.getElementById(`image-dialog-${this.id}`) as SLDialog
+    // let dialog = document.getElementById(`image-dialog-${this.id}`) as SLDialog
     dialog.style.height = this.imageDialogHeight
     dialog.panel.style.height = this.imageDialogHeight
     
@@ -653,6 +669,7 @@ export class VeMirador {
     }
     this.el.style.zIndex = '4'
     setTimeout(() => dialog.show(), 200)
+
   }
 
   _value(langObj: any, language='en') {
@@ -677,7 +694,7 @@ export class VeMirador {
         {this.caption && <div class="caption" innerHTML={this.caption}></div>}
       </div>,
       <sl-dialog id={`image-dialog-${this.id}`} no-header>
-        <ve-media manifest={this.selectedImage?.manifest.id} full width={this.imageDialogWidth}></ve-media>
+        <ve-media manifest={this.selectedImage?.manifest.id} width={this.imageDialogWidth}></ve-media>
       </sl-dialog>
     ]
   }

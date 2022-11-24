@@ -205,7 +205,8 @@ export class VeNav {
   }
 
   logout() {
-    localStorage.removeItem('gh-auth-token')
+    console.log('logout')
+    Object.keys(localStorage).forEach(key => localStorage.removeItem(key))
     window.dispatchEvent(new Event("storage"))
     this.isLoggedIn = false
   }

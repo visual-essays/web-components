@@ -45,6 +45,12 @@ sl-drawer::part(base), sl-drawer::part(panel), sl-drawer::part(body) {
   overflow: visible;
 }
 
+.github-select {
+  font-weight: bold;
+  font-size: 1.2em;
+  color: #5A162E;
+}
+
 sl-divider {
   margin: 6px;
 }
